@@ -16,7 +16,7 @@ services:
       - key: CORS_ORIGINS
         value: '["*"]'
       - key: PYTHON_VERSION
-        value: "3.11"
+        value: "3.11.0"
     healthCheckPath: /health
     autoDeploy: true
 
