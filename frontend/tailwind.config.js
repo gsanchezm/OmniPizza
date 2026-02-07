@@ -2,12 +2,12 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        pizza: {
+        brand: {
           primary: "var(--brand-primary)",
           secondary: "var(--brand-secondary)",
           accent: "var(--brand-accent)",
@@ -19,7 +19,7 @@ export default {
         text: {
           DEFAULT: "var(--text)",
         },
-      }
+      },
     },
   },
   plugins: [],
