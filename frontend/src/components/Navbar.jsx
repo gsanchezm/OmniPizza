@@ -1,208 +1,127 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore, useCartStore, useCountryStore } from '../store';
-import { countryAPI } from '../api';
+import React, { useMemo } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuthStore, useCountryStore, useCartStore } from "../store";
 
-const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [countryMenuOpen, setCountryMenuOpen] = useState(false);
-  
+const cx = (...classes) => classes.filter(Boolean).join(" ");
+
+const COUNTRIES = [
+  { code: "MX", label: "MX" },
+  { code: "US", label: "US" },
+  { code: "CH", label: "CH" },
+  { code: "JP", label: "JP" },
+];
+
+export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { username, logout } = useAuthStore();
-  const cartItems = useCartStore((state) => state.items);
-  const { countryCode, setCountry, setCountryInfo } = useCountryStore();
 
-  const countries = [
-    { code: 'MX', name: 'México', flag: '🇲🇽' },
-    { code: 'US', name: 'USA', flag: '🇺🇸' },
-    { code: 'CH', name: 'Suiza', flag: '🇨🇭' },
-    { code: 'JP', name: 'Japón', flag: '🇯🇵' }
-  ];
+  const countryCode = useCountryStore((s) => s.countryCode || "MX");
+  const setCountryCode = useCountryStore((s) => s.setCountryCode); // si no existe, no rompe (ver fallback abajo)
+
+  const logoutFromStore = useAuthStore((s) => s.logout);
+  const cartItems = useCartStore((s) => s.items || []);
+
+  const cartCount = useMemo(
+    () => cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0),
+    [cartItems]
+  );
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
-    setMenuOpen(false);
+    if (typeof logoutFromStore === "function") {
+      logoutFromStore();
+      navigate("/", { replace: true });
+      return;
+    }
+    navigate("/", { replace: true });
   };
 
-  const handleCountryChange = async (code) => {
-    setCountry(code);
-    setCountryMenuOpen(false);
-    
-    try {
-      const response = await countryAPI.getCountryInfo(code);
-      setCountryInfo(response.data);
-    } catch (err) {
-      console.error('Error loading country info:', err);
-    }
-    
-    // Reload catalog if on catalog page
-    if (location.pathname === '/catalog') {
-      window.location.reload();
-    }
+  const onCountryChange = (e) => {
+    const next = e.target.value;
+    if (typeof setCountryCode === "function") setCountryCode(next);
   };
 
-  const currentCountry = countries.find(c => c.code === countryCode);
-  const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const linkBase =
+    "px-3 py-2 rounded-lg text-sm font-extrabold transition hover:opacity-90";
+  const linkClass = ({ isActive }) =>
+    cx(
+      linkBase,
+      isActive ? "bg-brand-accent text-text" : "text-surface hover:bg-brand-secondary"
+    );
+
+  const iconLinkBase =
+    "h-9 px-3 rounded-lg font-extrabold text-sm grid place-items-center transition hover:opacity-90";
+  const iconLinkClass = ({ isActive }) =>
+    cx(
+      iconLinkBase,
+      isActive ? "bg-brand-accent text-text" : "bg-brand-secondary text-surface"
+    );
 
   return (
-    <nav className="bg-pizza-red text-white shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/catalog" className="flex items-center space-x-2" data-testid="nav-logo">
-            <span className="text-2xl">🍕</span>
-            <span className="text-xl font-bold">OmniPizza</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/catalog"
-              className="hover:text-pizza-yellow transition duration-200"
-              data-testid="nav-catalog-link"
-            >
-              Catálogo
-            </Link>
-
-            {/* Cart */}
-            <Link
-              to="/checkout"
-              className="relative hover:text-pizza-yellow transition duration-200"
-              data-testid="nav-cart-link"
-            >
-              <span className="text-xl">🛒</span>
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-yellow-400 text-pizza-red text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" data-testid="cart-count">
-                  {cartItemCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Country Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setCountryMenuOpen(!countryMenuOpen)}
-                className="flex items-center space-x-2 hover:text-pizza-yellow transition duration-200"
-                data-testid="country-selector"
-              >
-                <span className="text-xl">{currentCountry?.flag}</span>
-                <span>{currentCountry?.code}</span>
-              </button>
-
-              {countryMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
-                  {countries.map((country) => (
-                    <button
-                      key={country.code}
-                      onClick={() => handleCountryChange(country.code)}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 transition duration-200 ${
-                        country.code === countryCode ? 'bg-gray-50 font-bold' : ''
-                      }`}
-                      data-testid={`select-country-${country.code}`}
-                    >
-                      <span className="mr-2">{country.flag}</span>
-                      <span className="text-gray-800">{country.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* User Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center space-x-2 hover:text-pizza-yellow transition duration-200"
-                data-testid="user-menu-button"
-              >
-                <span className="text-xl">👤</span>
-                <span>{username}</span>
-              </button>
-
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
-                  <div className="px-4 py-2 border-b">
-                    <p className="text-sm text-gray-600">Sesión iniciada como:</p>
-                    <p className="font-semibold text-gray-800">{username}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition duration-200"
-                    data-testid="logout-button"
-                  >
-                    Cerrar Sesión
-                  </button>
-                </div>
-              )}
-            </div>
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-brand-primary text-surface shadow">
+      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-brand-accent grid place-items-center text-text font-black">
+            🍕
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white"
-            data-testid="mobile-menu-button"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="leading-tight">
+            <div className="text-lg font-extrabold">OmniPizza</div>
+            <div className="text-xs opacity-90">Fast • Testable • Multi-Country</div>
+          </div>
         </div>
 
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="md:hidden py-4 space-y-4">
-            <Link
-              to="/catalog"
-              onClick={() => setMenuOpen(false)}
-              className="block hover:text-pizza-yellow transition duration-200"
-            >
-              Catálogo
-            </Link>
+        {/* Desktop links */}
+        <nav className="hidden md:flex items-center gap-2">
+          <NavLink to="/catalog" className={linkClass}>
+            Catalog
+          </NavLink>
+          <NavLink to="/checkout" className={linkClass}>
+            Checkout
+          </NavLink>
+        </nav>
 
-            <Link
-              to="/checkout"
-              onClick={() => setMenuOpen(false)}
-              className="block hover:text-pizza-yellow transition duration-200"
-            >
-              🛒 Carrito ({cartItemCount})
-            </Link>
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          {/* Mobile quick links (mantiene la altura 64px) */}
+          <div className="flex md:hidden items-center gap-2">
+            <NavLink to="/catalog" className={iconLinkClass} aria-label="Go to catalog">
+              🍕
+            </NavLink>
 
-            <div className="border-t border-white/20 pt-4 space-y-2">
-              <p className="text-sm opacity-75">Cambiar País:</p>
-              {countries.map((country) => (
-                <button
-                  key={country.code}
-                  onClick={() => handleCountryChange(country.code)}
-                  className={`block w-full text-left py-2 ${
-                    country.code === countryCode ? 'font-bold' : ''
-                  }`}
-                >
-                  {country.flag} {country.name}
-                </button>
-              ))}
-            </div>
-
-            <div className="border-t border-white/20 pt-4">
-              <p className="text-sm opacity-75 mb-2">Usuario: {username}</p>
-              <button
-                onClick={handleLogout}
-                className="text-yellow-300 hover:text-yellow-400 transition duration-200"
-              >
-                Cerrar Sesión
-              </button>
-            </div>
+            <NavLink to="/checkout" className={iconLinkClass} aria-label="Go to checkout">
+              <span className="relative">
+                🛒
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-brand-accent text-text text-[11px] font-black rounded-full px-2 py-[1px]">
+                    {cartCount}
+                  </span>
+                )}
+              </span>
+            </NavLink>
           </div>
-        )}
-      </div>
-    </nav>
-  );
-};
 
-export default Navbar;
+          {/* Country */}
+          <select
+            value={countryCode}
+            onChange={onCountryChange}
+            className="h-9 rounded-lg bg-surface-card text-text px-2 text-sm font-extrabold outline-none ring-2 ring-transparent focus:ring-brand-accent"
+            aria-label="Country selector"
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="h-9 rounded-lg bg-brand-accent px-3 text-sm font-extrabold text-text transition hover:opacity-90"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}

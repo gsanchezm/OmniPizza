@@ -14,7 +14,6 @@ const Checkout = () => {
     name: '',
     address: '',
     phone: '',
-    // Country-specific fields
     colonia: '',
     propina: '',
     zip_code: '',
@@ -28,9 +27,7 @@ const Checkout = () => {
   const [orderSummary, setOrderSummary] = useState(null);
 
   useEffect(() => {
-    if (cartItems.length === 0) {
-      navigate('/catalog');
-    }
+    if (cartItems.length === 0) navigate('/catalog');
   }, [cartItems, navigate]);
 
   const handleChange = (e) => {
@@ -40,11 +37,8 @@ const Checkout = () => {
     });
   };
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => {
-      return total + (item.pizza.price * item.quantity);
-    }, 0);
-  };
+  const calculateSubtotal = () =>
+    cartItems.reduce((total, item) => total + (item.pizza.price * item.quantity), 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,12 +57,9 @@ const Checkout = () => {
         phone: formData.phone
       };
 
-      // Add country-specific fields
       if (countryCode === 'MX') {
         checkoutData.colonia = formData.colonia;
-        if (formData.propina) {
-          checkoutData.propina = parseFloat(formData.propina);
-        }
+        if (formData.propina) checkoutData.propina = parseFloat(formData.propina);
       } else if (countryCode === 'US') {
         checkoutData.zip_code = formData.zip_code;
       } else if (countryCode === 'CH') {
@@ -88,55 +79,59 @@ const Checkout = () => {
     }
   };
 
+  const inputClass =
+    "w-full px-4 py-2 border border-brand-secondary rounded-lg bg-surface text-text " +
+    "focus:outline-none focus:ring-2 focus:ring-brand-accent";
+
   if (success && orderSummary) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-green-50 border-2 border-green-500 rounded-xl p-8 text-center">
+          <div className="bg-surface-card border-2 border-brand-accent rounded-2xl p-8 text-center shadow-xl">
             <div className="text-6xl mb-4">✅</div>
-            <h1 className="text-3xl font-bold text-green-700 mb-4" data-testid="success-title">
+            <h1 className="text-3xl font-extrabold text-brand-primary mb-4" data-testid="success-title">
               ¡Orden Exitosa!
             </h1>
-            
-            <div className="bg-white rounded-lg p-6 mb-6">
-              <p className="text-gray-600 mb-4">Número de orden:</p>
-              <p className="text-2xl font-bold text-gray-800" data-testid="order-id">
+
+            <div className="bg-surface rounded-xl p-6 mb-6 border border-brand-secondary">
+              <p className="text-brand-secondary font-semibold mb-2">Número de orden:</p>
+              <p className="text-2xl font-black text-text" data-testid="order-id">
                 {orderSummary.order_id}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg p-6 mb-6 text-left">
-              <h3 className="font-bold text-lg mb-4">Resumen del Pedido</h3>
-              
-              <div className="space-y-2">
+            <div className="bg-surface rounded-xl p-6 mb-6 text-left border border-brand-secondary">
+              <h3 className="font-extrabold text-lg mb-4 text-text">Resumen del Pedido</h3>
+
+              <div className="space-y-2 text-text">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span data-testid="order-subtotal">
+                  <span className="font-semibold">Subtotal:</span>
+                  <span data-testid="order-subtotal" className="font-black">
                     {orderSummary.currency_symbol} {orderSummary.subtotal.toFixed(countryInfo?.decimal_places || 2)}
                   </span>
                 </div>
-                
+
                 {orderSummary.tax > 0 && (
                   <div className="flex justify-between">
-                    <span>Impuestos:</span>
-                    <span data-testid="order-tax">
+                    <span className="font-semibold">Impuestos:</span>
+                    <span data-testid="order-tax" className="font-black">
                       {orderSummary.currency_symbol} {orderSummary.tax.toFixed(countryInfo?.decimal_places || 2)}
                     </span>
                   </div>
                 )}
-                
+
                 {orderSummary.tip > 0 && (
                   <div className="flex justify-between">
-                    <span>Propina:</span>
-                    <span data-testid="order-tip">
+                    <span className="font-semibold">Propina:</span>
+                    <span data-testid="order-tip" className="font-black">
                       {orderSummary.currency_symbol} {orderSummary.tip.toFixed(countryInfo?.decimal_places || 2)}
                     </span>
                   </div>
                 )}
-                
-                <div className="border-t-2 pt-2 flex justify-between font-bold text-lg">
+
+                <div className="border-t-2 border-brand-secondary pt-2 flex justify-between font-black text-lg">
                   <span>Total:</span>
-                  <span data-testid="order-total">
+                  <span data-testid="order-total" className="text-brand-primary">
                     {orderSummary.currency_symbol} {orderSummary.total.toFixed(countryInfo?.decimal_places || 2)} {orderSummary.currency}
                   </span>
                 </div>
@@ -145,7 +140,7 @@ const Checkout = () => {
 
             <button
               onClick={() => navigate('/catalog')}
-              className="bg-pizza-red hover:bg-pizza-red/90 text-white font-bold py-3 px-8 rounded-lg transition duration-200"
+              className="bg-brand-primary text-surface font-extrabold py-3 px-8 rounded-lg transition hover:opacity-90"
               data-testid="back-to-catalog-button"
             >
               Volver al Catálogo
@@ -159,18 +154,18 @@ const Checkout = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8" data-testid="checkout-title">
+        <h1 className="text-4xl font-extrabold text-brand-primary mb-8" data-testid="checkout-title">
           🛒 Checkout
         </h1>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Form */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-6">Información de Entrega</h2>
+          <div className="bg-surface-card border border-brand-secondary rounded-2xl shadow-lg p-6">
+            <h2 className="text-2xl font-extrabold mb-6 text-text">Información de Entrega</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-text mb-2">
                   Nombre Completo *
                 </label>
                 <input
@@ -179,13 +174,13 @@ const Checkout = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                  className={inputClass}
                   data-testid="checkout-name-input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-text mb-2">
                   Dirección *
                 </label>
                 <input
@@ -194,13 +189,13 @@ const Checkout = () => {
                   value={formData.address}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                  className={inputClass}
                   data-testid="checkout-address-input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-text mb-2">
                   Teléfono *
                 </label>
                 <input
@@ -209,7 +204,7 @@ const Checkout = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                  className={inputClass}
                   data-testid="checkout-phone-input"
                 />
               </div>
@@ -218,7 +213,7 @@ const Checkout = () => {
               {countryCode === 'MX' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-text mb-2">
                       Colonia *
                     </label>
                     <input
@@ -227,12 +222,12 @@ const Checkout = () => {
                       value={formData.colonia}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                      className={inputClass}
                       data-testid="checkout-colonia-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-text mb-2">
                       Propina (opcional)
                     </label>
                     <input
@@ -242,7 +237,7 @@ const Checkout = () => {
                       onChange={handleChange}
                       step="0.01"
                       min="0"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                      className={inputClass}
                       data-testid="checkout-propina-input"
                     />
                   </div>
@@ -251,7 +246,7 @@ const Checkout = () => {
 
               {countryCode === 'US' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-text mb-2">
                     ZIP Code * (5 dígitos)
                   </label>
                   <input
@@ -262,7 +257,7 @@ const Checkout = () => {
                     required
                     pattern="\d{5}"
                     maxLength="5"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                    className={inputClass}
                     data-testid="checkout-zipcode-input"
                   />
                 </div>
@@ -270,7 +265,7 @@ const Checkout = () => {
 
               {countryCode === 'CH' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-text mb-2">
                     PLZ *
                   </label>
                   <input
@@ -279,7 +274,7 @@ const Checkout = () => {
                     value={formData.plz}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                    className={inputClass}
                     data-testid="checkout-plz-input"
                   />
                 </div>
@@ -287,7 +282,7 @@ const Checkout = () => {
 
               {countryCode === 'JP' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-text mb-2">
                     Prefectura *
                   </label>
                   <input
@@ -296,14 +291,14 @@ const Checkout = () => {
                     value={formData.prefectura}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pizza-red focus:border-transparent"
+                    className={inputClass}
                     data-testid="checkout-prefectura-input"
                   />
                 </div>
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" data-testid="checkout-error">
+                <div className="bg-surface border border-brand-primary text-brand-primary px-4 py-3 rounded-lg font-semibold" data-testid="checkout-error">
                   {error}
                 </div>
               )}
@@ -311,7 +306,7 @@ const Checkout = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-pizza-red hover:bg-pizza-red/90 text-white font-bold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50"
+                className="w-full bg-brand-primary text-surface font-extrabold py-3 px-4 rounded-lg transition hover:opacity-90 disabled:opacity-50"
                 data-testid="checkout-submit-button"
               >
                 {loading ? 'Procesando...' : 'Confirmar Pedido'}
@@ -320,35 +315,38 @@ const Checkout = () => {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-6">Resumen del Pedido</h2>
+          <div className="bg-surface-card border border-brand-secondary rounded-2xl shadow-lg p-6">
+            <h2 className="text-2xl font-extrabold mb-6 text-text">Resumen del Pedido</h2>
 
             <div className="space-y-4 mb-6">
               {cartItems.map((item) => (
-                <div key={item.pizza_id} className="flex justify-between items-center border-b pb-4">
+                <div key={item.pizza_id} className="flex justify-between items-center border-b border-brand-secondary pb-4">
                   <div>
-                    <h4 className="font-semibold">{item.pizza.name}</h4>
-                    <p className="text-sm text-gray-600">
-                      Cantidad: {item.quantity} × {countryInfo?.currency_symbol || '$'}{item.pizza.price.toFixed(countryInfo?.decimal_places || 2)}
+                    <h4 className="font-extrabold text-text">{item.pizza.name}</h4>
+                    <p className="text-sm text-brand-secondary font-semibold">
+                      Cantidad: {item.quantity} × {countryInfo?.currency_symbol || '$'}
+                      {item.pizza.price.toFixed(countryInfo?.decimal_places || 2)}
                     </p>
                   </div>
-                  <div className="font-bold">
-                    {countryInfo?.currency_symbol || '$'}{(item.pizza.price * item.quantity).toFixed(countryInfo?.decimal_places || 2)}
+                  <div className="font-black text-text">
+                    {countryInfo?.currency_symbol || '$'}
+                    {(item.pizza.price * item.quantity).toFixed(countryInfo?.decimal_places || 2)}
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="border-t-2 pt-4">
-              <div className="flex justify-between items-center text-xl font-bold">
-                <span>Subtotal:</span>
-                <span data-testid="cart-subtotal">
-                  {countryInfo?.currency_symbol || '$'}{calculateSubtotal().toFixed(countryInfo?.decimal_places || 2)}
+            <div className="border-t-2 border-brand-secondary pt-4">
+              <div className="flex justify-between items-center text-xl font-black">
+                <span className="text-text">Subtotal:</span>
+                <span data-testid="cart-subtotal" className="text-brand-primary">
+                  {countryInfo?.currency_symbol || '$'}
+                  {calculateSubtotal().toFixed(countryInfo?.decimal_places || 2)}
                 </span>
               </div>
-              
+
               {countryCode === 'US' && (
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-brand-secondary font-semibold mt-2">
                   * Se agregará 8% de impuestos al finalizar
                 </p>
               )}

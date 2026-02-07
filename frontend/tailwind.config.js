@@ -8,11 +8,17 @@ export default {
     extend: {
       colors: {
         pizza: {
-          red: '#D32F2F',
-          orange: '#FF6F00',
-          yellow: '#FBC02D',
-          green: '#388E3C'
-        }
+          primary: "var(--brand-primary)",
+          secondary: "var(--brand-secondary)",
+          accent: "var(--brand-accent)",
+        },
+        surface: {
+          DEFAULT: "var(--surface)",
+          card: "var(--card)",
+        },
+        text: {
+          DEFAULT: "var(--text)",
+        },
       }
     },
   },
