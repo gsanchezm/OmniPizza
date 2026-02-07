@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { orderAPI } from '../api';
 import { useCartStore, useCountryStore, useProfileStore, useOrderStore } from '../store';
 import { useT } from '../i18n';
@@ -19,15 +19,15 @@ export default function Checkout() {
   const clearCart = useCartStore((s) => s.clearCart);
 
   const countryCode = useCountryStore((s) => s.countryCode);
-  const countryInfo = useCountryStore((s) => s.countryInfo);
 
   const profile = useProfileStore();
+  const lastOrder = useOrderStore((s) => s.lastOrder);
   const setLastOrder = useOrderStore((s) => s.setLastOrder);
 
   const [loading, setLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  // delivery form
   const [formData, setFormData] = useState({
     name: profile.fullName || '',
     address: profile.address || '',
@@ -39,33 +39,32 @@ export default function Checkout() {
     prefectura: '',
   });
 
-  // payment
   const [paymentType, setPaymentType] = useState(PAYMENT.ONLINE_CARD);
   const [card, setCard] = useState({ name: '', number: '', exp: '', cvv: '' });
 
+  // ✅ IMPORTANT: do NOT auto-redirect after order submit clears the cart
   useEffect(() => {
-    if (!cartItems || cartItems.length === 0) navigate('/catalog', { replace: true });
-  }, [cartItems, navigate]);
+    if (!hasSubmitted && !loading && cartItems.length === 0 && !lastOrder) {
+      navigate('/catalog', { replace: true });
+    }
+  }, [cartItems.length, hasSubmitted, loading, lastOrder, navigate]);
+
+  const subtotal = useMemo(
+    () => cartItems.reduce((t, i) => t + (i.pizza.price * i.quantity), 0),
+    [cartItems]
+  );
 
   const inputClass =
     "w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text " +
     "focus:outline-none focus:ring-2 focus:ring-brand-accent";
 
-  const subtotal = useMemo(() => {
-    return (cartItems || []).reduce((total, item) => total + (item.pizza.price * item.quantity), 0);
-  }, [cartItems]);
-
-  const handleChange = (e) => {
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const validatePayment = () => {
     if (paymentType !== PAYMENT.ONLINE_CARD) return true;
-    // validación ligera (UI)
     if (!card.name || !card.number || !card.exp || !card.cvv) return false;
     if (card.number.replace(/\s/g, '').length < 12) return false;
     return true;
-    // No enviamos tarjeta al backend.
   };
 
   const handleSubmit = async (e) => {
@@ -73,42 +72,39 @@ export default function Checkout() {
     setError('');
 
     if (!validatePayment()) {
-      setError('Payment: please complete card details.');
+      setError('Please complete card details (demo).');
       return;
     }
 
     setLoading(true);
+    setHasSubmitted(true);
 
     try {
-      const checkoutData = {
+      const payload = {
         country_code: countryCode,
-        items: cartItems.map((item) => ({
-          pizza_id: item.pizza_id,
-          quantity: item.quantity,
-        })),
+        items: cartItems.map((i) => ({ pizza_id: i.pizza_id, quantity: i.quantity })),
         name: formData.name,
         address: formData.address,
         phone: formData.phone,
       };
 
-      // Market-specific fields
       if (countryCode === 'MX') {
-        checkoutData.colonia = formData.colonia;
-        if (formData.propina) checkoutData.propina = parseFloat(formData.propina);
+        payload.colonia = formData.colonia;
+        if (formData.propina) payload.propina = parseFloat(formData.propina);
       } else if (countryCode === 'US') {
-        checkoutData.zip_code = formData.zip_code;
+        payload.zip_code = formData.zip_code;
       } else if (countryCode === 'CH') {
-        checkoutData.plz = formData.plz;
+        payload.plz = formData.plz;
       } else if (countryCode === 'JP') {
-        checkoutData.prefectura = formData.prefectura;
+        payload.prefectura = formData.prefectura;
       }
 
-      const response = await orderAPI.checkout(checkoutData);
+      const res = await orderAPI.checkout(payload);
 
-      // Guardamos orden para Success (y opcionalmente guarda paymentType en profile/store si quieres)
-      setLastOrder({ ...response.data, paymentType });
+      // ✅ persist last order BEFORE clearing cart
+      setLastOrder({ ...res.data, paymentType });
 
-      // Guardar datos base en Profile para reuso
+      // ✅ Profile becomes meaningful
       profile.setProfile?.({
         fullName: formData.name,
         address: formData.address,
@@ -118,7 +114,8 @@ export default function Checkout() {
       clearCart();
       navigate('/order-success', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.error || 'Error al procesar la orden');
+      setError(err?.response?.data?.detail || err?.response?.data?.error || 'Checkout error');
+      setHasSubmitted(false);
     } finally {
       setLoading(false);
     }
@@ -126,12 +123,17 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black text-brand-accent mb-8">🛒 {t('checkout')}</h1>
+      <h1 className="text-4xl font-black text-brand-primary font-serif mb-8">🛒 {t('checkout')}</h1>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Form */}
         <div className="lux-card rounded-2xl p-6">
-          <h2 className="text-2xl font-black text-text mb-6">{t('deliveryInfo')}</h2>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <h2 className="text-2xl font-black text-text font-serif">{t('deliveryInfo')}</h2>
+            <Link to="/profile" className="btn-ghost text-sm">{t('editProfile')}</Link>
+          </div>
+
+          <p className="text-text-muted text-sm mb-6">{t('profileHint')}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -186,33 +188,21 @@ export default function Checkout() {
 
             {/* Payment */}
             <div className="pt-2">
-              <h3 className="text-xl font-black text-brand-accent mb-3">{t('payment')}</h3>
+              <h3 className="text-xl font-black text-brand-primary font-serif mb-3">{t('payment')}</h3>
 
               <div className="grid gap-3">
                 <label className="lux-radio">
-                  <input
-                    type="radio"
-                    checked={paymentType === PAYMENT.ONLINE_CARD}
-                    onChange={() => setPaymentType(PAYMENT.ONLINE_CARD)}
-                  />
+                  <input type="radio" checked={paymentType === PAYMENT.ONLINE_CARD} onChange={() => setPaymentType(PAYMENT.ONLINE_CARD)} />
                   <span className="text-text">{t('payOnline')}</span>
                 </label>
 
                 <label className="lux-radio">
-                  <input
-                    type="radio"
-                    checked={paymentType === PAYMENT.DELIVERY_CASH}
-                    onChange={() => setPaymentType(PAYMENT.DELIVERY_CASH)}
-                  />
+                  <input type="radio" checked={paymentType === PAYMENT.DELIVERY_CASH} onChange={() => setPaymentType(PAYMENT.DELIVERY_CASH)} />
                   <span className="text-text">{t('payOnDelivery')} – {t('cash')}</span>
                 </label>
 
                 <label className="lux-radio">
-                  <input
-                    type="radio"
-                    checked={paymentType === PAYMENT.DELIVERY_CARD}
-                    onChange={() => setPaymentType(PAYMENT.DELIVERY_CARD)}
-                  />
+                  <input type="radio" checked={paymentType === PAYMENT.DELIVERY_CARD} onChange={() => setPaymentType(PAYMENT.DELIVERY_CARD)} />
                   <span className="text-text">{t('payOnDelivery')} – {t('card')}</span>
                 </label>
               </div>
@@ -220,33 +210,12 @@ export default function Checkout() {
               {paymentType === PAYMENT.ONLINE_CARD && (
                 <div className="mt-4 grid gap-3">
                   <div className="text-sm font-extrabold text-text-muted">{t('cardForm')}</div>
-                  <input
-                    className={inputClass}
-                    placeholder="Name on card"
-                    value={card.name}
-                    onChange={(e) => setCard((p) => ({ ...p, name: e.target.value }))}
-                  />
-                  <input
-                    className={inputClass}
-                    placeholder="Card number"
-                    value={card.number}
-                    onChange={(e) => setCard((p) => ({ ...p, number: e.target.value }))}
-                  />
+                  <input className={inputClass} placeholder="Name on card" value={card.name} onChange={(e) => setCard((p) => ({ ...p, name: e.target.value }))} />
+                  <input className={inputClass} placeholder="Card number" value={card.number} onChange={(e) => setCard((p) => ({ ...p, number: e.target.value }))} />
                   <div className="grid grid-cols-2 gap-3">
-                    <input
-                      className={inputClass}
-                      placeholder="MM/YY"
-                      value={card.exp}
-                      onChange={(e) => setCard((p) => ({ ...p, exp: e.target.value }))}
-                    />
-                    <input
-                      className={inputClass}
-                      placeholder="CVV"
-                      value={card.cvv}
-                      onChange={(e) => setCard((p) => ({ ...p, cvv: e.target.value }))}
-                    />
+                    <input className={inputClass} placeholder="MM/YY" value={card.exp} onChange={(e) => setCard((p) => ({ ...p, exp: e.target.value }))} />
+                    <input className={inputClass} placeholder="CVV" value={card.cvv} onChange={(e) => setCard((p) => ({ ...p, cvv: e.target.value }))} />
                   </div>
-
                   <div className="text-xs text-text-muted">
                     * Demo UI only. Card data is not sent to backend.
                   </div>
@@ -255,20 +224,20 @@ export default function Checkout() {
             </div>
 
             {error && (
-              <div className="border border-brand-primary text-brand-primary bg-surface-2 px-4 py-3 rounded-xl font-semibold">
+              <div className="border border-danger text-danger bg-surface-2 px-4 py-3 rounded-xl font-semibold">
                 {error}
               </div>
             )}
 
             <button type="submit" disabled={loading} className="btn-gold w-full">
-              {loading ? 'Procesando...' : t('placeOrder')}
+              {loading ? 'Processing…' : t('placeOrder')}
             </button>
           </form>
         </div>
 
         {/* Summary */}
         <div className="lux-card rounded-2xl p-6">
-          <h2 className="text-2xl font-black text-text mb-6">{t('orderSummary')}</h2>
+          <h2 className="text-2xl font-black text-text font-serif mb-6">{t('orderSummary')}</h2>
 
           <div className="space-y-4 mb-6">
             {cartItems.map((item) => (
@@ -276,7 +245,7 @@ export default function Checkout() {
                 <div>
                   <div className="font-black text-text">{item.pizza.name}</div>
                   <div className="text-sm text-text-muted">
-                    Cantidad: {item.quantity} × {formatMoney(item.pizza.price)}
+                    Qty: {item.quantity} × {formatMoney(item.pizza.price)}
                   </div>
                 </div>
                 <div className="font-black text-text">
@@ -288,15 +257,9 @@ export default function Checkout() {
 
           <div className="border-t border-border pt-4">
             <div className="flex justify-between items-center text-xl font-black">
-              <span className="text-text-muted">Subtotal:</span>
+              <span className="text-text-muted">Subtotal</span>
               <span className="text-brand-primary">{formatMoney(subtotal)}</span>
             </div>
-
-            {countryCode === 'US' && (
-              <p className="text-sm text-text-muted mt-2">
-                * Taxes will be calculated by backend.
-              </p>
-            )}
           </div>
         </div>
       </div>

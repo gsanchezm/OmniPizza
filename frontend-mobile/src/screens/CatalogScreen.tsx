@@ -15,6 +15,7 @@ import { formatCurrency } from "../utils/currency";
 import { CustomNavbar } from "../components/CustomNavbar";
 import { Colors } from "../theme/colors";
 import { GlobalStyles } from "../theme/styles";
+import { useT } from "../i18n";
 
 const MOCK_MENU = [
   { id: "1", name: "Pepperoni", price: 10, image: "https://placehold.co/100x100/png" },
@@ -22,6 +23,8 @@ const MOCK_MENU = [
   { id: "3", name: "Hawaiian", price: 11, image: "https://placehold.co/100x100/png" },
   { id: "4", name: "Veggie", price: 9, image: "https://placehold.co/100x100/png" },
 ];
+
+const t = useT();
 
 export default function CatalogScreen({ navigation }: any) {
   const { country } = useAppStore();
@@ -80,7 +83,7 @@ export default function CatalogScreen({ navigation }: any) {
 
   return (
     <View style={GlobalStyles.screen}>
-      <CustomNavbar title="OmniPizza Menu" navigation={navigation} />
+      <CustomNavbar title={t("catalog")} navigation={navigation} />
 
       {loading ? (
         <ActivityIndicator

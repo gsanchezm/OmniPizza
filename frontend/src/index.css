@@ -4,12 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base helpers (lux) */
+html, body { height: 100%; }
+body { font-family: var(--font-sans); }
+
+/* Headings feel premium */
+h1, h2, .font-serif { font-family: var(--font-serif); }
+
 .lux-bg{
   background:
-    radial-gradient(1200px 600px at 20% 10%, rgba(254,174,13,0.08), transparent 60%),
-    radial-gradient(900px 500px at 80% 30%, rgba(205,5,8,0.08), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.95));
+    radial-gradient(1200px 600px at 20% 10%, rgba(220,202,135,0.08), transparent 60%),
+    radial-gradient(900px 500px at 80% 30%, rgba(176,83,40,0.10), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.94));
 }
 
 .lux-card{
@@ -24,10 +29,20 @@
   border-radius: 14px;
   font-weight: 900;
   color: #111;
-  background: var(--brand-accent);
-  transition: opacity .15s ease;
+  background: var(--brand-primary);
+  transition: transform .12s ease, opacity .12s ease;
 }
-.btn-gold:hover{ opacity: .92; }
+.btn-gold:hover{ opacity: .92; transform: translateY(-1px); }
+
+.btn-ghost{
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+.btn-ghost:hover{ background: rgba(255,255,255,0.06); }
 
 .lux-radio{
   display:flex; gap:10px; align-items:center;

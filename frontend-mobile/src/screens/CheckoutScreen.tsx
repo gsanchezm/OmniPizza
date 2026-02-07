@@ -12,6 +12,8 @@ const PAYMENT = {
   DELIVERY_CARD: "DELIVERY_CARD",
 };
 
+const t = useT();
+
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
   const { country, cartItems, clearCart, profile, setLastOrder } = useAppStore();

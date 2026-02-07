@@ -88,48 +88,18 @@ COUNTRY_CONFIG = {
 
 # Pizza catalog (base prices in USD, will be converted)
 PIZZA_CATALOG = [
-    {
-        "id": "1",
-        "name": "Margherita",
-        "description": "Tomate, mozzarella, albahaca",
-        "base_price": 12.99,
-        "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002"
-    },
-    {
-        "id": "2",
-        "name": "Pepperoni",
-        "description": "Pepperoni, mozzarella, salsa de tomate",
-        "base_price": 14.99,
-        "image": "https://images.unsplash.com/photo-1628840042765-356cda07504e"
-    },
-    {
-        "id": "3",
-        "name": "Hawaiana",
-        "description": "Jamón, piña, mozzarella",
-        "base_price": 13.99,
-        "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"
-    },
-    {
-        "id": "4",
-        "name": "Cuatro Quesos",
-        "description": "Mozzarella, parmesano, gorgonzola, provolone",
-        "base_price": 15.99,
-        "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591"
-    },
-    {
-        "id": "5",
-        "name": "Vegetariana",
-        "description": "Pimientos, champiñones, cebolla, aceitunas",
-        "base_price": 13.99,
-        "image": "https://images.unsplash.com/photo-1511689660979-10d2b1aada49"
-    },
-    {
-        "id": "6",
-        "name": "BBQ Chicken",
-        "description": "Pollo, BBQ, cebolla, cilantro",
-        "base_price": 16.99,
-        "image": "https://images.unsplash.com/photo-1565299507177-b0ac66763828"
-    }
+    {"id": "p01", "name": "Margherita", "description": "Tomato, mozzarella, basil", "base_price": 12.99, "image": "https://picsum.photos/seed/omnipizza-margherita/900/600"},
+    {"id": "p02", "name": "Pepperoni", "description": "Pepperoni, mozzarella, tomato sauce", "base_price": 14.99, "image": "https://picsum.photos/seed/omnipizza-pepperoni/900/600"},
+    {"id": "p03", "name": "Hawaiian", "description": "Ham, pineapple, mozzarella", "base_price": 13.99, "image": "https://picsum.photos/seed/omnipizza-hawaiian/900/600"},
+    {"id": "p04", "name": "Four Cheese", "description": "Mozzarella, parmesan, gorgonzola, provolone", "base_price": 15.49, "image": "https://picsum.photos/seed/omnipizza-4cheese/900/600"},
+    {"id": "p05", "name": "Veggie", "description": "Mushrooms, peppers, olives, onion", "base_price": 13.49, "image": "https://picsum.photos/seed/omnipizza-veggie/900/600"},
+    {"id": "p06", "name": "BBQ Chicken", "description": "Chicken, BBQ sauce, onion, cilantro", "base_price": 15.99, "image": "https://picsum.photos/seed/omnipizza-bbq/900/600"},
+    {"id": "p07", "name": "Meat Lovers", "description": "Pepperoni, ham, sausage, bacon", "base_price": 16.99, "image": "https://picsum.photos/seed/omnipizza-meat/900/600"},
+    {"id": "p08", "name": "Diavola", "description": "Spicy salami, chili, mozzarella", "base_price": 15.49, "image": "https://picsum.photos/seed/omnipizza-diavola/900/600"},
+    {"id": "p09", "name": "Truffle Mushroom", "description": "Mushrooms, truffle oil, mozzarella", "base_price": 17.49, "image": "https://picsum.photos/seed/omnipizza-truffle/900/600"},
+    {"id": "p10", "name": "Prosciutto & Arugula", "description": "Prosciutto, arugula, parmesan", "base_price": 17.99, "image": "https://picsum.photos/seed/omnipizza-prosciutto/900/600"},
+    {"id": "p11", "name": "Pesto Supreme", "description": "Pesto, cherry tomato, mozzarella", "base_price": 14.49, "image": "https://picsum.photos/seed/omnipizza-pesto/900/600"},
+    {"id": "p12", "name": "Chicken Alfredo", "description": "Chicken, alfredo sauce, mozzarella", "base_price": 16.49, "image": "https://picsum.photos/seed/omnipizza-alfredo/900/600"},
 ]
 
 # Currency conversion rates (from USD)

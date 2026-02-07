@@ -1,51 +1,13 @@
 import { useCountryStore } from './store';
 
 const DICT = {
-  es: {
-    catalog: 'Catálogo',
-    checkout: 'Checkout',
-    profile: 'Datos',
-    logout: 'Salir',
-    country: 'País',
-    currency: 'Moneda',
-    user: 'Usuario',
-
-    deliveryInfo: 'Información de Entrega',
-    orderSummary: 'Resumen del Pedido',
-    placeOrder: 'Confirmar Pedido',
-
-    payment: 'Pago',
-    payOnline: 'En línea (tarjeta)',
-    payOnDelivery: 'Al entregar',
-    cash: 'Efectivo',
-    card: 'Tarjeta',
-    cardForm: 'Datos de tarjeta',
-
-    fullName: 'Nombre Completo',
-    address: 'Dirección',
-    phone: 'Teléfono',
-    colonia: 'Colonia',
-    tip: 'Propina (opcional)',
-    zip: 'ZIP Code',
-    plz: 'PLZ',
-    prefecture: 'Prefectura',
-
-    save: 'Guardar',
-    successTitle: '¡Orden Exitosa!',
-    successSubtitle: 'Tu pedido está siendo preparado para envío.',
-    backToCatalog: 'Volver al catálogo',
-  },
-
   en: {
     catalog: 'Catalog',
     checkout: 'Checkout',
     profile: 'Profile',
     logout: 'Logout',
-    country: 'Country',
-    currency: 'Currency',
-    user: 'User',
 
-    deliveryInfo: 'Delivery Info',
+    deliveryInfo: 'Delivery Details',
     orderSummary: 'Order Summary',
     placeOrder: 'Place Order',
 
@@ -54,78 +16,72 @@ const DICT = {
     payOnDelivery: 'On delivery',
     cash: 'Cash',
     card: 'Card',
-    cardForm: 'Card details',
+    cardForm: 'Card details (demo)',
 
     fullName: 'Full Name',
     address: 'Address',
     phone: 'Phone',
-    colonia: 'Neighborhood',
+    colonia: 'Neighborhood (Colonia)',
     tip: 'Tip (optional)',
     zip: 'ZIP Code',
     plz: 'PLZ',
     prefecture: 'Prefecture',
 
     save: 'Save',
+    profileHint: 'These details are used to auto-fill Checkout.',
+    editProfile: 'Edit Profile',
+
     successTitle: 'Order placed!',
     successSubtitle: 'Your order is being prepared for delivery.',
     backToCatalog: 'Back to catalog',
+    viewLastOrder: 'Last order',
   },
 
   de: {
     catalog: 'Katalog',
     checkout: 'Kasse',
-    profile: 'Daten',
+    profile: 'Profil',
     logout: 'Abmelden',
-    country: 'Land',
-    currency: 'Währung',
-    user: 'Benutzer',
-
     deliveryInfo: 'Lieferdaten',
     orderSummary: 'Bestellübersicht',
     placeOrder: 'Bestellen',
-
     payment: 'Zahlung',
     payOnline: 'Online (Karte)',
     payOnDelivery: 'Bei Lieferung',
     cash: 'Bar',
     card: 'Karte',
-    cardForm: 'Kartendaten',
-
+    cardForm: 'Kartendaten (Demo)',
     fullName: 'Vollständiger Name',
     address: 'Adresse',
     phone: 'Telefon',
     colonia: 'Stadtteil',
     tip: 'Trinkgeld (optional)',
-    zip: 'ZIP Code',
+    zip: 'ZIP',
     plz: 'PLZ',
     prefecture: 'Präfektur',
-
     save: 'Speichern',
+    profileHint: 'Diese Daten füllen den Checkout automatisch aus.',
+    editProfile: 'Profil bearbeiten',
     successTitle: 'Bestellung erfolgreich!',
-    successSubtitle: 'Deine Bestellung wird für den Versand vorbereitet.',
+    successSubtitle: 'Deine Bestellung wird vorbereitet.',
     backToCatalog: 'Zum Katalog',
+    viewLastOrder: 'Letzte Bestellung',
   },
 
   fr: {
     catalog: 'Catalogue',
     checkout: 'Paiement',
-    profile: 'Données',
+    profile: 'Profil',
     logout: 'Déconnexion',
-    country: 'Pays',
-    currency: 'Devise',
-    user: 'Utilisateur',
-
     deliveryInfo: 'Infos de livraison',
     orderSummary: 'Récapitulatif',
     placeOrder: 'Valider la commande',
-
     payment: 'Paiement',
     payOnline: 'En ligne (carte)',
     payOnDelivery: 'À la livraison',
     cash: 'Espèces',
     card: 'Carte',
-    cardForm: 'Détails de la carte',
-
+    cardForm: 'Détails carte (démo)',
     fullName: 'Nom complet',
     address: 'Adresse',
     phone: 'Téléphone',
@@ -134,50 +90,17 @@ const DICT = {
     zip: 'Code postal',
     plz: 'PLZ',
     prefecture: 'Préfecture',
-
     save: 'Enregistrer',
+    profileHint: 'Ces données remplissent automatiquement le checkout.',
+    editProfile: 'Modifier profil',
     successTitle: 'Commande validée !',
-    successSubtitle: 'Votre commande est en préparation pour l’envoi.',
+    successSubtitle: 'Votre commande est en préparation.',
     backToCatalog: 'Retour au catalogue',
-  },
-
-  ja: {
-    catalog: 'メニュー',
-    checkout: '購入',
-    profile: '情報',
-    logout: 'ログアウト',
-    country: '国',
-    currency: '通貨',
-    user: 'ユーザー',
-
-    deliveryInfo: '配送情報',
-    orderSummary: '注文内容',
-    placeOrder: '注文確定',
-
-    payment: '支払い',
-    payOnline: 'オンライン（カード）',
-    payOnDelivery: '配達時',
-    cash: '現金',
-    card: 'カード',
-    cardForm: 'カード情報',
-
-    fullName: '氏名',
-    address: '住所',
-    phone: '電話番号',
-    colonia: '地区',
-    tip: 'チップ（任意）',
-    zip: '郵便番号',
-    plz: 'PLZ',
-    prefecture: '都道府県',
-
-    save: '保存',
-    successTitle: '注文完了！',
-    successSubtitle: 'ただいま準備中です。',
-    backToCatalog: 'メニューへ戻る',
+    viewLastOrder: 'Dernière commande',
   },
 };
 
 export function useT() {
-  const lang = useCountryStore((s) => s.language) || 'es';
-  return (key) => DICT[lang]?.[key] ?? DICT.es[key] ?? key;
+  const lang = useCountryStore((s) => s.language) || 'en';
+  return (k) => DICT[lang]?.[k] ?? DICT.en[k] ?? k;
 }

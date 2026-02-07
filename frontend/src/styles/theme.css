@@ -1,13 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Inter:wght@400;600;700;900&display=swap');
+
 :root{
-  --brand-primary: #CD0508;   /* CTA */
-  --brand-secondary: #B05328;
-  --brand-accent: #FEAE0D;    /* gold */
+  /* Typography */
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
-  --surface: #07070A;
-  --surface-2: #0C0C12;
-  --card: rgba(18, 18, 24, 0.82);
-  --border: rgba(254, 174, 13, 0.22);
+  /* Elegant brand (Gericht-like) */
+  --brand-primary: #DCCA87;   /* soft gold */
+  --brand-accent:  #FEAE0D;   /* bright gold */
+  --brand-secondary:#B05328;  /* bronze */
 
+  /* Red should NOT be a main brand color */
+  --danger: #CD0508;
+
+  /* Surfaces */
+  --surface:  #07070A;
+  --surface-2:#0C0C12;
+  --card:     rgba(18, 18, 24, 0.86);
+  --border:   rgba(220, 202, 135, 0.22);
+
+  /* Text */
   --text: #F5F5F5;
   --text-muted: rgba(245,245,245,0.68);
 }

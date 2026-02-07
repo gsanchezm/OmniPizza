@@ -1,18 +1,19 @@
 export const Colors = {
   brand: {
-    primary: "#CD0508",
-    secondary: "#B05328",
-    accent: "#FEAE0D",
+    primary: "#DCCA87",   // soft gold
+    accent: "#FEAE0D",    // bright gold
+    secondary: "#B05328", // bronze
   },
+  danger: "#CD0508",
   surface: {
-    base: "#0B1020",
-    base2: "#0F1730",
-    card: "#121B33",
-    border: "#26324D",
+    base: "#07070A",
+    base2: "#0C0C12",
+    card: "#121218",
+    border: "rgba(220,202,135,0.22)",
   },
   text: {
     primary: "#F5F5F5",
+    muted: "rgba(245,245,245,0.68)",
     inverse: "#A9B1C6",
-    muted: "#A9B1C6",
   },
 } as const;

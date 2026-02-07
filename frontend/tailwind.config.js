@@ -8,6 +8,7 @@ export default {
           secondary: "var(--brand-secondary)",
           accent: "var(--brand-accent)",
         },
+        danger: "var(--danger)",
         surface: {
           DEFAULT: "var(--surface)",
           2: "var(--surface-2)",
@@ -18,6 +19,10 @@ export default {
           DEFAULT: "var(--text)",
           muted: "var(--text-muted)",
         },
+      },
+      fontFamily: {
+        serif: ["var(--font-serif)"],
+        sans: ["var(--font-sans)"],
       },
     },
   },
