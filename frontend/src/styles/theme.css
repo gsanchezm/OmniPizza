@@ -1,15 +1,13 @@
 :root{
-  /* Brand palette */
-  --brand-primary: #CD0508;
+  --brand-primary: #CD0508;   /* CTA */
   --brand-secondary: #B05328;
-  --brand-accent: #FEAE0D;
+  --brand-accent: #FEAE0D;    /* gold */
 
-  /* Dark “app” look (like reference) */
-  --surface: #0B1020;
-  --surface-2: #0F1730;
-  --card: #121B33;
-  --border: #26324D;
+  --surface: #07070A;
+  --surface-2: #0C0C12;
+  --card: rgba(18, 18, 24, 0.82);
+  --border: rgba(254, 174, 13, 0.22);
 
   --text: #F5F5F5;
-  --text-muted: #A9B1C6;
+  --text-muted: rgba(245,245,245,0.68);
 }

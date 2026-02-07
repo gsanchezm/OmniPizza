@@ -1,77 +1,67 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-export const useAuthStore = create((set) => ({
-  token: localStorage.getItem('token'),
-  username: localStorage.getItem('username'),
-  behavior: localStorage.getItem('behavior'),
-  isAuthenticated: !!localStorage.getItem('token'),
-  
-  login: (token, username, behavior) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('username', username);
-    localStorage.setItem('behavior', behavior);
-    set({ token, username, behavior, isAuthenticated: true });
-  },
-  
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('behavior');
-    set({ token: null, username: null, behavior: null, isAuthenticated: false });
-  },
-}));
+export const MARKET = {
+  MX: { lang: 'es', locale: 'es-MX', currency: 'MXN' },
+  US: { lang: 'en', locale: 'en-US', currency: 'USD' },
+  CH: { lang: 'de', locale: 'de-CH', currency: 'CHF' }, // CH default: de
+  JP: { lang: 'ja', locale: 'ja-JP', currency: 'JPY' },
+};
 
-export const useCountryStore = create((set) => ({
-  countryCode: localStorage.getItem('countryCode') || 'MX',
-  countryInfo: null,
-  
-  setCountry: (countryCode) => {
-    localStorage.setItem('countryCode', countryCode);
-    set({ countryCode });
-  },
-  
-  setCountryInfo: (countryInfo) => {
-    set({ countryInfo });
-  },
-}));
+const pickMarket = (code) => MARKET[code] || MARKET.MX;
 
-export const useCartStore = create((set) => ({
-  items: [],
-  
-  addItem: (pizza) => set((state) => {
-    const existingItem = state.items.find((item) => item.pizza_id === pizza.id);
-    
-    if (existingItem) {
+export const useCountryStore = create(
+  persist(
+    (set, get) => {
+      const initialCode = localStorage.getItem('countryCode') || 'MX';
+      const cfg = pickMarket(initialCode);
+
       return {
-        items: state.items.map((item) =>
-          item.pizza_id === pizza.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ),
+        countryCode: initialCode,
+        countryInfo: null,
+
+        language: cfg.lang,
+        locale: cfg.locale,
+        currency: cfg.currency,
+
+        // ✅ cambio de país (esto arregla el tema de moneda/precios)
+        setCountryCode: (code) => {
+          const next = pickMarket(code);
+          localStorage.setItem('countryCode', code);
+
+          // CH permite DE/FR: si cambias a CH mantenemos el último idioma guardado si existe
+          let lang = next.lang;
+          if (code === 'CH') {
+            const saved = localStorage.getItem('chLang');
+            if (saved === 'fr' || saved === 'de') lang = saved;
+          }
+
+          set({
+            countryCode: code,
+            language: lang,
+            locale: lang === 'fr' ? 'fr-CH' : next.locale,
+            currency: next.currency,
+            countryInfo: null,
+          });
+        },
+
+        // ✅ Solo CH: alternar DE/FR
+        setLanguage: (lang) => {
+          const { countryCode } = get();
+          if (countryCode !== 'CH') return;
+
+          const valid = lang === 'fr' ? 'fr' : 'de';
+          localStorage.setItem('chLang', valid);
+
+          set({
+            language: valid,
+            locale: valid === 'fr' ? 'fr-CH' : 'de-CH',
+          });
+        },
+
+        setCountryInfo: (info) => set({ countryInfo: info }),
       };
-    }
-    
-    return {
-      items: [...state.items, { pizza_id: pizza.id, pizza, quantity: 1 }],
-    };
-  }),
-  
-  removeItem: (pizzaId) => set((state) => ({
-    items: state.items.filter((item) => item.pizza_id !== pizzaId),
-  })),
-  
-  updateQuantity: (pizzaId, quantity) => set((state) => ({
-    items: state.items.map((item) =>
-      item.pizza_id === pizzaId ? { ...item, quantity } : item
-    ),
-  })),
-  
-  clearCart: () => set({ items: [] }),
-  
-  getTotal: () => {
-    const state = useCartStore.getState();
-    return state.items.reduce((total, item) => {
-      return total + (item.pizza.price * item.quantity);
-    }, 0);
-  },
-}));
+    },
+    { name: 'omnipizza-country' }
+  )
+);

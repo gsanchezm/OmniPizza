@@ -1,84 +1,82 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useAppStore } from "../store/useAppStore";
-import { getTestProps } from "../utils/qa";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
+import { useT } from "../i18n";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
-  const { country, setCountry } = useAppStore();
+  const t = useT();
+  const { country, setCountry, language, setLanguage } = useAppStore();
 
-  // MX -> US -> CH -> JP -> MX
   const rotateCountry = () => {
-    const sequence: Record<string, "MX" | "US" | "CH" | "JP"> = {
-      MX: "US",
-      US: "CH",
-      CH: "JP",
-      JP: "MX",
-    };
-    setCountry(sequence[country] || "MX");
+    const seq: any = { MX: "US", US: "CH", CH: "JP", JP: "MX" };
+    setCountry(seq[country] || "MX");
   };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => console.log("Open Menu")}
-          style={styles.btn}
-          {...getTestProps("btn-burger-menu")}
-        >
-          <Text style={styles.icon}>☰</Text>
+        <TouchableOpacity onPress={rotateCountry} style={styles.countryBadge}>
+          <Text style={styles.countryText}>{country}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title} {...getTestProps("text-navbar-title")}>
-          {title}
-        </Text>
+        {/* CH language toggle */}
+        {country === "CH" && (
+          <View style={styles.langWrap}>
+            <TouchableOpacity
+              onPress={() => setLanguage?.("de")}
+              style={[styles.langBtn, language === "de" && styles.langBtnActive]}
+            >
+              <Text style={[styles.langText, language === "de" && styles.langTextActive]}>DE</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setLanguage?.("fr")}
+              style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
+            >
+              <Text style={[styles.langText, language === "fr" && styles.langTextActive]}>FR</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-        <TouchableOpacity
-          style={[styles.badge, styles[`badge_${country}`]]}
-          onPress={rotateCountry}
-          {...getTestProps("btn-country-selector")}
-        >
-          <Text style={styles.badgeText} {...getTestProps("text-current-country")}>
-            {country}
-          </Text>
-        </TouchableOpacity>
+        <Text style={styles.title}>{title}</Text>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Checkout")}
-          style={styles.btn}
-          {...getTestProps("btn-navbar-cart")}
-        >
-          <Text style={styles.icon}>🛒</Text>
-        </TouchableOpacity>
+        <View style={styles.right}>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")} style={styles.iconBtn}>
+            <Text style={styles.icon}>👤</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Checkout")} style={styles.iconBtn}>
+            <Text style={styles.icon}>🛒</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
 };
 
-const styles: any = StyleSheet.create({
-  safeArea: { backgroundColor: Colors.brand.primary },
+const styles = StyleSheet.create({
+  safeArea: { backgroundColor: Colors.surface.base },
   container: {
-    flexDirection: "row",
     height: 56,
+    paddingHorizontal: 12,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
-    backgroundColor: Colors.brand.primary,
+    backgroundColor: Colors.surface.base,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surface.border,
   },
-  title: { fontWeight: "900", fontSize: 16, color: Colors.text.inverse },
-  btn: { padding: 6 },
-  icon: { fontSize: 20, color: Colors.text.inverse },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  badgeText: { color: Colors.text.primary, fontWeight: "900", fontSize: 12 },
+  title: { flex: 1, textAlign: "center", fontWeight: "900", color: Colors.text.primary },
+  right: { flexDirection: "row", gap: 10 },
+  iconBtn: { padding: 8, borderRadius: 12, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
+  icon: { color: Colors.text.primary, fontSize: 16 },
 
-  // Variación visual pero SIEMPRE dentro de tu paleta
-  badge_MX: { backgroundColor: Colors.brand.accent },
-  badge_US: { backgroundColor: Colors.brand.secondary },
-  badge_CH: { backgroundColor: Colors.brand.accent },
-  badge_JP: { backgroundColor: Colors.brand.secondary },
+  countryBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: Colors.brand.accent },
+  countryText: { fontWeight: "900", color: "#111" },
+
+  langWrap: { flexDirection: "row", marginLeft: 8, padding: 4, borderRadius: 999, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
+  langBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
+  langBtnActive: { backgroundColor: Colors.brand.accent },
+  langText: { fontWeight: "900", color: Colors.text.muted, fontSize: 12 },
+  langTextActive: { color: "#111" },
 });

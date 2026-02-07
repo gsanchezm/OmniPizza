@@ -5,37 +5,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/LoginScreen';
 import CatalogScreen from './src/screens/CatalogScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
-
-import { Colors } from './src/theme/colors';
+import ProfileScreen from './src/screens/ProfileScreen';
+import OrderSuccessScreen from './src/screens/OrderSuccessScreen';
 
 const Stack = createNativeStackNavigator();
 
-const NavTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: Colors.brand.primary,
-    background: Colors.surface.base,
-    card: Colors.surface.card,
-    text: Colors.text.primary,
-    border: Colors.brand.secondary,
-    notification: Colors.brand.accent,
-  },
-};
-
 export default function App() {
   return (
-    <NavigationContainer theme={NavTheme}>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: Colors.surface.base }, // ✅ aplica fondo base global
-        }}
-      >
+    <NavigationContainer theme={DefaultTheme}>
+      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Catalog" component={CatalogScreen} />
         <Stack.Screen name="Checkout" component={CheckoutScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

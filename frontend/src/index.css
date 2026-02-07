@@ -4,6 +4,34 @@
 
 @import "./styles/theme.css";
 
-html, body {
-  height: 100%;
+.lux-bg{
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(254,174,13,0.08), transparent 60%),
+    radial-gradient(900px 500px at 80% 30%, rgba(205,5,8,0.08), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.95));
+}
+
+.lux-card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  backdrop-filter: blur(10px);
+}
+
+.btn-gold{
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 900;
+  color: #111;
+  background: var(--brand-accent);
+  transition: opacity .15s ease;
+}
+.btn-gold:hover{ opacity: .92; }
+
+.lux-radio{
+  display:flex; gap:10px; align-items:center;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.02);
 }
