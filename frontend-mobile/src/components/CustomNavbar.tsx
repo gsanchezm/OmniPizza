@@ -1,53 +1,53 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { useAppStore } from '../store/useAppStore';
-import { getTestProps } from '../utils/qa';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useAppStore } from "../store/useAppStore";
+import { getTestProps } from "../utils/qa";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "../theme/colors";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
   const { country, setCountry } = useAppStore();
 
-  // Ciclo simple para cambiar país al tocar el badge: MX -> US -> CH -> JP -> MX
+  // MX -> US -> CH -> JP -> MX
   const rotateCountry = () => {
-    const sequence: Record<string, 'MX' | 'US' | 'CH' | 'JP'> = { 
-      'MX': 'US', 'US': 'CH', 'CH': 'JP', 'JP': 'MX' 
+    const sequence: Record<string, "MX" | "US" | "CH" | "JP"> = {
+      MX: "US",
+      US: "CH",
+      CH: "JP",
+      JP: "MX",
     };
-    setCountry(sequence[country] || 'MX');
+    setCountry(sequence[country] || "MX");
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
+    <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Botón de Menú / Burger (Placeholder) */}
-        <TouchableOpacity 
-          onPress={() => console.log('Open Menu')}
+        <TouchableOpacity
+          onPress={() => console.log("Open Menu")}
           style={styles.btn}
-          {...getTestProps('btn-burger-menu')}
+          {...getTestProps("btn-burger-menu")}
         >
           <Text style={styles.icon}>☰</Text>
         </TouchableOpacity>
 
-        {/* Título de la Pantalla */}
-        <Text style={styles.title} {...getTestProps('text-navbar-title')}>
+        <Text style={styles.title} {...getTestProps("text-navbar-title")}>
           {title}
         </Text>
 
-        {/* Selector de País (Badge) */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.badge, styles[`badge_${country}`]]}
           onPress={rotateCountry}
-          {...getTestProps('btn-country-selector')}
+          {...getTestProps("btn-country-selector")}
         >
-          <Text style={styles.badgeText} {...getTestProps('text-current-country')}>
+          <Text style={styles.badgeText} {...getTestProps("text-current-country")}>
             {country}
           </Text>
         </TouchableOpacity>
 
-        {/* Carrito */}
-        <TouchableOpacity 
-          onPress={() => navigation.navigate('Checkout')}
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Checkout")}
           style={styles.btn}
-          {...getTestProps('btn-navbar-cart')}
+          {...getTestProps("btn-navbar-cart")}
         >
           <Text style={styles.icon}>🛒</Text>
         </TouchableOpacity>
@@ -57,16 +57,28 @@ export const CustomNavbar = ({ title, navigation }: any) => {
 };
 
 const styles: any = StyleSheet.create({
-  safeArea: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  container: { flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15 },
-  title: { fontWeight: 'bold', fontSize: 18 },
-  btn: { padding: 5 },
-  icon: { fontSize: 20 },
-  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
-  badgeText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
-  // Estilos dinámicos por país para validación visual
-  badge_MX: { backgroundColor: '#009000' }, // Verde
-  badge_US: { backgroundColor: '#3333CC' }, // Azul
-  badge_CH: { backgroundColor: '#CC0000' }, // Rojo
-  badge_JP: { backgroundColor: '#000000' }, // Negro
+  safeArea: { backgroundColor: Colors.brand.primary },
+  container: {
+    flexDirection: "row",
+    height: 56,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    backgroundColor: Colors.brand.primary,
+  },
+  title: { fontWeight: "900", fontSize: 16, color: Colors.text.inverse },
+  btn: { padding: 6 },
+  icon: { fontSize: 20, color: Colors.text.inverse },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  badgeText: { color: Colors.text.primary, fontWeight: "900", fontSize: 12 },
+
+  // Variación visual pero SIEMPRE dentro de tu paleta
+  badge_MX: { backgroundColor: Colors.brand.accent },
+  badge_US: { backgroundColor: Colors.brand.secondary },
+  badge_CH: { backgroundColor: Colors.brand.accent },
+  badge_JP: { backgroundColor: Colors.brand.secondary },
 });
