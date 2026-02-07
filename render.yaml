@@ -1,0 +1,48 @@
+# Render Blueprint for OmniPizza QA Platform
+# https://render.com
+
+services:
+  # Backend Service (FastAPI)
+  - type: web
+    name: omnipizza-backend
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: PYTHON_VERSION
+        value: "3.11"
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Frontend Service (React + Nginx)
+  - type: web
+    name: omnipizza-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://omnipizza-backend.onrender.com/api/*
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    autoDeploy: true
+
+# Database: In-memory (no persistence required)
+# The backend reinitializes on each deploy, perfect for QA testing
