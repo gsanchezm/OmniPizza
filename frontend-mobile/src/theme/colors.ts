@@ -5,11 +5,14 @@ export const Colors = {
     accent: "#FEAE0D",
   },
   surface: {
-    base: "#F5F5F5",
-    card: "#FFFFFF",
+    base: "#0B1020",
+    base2: "#0F1730",
+    card: "#121B33",
+    border: "#26324D",
   },
   text: {
-    primary: "#111111",
-    inverse: "#F5F5F5",
+    primary: "#F5F5F5",
+    inverse: "#A9B1C6",
+    muted: "#A9B1C6",
   },
 } as const;
