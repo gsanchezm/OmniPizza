@@ -11,11 +11,6 @@ import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
-const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/" replace />;
-};
-
 const App = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { countryCode, setCountryInfo } = useCountryStore();
