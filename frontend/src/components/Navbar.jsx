@@ -1,6 +1,11 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuthStore, useCountryStore, useCartStore, useOrderStore } from "../store";
+import {
+  useAuthStore,
+  useCountryStore,
+  useCartStore,
+  useOrderStore,
+} from "../store";
 import { useT } from "../i18n";
 
 const cx = (...classes) => classes.filter(Boolean).join(" ");
@@ -37,7 +42,7 @@ export default function Navbar() {
       "px-3 py-2 rounded-xl text-sm font-extrabold transition",
       isActive
         ? "bg-surface-2 text-text border border-border"
-        : "text-text-muted hover:text-text"
+        : "text-text-muted hover:text-text",
     );
 
   return (
@@ -45,21 +50,37 @@ export default function Navbar() {
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-brand-primary grid place-items-center text-black font-black">
-            🍕
-          </div>
+          <img
+            src="/omnipizza-logo.png"
+            alt="OmniPizza"
+            className="h-10 w-10 rounded-2xl object-cover"
+          />
           <div className="leading-tight">
-            <div className="text-lg font-black text-text font-serif">OmniPizza</div>
-            <div className="text-xs text-text-muted">Fast • Testable • Multi-Country</div>
+            <div className="text-lg font-black text-text font-serif">
+              OmniPizza
+            </div>
+            <div className="text-xs text-text-muted">
+              Fast • Testable • Multi-Country
+            </div>
           </div>
         </div>
 
         {/* Links */}
         <nav className="hidden md:flex items-center gap-2">
-          <NavLink to="/catalog" className={linkClass}>{t('catalog')}</NavLink>
-          <NavLink to="/checkout" className={linkClass}>{t('checkout')}</NavLink>
-          <NavLink to="/profile" className={linkClass}>{t('profile')}</NavLink>
-          {lastOrder && <NavLink to="/order-success" className={linkClass}>{t('viewLastOrder')}</NavLink>}
+          <NavLink to="/catalog" className={linkClass}>
+            {t("catalog")}
+          </NavLink>
+          <NavLink to="/checkout" className={linkClass}>
+            {t("checkout")}
+          </NavLink>
+          <NavLink to="/profile" className={linkClass}>
+            {t("profile")}
+          </NavLink>
+          {lastOrder && (
+            <NavLink to="/order-success" className={linkClass}>
+              {t("lastOrder")}
+            </NavLink>
+          )}
         </nav>
 
         {/* Actions */}
@@ -71,7 +92,9 @@ export default function Navbar() {
                 onClick={() => setLanguage?.("de")}
                 className={cx(
                   "px-3 py-1 rounded-lg text-xs font-black",
-                  language === "de" ? "bg-brand-primary text-black" : "text-text-muted"
+                  language === "de"
+                    ? "bg-brand-primary text-black"
+                    : "text-text-muted",
                 )}
               >
                 DE
@@ -80,7 +103,9 @@ export default function Navbar() {
                 onClick={() => setLanguage?.("fr")}
                 className={cx(
                   "px-3 py-1 rounded-lg text-xs font-black",
-                  language === "fr" ? "bg-brand-primary text-black" : "text-text-muted"
+                  language === "fr"
+                    ? "bg-brand-primary text-black"
+                    : "text-text-muted",
                 )}
               >
                 FR
@@ -95,14 +120,16 @@ export default function Navbar() {
             className="h-10 rounded-xl bg-surface-2 text-text px-3 text-sm font-black outline-none ring-2 ring-transparent focus:ring-brand-accent border border-border"
           >
             {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>{c.label}</option>
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
             ))}
           </select>
 
           {/* Cart shortcut */}
           <button
             className="h-10 rounded-xl px-3 border border-border bg-surface-2 text-text font-black"
-            onClick={() => navigate('/checkout')}
+            onClick={() => navigate("/checkout")}
             aria-label="Cart"
           >
             <span className="relative">
@@ -116,7 +143,7 @@ export default function Navbar() {
           </button>
 
           <button onClick={handleLogout} className="btn-gold h-10">
-            {t('logout')}
+            {t("logout")}
           </button>
         </div>
       </div>

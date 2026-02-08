@@ -1,18 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { useAppStore } from "../store/useAppStore";
+import { getTestProps } from "../utils/qa";
 import { CustomNavbar } from "../components/CustomNavbar";
-import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { apiClient } from "../api/client";
-import { useAppStore } from "../store/useAppStore";
-
-const PAYMENT = {
-  ONLINE_CARD: "ONLINE_CARD",
-  DELIVERY_CASH: "DELIVERY_CASH",
-  DELIVERY_CARD: "DELIVERY_CARD",
-};
-
-const t = useT();
 
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
@@ -29,13 +21,16 @@ export default function CheckoutScreen({ navigation }: any) {
     prefectura: "",
   });
 
-  const [paymentType, setPaymentType] = useState(PAYMENT.ONLINE_CARD);
-  const [card, setCard] = useState({ name: "", number: "", exp: "", cvv: "" });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const submit = async () => {
+  const input = (placeholder: string) => ({
+    placeholder,
+    placeholderTextColor: "#777",
+    style: styles.input,
+  });
+
+  const placeOrder = async () => {
     setError("");
     setLoading(true);
 
@@ -59,12 +54,13 @@ export default function CheckoutScreen({ navigation }: any) {
         payload.prefectura = form.prefectura;
       }
 
-      // No enviamos tarjeta al backend. Solo guardamos el tipo.
       const res = await apiClient.post("/api/checkout", payload);
-      setLastOrder({ ...res.data, paymentType });
 
+      setLastOrder(res.data);
       clearCart();
-      navigation.replace("OrderSuccess");
+
+      // si ya tienes OrderSuccess screen:
+      navigation.replace?.("OrderSuccess");
     } catch (e: any) {
       setError(e?.response?.data?.detail || "Checkout error");
     } finally {
@@ -73,64 +69,40 @@ export default function CheckoutScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.container}>
       <CustomNavbar title={t("checkout")} navigation={navigation} />
 
       <ScrollView contentContainerStyle={{ padding: 14 }}>
         <View style={styles.card}>
           <Text style={styles.section}>{t("deliveryInfo")}</Text>
 
-          <TextInput style={styles.input} placeholder="Name" placeholderTextColor="#777" value={form.name} onChangeText={(v)=>setForm(p=>({ ...p, name: v }))}/>
-          <TextInput style={styles.input} placeholder="Address" placeholderTextColor="#777" value={form.address} onChangeText={(v)=>setForm(p=>({ ...p, address: v }))}/>
-          <TextInput style={styles.input} placeholder="Phone" placeholderTextColor="#777" value={form.phone} onChangeText={(v)=>setForm(p=>({ ...p, phone: v }))}/>
+          <TextInput {...input(t("fullName"))} value={form.name} onChangeText={(v)=>setForm(p=>({ ...p, name: v }))} {...getTestProps("input-fullname")} />
+          <TextInput {...input(t("address"))} value={form.address} onChangeText={(v)=>setForm(p=>({ ...p, address: v }))} {...getTestProps("input-address")} />
+          <TextInput {...input(t("phone"))} value={form.phone} onChangeText={(v)=>setForm(p=>({ ...p, phone: v }))} {...getTestProps("input-phone")} />
 
           {country === "MX" && (
             <>
-              <TextInput style={styles.input} placeholder="Colonia" placeholderTextColor="#777" value={form.colonia} onChangeText={(v)=>setForm(p=>({ ...p, colonia: v }))}/>
-              <TextInput style={styles.input} placeholder="Tip (optional)" placeholderTextColor="#777" keyboardType="numeric" value={form.propina} onChangeText={(v)=>setForm(p=>({ ...p, propina: v }))}/>
+              <TextInput {...input(t("colonia"))} value={form.colonia} onChangeText={(v)=>setForm(p=>({ ...p, colonia: v }))} {...getTestProps("input-colonia-mx")} />
+              <TextInput {...input(t("tip"))} keyboardType="numeric" value={form.propina} onChangeText={(v)=>setForm(p=>({ ...p, propina: v }))} {...getTestProps("input-tip-mx")} />
             </>
           )}
 
           {country === "US" && (
-            <TextInput style={styles.input} placeholder="ZIP Code" placeholderTextColor="#777" value={form.zip_code} onChangeText={(v)=>setForm(p=>({ ...p, zip_code: v }))}/>
+            <TextInput {...input(t("zip"))} keyboardType="numeric" maxLength={5} value={form.zip_code} onChangeText={(v)=>setForm(p=>({ ...p, zip_code: v }))} {...getTestProps("input-zip-us")} />
           )}
 
           {country === "CH" && (
-            <TextInput style={styles.input} placeholder="PLZ" placeholderTextColor="#777" value={form.plz} onChangeText={(v)=>setForm(p=>({ ...p, plz: v }))}/>
+            <TextInput {...input(t("plz"))} value={form.plz} onChangeText={(v)=>setForm(p=>({ ...p, plz: v }))} {...getTestProps("input-plz-ch")} />
           )}
 
           {country === "JP" && (
-            <TextInput style={styles.input} placeholder="Prefecture" placeholderTextColor="#777" value={form.prefectura} onChangeText={(v)=>setForm(p=>({ ...p, prefectura: v }))}/>
-          )}
-
-          <Text style={[styles.section, { marginTop: 10 }]}>{t("payment")}</Text>
-
-          <TouchableOpacity style={[styles.radio, paymentType===PAYMENT.ONLINE_CARD && styles.radioActive]} onPress={()=>setPaymentType(PAYMENT.ONLINE_CARD)}>
-            <Text style={styles.radioText}>{t("payOnline")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.radio, paymentType===PAYMENT.DELIVERY_CASH && styles.radioActive]} onPress={()=>setPaymentType(PAYMENT.DELIVERY_CASH)}>
-            <Text style={styles.radioText}>{t("payOnDelivery")} – {t("cash")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.radio, paymentType===PAYMENT.DELIVERY_CARD && styles.radioActive]} onPress={()=>setPaymentType(PAYMENT.DELIVERY_CARD)}>
-            <Text style={styles.radioText}>{t("payOnDelivery")} – {t("card")}</Text>
-          </TouchableOpacity>
-
-          {paymentType === PAYMENT.ONLINE_CARD && (
-            <View style={{ marginTop: 10 }}>
-              <TextInput style={styles.input} placeholder="Name on card" placeholderTextColor="#777" value={card.name} onChangeText={(v)=>setCard(p=>({ ...p, name: v }))}/>
-              <TextInput style={styles.input} placeholder="Card number" placeholderTextColor="#777" value={card.number} onChangeText={(v)=>setCard(p=>({ ...p, number: v }))}/>
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                <TextInput style={[styles.input, { flex: 1 }]} placeholder="MM/YY" placeholderTextColor="#777" value={card.exp} onChangeText={(v)=>setCard(p=>({ ...p, exp: v }))}/>
-                <TextInput style={[styles.input, { flex: 1 }]} placeholder="CVV" placeholderTextColor="#777" value={card.cvv} onChangeText={(v)=>setCard(p=>({ ...p, cvv: v }))}/>
-              </View>
-              <Text style={styles.muted}>* Demo UI only. Card data is not sent to backend.</Text>
-            </View>
+            <TextInput {...input(t("prefecture"))} value={form.prefectura} onChangeText={(v)=>setForm(p=>({ ...p, prefectura: v }))} {...getTestProps("input-prefecture-jp")} />
           )}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <TouchableOpacity style={styles.btn} onPress={submit} disabled={loading}>
-            <Text style={styles.btnText}>{loading ? "..." : t("placeOrder")}</Text>
+          <TouchableOpacity style={styles.btn} onPress={placeOrder} disabled={loading} {...getTestProps("btn-place-order")}>
+            <Text style={styles.btnText}>{loading ? "…" : t("placeOrder")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -139,15 +111,41 @@ export default function CheckoutScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: Colors.surface.base },
-  card: { padding: 14, borderRadius: 18, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
-  section: { fontSize: 18, fontWeight: "900", color: Colors.brand.accent, marginBottom: 10 },
-  input: { backgroundColor: Colors.surface.base2, borderWidth: 1, borderColor: Colors.surface.border, borderRadius: 12, padding: 12, color: Colors.text.primary, marginBottom: 10 },
-  radio: { padding: 12, borderRadius: 14, borderWidth: 1, borderColor: Colors.surface.border, backgroundColor: "rgba(255,255,255,0.02)", marginBottom: 8 },
-  radioActive: { borderColor: Colors.brand.accent },
-  radioText: { color: Colors.text.primary, fontWeight: "900" },
-  muted: { marginTop: 6, color: Colors.text.muted, fontWeight: "700", fontSize: 12 },
-  error: { marginTop: 8, color: Colors.brand.primary, fontWeight: "900" },
-  btn: { marginTop: 12, backgroundColor: Colors.brand.accent, borderRadius: 14, paddingVertical: 12, alignItems: "center" },
+  container: { flex: 1, backgroundColor: "#07070A" },
+
+  card: {
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#121218",
+    borderWidth: 1,
+    borderColor: "rgba(220,202,135,0.22)",
+  },
+
+  section: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#DCCA87",
+    marginBottom: 10,
+  },
+
+  input: {
+    backgroundColor: "#0C0C12",
+    borderWidth: 1,
+    borderColor: "rgba(220,202,135,0.22)",
+    borderRadius: 12,
+    padding: 12,
+    color: "#F5F5F5",
+    marginBottom: 10,
+  },
+
+  error: { marginTop: 8, color: "#CD0508", fontWeight: "900" },
+
+  btn: {
+    marginTop: 10,
+    backgroundColor: "#DCCA87",
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
   btnText: { fontWeight: "900", color: "#111" },
 });

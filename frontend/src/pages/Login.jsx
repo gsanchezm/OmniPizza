@@ -66,9 +66,11 @@ export default function Login() {
           <div className="p-8 md:p-12 border-r border-border">
             <div className="mb-8">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-brand-primary grid place-items-center text-black font-black">
-                  🍕
-                </div>
+                <img
+                  src="/omnipizza-logo.png"
+                  alt="OmniPizza"
+                  className="h-10 w-10 rounded-2xl object-cover"
+                />
                 <h1 className="text-5xl font-black text-brand-primary font-serif">
                   OmniPizza
                 </h1>
@@ -123,7 +125,8 @@ export default function Login() {
               </button>
 
               <p className="text-sm text-text-muted">
-                Tip: use any test user with password <span className="font-black text-text">pizza123</span>.
+                Tip: use any test user with password{" "}
+                <span className="font-black text-text">pizza123</span>.
               </p>
             </form>
           </div>
@@ -145,7 +148,9 @@ export default function Login() {
                   className="w-full text-left p-4 rounded-2xl border border-border bg-surface-2
                              hover:bg-[rgba(255,255,255,0.04)] transition"
                 >
-                  <div className="text-lg font-black text-text">{u.username}</div>
+                  <div className="text-lg font-black text-text">
+                    {u.username}
+                  </div>
                   <div className="text-sm text-text-muted font-semibold mt-1">
                     {USER_HINTS[u.username] || u.description || ""}
                   </div>
@@ -155,7 +160,8 @@ export default function Login() {
 
             <div className="mt-6 p-4 rounded-2xl border border-border bg-surface-2">
               <p className="text-sm text-text-muted font-semibold">
-                <span className="font-black text-text">Password:</span> pizza123 (all users)
+                <span className="font-black text-text">Password:</span> pizza123
+                (all users)
               </p>
             </div>
           </div>

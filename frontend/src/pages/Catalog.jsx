@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { pizzaAPI } from "../api";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
+import { useT } from "../i18n";
 
 const BTN_LABEL = {
   en: "Add to cart",
@@ -23,6 +24,8 @@ function formatMoneyIntl(value, currency, locale) {
 }
 
 export default function Catalog() {
+  const t = useT();
+
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,7 +48,6 @@ export default function Catalog() {
 
   useEffect(() => {
     loadPizzas();
-    // ✅ refetch by market + language
   }, [countryCode, language]);
 
   const loadPizzas = async () => {
@@ -88,23 +90,20 @@ export default function Catalog() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="lux-card rounded-2xl p-6 mb-8">
         <h1 className="text-4xl font-black text-brand-primary font-serif mb-2">
-          Catalog
+          {t("catalog")}
         </h1>
         <p className="text-text-muted font-semibold">
-          User: <span className="text-text font-black">{username}</span>{" "}
-          | Market: <span className="text-text font-black">{countryCode}</span>{" "}
-          | Language: <span className="text-text font-black">{language}</span>{" "}
-          | Currency: <span className="text-text font-black">{currency}</span>{" "}
-          | Cart: <span className="text-text font-black">{cartCount}</span>
+          {t("user")}: <span className="text-text font-black">{username}</span>{" "}
+          | {t("market")}: <span className="text-text font-black">{countryCode}</span>{" "}
+          | {t("language")}: <span className="text-text font-black">{language}</span>{" "}
+          | {t("currency")}: <span className="text-text font-black">{currency}</span>{" "}
+          | {t("cart")}: <span className="text-text font-black">{cartCount}</span>
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {pizzas.map((p) => (
-          <div
-            key={p.id}
-            className="lux-card rounded-2xl overflow-hidden border border-border"
-          >
+          <div key={p.id} className="lux-card rounded-2xl overflow-hidden border border-border">
             <div className="h-48 bg-surface-2 overflow-hidden">
               <img
                 src={p.image}
@@ -119,18 +118,13 @@ export default function Catalog() {
 
             <div className="p-6">
               <div className="text-xl font-black text-text mb-1">{p.name}</div>
-              <div className="text-sm text-text-muted font-semibold mb-4">
-                {p.description}
-              </div>
+              <div className="text-sm text-text-muted font-semibold mb-4">{p.description}</div>
 
               <div className="text-2xl font-black text-brand-primary mb-5">
                 {formatMoneyIntl(p.price, p.currency, locale)}
               </div>
 
-              <button
-                className="btn-gold w-full"
-                onClick={() => addItem(p)}
-              >
+              <button className="btn-gold w-full" onClick={() => addItem(p)}>
                 {btnText}
               </button>
             </div>
