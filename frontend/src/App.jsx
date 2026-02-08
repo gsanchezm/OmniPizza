@@ -17,13 +17,17 @@ const App = () => {
   const { countryCode, setCountryInfo } = useCountryStore();
 
   useEffect(() => {
-    if (isAuthenticated && countryCode) {
-      countryAPI
-        .getCountryInfo(countryCode)
-        .then((response) => setCountryInfo(response.data))
-        .catch((err) => console.error("Error loading country info:", err));
-    }
-  }, [isAuthenticated, countryCode, setCountryInfo]);
+  if (!isAuthenticated || !countryCode) return;
+
+  countryAPI
+    .getCountries()
+    .then((res) => {
+      const list = res.data || [];
+      const found = list.find((c) => c.code === countryCode);
+      if (found) setCountryInfo(found);
+    })
+    .catch((err) => console.error("Error loading countries:", err));
+}, [isAuthenticated, countryCode, setCountryInfo]);
 
   return (
     <BrowserRouter>
