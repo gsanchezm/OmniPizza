@@ -1,214 +1,208 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useAuthStore, useCountryStore, useCartStore, useOrderStore } from "../store";
-import { useT } from "../i18n";
+import React, { useEffect, useMemo, useState } from "react";
+import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 
-const cx = (...classes) => classes.filter(Boolean).join(" ");
+const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
-const COUNTRIES = [
-  { code: "MX", label: "MX" },
-  { code: "US", label: "US" },
-  { code: "CH", label: "CH" },
-  { code: "JP", label: "JP" },
-];
+function getRateFromPizza(pizza) {
+  const bp = Number(pizza?.base_price);
+  const p = Number(pizza?.price);
+  if (!bp || bp <= 0 || !p || p <= 0) return 1;
+  return p / bp;
+}
 
-export default function Navbar() {
-  const t = useT();
-  const navigate = useNavigate();
+function usdToLocalCeil(usdAmount, pizza) {
+  return Math.ceil(Number(usdAmount) * getRateFromPizza(pizza));
+}
 
-  const [menuOpen, setMenuOpen] = React.useState(false);
+function computeUnitPrice(pizza, sizeUsd, toppingsCount) {
+  const base = Number(pizza.price);
+  const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
+  const toppingUnit = usdToLocalCeil(1, pizza);
+  return base + sizeAdd + toppingUnit * toppingsCount;
+}
 
-  const countryCode = useCountryStore((s) => s.countryCode || "MX");
-  const setCountryCode = useCountryStore((s) => s.setCountryCode);
-  const language = useCountryStore((s) => s.language || "en");
-  const setLanguage = useCountryStore((s) => s.setLanguage);
+export default function PizzaCustomizerModal({
+  open,
+  pizza,
+  language,
+  locale,
+  initialConfig,
+  onClose,
+  onConfirm,
+}) {
+  const [size, setSize] = useState("small");
+  const [toppings, setToppings] = useState([]);
 
-  const logout = useAuthStore((s) => s.logout);
+  useEffect(() => {
+    if (open) {
+      setSize(initialConfig?.size || "small");
+      setToppings(initialConfig?.toppings || []);
+      // prevent body scroll when modal open
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open, initialConfig]);
 
-  const cartItems = useCartStore((s) => s.items || []);
-  const lastOrder = useOrderStore((s) => s.lastOrder);
+  const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
-  const cartCount = React.useMemo(
-    () => cartItems.reduce((sum, i) => sum + (i.quantity || 0), 0),
-    [cartItems]
-  );
+  const unitPrice = useMemo(() => {
+    if (!pizza) return 0;
+    return computeUnitPrice(pizza, sizeObj.usd, toppings.length);
+  }, [pizza, sizeObj.usd, toppings.length]);
 
-  const handleLogout = () => {
-    logout?.();
-    navigate("/", { replace: true });
+  const toggleTopping = (id) => {
+    setToppings((prev) => {
+      const has = prev.includes(id);
+      if (has) return prev.filter((x) => x !== id);
+      if (prev.length >= 10) return prev;
+      return [...prev, id];
+    });
   };
 
-  const linkClass = ({ isActive }) =>
-    cx(
-      "px-3 py-2 rounded-xl text-sm font-extrabold transition whitespace-nowrap",
-      isActive
-        ? "bg-surface-2 text-text border border-border"
-        : "text-text-muted hover:text-text"
-    );
-
-  const menuLink = (to, label) => (
-    <NavLink
-      to={to}
-      className="block px-3 py-2 rounded-xl text-text font-extrabold hover:bg-[rgba(255,255,255,0.06)]"
-      onClick={() => setMenuOpen(false)}
-    >
-      {label}
-    </NavLink>
-  );
+  if (!open || !pizza) return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-surface/85 backdrop-blur border-b border-border">
-      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-3 sm:px-4">
-        {/* Brand */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="h-10 w-10 rounded-2xl bg-brand-primary grid place-items-center flex-shrink-0">
-            <img
-              src="/omnipizza-logo.png"
-              alt="OmniPizza"
-              className="h-8 w-8 rounded-xl object-cover"
-            />
+    /* ===== OVERLAY (scrollable) ===== */
+    <div className="fixed inset-0 z-[9999] bg-black/70 overflow-y-auto">
+      <div className="min-h-screen flex items-start justify-center py-6 px-3">
+        {/* ===== MODAL ===== */}
+        <div
+          className="relative lux-card w-full max-w-2xl rounded-2xl flex flex-col overflow-hidden"
+          style={{ maxHeight: "calc(100vh - 5rem)" }} // navbar-safe
+        >
+          {/* ===== HEADER (fixed) ===== */}
+          <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-border">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-2xl font-black text-brand-primary font-serif">
+                  {tOpt(UI_STRINGS.title, language)}
+                </div>
+                <div className="text-text-muted font-semibold">
+                  {pizza.name}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="text-sm text-text-muted">
+                  {pizza.currency}
+                </div>
+                <div className="text-3xl font-black text-text">
+                  {pizza.currency_symbol}
+                  {unitPrice}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="leading-tight min-w-0">
-            <div className="text-lg font-black text-text font-serif truncate">
-              OmniPizza
+          {/* ===== BODY (scrollable) ===== */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 grid gap-6">
+            {/* Size */}
+            <div>
+              <div className="text-lg font-black text-text mb-2">
+                {tOpt(UI_STRINGS.size, language)}
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {SIZE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setSize(opt.id)}
+                    className={[
+                      "px-4 py-3 rounded-xl border text-left font-extrabold transition",
+                      size === opt.id
+                        ? "bg-surface-2 border-brand-accent text-text"
+                        : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
+                    ].join(" ")}
+                  >
+                    {tOpt(opt.label, language)}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="text-xs text-text-muted truncate">
-              Fast • Testable • Multi-Country
-            </div>
-          </div>
-        </div>
 
-        {/* Desktop links */}
-        <nav className="hidden md:flex items-center gap-2">
-          <NavLink to="/catalog" className={linkClass}>{t("catalog")}</NavLink>
-          <NavLink to="/checkout" className={linkClass}>{t("checkout")}</NavLink>
-          <NavLink to="/profile" className={linkClass}>{t("profile")}</NavLink>
-          {lastOrder && (
-            <NavLink to="/order-success" className={linkClass}>
-              {t("lastOrder")}
-            </NavLink>
-          )}
-        </nav>
+            {/* Toppings */}
+            <div>
+              <div className="flex items-end justify-between">
+                <div className="text-lg font-black text-text">
+                  {tOpt(UI_STRINGS.toppings, language)}
+                </div>
+                <div className="text-sm text-text-muted font-semibold">
+                  {tOpt(UI_STRINGS.upTo10, language)} • {toppings.length}/10
+                </div>
+              </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          {/* Mobile hamburger */}
-          <div className="md:hidden relative">
-            <button
-              className="h-10 w-10 rounded-xl border border-border bg-surface-2 text-text font-black"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Menu"
-            >
-              ☰
-            </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-surface-2 p-2 shadow-lg">
-                {menuLink("/catalog", t("catalog"))}
-                {menuLink("/checkout", t("checkout"))}
-                {menuLink("/profile", t("profile"))}
-                {lastOrder && menuLink("/order-success", t("lastOrder"))}
-
-                {/* CH language toggle inside menu (mobile) */}
-                {countryCode === "CH" && (
-                  <div className="mt-2 p-2 rounded-xl border border-border bg-[rgba(255,255,255,0.02)]">
-                    <div className="text-xs text-text-muted font-semibold mb-2">
-                      DE / FR
+              <div className="mt-3 grid gap-4">
+                {TOPPING_GROUPS.map((g) => (
+                  <div
+                    key={g.id}
+                    className="rounded-xl border border-border p-4 bg-surface-2"
+                  >
+                    <div className="font-black text-text mb-3">
+                      {tOpt(g.label, language)}
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        className={cx(
-                          "px-3 py-2 rounded-xl text-xs font-black whitespace-nowrap border",
-                          language === "de"
-                            ? "bg-brand-primary text-black border-brand-primary"
-                            : "bg-surface text-text border-border"
-                        )}
-                        onClick={() => setLanguage?.("de")}
-                      >
-                        DE
-                      </button>
-                      <button
-                        className={cx(
-                          "px-3 py-2 rounded-xl text-xs font-black whitespace-nowrap border",
-                          language === "fr"
-                            ? "bg-brand-primary text-black border-brand-primary"
-                            : "bg-surface text-text border-border"
-                        )}
-                        onClick={() => setLanguage?.("fr")}
-                      >
-                        FR
-                      </button>
+
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {g.items.map((it) => {
+                        const checked = toppings.includes(it.id);
+                        const disabled =
+                          !checked && toppings.length >= 10;
+
+                        return (
+                          <button
+                            key={it.id}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => toggleTopping(it.id)}
+                            className={[
+                              "px-3 py-2 rounded-lg border text-left font-extrabold transition",
+                              checked
+                                ? "bg-brand-primary text-black border-brand-primary"
+                                : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
+                              disabled
+                                ? "opacity-50 cursor-not-allowed"
+                                : "",
+                            ].join(" ")}
+                          >
+                            {tOpt(it.label, language)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* CH DE/FR toggle (desktop/tablet) */}
-          {countryCode === "CH" && (
-            <div className="hidden sm:flex items-center gap-1 p-1 rounded-xl border border-border bg-surface-2">
+          {/* ===== FOOTER (fixed) ===== */}
+          <div className="flex-shrink-0 px-6 py-4 border-t border-border bg-surface">
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setLanguage?.("de")}
-                className={cx(
-                  "px-3 py-1 rounded-lg text-xs font-black whitespace-nowrap",
-                  language === "de"
-                    ? "bg-brand-primary text-black"
-                    : "text-text-muted hover:text-text"
-                )}
+                className="btn-ghost"
+                type="button"
+                onClick={onClose}
               >
-                DE
+                {tOpt(UI_STRINGS.cancel, language)}
               </button>
               <button
-                onClick={() => setLanguage?.("fr")}
-                className={cx(
-                  "px-3 py-1 rounded-lg text-xs font-black whitespace-nowrap",
-                  language === "fr"
-                    ? "bg-brand-primary text-black"
-                    : "text-text-muted hover:text-text"
-                )}
+                className="btn-gold"
+                type="button"
+                onClick={() =>
+                  onConfirm({
+                    size,
+                    toppings,
+                    unit_price: unitPrice,
+                  })
+                }
               >
-                FR
+                {tOpt(UI_STRINGS.confirm, language)}
               </button>
             </div>
-          )}
-
-          {/* Country selector */}
-          <select
-            value={countryCode}
-            onChange={(e) => setCountryCode?.(e.target.value)}
-            className="h-10 rounded-xl bg-surface-2 text-text px-3 text-sm font-black outline-none ring-2 ring-transparent focus:ring-brand-accent border border-border whitespace-nowrap"
-            aria-label="Country selector"
-          >
-            {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>{c.label}</option>
-            ))}
-          </select>
-
-          {/* Cart */}
-          <button
-            className="h-10 w-10 rounded-xl border border-border bg-surface-2 text-text font-black grid place-items-center"
-            onClick={() => navigate("/checkout")}
-            aria-label="Cart"
-          >
-            <span className="relative">
-              🛒
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-3 bg-brand-primary text-black text-[11px] font-black rounded-full px-2 py-[1px]">
-                  {cartCount}
-                </span>
-              )}
-            </span>
-          </button>
-
-          {/* Logout: text on >=sm, icon on xs to avoid vertical wrap */}
-          <button onClick={handleLogout} className="btn-gold h-10 whitespace-nowrap">
-            <span className="hidden sm:inline">{t("logout")}</span>
-            <span className="sm:hidden">⎋</span>
-          </button>
+          </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

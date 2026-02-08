@@ -9,6 +9,7 @@ import Checkout from "./pages/Checkout";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -38,45 +39,18 @@ const App = () => {
             Ajusta el valor si tu Navbar no mide ~64px */}
         <main className={isAuthenticated ? "pt-16" : ""}>
           <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? <Navigate to="/catalog" replace /> : <Login />
-              }
-            />
-            <Route
-              path="/catalog"
-              element={
-                <ProtectedRoute>
-                  <Catalog />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/order-success"
-              element={
-                <ProtectedRoute>
-                  <OrderSuccess />
-                </ProtectedRoute>
-              }
-            />
-            
+            {/* Public */}
+            <Route path="/" element={<Login />} />
+
+            {/* Protected */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/catalog" element={<Catalog />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+            </Route>
+
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
