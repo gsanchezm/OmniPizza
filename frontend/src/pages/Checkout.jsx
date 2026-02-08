@@ -1,227 +1,345 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { orderAPI } from '../api';
-import { useCartStore, useCountryStore, useProfileStore, useOrderStore } from '../store';
-import { useT } from '../i18n';
-import { formatMoney } from '../utils/money';
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { orderAPI } from "../api";
+import { useCartStore, useCountryStore, useProfileStore, useOrderStore } from "../store";
+import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 
-const PAYMENT = {
-  ONLINE_CARD: 'ONLINE_CARD',
-  DELIVERY_CASH: 'DELIVERY_CASH',
-  DELIVERY_CARD: 'DELIVERY_CARD',
-};
+const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
-export default function Checkout() {
-  const t = useT();
-  const navigate = useNavigate();
+function formatMoney(value, currency, locale, symbol) {
+  try {
+    const maxFrac = currency === "JPY" ? 0 : 2;
+    return new Intl.NumberFormat(locale || "en-US", {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: maxFrac,
+    }).format(Number(value));
+  } catch {
+    return `${symbol || ""}${value}`;
+  }
+}
 
-  const cartItems = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clearCart);
+function getRateFromPizza(pizza) {
+  const bp = Number(pizza?.base_price);
+  const p = Number(pizza?.price);
+  if (!bp || bp <= 0 || !p || p <= 0) return 1;
+  return p / bp;
+}
+function usdToLocalCeil(usdAmount, pizza) {
+  return Math.ceil(Number(usdAmount) * getRateFromPizza(pizza));
+}
+function computeUnitPrice(pizza, sizeUsd, toppingsCount) {
+  const base = Number(pizza.price);
+  const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
+  const toppingUnit = usdToLocalCeil(1, pizza);
+  const toppingsAdd = toppingUnit * toppingsCount;
+  return base + sizeAdd + toppingsAdd;
+}
+function signatureOf(pizzaId, size, toppings) {
+  const t = (toppings || []).slice().sort().join(",");
+  return `${pizzaId}|${size}|${t}`;
+}
 
-  const countryCode = useCountryStore((s) => s.countryCode);
+/** Reuse same modal, but allow initialConfig + edit confirm */
+function PizzaCustomizerModal({ open, pizza, language, locale, initialConfig, onClose, onConfirm }) {
+  const [size, setSize] = useState(initialConfig?.size || "small");
+  const [toppings, setToppings] = useState(initialConfig?.toppings || []);
 
-  const profile = useProfileStore();
-  const lastOrder = useOrderStore((s) => s.lastOrder);
-  const setLastOrder = useOrderStore((s) => s.setLastOrder);
-
-  const [loading, setLoading] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [error, setError] = useState('');
-
-  const [formData, setFormData] = useState({
-    name: profile.fullName || '',
-    address: profile.address || '',
-    phone: profile.phone || '',
-    colonia: '',
-    propina: '',
-    zip_code: '',
-    plz: '',
-    prefectura: '',
-  });
-
-  const [paymentType, setPaymentType] = useState(PAYMENT.ONLINE_CARD);
-  const [card, setCard] = useState({ name: '', number: '', exp: '', cvv: '' });
-
-  // ✅ IMPORTANT: do NOT auto-redirect after order submit clears the cart
-  useEffect(() => {
-    if (!hasSubmitted && !loading && cartItems.length === 0 && !lastOrder) {
-      navigate('/catalog', { replace: true });
+  React.useEffect(() => {
+    if (open) {
+      setSize(initialConfig?.size || "small");
+      setToppings(initialConfig?.toppings || []);
     }
-  }, [cartItems.length, hasSubmitted, loading, lastOrder, navigate]);
+  }, [open, initialConfig]);
 
-  const subtotal = useMemo(
-    () => cartItems.reduce((t, i) => t + (i.pizza.price * i.quantity), 0),
-    [cartItems]
-  );
+  const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
+  const unitPrice = useMemo(() => {
+    if (!pizza) return 0;
+    return computeUnitPrice(pizza, sizeObj.usd, toppings.length);
+  }, [pizza, sizeObj.usd, toppings.length]);
 
-  const inputClass =
-    "w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text " +
-    "focus:outline-none focus:ring-2 focus:ring-brand-accent";
-
-  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
-
-  const validatePayment = () => {
-    if (paymentType !== PAYMENT.ONLINE_CARD) return true;
-    if (!card.name || !card.number || !card.exp || !card.cvv) return false;
-    if (card.number.replace(/\s/g, '').length < 12) return false;
-    return true;
+  const toggleTopping = (id) => {
+    setToppings((prev) => {
+      const has = prev.includes(id);
+      if (has) return prev.filter((x) => x !== id);
+      if (prev.length >= 10) return prev;
+      return [...prev, id];
+    });
   };
 
-  const handleSubmit = async (e) => {
+  if (!open || !pizza) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="relative lux-card w-full max-w-2xl rounded-2xl p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-2xl font-black text-brand-primary font-serif">
+              {tOpt(UI_STRINGS.title, language)}
+            </div>
+            <div className="text-text-muted font-semibold">{pizza.name}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-text-muted">{pizza.currency}</div>
+            <div className="text-3xl font-black text-text">
+              {formatMoney(unitPrice, pizza.currency, locale, pizza.currency_symbol)}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6">
+          <div>
+            <div className="text-lg font-black text-text mb-2">{tOpt(UI_STRINGS.size, language)}</div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {SIZE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setSize(opt.id)}
+                  className={[
+                    "px-4 py-3 rounded-xl border text-left font-extrabold transition",
+                    size === opt.id
+                      ? "bg-surface-2 border-brand-accent text-text"
+                      : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
+                  ].join(" ")}
+                >
+                  {tOpt(opt.label, language)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-end justify-between">
+              <div className="text-lg font-black text-text">{tOpt(UI_STRINGS.toppings, language)}</div>
+              <div className="text-sm text-text-muted font-semibold">
+                {tOpt(UI_STRINGS.upTo10, language)} • {toppings.length}/10
+              </div>
+            </div>
+
+            <div className="mt-3 grid gap-4">
+              {TOPPING_GROUPS.map((g) => (
+                <div key={g.id} className="rounded-xl border border-border p-4 bg-surface-2">
+                  <div className="font-black text-text mb-3">{tOpt(g.label, language)}</div>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {g.items.map((it) => {
+                      const checked = toppings.includes(it.id);
+                      const disabled = !checked && toppings.length >= 10;
+                      return (
+                        <button
+                          key={it.id}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => toggleTopping(it.id)}
+                          className={[
+                            "px-3 py-2 rounded-lg border text-left font-extrabold transition",
+                            checked
+                              ? "bg-brand-primary text-black border-brand-primary"
+                              : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
+                            disabled ? "opacity-50 cursor-not-allowed" : "",
+                          ].join(" ")}
+                        >
+                          {tOpt(it.label, language)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <button className="btn-ghost" type="button" onClick={onClose}>
+              {tOpt(UI_STRINGS.cancel, language)}
+            </button>
+            <button
+              className="btn-gold"
+              type="button"
+              onClick={() =>
+                onConfirm({
+                  size,
+                  toppings,
+                  unit_price: unitPrice,
+                })
+              }
+            >
+              {tOpt(UI_STRINGS.confirm, language)}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Checkout() {
+  const navigate = useNavigate();
+
+  const countryCode = useCountryStore((s) => s.countryCode);
+  const language = useCountryStore((s) => s.language);
+  const locale = useCountryStore((s) => s.locale);
+
+  const items = useCartStore((s) => s.items);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const updateItem = useCartStore((s) => s.updateItem);
+  const clearCart = useCartStore((s) => s.clearCart);
+
+  const profile = useProfileStore();
+  const setLastOrder = useOrderStore((s) => s.setLastOrder);
+
+  const [form, setForm] = useState({
+    name: profile.fullName || "",
+    address: profile.address || "",
+    phone: profile.phone || "",
+    colonia: "",
+    propina: "",
+    zip_code: "",
+    plz: "",
+    prefectura: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  const subtotal = useMemo(() => items.reduce((sum, it) => sum + (Number(it.unit_price) * Number(it.quantity)), 0), [items]);
+
+  const currency = items[0]?.currency || "USD";
+  const symbol = items[0]?.currency_symbol || "$";
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!validatePayment()) {
-      setError('Please complete card details (demo).');
-      return;
-    }
-
+    setError("");
     setLoading(true);
-    setHasSubmitted(true);
 
     try {
       const payload = {
         country_code: countryCode,
-        items: cartItems.map((i) => ({ pizza_id: i.pizza_id, quantity: i.quantity })),
-        name: formData.name,
-        address: formData.address,
-        phone: formData.phone,
+        items: items.map((i) => ({
+          pizza_id: i.pizza_id,
+          quantity: i.quantity,
+          size: i.config?.size || "small",
+          toppings: i.config?.toppings || [],
+        })),
+        name: form.name,
+        address: form.address,
+        phone: form.phone,
       };
 
-      if (countryCode === 'MX') {
-        payload.colonia = formData.colonia;
-        if (formData.propina) payload.propina = parseFloat(formData.propina);
-      } else if (countryCode === 'US') {
-        payload.zip_code = formData.zip_code;
-      } else if (countryCode === 'CH') {
-        payload.plz = formData.plz;
-      } else if (countryCode === 'JP') {
-        payload.prefectura = formData.prefectura;
+      if (countryCode === "MX") {
+        payload.colonia = form.colonia;
+        if (form.propina) payload.propina = parseFloat(form.propina);
+      } else if (countryCode === "US") {
+        payload.zip_code = form.zip_code;
+      } else if (countryCode === "CH") {
+        payload.plz = form.plz;
+      } else if (countryCode === "JP") {
+        payload.prefectura = form.prefectura;
       }
 
       const res = await orderAPI.checkout(payload);
-
-      // ✅ persist last order BEFORE clearing cart
-      setLastOrder({ ...res.data, paymentType });
-
-      // ✅ Profile becomes meaningful
-      profile.setProfile?.({
-        fullName: formData.name,
-        address: formData.address,
-        phone: formData.phone,
-      });
-
+      setLastOrder(res.data);
       clearCart();
-      navigate('/order-success', { replace: true });
+      navigate("/order-success", { replace: true });
     } catch (err) {
-      setError(err?.response?.data?.detail || err?.response?.data?.error || 'Checkout error');
-      setHasSubmitted(false);
+      setError(err?.response?.data?.detail || "Checkout failed");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!items.length) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="lux-card p-6 rounded-2xl text-text-muted font-semibold">
+          {tOpt({ en: "Your cart is empty", es: "Carrito vacío", de: "Warenkorb leer", fr: "Panier vide", ja: "カートは空です" }, language)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black text-brand-primary font-serif mb-8">🛒 {t('checkout')}</h1>
+      <h1 className="text-4xl font-black text-brand-primary font-serif mb-8">
+        🛒 {tOpt({ en: "Checkout", es: "Checkout", de: "Kasse", fr: "Paiement", ja: "チェックアウト" }, language)}
+      </h1>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Form */}
+        {/* Left: items + form */}
         <div className="lux-card rounded-2xl p-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h2 className="text-2xl font-black text-text font-serif">{t('deliveryInfo')}</h2>
-            <Link to="/profile" className="btn-ghost text-sm">{t('editProfile')}</Link>
+          <div className="text-2xl font-black text-text font-serif mb-4">
+            {tOpt({ en: "Delivery details", es: "Datos de entrega", de: "Lieferdaten", fr: "Livraison", ja: "配送情報" }, language)}
           </div>
 
-          <p className="text-text-muted text-sm mb-6">{t('profileHint')}</p>
+          {/* Items list */}
+          <div className="grid gap-3 mb-6">
+            {items.map((it) => (
+              <div key={it.id} className="rounded-xl border border-border bg-surface-2 p-4">
+                <div className="flex justify-between gap-3">
+                  <div>
+                    <div className="text-text font-black">{it.pizza.name}</div>
+                    <div className="text-text-muted text-sm font-semibold">
+                      {tOpt(SIZE_OPTIONS.find(s => s.id === (it.config?.size || "small"))?.label, language)} •{" "}
+                      {(it.config?.toppings || []).length} toppings • Qty {it.quantity}
+                    </div>
+                    <div className="text-text-muted text-sm">
+                      Unit: {formatMoney(it.unit_price, it.currency, locale, it.currency_symbol)}
+                    </div>
+                  </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-extrabold text-text-muted mb-2">{t('fullName')} *</label>
-              <input name="name" value={formData.name} onChange={handleChange} required className={inputClass} />
-            </div>
+                  <div className="text-right">
+                    <div className="text-text font-black">
+                      {formatMoney(it.unit_price * it.quantity, it.currency, locale, it.currency_symbol)}
+                    </div>
+                    <div className="mt-2 flex gap-2 justify-end">
+                      <button
+                        type="button"
+                        className="btn-ghost text-sm"
+                        onClick={() => {
+                          setEditing(it);
+                          setEditOpen(true);
+                        }}
+                      >
+                        {tOpt(UI_STRINGS.edit, language)}
+                      </button>
+                      <button type="button" className="btn-ghost text-sm" onClick={() => removeItem(it.id)}>
+                        {tOpt(UI_STRINGS.remove, language)}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
-            <div>
-              <label className="block text-sm font-extrabold text-text-muted mb-2">{t('address')} *</label>
-              <input name="address" value={formData.address} onChange={handleChange} required className={inputClass} />
-            </div>
+          {/* Form */}
+          <form onSubmit={onSubmit} className="grid gap-4">
+            <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
+            <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Address" value={form.address} onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))} required />
+            <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Phone" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} required />
 
-            <div>
-              <label className="block text-sm font-extrabold text-text-muted mb-2">{t('phone')} *</label>
-              <input name="phone" value={formData.phone} onChange={handleChange} required className={inputClass} />
-            </div>
-
-            {/* Country-specific */}
-            {countryCode === 'MX' && (
+            {countryCode === "MX" && (
               <>
-                <div>
-                  <label className="block text-sm font-extrabold text-text-muted mb-2">{t('colonia')} *</label>
-                  <input name="colonia" value={formData.colonia} onChange={handleChange} required className={inputClass} />
-                </div>
-                <div>
-                  <label className="block text-sm font-extrabold text-text-muted mb-2">{t('tip')}</label>
-                  <input type="number" name="propina" value={formData.propina} onChange={handleChange} step="0.01" min="0" className={inputClass} />
-                </div>
+                <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Colonia" value={form.colonia} onChange={(e) => setForm((p) => ({ ...p, colonia: e.target.value }))} required />
+                <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Tip (optional)" value={form.propina} onChange={(e) => setForm((p) => ({ ...p, propina: e.target.value }))} />
               </>
             )}
 
-            {countryCode === 'US' && (
-              <div>
-                <label className="block text-sm font-extrabold text-text-muted mb-2">{t('zip')} *</label>
-                <input name="zip_code" value={formData.zip_code} onChange={handleChange} required pattern="\d{5}" maxLength="5" className={inputClass} />
-              </div>
+            {countryCode === "US" && (
+              <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="ZIP Code" value={form.zip_code} onChange={(e) => setForm((p) => ({ ...p, zip_code: e.target.value }))} required />
             )}
 
-            {countryCode === 'CH' && (
-              <div>
-                <label className="block text-sm font-extrabold text-text-muted mb-2">{t('plz')} *</label>
-                <input name="plz" value={formData.plz} onChange={handleChange} required className={inputClass} />
-              </div>
+            {countryCode === "CH" && (
+              <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="PLZ" value={form.plz} onChange={(e) => setForm((p) => ({ ...p, plz: e.target.value }))} required />
             )}
 
-            {countryCode === 'JP' && (
-              <div>
-                <label className="block text-sm font-extrabold text-text-muted mb-2">{t('prefecture')} *</label>
-                <input name="prefectura" value={formData.prefectura} onChange={handleChange} required className={inputClass} />
-              </div>
+            {countryCode === "JP" && (
+              <input className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text" placeholder="Prefecture" value={form.prefectura} onChange={(e) => setForm((p) => ({ ...p, prefectura: e.target.value }))} required />
             )}
-
-            {/* Payment */}
-            <div className="pt-2">
-              <h3 className="text-xl font-black text-brand-primary font-serif mb-3">{t('payment')}</h3>
-
-              <div className="grid gap-3">
-                <label className="lux-radio">
-                  <input type="radio" checked={paymentType === PAYMENT.ONLINE_CARD} onChange={() => setPaymentType(PAYMENT.ONLINE_CARD)} />
-                  <span className="text-text">{t('payOnline')}</span>
-                </label>
-
-                <label className="lux-radio">
-                  <input type="radio" checked={paymentType === PAYMENT.DELIVERY_CASH} onChange={() => setPaymentType(PAYMENT.DELIVERY_CASH)} />
-                  <span className="text-text">{t('payOnDelivery')} – {t('cash')}</span>
-                </label>
-
-                <label className="lux-radio">
-                  <input type="radio" checked={paymentType === PAYMENT.DELIVERY_CARD} onChange={() => setPaymentType(PAYMENT.DELIVERY_CARD)} />
-                  <span className="text-text">{t('payOnDelivery')} – {t('card')}</span>
-                </label>
-              </div>
-
-              {paymentType === PAYMENT.ONLINE_CARD && (
-                <div className="mt-4 grid gap-3">
-                  <div className="text-sm font-extrabold text-text-muted">{t('cardForm')}</div>
-                  <input className={inputClass} placeholder="Name on card" value={card.name} onChange={(e) => setCard((p) => ({ ...p, name: e.target.value }))} />
-                  <input className={inputClass} placeholder="Card number" value={card.number} onChange={(e) => setCard((p) => ({ ...p, number: e.target.value }))} />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input className={inputClass} placeholder="MM/YY" value={card.exp} onChange={(e) => setCard((p) => ({ ...p, exp: e.target.value }))} />
-                    <input className={inputClass} placeholder="CVV" value={card.cvv} onChange={(e) => setCard((p) => ({ ...p, cvv: e.target.value }))} />
-                  </div>
-                  <div className="text-xs text-text-muted">
-                    * Demo UI only. Card data is not sent to backend.
-                  </div>
-                </div>
-              )}
-            </div>
 
             {error && (
               <div className="border border-danger text-danger bg-surface-2 px-4 py-3 rounded-xl font-semibold">
@@ -229,40 +347,75 @@ export default function Checkout() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-gold w-full">
-              {loading ? 'Processing…' : t('placeOrder')}
+            <button className="btn-gold w-full" disabled={loading}>
+              {loading ? "…" : tOpt({ en: "Place order", es: "Confirmar", de: "Bestellen", fr: "Valider", ja: "注文確定" }, language)}
             </button>
           </form>
         </div>
 
-        {/* Summary */}
+        {/* Right: totals */}
         <div className="lux-card rounded-2xl p-6">
-          <h2 className="text-2xl font-black text-text font-serif mb-6">{t('orderSummary')}</h2>
-
-          <div className="space-y-4 mb-6">
-            {cartItems.map((item) => (
-              <div key={item.pizza_id} className="flex justify-between items-center border-b border-border pb-4">
-                <div>
-                  <div className="font-black text-text">{item.pizza.name}</div>
-                  <div className="text-sm text-text-muted">
-                    Qty: {item.quantity} × {formatMoney(item.pizza.price)}
-                  </div>
-                </div>
-                <div className="font-black text-text">
-                  {formatMoney(item.pizza.price * item.quantity)}
-                </div>
-              </div>
-            ))}
+          <div className="text-2xl font-black text-text font-serif mb-4">
+            {tOpt({ en: "Summary", es: "Resumen", de: "Übersicht", fr: "Résumé", ja: "概要" }, language)}
           </div>
 
-          <div className="border-t border-border pt-4">
-            <div className="flex justify-between items-center text-xl font-black">
-              <span className="text-text-muted">Subtotal</span>
-              <span className="text-brand-primary">{formatMoney(subtotal)}</span>
-            </div>
+          <div className="text-text-muted font-semibold mb-2">
+            {tOpt({ en: "Subtotal", es: "Subtotal", de: "Zwischensumme", fr: "Sous-total", ja: "小計" }, language)}
+          </div>
+
+          <div className="text-4xl font-black text-brand-primary">
+            {formatMoney(subtotal, currency, locale, symbol)}
+          </div>
+
+          <div className="text-text-muted text-sm mt-4">
+            {tOpt(
+              {
+                en: "Taxes/total are computed by backend on success screen.",
+                es: "Impuestos/total se calculan en backend al finalizar.",
+                de: "Steuern/Gesamt werden im Backend berechnet.",
+                fr: "Taxes/total calculés par le backend.",
+                ja: "税金/合計はバックエンドで計算されます。",
+              },
+              language
+            )}
           </div>
         </div>
       </div>
+
+      <PizzaCustomizerModal
+        open={editOpen}
+        pizza={editing?.pizza}
+        language={language}
+        locale={locale}
+        initialConfig={editing?.config}
+        onClose={() => setEditOpen(false)}
+        onConfirm={(config) => {
+          // recompute unit_price for edited item
+          const sizeObj = SIZE_OPTIONS.find((s) => s.id === config.size) || SIZE_OPTIONS[0];
+          const newUnit = computeUnitPrice(editing.pizza, sizeObj.usd, (config.toppings || []).length);
+
+          // merge if another item already has same signature after edit
+          const newSig = signatureOf(editing.pizza_id, config.size, config.toppings);
+          const all = useCartStore.getState().items;
+          const other = all.find((x) => x.id !== editing.id && x.signature === newSig);
+
+          if (other) {
+            // merge quantities into other, remove current
+            useCartStore.getState().updateItem(other.id, {
+              quantity: other.quantity + editing.quantity,
+            });
+            useCartStore.getState().removeItem(editing.id);
+          } else {
+            useCartStore.getState().updateItem(editing.id, {
+              signature: newSig,
+              config: { size: config.size, toppings: config.toppings || [] },
+              unit_price: newUnit,
+            });
+          }
+
+          setEditOpen(false);
+        }}
+      />
     </div>
   );
 }

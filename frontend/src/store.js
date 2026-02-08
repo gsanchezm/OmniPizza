@@ -116,25 +116,49 @@ export const useCountryStore = create(
 export const useCartStore = create(
   persist(
     (set, get) => ({
-      items: [], // { pizza_id, pizza, quantity }
+      items: [], 
+      // item = { id, pizza_id, pizza, quantity, config:{size,toppings}, unit_price, currency, currency_symbol }
 
-      addItem: (pizza) => {
-        const id = pizza?.id;
-        if (!id) return;
-
+      addConfiguredItem: (pizza, config) => {
+        const signature = `${pizza.id}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;
         const items = get().items;
-        const found = items.find((i) => i.pizza_id === id);
 
-        if (found) {
+        const existing = items.find((i) => i.signature === signature);
+        if (existing) {
           set({
             items: items.map((i) =>
-              i.pizza_id === id ? { ...i, quantity: i.quantity + 1 } : i
+              i.signature === signature ? { ...i, quantity: i.quantity + 1 } : i
             ),
           });
-        } else {
-          set({ items: [...items, { pizza_id: id, pizza, quantity: 1 }] });
+          return;
         }
+
+        const id = (globalThis.crypto?.randomUUID?.() || `item_${Date.now()}_${Math.random()}`).toString();
+
+        set({
+          items: [
+            ...items,
+            {
+              id,
+              signature,
+              pizza_id: pizza.id,
+              pizza,
+              quantity: 1,
+              config: { size: config.size, toppings: config.toppings || [] },
+              unit_price: config.unit_price,
+              currency: pizza.currency,
+              currency_symbol: pizza.currency_symbol,
+            },
+          ],
+        });
       },
+
+      removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
+
+      updateItem: (id, patch) =>
+        set({
+          items: get().items.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+        }),
 
       clearCart: () => set({ items: [] }),
     }),

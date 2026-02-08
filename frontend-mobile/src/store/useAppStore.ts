@@ -2,8 +2,7 @@ import { create } from "zustand";
 
 export type CountryCode = "MX" | "US" | "CH" | "JP";
 export type LanguageCode = "en" | "es" | "de" | "fr" | "ja";
-
-export type PaymentType = "ONLINE_CARD" | "DELIVERY_CASH" | "DELIVERY_CARD";
+export type PizzaSize = "small" | "medium" | "large" | "family";
 
 export interface ProfileState {
   fullName: string;
@@ -12,10 +11,21 @@ export interface ProfileState {
   notes: string;
 }
 
+export interface PizzaConfig {
+  size: PizzaSize;
+  toppings: string[];
+}
+
 export interface CartItem {
+  id: string;
+  signature: string;
   pizza_id: string;
+  pizza: any; // pizza object from backend
   quantity: number;
-  pizza: any; // si tienes tipo Pizza, reemplázalo aquí
+  config: PizzaConfig;
+  unit_price: number; // local currency unit price
+  currency: string;
+  currency_symbol: string;
 }
 
 export interface LastOrder {
@@ -26,39 +36,19 @@ export interface LastOrder {
   total: number;
   currency: string;
   currency_symbol: string;
-  paymentType?: PaymentType;
 }
 
 interface AppState {
-  // context
   country: CountryCode;
-
-  /**
-   * UI language:
-   * - starts ALWAYS "en"
-   * - changes when market changes (MX->es, JP->ja, etc.)
-   */
   language: LanguageCode;
-
-  /**
-   * CH preference (DE/FR) stored separately so it survives switching markets.
-   * - default: "de"
-   */
   chLanguage: "de" | "fr";
-
-  // auth
   token: string | null;
 
-  // profile
   profile: ProfileState;
 
-  // cart
   cartItems: CartItem[];
-
-  // orders
   lastOrder: LastOrder | null;
 
-  // actions
   setCountry: (c: CountryCode) => void;
   setLanguage: (lang: "de" | "fr") => void; // only CH
   setToken: (t: string | null) => void;
@@ -66,76 +56,53 @@ interface AppState {
 
   setProfile: (patch: Partial<ProfileState>) => void;
 
-  addToCart: (pizza: any) => void;
-  removeFromCart: (pizzaId: string) => void;
-  setQty: (pizzaId: string, qty: number) => void;
+  addConfiguredItem: (pizza: any, config: PizzaConfig, unitPrice: number) => void;
+  removeCartItem: (id: string) => void;
+  updateCartItem: (id: string, patch: Partial<CartItem>) => void;
+  setQty: (id: string, qty: number) => void;
   clearCart: () => void;
 
   setLastOrder: (order: LastOrder) => void;
   clearLastOrder: () => void;
 }
 
-const MARKET_DEFAULT_LANG: Record<CountryCode, LanguageCode> = {
+const MARKET_LANG: Record<CountryCode, LanguageCode> = {
   MX: "es",
   US: "en",
-  CH: "de", // real default for CH is DE (FR toggle)
+  CH: "de",
   JP: "ja",
 };
 
+function makeId() {
+  return `item_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
-  // Defaults
   country: "MX",
-  language: "en",      // ✅ ALWAYS start in English
-  chLanguage: "de",    // ✅ CH preference, default DE
+  language: "en",      // starts in English
+  chLanguage: "de",
   token: null,
 
-  profile: {
-    fullName: "",
-    address: "",
-    phone: "",
-    notes: "",
-  },
+  profile: { fullName: "", address: "", phone: "", notes: "" },
 
   cartItems: [],
   lastOrder: null,
 
-  /**
-   * Market change:
-   * - Switch UI language to market default
-   * - CH uses stored preference (de/fr)
-   */
   setCountry: (country) =>
     set((state) => {
       let nextLang: LanguageCode;
-
-      if (country === "CH") {
-        // Use CH stored preference
-        nextLang = state.chLanguage;
-      } else {
-        nextLang = MARKET_DEFAULT_LANG[country] ?? "en";
-      }
-
-      return {
-        country,
-        language: nextLang,
-      };
+      if (country === "CH") nextLang = state.chLanguage; // keep DE/FR preference
+      else nextLang = MARKET_LANG[country] ?? "en";
+      return { country, language: nextLang };
     }),
 
-  /**
-   * Only for CH:
-   * - Updates current language AND stored CH preference
-   */
   setLanguage: (lang) =>
     set((state) => {
       if (state.country !== "CH") return {};
-      const valid: "de" | "fr" = lang === "fr" ? "fr" : "de";
-      return {
-        chLanguage: valid,
-        language: valid,
-      };
+      const valid = lang === "fr" ? "fr" : "de";
+      return { chLanguage: valid, language: valid };
     }),
 
-  // Auth
   setToken: (token) => set({ token }),
 
   logout: () =>
@@ -143,61 +110,61 @@ export const useAppStore = create<AppState>((set, get) => ({
       token: null,
       cartItems: [],
       lastOrder: null,
-      // profile: lo dejamos para que no pierdas datos de entrega
-      // country/language: se mantiene
     }),
 
-  // Profile
-  setProfile: (patch) =>
-    set((state) => ({
-      profile: { ...state.profile, ...patch },
-    })),
+  setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
 
-  // Cart
-  addToCart: (pizza) =>
+  addConfiguredItem: (pizza, config, unitPrice) =>
     set((state) => {
-      const id = String(pizza?.id ?? pizza?.pizza_id ?? "");
-      if (!id) return {};
+      const pizzaId = String(pizza?.id ?? pizza?.pizza_id ?? "");
+      if (!pizzaId) return {};
 
-      const found = state.cartItems.find((i) => i.pizza_id === id);
+      const signature = `${pizzaId}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;
+      const existing = state.cartItems.find((i) => i.signature === signature);
 
-      if (found) {
+      if (existing) {
         return {
           cartItems: state.cartItems.map((i) =>
-            i.pizza_id === id ? { ...i, quantity: i.quantity + 1 } : i
+            i.signature === signature ? { ...i, quantity: i.quantity + 1 } : i
           ),
         };
       }
 
+      const id = makeId();
       return {
-        cartItems: [...state.cartItems, { pizza_id: id, quantity: 1, pizza }],
+        cartItems: [
+          ...state.cartItems,
+          {
+            id,
+            signature,
+            pizza_id: pizzaId,
+            pizza,
+            quantity: 1,
+            config,
+            unit_price: unitPrice,
+            currency: pizza.currency,
+            currency_symbol: pizza.currency_symbol,
+          },
+        ],
       };
     }),
 
-  removeFromCart: (pizzaId) =>
+  removeCartItem: (id) =>
+    set((state) => ({ cartItems: state.cartItems.filter((i) => i.id !== id) })),
+
+  updateCartItem: (id, patch) =>
     set((state) => ({
-      cartItems: state.cartItems
-        .map((i) =>
-          i.pizza_id === pizzaId ? { ...i, quantity: i.quantity - 1 } : i
-        )
-        .filter((i) => i.quantity > 0),
+      cartItems: state.cartItems.map((i) => (i.id === id ? { ...i, ...patch } : i)),
     })),
 
-  setQty: (pizzaId, qty) =>
+  setQty: (id, qty) =>
     set((state) => {
-      if (qty <= 0) {
-        return { cartItems: state.cartItems.filter((i) => i.pizza_id !== pizzaId) };
-      }
-      return {
-        cartItems: state.cartItems.map((i) =>
-          i.pizza_id === pizzaId ? { ...i, quantity: qty } : i
-        ),
-      };
+      if (qty <= 0) return { cartItems: state.cartItems.filter((i) => i.id !== id) };
+      return { cartItems: state.cartItems.map((i) => (i.id === id ? { ...i, quantity: qty } : i)) };
     }),
 
   clearCart: () => set({ cartItems: [] }),
 
-  // Orders
   setLastOrder: (order) => set({ lastOrder: order }),
   clearLastOrder: () => set({ lastOrder: null }),
 }));

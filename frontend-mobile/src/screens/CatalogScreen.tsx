@@ -10,57 +10,67 @@ import {
 } from "react-native";
 import { apiClient } from "../api/client";
 import { useAppStore } from "../store/useAppStore";
-import { getTestProps } from "../utils/qa";
 import { CustomNavbar } from "../components/CustomNavbar";
 import { useT } from "../i18n";
 
+function moneyLine(p: any) {
+  // backend returns: price, currency, currency_symbol
+  return `${p.currency_symbol}${p.price} ${p.currency}`;
+}
+
 export default function CatalogScreen({ navigation }: any) {
   const t = useT();
-  const { country, language, addToCart } = useAppStore();
+  const { country, language } = useAppStore();
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [pizzas, setPizzas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchMenu();
-  }, [country, language]); // ✅ market + language
+    loadPizzas();
+  }, [country, language]);
 
-  const fetchMenu = async () => {
+  const loadPizzas = async () => {
     setLoading(true);
     try {
       const res = await apiClient.get("/api/pizzas");
-      setProducts(res.data?.pizzas || []);
+      setPizzas(res.data?.pizzas || []);
     } catch (e) {
       console.log("Failed to load /api/pizzas", e);
-      setProducts([]);
+      setPizzas([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const openBuilderAdd = (pizza: any) => {
+    navigation.navigate("PizzaBuilder", {
+      mode: "add",
+      pizza,
+    });
+  };
+
   const renderItem = ({ item }: any) => (
-    <View style={styles.card} {...getTestProps(`card-product-${item.id}`)}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+    <View style={styles.card}>
+      <Image
+        source={{ uri: item.image }}
+        style={styles.image}
+        onError={(e: any) => {
+          // fallback pizza image
+          e?.currentTarget?.setNativeProps?.({
+            source: [{ uri: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg" }],
+          });
+        }}
+      />
 
       <View style={styles.info}>
-        <Text style={styles.name} {...getTestProps(`text-product-name-${item.id}`)}>
-          {item.name}
-        </Text>
-
+        <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.desc} numberOfLines={2}>
           {item.description}
         </Text>
-
-        <Text style={styles.price} {...getTestProps(`text-product-price-${item.id}`)}>
-          {item.currency_symbol}{item.price} {item.currency}
-        </Text>
+        <Text style={styles.price}>{moneyLine(item)}</Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.addBtn}
-        onPress={() => addToCart(item)}
-        {...getTestProps(`btn-add-cart-${item.id}`)}
-      >
+      <TouchableOpacity style={styles.addBtn} onPress={() => openBuilderAdd(item)}>
         <Text style={styles.addBtnText}>{t("addToCart")}</Text>
       </TouchableOpacity>
     </View>
@@ -71,14 +81,13 @@ export default function CatalogScreen({ navigation }: any) {
       <CustomNavbar title={t("catalog")} navigation={navigation} />
 
       {loading ? (
-        <ActivityIndicator size="large" style={{ marginTop: 20 }} testID="loader-catalog" />
+        <ActivityIndicator size="large" style={{ marginTop: 20 }} />
       ) : (
         <FlatList
-          data={products}
-          keyExtractor={(item) => item.id}
+          data={pizzas}
+          keyExtractor={(p) => p.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
-          testID="list-products"
         />
       )}
     </View>
@@ -100,7 +109,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(220,202,135,0.22)",
   },
 
-  image: { width: 62, height: 62, borderRadius: 12, backgroundColor: "#0C0C12" },
+  image: { width: 64, height: 64, borderRadius: 12, backgroundColor: "#0C0C12" },
   info: { flex: 1, marginLeft: 10 },
 
   name: { fontWeight: "900", fontSize: 16, color: "#F5F5F5" },

@@ -8,6 +8,7 @@ const DICT: Record<string, Record<string, string>> = {
     payment: "Payment",
     addToCart: "Add to cart",
     deliveryInfo: "Delivery Details",
+    orderSummary: "Order Summary",
     fullName: "Full name",
     address: "Address",
     phone: "Phone",
@@ -17,6 +18,9 @@ const DICT: Record<string, Record<string, string>> = {
     plz: "PLZ",
     prefecture: "Prefecture",
     placeOrder: "Place Order",
+    edit: "Edit",
+    remove: "Remove",
+    cart: "Cart",
   },
 
   es: {
@@ -26,6 +30,7 @@ const DICT: Record<string, Record<string, string>> = {
     payment: "Pago",
     addToCart: "Agregar al carrito",
     deliveryInfo: "Información de entrega",
+    orderSummary: "Resumen del pedido",
     fullName: "Nombre completo",
     address: "Dirección",
     phone: "Teléfono",
@@ -35,6 +40,9 @@ const DICT: Record<string, Record<string, string>> = {
     plz: "PLZ",
     prefecture: "Prefectura",
     placeOrder: "Confirmar pedido",
+    edit: "Editar",
+    remove: "Eliminar",
+    cart: "Carrito",
   },
 
   de: {
@@ -44,6 +52,7 @@ const DICT: Record<string, Record<string, string>> = {
     payment: "Zahlung",
     addToCart: "In den Warenkorb",
     deliveryInfo: "Lieferdetails",
+    orderSummary: "Bestellübersicht",
     fullName: "Vollständiger Name",
     address: "Adresse",
     phone: "Telefon",
@@ -53,6 +62,9 @@ const DICT: Record<string, Record<string, string>> = {
     plz: "PLZ",
     prefecture: "Präfektur",
     placeOrder: "Bestellen",
+    edit: "Bearbeiten",
+    remove: "Entfernen",
+    cart: "Warenkorb",
   },
 
   fr: {
@@ -62,6 +74,7 @@ const DICT: Record<string, Record<string, string>> = {
     payment: "Paiement",
     addToCart: "Ajouter au panier",
     deliveryInfo: "Détails de livraison",
+    orderSummary: "Récapitulatif",
     fullName: "Nom complet",
     address: "Adresse",
     phone: "Téléphone",
@@ -71,6 +84,9 @@ const DICT: Record<string, Record<string, string>> = {
     plz: "PLZ",
     prefecture: "Préfecture",
     placeOrder: "Valider",
+    edit: "Modifier",
+    remove: "Supprimer",
+    cart: "Panier",
   },
 
   ja: {
@@ -80,6 +96,7 @@ const DICT: Record<string, Record<string, string>> = {
     payment: "支払い",
     addToCart: "カートに追加",
     deliveryInfo: "配送情報",
+    orderSummary: "注文内容",
     fullName: "氏名",
     address: "住所",
     phone: "電話番号",
@@ -89,6 +106,9 @@ const DICT: Record<string, Record<string, string>> = {
     plz: "PLZ",
     prefecture: "都道府県",
     placeOrder: "注文確定",
+    edit: "編集",
+    remove: "削除",
+    cart: "カート",
   },
 };
 

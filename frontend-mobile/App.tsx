@@ -7,6 +7,7 @@ import CatalogScreen from './src/screens/CatalogScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import OrderSuccessScreen from './src/screens/OrderSuccessScreen';
+import PizzaBuilderScreen from './src/screens/PizzaBuilderScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
         <Stack.Screen name="Checkout" component={CheckoutScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} />
+        <Stack.Screen name="PizzaBuilder" component={PizzaBuilderScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
