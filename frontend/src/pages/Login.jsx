@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom"; 
 import { authAPI } from "../api";
 import { useAuthStore } from "../store";
 
@@ -19,7 +19,15 @@ export default function Login() {
   const [testUsers, setTestUsers] = useState([]);
 
   const navigate = useNavigate();
+
+  // ✅ usar token como única fuente de verdad
+  const token = useAuthStore((s) => s.token);
   const login = useAuthStore((s) => s.login);
+
+  // ✅ REDIRECCIÓN TEMPRANA
+  if (token) {
+    return <Navigate to="/catalog" replace />;
+  }
 
   useEffect(() => {
     authAPI
@@ -36,7 +44,10 @@ export default function Login() {
     try {
       const res = await authAPI.login(username, password);
       const { access_token, username: user, behavior } = res.data;
+
+      // guarda token + user
       login(access_token, user, behavior);
+
       navigate("/catalog", { replace: true });
     } catch (err) {
       setError(err?.response?.data?.detail || "Login failed");

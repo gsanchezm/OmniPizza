@@ -12,7 +12,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 const App = () => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore((state) => Boolean(state.token));
   const { countryCode, setCountryInfo } = useCountryStore();
 
   useEffect(() => {
