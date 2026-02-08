@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 import { computeUnitPrice } from "../utils/pizzaPricing";
 import { useCountryStore } from "../store";
@@ -16,6 +16,23 @@ export default function PizzaCustomizerModal({
 
   const [size, setSize] = useState(initialConfig?.size || "small");
   const [toppings, setToppings] = useState(initialConfig?.toppings || []);
+
+  // ✅ scroll reset
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    // si abres para otra pizza / otro config, resetea state
+    setSize(initialConfig?.size || "small");
+    setToppings(initialConfig?.toppings || []);
+
+    // resetea scroll para que SIEMPRE veas "Size" al inicio
+    requestAnimationFrame(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pizza?.id]);
 
   const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
@@ -37,24 +54,33 @@ export default function PizzaCustomizerModal({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative lux-card w-full max-w-2xl rounded-2xl p-6 max-h-[90vh] flex flex-col overflow-hidden">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-2xl font-black text-brand-primary font-serif">
-              {label(UI_STRINGS.title, language)}
-            </div>
-            <div className="text-text-muted font-semibold">{pizza.name}</div>
-          </div>
 
-          <div className="text-right">
-            <div className="text-sm text-text-muted">{pizza.currency}</div>
-            <div className="text-3xl font-black text-text">
-              {pizza.currency_symbol}{unitPrice}
+      {/* ✅ quitamos p-6 del wrapper y lo movemos a header/body/footer para que el footer sea fijo */}
+      <div className="relative lux-card w-full max-w-2xl rounded-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header (no scroll) */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-2xl font-black text-brand-primary font-serif">
+                {label(UI_STRINGS.title, language)}
+              </div>
+              <div className="text-text-muted font-semibold">{pizza.name}</div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-sm text-text-muted">{pizza.currency}</div>
+              <div className="text-3xl font-black text-text">
+                {pizza.currency_symbol}{unitPrice}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-6 overflow-y-auto pr-2 flex-1">
+        {/* Body (scroll) */}
+        <div
+          ref={scrollRef}
+          className="p-6 grid gap-6 overflow-y-auto pr-2 flex-1"
+        >
           {/* Size */}
           <div>
             <div className="text-lg font-black text-text mb-2">
@@ -123,27 +149,30 @@ export default function PizzaCustomizerModal({
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3">
-            <button className="btn-ghost" type="button" onClick={onClose}>
-              {label(UI_STRINGS.cancel, language)}
-            </button>
-            <button
-              className="btn-gold"
-              type="button"
-              onClick={() =>
-                onConfirm({
-                  size,
-                  toppings,
-                  unit_price: unitPrice,
-                })
-              }
-            >
-              {label(UI_STRINGS.confirm, language)}
-            </button>
+            {/* ✅ espacio para que el footer no tape el último grupo */}
+            <div className="h-20" />
           </div>
+        </div>
+
+        {/* Footer (siempre visible) */}
+        <div className="p-6 border-t border-border flex justify-end gap-3">
+          <button className="btn-ghost" type="button" onClick={onClose}>
+            {label(UI_STRINGS.cancel, language)}
+          </button>
+          <button
+            className="btn-gold"
+            type="button"
+            onClick={() =>
+              onConfirm({
+                size,
+                toppings,
+                unit_price: unitPrice,
+              })
+            }
+          >
+            {label(UI_STRINGS.confirm, language)}
+          </button>
         </div>
       </div>
     </div>
