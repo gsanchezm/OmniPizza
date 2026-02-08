@@ -7,7 +7,6 @@ import { persist } from "zustand/middleware";
 export const useAuthStore = create(
   persist(
     (set) => ({
-      isAuthenticated: !!localStorage.getItem("token"),
       token: localStorage.getItem("token") || null,
       username: localStorage.getItem("username") || null,
       behavior: null,
@@ -15,13 +14,13 @@ export const useAuthStore = create(
       login: (token, username, behavior) => {
         localStorage.setItem("token", token);
         localStorage.setItem("username", username);
-        set({ isAuthenticated: true, token, username, behavior });
+        set({ token, username, behavior });
       },
 
       logout: () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
-        set({ isAuthenticated: false, token: null, username: null, behavior: null });
+        set({ token: null, username: null, behavior: null });
       },
     }),
     { name: "omnipizza-auth" }
