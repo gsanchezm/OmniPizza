@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
@@ -135,27 +135,37 @@ async def get_countries():
         ))
     return countries
 
-@app.get("/api/countries/{country_code}", response_model=CountryInfo, tags=["Countries"])
-async def get_country_info(country_code: str):
-    """Get configuration for a specific country"""
+@app.get("/api/pizzas", response_model=PizzaResponse, tags=["Pizzas"])
+async def get_pizzas(
+    country_code: str = Depends(require_country_header),
+    current_user: dict = Depends(apply_user_behavior),
+    x_language: str = Header("en", alias="X-Language"),
+):
+    """
+    Get pizza catalog with country-specific pricing and language support
+
+    Headers:
+    - X-Country-Code: MX | US | CH | JP
+    - X-Language: en | es | de | fr | ja
+    """
     try:
-        code = CountryCode(country_code.upper())
-        config = COUNTRY_CONFIG[code]
-        
-        return CountryInfo(
-            code=code.value,
-            currency=config["currency"],
-            currency_symbol=config["currency_symbol"],
-            required_fields=config["required_fields"],
-            optional_fields=config["optional_fields"],
-            tax_rate=config["tax_rate"],
-            languages=config["languages"],
-            decimal_places=config.get("decimal_places", 2)
+        country = CountryCode(country_code)
+
+        catalog = db.get_catalog(
+            country_code=country,
+            behavior=current_user["behavior"],
+            language=x_language,   # ✅ CLAVE
         )
-    except ValueError:
+
+        return PizzaResponse(
+            pizzas=catalog,
+            country_code=country.value,
+            currency=COUNTRY_CONFIG[country]["currency"]
+        )
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Country code {country_code} not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
 
 # ==================== PIZZA CATALOG ENDPOINTS ====================
