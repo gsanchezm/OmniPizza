@@ -8,6 +8,39 @@ OmniPizza is a multi-platform, test-friendly food ordering sandbox designed for 
 
 ---
 
+## API Documentation (Swagger)
+
+The backend exposes full OpenAPI documentation using **Swagger UI** and **ReDoc**.
+
+### Swagger UI
+Interactive documentation to explore and test endpoints.
+
+- **Render:** https://omnipizza-backend.onrender.com/api/docs
+- **Local:** http://localhost:8000/api/docs
+
+### ReDoc
+Clean, readable API reference.
+
+- **Render:** https://omnipizza-backend.onrender.com/api/redoc
+- **Local:** http://localhost:8000/api/redoc
+
+### OpenAPI JSON
+Raw OpenAPI specification (useful for contract testing tools).
+
+- **Render:** https://omnipizza-backend.onrender.com/api/openapi.json
+- **Local:** http://localhost:8000/api/openapi.json
+
+### Required Headers (important)
+Most endpoints rely on request headers to simulate multi-market behavior:
+
+- `X-Country-Code: MX | US | CH | JP`
+- `X-Language: en | es | de | fr | ja`
+- `Authorization: Bearer <token>` (after login)
+
+These headers are automatically sent by the **Web** and **Mobile** clients.
+
+---
+
 ## What’s inside
 
 ### Test Users (deterministic behaviors)

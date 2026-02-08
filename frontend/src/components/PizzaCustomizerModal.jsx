@@ -37,7 +37,7 @@ export default function PizzaCustomizerModal({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative lux-card w-full max-w-2xl rounded-2xl p-6">
+      <div className="relative lux-card w-full max-w-2xl rounded-2xl p-6 max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-2xl font-black text-brand-primary font-serif">
@@ -54,7 +54,7 @@ export default function PizzaCustomizerModal({
           </div>
         </div>
 
-        <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-6 overflow-y-auto pr-2 flex-1">
           {/* Size */}
           <div>
             <div className="text-lg font-black text-text mb-2">
