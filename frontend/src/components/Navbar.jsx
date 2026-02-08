@@ -1,208 +1,265 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import React, { useMemo, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore, useCartStore, useCountryStore } from "../store";
 
-const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
+const linkBase =
+  "px-3 py-2 rounded-xl font-extrabold transition border border-transparent";
+const linkActive = "bg-surface-2 border-border text-text";
+const linkIdle = "text-text-muted hover:text-text hover:bg-[rgba(255,255,255,0.04)]";
 
-function getRateFromPizza(pizza) {
-  const bp = Number(pizza?.base_price);
-  const p = Number(pizza?.price);
-  if (!bp || bp <= 0 || !p || p <= 0) return 1;
-  return p / bp;
+function cx(...xs) {
+  return xs.filter(Boolean).join(" ");
 }
 
-function usdToLocalCeil(usdAmount, pizza) {
-  return Math.ceil(Number(usdAmount) * getRateFromPizza(pizza));
-}
+export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-function computeUnitPrice(pizza, sizeUsd, toppingsCount) {
-  const base = Number(pizza.price);
-  const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
-  const toppingUnit = usdToLocalCeil(1, pizza);
-  return base + sizeAdd + toppingUnit * toppingsCount;
-}
+  const username = useAuthStore((s) => s.username);
+  const logout = useAuthStore((s) => s.logout);
 
-export default function PizzaCustomizerModal({
-  open,
-  pizza,
-  language,
-  locale,
-  initialConfig,
-  onClose,
-  onConfirm,
-}) {
-  const [size, setSize] = useState("small");
-  const [toppings, setToppings] = useState([]);
+  const items = useCartStore((s) => s.items);
+  const cartCount = useMemo(
+    () => items.reduce((sum, i) => sum + (i.quantity || 0), 0),
+    [items]
+  );
 
-  useEffect(() => {
-    if (open) {
-      setSize(initialConfig?.size || "small");
-      setToppings(initialConfig?.toppings || []);
-      // prevent body scroll when modal open
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open, initialConfig]);
+  const countryCode = useCountryStore((s) => s.countryCode);
+  const language = useCountryStore((s) => s.language);
+  const setCountryCode = useCountryStore((s) => s.setCountryCode);
+  const setLanguage = useCountryStore((s) => s.setLanguage);
 
-  const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const unitPrice = useMemo(() => {
-    if (!pizza) return 0;
-    return computeUnitPrice(pizza, sizeObj.usd, toppings.length);
-  }, [pizza, sizeObj.usd, toppings.length]);
-
-  const toggleTopping = (id) => {
-    setToppings((prev) => {
-      const has = prev.includes(id);
-      if (has) return prev.filter((x) => x !== id);
-      if (prev.length >= 10) return prev;
-      return [...prev, id];
-    });
+  const doLogout = () => {
+    logout();
+    setMobileOpen(false);
+    // te manda al login (tu ruta "/" es Login)
+    navigate("/", { replace: true });
   };
 
-  if (!open || !pizza) return null;
+  const onChangeMarket = (e) => {
+    setCountryCode(e.target.value);
+    setMobileOpen(false);
+    // opcional: si estás en /checkout y cambias market, te dejo donde estás
+    // (sin navegación forzada)
+  };
+
+  const isCH = countryCode === "CH";
 
   return (
-    /* ===== OVERLAY (scrollable) ===== */
-    <div className="fixed inset-0 z-[9999] bg-black/70 overflow-y-auto">
-      <div className="min-h-screen flex items-start justify-center py-6 px-3">
-        {/* ===== MODAL ===== */}
-        <div
-          className="relative lux-card w-full max-w-2xl rounded-2xl flex flex-col overflow-hidden"
-          style={{ maxHeight: "calc(100vh - 5rem)" }} // navbar-safe
-        >
-          {/* ===== HEADER (fixed) ===== */}
-          <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-border">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-2xl font-black text-brand-primary font-serif">
-                  {tOpt(UI_STRINGS.title, language)}
+    <header className="fixed top-0 inset-x-0 z-50">
+      <div className="bg-[rgba(10,10,10,0.78)] backdrop-blur border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
+          {/* Brand */}
+          <div className="flex items-center gap-3">
+            <button
+              className="flex items-center gap-2"
+              onClick={() => {
+                setMobileOpen(false);
+                navigate("/catalog");
+              }}
+              type="button"
+              aria-label="Go to catalog"
+            >
+              <img
+                src="/omnipizza-logo.png"
+                alt="OmniPizza"
+                className="h-9 w-9 rounded-2xl object-cover"
+              />
+              <div className="hidden sm:block">
+                <div className="text-xl font-black text-brand-primary font-serif leading-none">
+                  OmniPizza
                 </div>
-                <div className="text-text-muted font-semibold">
-                  {pizza.name}
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div className="text-sm text-text-muted">
-                  {pizza.currency}
-                </div>
-                <div className="text-3xl font-black text-text">
-                  {pizza.currency_symbol}
-                  {unitPrice}
+                <div className="text-xs font-semibold text-text-muted -mt-0.5">
+                  {username || "user"} • {countryCode}/{language}
                 </div>
               </div>
-            </div>
+            </button>
           </div>
 
-          {/* ===== BODY (scrollable) ===== */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 grid gap-6">
-            {/* Size */}
-            <div>
-              <div className="text-lg font-black text-text mb-2">
-                {tOpt(UI_STRINGS.size, language)}
-              </div>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {SIZE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setSize(opt.id)}
-                    className={[
-                      "px-4 py-3 rounded-xl border text-left font-extrabold transition",
-                      size === opt.id
-                        ? "bg-surface-2 border-brand-accent text-text"
-                        : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
-                    ].join(" ")}
-                  >
-                    {tOpt(opt.label, language)}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-2">
+            <NavLink
+              to="/catalog"
+              className={({ isActive }) =>
+                cx(linkBase, isActive ? linkActive : linkIdle)
+              }
+            >
+              Catalog
+            </NavLink>
 
-            {/* Toppings */}
-            <div>
-              <div className="flex items-end justify-between">
-                <div className="text-lg font-black text-text">
-                  {tOpt(UI_STRINGS.toppings, language)}
-                </div>
-                <div className="text-sm text-text-muted font-semibold">
-                  {tOpt(UI_STRINGS.upTo10, language)} • {toppings.length}/10
-                </div>
+            <NavLink
+              to="/checkout"
+              className={({ isActive }) =>
+                cx(linkBase, isActive ? linkActive : linkIdle)
+              }
+            >
+              Checkout
+              {cartCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
+                  {cartCount}
+                </span>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                cx(linkBase, isActive ? linkActive : linkIdle)
+              }
+            >
+              Profile
+            </NavLink>
+          </nav>
+
+          {/* Controls */}
+          <div className="hidden md:flex items-center gap-2">
+            <select
+              value={countryCode}
+              onChange={onChangeMarket}
+              className="px-3 py-2 rounded-xl bg-surface-2 text-text border border-border font-extrabold"
+              aria-label="Market"
+            >
+              <option value="MX">MX</option>
+              <option value="US">US</option>
+              <option value="CH">CH</option>
+              <option value="JP">JP</option>
+            </select>
+
+            {isCH && (
+              <div className="flex items-center rounded-xl border border-border overflow-hidden">
+                <button
+                  type="button"
+                  className={cx(
+                    "px-3 py-2 font-extrabold",
+                    language === "de" ? "bg-brand-primary text-black" : "text-text-muted"
+                  )}
+                  onClick={() => setLanguage("de")}
+                >
+                  DE
+                </button>
+                <button
+                  type="button"
+                  className={cx(
+                    "px-3 py-2 font-extrabold",
+                    language === "fr" ? "bg-brand-primary text-black" : "text-text-muted"
+                  )}
+                  onClick={() => setLanguage("fr")}
+                >
+                  FR
+                </button>
               </div>
+            )}
 
-              <div className="mt-3 grid gap-4">
-                {TOPPING_GROUPS.map((g) => (
-                  <div
-                    key={g.id}
-                    className="rounded-xl border border-border p-4 bg-surface-2"
-                  >
-                    <div className="font-black text-text mb-3">
-                      {tOpt(g.label, language)}
-                    </div>
-
-                    <div className="grid sm:grid-cols-2 gap-2">
-                      {g.items.map((it) => {
-                        const checked = toppings.includes(it.id);
-                        const disabled =
-                          !checked && toppings.length >= 10;
-
-                        return (
-                          <button
-                            key={it.id}
-                            type="button"
-                            disabled={disabled}
-                            onClick={() => toggleTopping(it.id)}
-                            className={[
-                              "px-3 py-2 rounded-lg border text-left font-extrabold transition",
-                              checked
-                                ? "bg-brand-primary text-black border-brand-primary"
-                                : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
-                              disabled
-                                ? "opacity-50 cursor-not-allowed"
-                                : "",
-                            ].join(" ")}
-                          >
-                            {tOpt(it.label, language)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button className="btn-ghost" type="button" onClick={doLogout}>
+              Logout
+            </button>
           </div>
 
-          {/* ===== FOOTER (fixed) ===== */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-border bg-surface">
-            <div className="flex justify-end gap-3">
-              <button
-                className="btn-ghost"
-                type="button"
-                onClick={onClose}
-              >
-                {tOpt(UI_STRINGS.cancel, language)}
-              </button>
-              <button
-                className="btn-gold"
-                type="button"
-                onClick={() =>
-                  onConfirm({
-                    size,
-                    toppings,
-                    unit_price: unitPrice,
-                  })
-                }
-              >
-                {tOpt(UI_STRINGS.confirm, language)}
-              </button>
-            </div>
-          </div>
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="md:hidden px-3 py-2 rounded-xl border border-border bg-surface-2 font-extrabold"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Open menu"
+          >
+            ☰
+          </button>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="mx-auto max-w-6xl px-4 py-3 grid gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <select
+                  value={countryCode}
+                  onChange={onChangeMarket}
+                  className="flex-1 px-3 py-2 rounded-xl bg-surface-2 text-text border border-border font-extrabold"
+                  aria-label="Market"
+                >
+                  <option value="MX">MX</option>
+                  <option value="US">US</option>
+                  <option value="CH">CH</option>
+                  <option value="JP">JP</option>
+                </select>
+
+                {isCH && (
+                  <div className="flex items-center rounded-xl border border-border overflow-hidden">
+                    <button
+                      type="button"
+                      className={cx(
+                        "px-3 py-2 font-extrabold",
+                        language === "de" ? "bg-brand-primary text-black" : "text-text-muted"
+                      )}
+                      onClick={() => setLanguage("de")}
+                    >
+                      DE
+                    </button>
+                    <button
+                      type="button"
+                      className={cx(
+                        "px-3 py-2 font-extrabold",
+                        language === "fr" ? "bg-brand-primary text-black" : "text-text-muted"
+                      )}
+                      onClick={() => setLanguage("fr")}
+                    >
+                      FR
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <NavLink
+                  to="/catalog"
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    cx(linkBase, isActive ? linkActive : linkIdle)
+                  }
+                >
+                  Catalog
+                </NavLink>
+
+                <NavLink
+                  to="/checkout"
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    cx(linkBase, isActive ? linkActive : linkIdle)
+                  }
+                >
+                  Checkout
+                  {cartCount > 0 && (
+                    <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
+                      {cartCount}
+                    </span>
+                  )}
+                </NavLink>
+
+                <NavLink
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    cx(linkBase, isActive ? linkActive : linkIdle)
+                  }
+                >
+                  Profile
+                </NavLink>
+
+                <button className="btn-ghost w-full" type="button" onClick={doLogout}>
+                  Logout
+                </button>
+              </div>
+
+              {/* Debug mini-line */}
+              <div className="text-xs text-text-muted font-semibold">
+                Path: {location.pathname}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </header>
   );
 }

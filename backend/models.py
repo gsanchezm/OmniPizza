@@ -25,6 +25,7 @@ class Pizza(BaseModel):
     name: str
     description: str
     price: float
+    base_price: float
     currency: str
     currency_symbol: str
     image: str

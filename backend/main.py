@@ -135,6 +135,8 @@ async def get_countries():
         ))
     return countries
 
+# ==================== PIZZA CATALOG ENDPOINTS ====================
+
 @app.get("/api/pizzas", response_model=PizzaResponse, tags=["Pizzas"])
 async def get_pizzas(
     country_code: str = Depends(require_country_header),
@@ -157,33 +159,6 @@ async def get_pizzas(
             language=x_language,   # ✅ CLAVE
         )
 
-        return PizzaResponse(
-            pizzas=catalog,
-            country_code=country.value,
-            currency=COUNTRY_CONFIG[country]["currency"]
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-# ==================== PIZZA CATALOG ENDPOINTS ====================
-
-@app.get("/api/pizzas", response_model=PizzaResponse, tags=["Pizzas"])
-async def get_pizzas(
-    country_code: str = Depends(require_country_header),
-    current_user: dict = Depends(apply_user_behavior)
-):
-    """
-    Get pizza catalog with country-specific pricing
-    
-    Requires X-Country-Code header (MX, US, CH, JP)
-    """
-    try:
-        country = CountryCode(country_code)
-        catalog = db.get_catalog(country, current_user["behavior"])
-        
         return PizzaResponse(
             pizzas=catalog,
             country_code=country.value,

@@ -39,7 +39,8 @@ class InMemoryDB:
         decimal_places = country_config.get("decimal_places", 2)
 
         default_lang_by_country = {"MX": "es", "US": "en", "CH": "de", "JP": "ja"}
-        lang = (language or default_lang_by_country.get(country_code, "en")).lower()
+        cc = country_code.value if hasattr(country_code, "value") else str(country_code)
+        lang = (language or default_lang_by_country.get(cc, "en")).lower()
 
         catalog: List[Dict[str, Any]] = []
 

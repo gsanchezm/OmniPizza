@@ -1,6 +1,28 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// store.js (al inicio del archivo)
+const APP_RELEASE = import.meta.env.VITE_APP_RELEASE || "dev";
+const RELEASE_KEY = "omnipizza-release";
+
+try {
+  const prev = localStorage.getItem(RELEASE_KEY);
+  if (prev !== APP_RELEASE) {
+    localStorage.setItem(RELEASE_KEY, APP_RELEASE);
+
+    // limpia auth (mínimo para que caiga a Login)
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("omnipizza-auth");
+
+    // opcional (yo lo haría en QA sandbox para evitar estados raros post-deploy):
+    // localStorage.removeItem("omnipizza-cart");
+    // localStorage.removeItem("omnipizza-order");
+  }
+} catch {
+  // ignore (privacy mode / storage disabled)
+}
+
 /** =========================
  * AUTH STORE
  * ========================= */
