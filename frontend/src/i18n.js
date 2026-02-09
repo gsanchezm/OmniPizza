@@ -16,7 +16,7 @@ const DICT = {
 
   es: {
     catalog: 'Catálogo',
-    checkout: 'Checkout',
+    checkout: 'Finalizar Compra',
     profile: 'Perfil',
     lastOrder: 'Última orden',
     logout: 'Salir',
