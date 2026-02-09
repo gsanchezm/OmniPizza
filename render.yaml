@@ -20,11 +20,16 @@ services:
     healthCheckPath: /health
     autoDeploy: true
 
-  # Frontend Service (React + Nginx)
+  # Frontend Service (React)
   - type: web
     name: omnipizza-frontend
     runtime: static
-    buildCommand: "cd frontend && npm install && npm run build"
+    buildCommand: >
+      cd frontend
+      && corepack enable
+      && pnpm install --frozen-lockfile
+      && export VITE_APP_RELEASE=$RENDER_GIT_COMMIT
+      && pnpm build
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL

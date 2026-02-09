@@ -1,30 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { pizzaAPI } from "../api";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import { UI_STRINGS } from "../pizzaOptions";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
-/** --- Pricing helpers (USD->local) --- */
-function getRateFromPizza(pizza) {
-  // base_price is USD, price is local
-  const bp = Number(pizza?.base_price);
-  const p = Number(pizza?.price);
-  if (!bp || bp <= 0 || !p || p <= 0) return 1;
-  return p / bp;
-}
-function usdToLocalCeil(usdAmount, pizza) {
-  const rate = getRateFromPizza(pizza);
-  return Math.ceil(Number(usdAmount) * rate);
-}
-function computeUnitPrice(pizza, sizeUsd, toppingsCount) {
-  const base = Number(pizza.price);
-  const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
-  const toppingUnit = usdToLocalCeil(1, pizza);
-  const toppingsAdd = toppingUnit * toppingsCount;
-  return base + sizeAdd + toppingsAdd;
-}
 function formatMoney(value, currency, locale, symbol) {
   try {
     const maxFrac = currency === "JPY" ? 0 : 2;
@@ -57,11 +38,12 @@ export default function Catalog() {
 
   const cartCount = useMemo(
     () => cartItems.reduce((sum, i) => sum + (i.quantity || 0), 0),
-    [cartItems],
+    [cartItems]
   );
 
   useEffect(() => {
     loadPizzas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryCode, language]);
 
   const loadPizzas = async () => {
@@ -75,6 +57,24 @@ export default function Catalog() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenModal = (pizza) => {
+    // ✅ set selected first, then open (same tick is fine)
+    setSelectedPizza(pizza);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    // ✅ close + clean selection
+    setModalOpen(false);
+    setSelectedPizza(null);
+  };
+
+  const handleConfirm = (config) => {
+    if (!selectedPizza) return; // ✅ extra safety
+    addConfiguredItem(selectedPizza, config);
+    handleCloseModal();
   };
 
   if (loading) {
@@ -106,11 +106,11 @@ export default function Catalog() {
           Catalog
         </h1>
         <p className="text-text-muted font-semibold">
-          User: <span className="text-text font-black">{username}</span> |
-          Market: <span className="text-text font-black">{countryCode}</span> |
-          Language: <span className="text-text font-black">{language}</span> |
-          Currency: <span className="text-text font-black">{currency}</span> |
-          Cart: <span className="text-text font-black">{cartCount}</span>
+          User: <span className="text-text font-black">{username}</span> | Market:{" "}
+          <span className="text-text font-black">{countryCode}</span> | Language:{" "}
+          <span className="text-text font-black">{language}</span> | Currency:{" "}
+          <span className="text-text font-black">{currency}</span> | Cart:{" "}
+          <span className="text-text font-black">{cartCount}</span>
         </p>
       </div>
 
@@ -142,13 +142,7 @@ export default function Catalog() {
                 {formatMoney(p.price, p.currency, locale, p.currency_symbol)}
               </div>
 
-              <button
-                className="btn-gold w-full"
-                onClick={() => {
-                  setSelectedPizza(p);
-                  setModalOpen(true);
-                }}
-              >
+              <button className="btn-gold w-full" onClick={() => handleOpenModal(p)}>
                 {tOpt(UI_STRINGS.title, language)}
               </button>
             </div>
@@ -156,19 +150,13 @@ export default function Catalog() {
         ))}
       </div>
 
+      {/* ✅ IMPORTANTE: open solo si hay selectedPizza (evita crash/pantalla blanca) */}
       <PizzaCustomizerModal
-        key={selectedPizza?.id || "none"} // ✅ fuerza remount al cambiar pizza
-        open={modalOpen}
+        key={selectedPizza?.id || "none"}
+        open={modalOpen && !!selectedPizza}
         pizza={selectedPizza}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedPizza(null);
-        }}
-        onConfirm={(config) => {
-          addConfiguredItem(selectedPizza, config);
-          setModalOpen(false);
-          setSelectedPizza(null);
-        }}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirm}
       />
     </div>
   );

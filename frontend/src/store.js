@@ -15,7 +15,7 @@ try {
     localStorage.removeItem("username");
     localStorage.removeItem("omnipizza-auth");
 
-    // opcional (yo lo haría en QA sandbox para evitar estados raros post-deploy):
+    // opcional (En QA sandbox para evitar estados raros post-deploy):
     // localStorage.removeItem("omnipizza-cart");
     // localStorage.removeItem("omnipizza-order");
   }
