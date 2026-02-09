@@ -3,6 +3,7 @@ import { pizzaAPI } from "../api";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
 import { UI_STRINGS } from "../pizzaOptions";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
+import { useT } from "../i18n";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
@@ -20,6 +21,8 @@ function formatMoney(value, currency, locale, symbol) {
 }
 
 export default function Catalog() {
+  const t = useT();
+
   const username = useAuthStore((s) => s.username);
 
   const countryCode = useCountryStore((s) => s.countryCode);
@@ -103,7 +106,7 @@ export default function Catalog() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="lux-card rounded-2xl p-6 mb-8">
         <h1 className="text-4xl font-black text-brand-primary font-serif mb-2">
-          Catalog
+          {t("catalog")}
         </h1>
         <p className="text-text-muted font-semibold">
           User: <span className="text-text font-black">{username}</span> | Market:{" "}

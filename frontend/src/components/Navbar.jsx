@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
+import { useT } from "../i18n";
 
 const linkBase =
   "px-3 py-2 rounded-xl font-extrabold transition border border-transparent";
@@ -13,6 +14,8 @@ function cx(...xs) {
 }
 
 export default function Navbar() {
+  const t = useT();
+
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -75,7 +78,7 @@ export default function Navbar() {
                 cx(linkBase, isActive ? linkActive : linkIdle)
               }
             >
-              Catalog
+              {t("catalog")}
             </NavLink>
 
             <NavLink
@@ -84,7 +87,7 @@ export default function Navbar() {
                 cx(linkBase, isActive ? linkActive : linkIdle)
               }
             >
-              Checkout
+              {t("checkout")}
               {cartCount > 0 && (
                 <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
                   {cartCount}
@@ -98,7 +101,7 @@ export default function Navbar() {
                 cx(linkBase, isActive ? linkActive : linkIdle)
               }
             >
-              Profile
+              {t("profile")}
             </NavLink>
           </nav>
 
@@ -213,7 +216,7 @@ export default function Navbar() {
                   cx(linkBase, isActive ? linkActive : linkIdle)
                 }
               >
-                Catalog
+                {t("catalog")}
               </NavLink>
 
               <NavLink
@@ -223,7 +226,7 @@ export default function Navbar() {
                   cx(linkBase, isActive ? linkActive : linkIdle)
                 }
               >
-                Checkout{" "}
+                {t("checkout")}
                 {cartCount > 0 && (
                   <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
                     {cartCount}
@@ -238,11 +241,11 @@ export default function Navbar() {
                   cx(linkBase, isActive ? linkActive : linkIdle)
                 }
               >
-                Profile
+                {t("profile")}
               </NavLink>
 
               <button className="btn-ghost w-full" type="button" onClick={doLogout}>
-                Logout
+                {t("logout")}
               </button>
             </div>
           </div>
