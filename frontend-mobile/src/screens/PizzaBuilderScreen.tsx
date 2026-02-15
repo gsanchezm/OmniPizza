@@ -10,21 +10,22 @@ import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
 import { Colors } from "../theme/colors";
 import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import type { Pizza } from "../types/api";
 
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
-function getRate(pizza: any) {
+function getRate(pizza: Pizza) {
   const bp = Number(pizza?.base_price);
   const p = Number(pizza?.price);
   if (!bp || bp <= 0 || !p || p <= 0) return 1;
   return p / bp;
 }
-function usdToLocalCeil(usd: number, pizza: any) {
+function usdToLocalCeil(usd: number, pizza: Pizza) {
   return Math.ceil(usd * getRate(pizza));
 }
-function computeUnitPrice(pizza: any, sizeUsd: number, toppingsCount: number) {
+function computeUnitPrice(pizza: Pizza, sizeUsd: number, toppingsCount: number) {
   const base = Number(pizza.price);
   const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
   const toppingUnit = usdToLocalCeil(1, pizza);
@@ -35,7 +36,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const { language, addConfiguredItem, updateCartItem } = useAppStore();
 
   const mode = route?.params?.mode || "add";
-  const pizza = route?.params?.pizza;
+  const pizza = route?.params?.pizza as Pizza | undefined;
   const cartItemId = route?.params?.cartItemId;
   const initialConfig = route?.params?.initialConfig;
 
@@ -63,6 +64,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   };
 
   const confirm = () => {
+    if (!pizza) return;
+
     const config: PizzaConfig = {
       size,
       toppings,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { authAPI } from "../api";
 import { useAuthStore } from "../store";
+import { authService } from "../services/auth.service";
 
 const USER_HINTS = {
   standard_user: "Normal user, stable flow",
@@ -28,7 +28,7 @@ export default function Login() {
   }
 
   useEffect(() => {
-    authAPI
+    authService
       .getTestUsers()
       .then((res) => setTestUsers(res.data || []))
       .catch(() => setTestUsers([]));
@@ -40,7 +40,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await authAPI.login(username, password);
+      const res = await authService.login(username, password);
       const { access_token, username: user, behavior } = res.data;
 
       login(access_token, user, behavior);

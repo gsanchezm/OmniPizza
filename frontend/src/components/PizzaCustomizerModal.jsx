@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../constants/pizza";
 import { computeUnitPrice } from "../utils/pizzaPricing";
 import { useCountryStore } from "../store";
 

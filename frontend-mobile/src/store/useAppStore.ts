@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { Pizza } from "../types/api";
 
 export type CountryCode = "MX" | "US" | "CH" | "JP";
 export type LanguageCode = "en" | "es" | "de" | "fr" | "ja";
@@ -20,7 +21,7 @@ export interface CartItem {
   id: string;
   signature: string;
   pizza_id: string;
-  pizza: any; // pizza object from backend
+  pizza: Pizza;
   quantity: number;
   config: PizzaConfig;
   unit_price: number; // local currency unit price
@@ -56,7 +57,7 @@ interface AppState {
 
   setProfile: (patch: Partial<ProfileState>) => void;
 
-  addConfiguredItem: (pizza: any, config: PizzaConfig, unitPrice: number) => void;
+  addConfiguredItem: (pizza: Pizza, config: PizzaConfig, unitPrice: number) => void;
   removeCartItem: (id: string) => void;
   updateCartItem: (id: string, patch: Partial<CartItem>) => void;
   setQty: (id: string, qty: number) => void;
@@ -116,7 +117,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addConfiguredItem: (pizza, config, unitPrice) =>
     set((state) => {
-      const pizzaId = String(pizza?.id ?? pizza?.pizza_id ?? "");
+      const pizzaId = String(pizza?.id ?? "");
       if (!pizzaId) return {};
 
       const signature = `${pizzaId}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;

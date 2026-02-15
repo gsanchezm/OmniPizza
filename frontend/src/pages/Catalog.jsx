@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { pizzaAPI } from "../api";
+import React, { useMemo, useState } from "react";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
-import { UI_STRINGS } from "../pizzaOptions";
+import { UI_STRINGS } from "../constants/pizza";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 import { useT } from "../i18n";
+import { usePizzas } from "../hooks/usePizzas";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
@@ -32,35 +32,15 @@ export default function Catalog() {
   const addConfiguredItem = useCartStore((s) => s.addConfiguredItem);
   const cartItems = useCartStore((s) => s.items);
 
-  const [pizzas, setPizzas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPizza, setSelectedPizza] = useState(null);
+
+  const { pizzas, loading, error } = usePizzas(countryCode, language);
 
   const cartCount = useMemo(
     () => cartItems.reduce((sum, i) => sum + (i.quantity || 0), 0),
     [cartItems]
   );
-
-  useEffect(() => {
-    loadPizzas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryCode, language]);
-
-  const loadPizzas = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await pizzaAPI.getPizzas();
-      setPizzas(res.data?.pizzas || []);
-    } catch {
-      setError("Failed to load catalog");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOpenModal = (pizza) => {
     // ✅ set selected first, then open (same tick is fine)

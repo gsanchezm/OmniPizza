@@ -1,13 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { orderAPI, pizzaAPI } from "../api";
+import { orderService } from "../services/order.service";
 import {
   useCartStore,
   useCountryStore,
   useProfileStore,
   useOrderStore,
 } from "../store";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../constants/pizza";
+import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
+import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
@@ -44,21 +46,8 @@ function formatMoney(value, currency, locale, symbol) {
   }
 }
 
-function getRateFromPizza(pizza) {
-  const bp = Number(pizza?.base_price);
-  const p = Number(pizza?.price);
-  if (!bp || bp <= 0 || !p || p <= 0) return 1;
-  return p / bp;
-}
-function usdToLocalCeil(usdAmount, pizza) {
-  return Math.ceil(Number(usdAmount) * getRateFromPizza(pizza));
-}
-function computeUnitPrice(pizza, sizeUsd, toppingsCount) {
-  const base = Number(pizza.price);
-  const sizeAdd = usdToLocalCeil(sizeUsd, pizza);
-  const toppingUnit = usdToLocalCeil(1, pizza);
-  const toppingsAdd = toppingUnit * toppingsCount;
-  return base + sizeAdd + toppingsAdd;
+function computeUnitPriceValue(pizza, sizeUsd, toppingsCount) {
+  return computeUnitPrice(pizza, sizeUsd, toppingsCount).unitPrice;
 }
 function signatureOf(pizzaId, size, toppings) {
   const t = (toppings || []).slice().sort().join(",");
@@ -97,7 +86,7 @@ function PizzaCustomizerModal({
 
   const unitPrice = useMemo(() => {
     if (!pizza) return 0;
-    return computeUnitPrice(pizza, sizeObj.usd, toppings.length);
+    return computeUnitPriceValue(pizza, sizeObj.usd, toppings.length);
   }, [pizza, sizeObj.usd, toppings.length]);
 
   const toggleTopping = (id) => {
@@ -260,48 +249,7 @@ export default function Checkout() {
   const language = useCountryStore((s) => s.language);
   const locale = useCountryStore((s) => s.locale);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await pizzaAPI.getPizzas();
-        const list = res.data?.pizzas || [];
-        const byId = Object.fromEntries(list.map((p) => [p.id, p]));
-
-        const current = useCartStore.getState().items;
-        if (!current.length) return;
-
-        const updated = current.map((it) => {
-          const p = byId[it.pizza_id] || it.pizza;
-          const sizeObj =
-            SIZE_OPTIONS.find((s) => s.id === (it.config?.size || "small")) ||
-            SIZE_OPTIONS[0];
-          const newUnit = computeUnitPrice(
-            p,
-            sizeObj.usd,
-            (it.config?.toppings || []).length,
-          );
-
-          return {
-            ...it,
-            pizza: p,
-            unit_price: newUnit,
-            currency: p.currency,
-            currency_symbol: p.currency_symbol,
-          };
-        });
-
-        if (!cancelled) useCartStore.setState({ items: updated });
-      } catch {
-        // si falla, no rompemos checkout
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [countryCode, language]);
+  useRefreshCartPrices(countryCode, language);
 
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
@@ -370,7 +318,7 @@ export default function Checkout() {
         payload.prefectura = form.prefectura;
       }
 
-      const res = await orderAPI.checkout(payload);
+      const res = await orderService.checkout(payload);
       setLastOrder(res.data);
       clearCart();
       navigate("/order-success", { replace: true });
@@ -664,7 +612,7 @@ export default function Checkout() {
           // recompute unit_price for edited item
           const sizeObj =
             SIZE_OPTIONS.find((s) => s.id === config.size) || SIZE_OPTIONS[0];
-          const newUnit = computeUnitPrice(
+          const newUnit = computeUnitPriceValue(
             editing.pizza,
             sizeObj.usd,
             (config.toppings || []).length,

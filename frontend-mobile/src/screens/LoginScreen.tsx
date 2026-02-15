@@ -19,7 +19,7 @@ export default function LoginScreen({ navigation }: any) {
       return;
     }
     setToken("fake-jwt-token");
-    navigation.replace("Home");
+    navigation.replace("Catalog");
   };
 
   return (

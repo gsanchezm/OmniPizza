@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { apiClient } from "../api/client";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { orderService } from "../services/order.service";
+import type { CartItem } from "../store/useAppStore";
+import type { CheckoutPayload } from "../types/api";
 
 function money(value: number, currencySymbol: string, currency: string) {
   return `${currencySymbol}${value} ${currency}`;
@@ -46,7 +48,8 @@ export default function CheckoutScreen({ navigation }: any) {
 
   const subtotal = useMemo(() => {
     return cartItems.reduce(
-      (sum: number, it: any) => sum + Number(it.unit_price) * Number(it.quantity),
+      (sum: number, item: CartItem) =>
+        sum + Number(item.unit_price) * Number(item.quantity),
       0
     );
   }, [cartItems]);
@@ -54,7 +57,7 @@ export default function CheckoutScreen({ navigation }: any) {
   const currency = cartItems[0]?.currency || "USD";
   const currencySymbol = cartItems[0]?.currency_symbol || "$";
 
-  const goEdit = (item: any) => {
+  const goEdit = (item: CartItem) => {
     navigation.navigate("PizzaBuilder", {
       mode: "edit",
       pizza: item.pizza,
@@ -69,13 +72,13 @@ export default function CheckoutScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      const payload: any = {
+      const payload: CheckoutPayload = {
         country_code: country,
-        items: cartItems.map((i: any) => ({
-          pizza_id: i.pizza_id,
-          quantity: i.quantity,
-          size: i.config?.size || "small",
-          toppings: i.config?.toppings || [],
+        items: cartItems.map((item: CartItem) => ({
+          pizza_id: item.pizza_id,
+          quantity: item.quantity,
+          size: item.config?.size || "small",
+          toppings: item.config?.toppings || [],
         })),
         name: form.name,
         address: form.address,
@@ -93,7 +96,7 @@ export default function CheckoutScreen({ navigation }: any) {
         payload.prefectura = form.prefectura;
       }
 
-      const res = await apiClient.post("/api/checkout", payload);
+      const order = await orderService.checkout(payload);
 
       setProfile({
         fullName: form.name,
@@ -101,7 +104,7 @@ export default function CheckoutScreen({ navigation }: any) {
         phone: form.phone,
       });
 
-      setLastOrder(res.data);
+      setLastOrder(order);
       clearCart();
 
       navigation.replace?.("OrderSuccess");
@@ -138,7 +141,7 @@ export default function CheckoutScreen({ navigation }: any) {
         <View style={styles.card}>
           <Text style={styles.section}>{t("orderSummary")}</Text>
 
-          {cartItems.map((it: any) => (
+          {cartItems.map((it: CartItem) => (
             <View key={it.id} style={styles.itemRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemTitle}>{it.pizza?.name}</Text>

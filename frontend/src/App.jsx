@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore, useCountryStore } from "./store";
-import { countryAPI } from "./api";
+import { useCountryInfo } from "./hooks/useCountryInfo";
 
 import Login from "./pages/Login";
 import Catalog from "./pages/Catalog";
@@ -14,20 +14,9 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 const App = () => {
   const token = useAuthStore((s) => s.token);
   const isAuthenticated = Boolean(token);
-  const { countryCode, setCountryInfo } = useCountryStore();
+  const countryCode = useCountryStore((s) => s.countryCode);
 
-  useEffect(() => {
-  if (!isAuthenticated || !countryCode) return;
-
-  countryAPI
-    .getCountries()
-    .then((res) => {
-      const list = res.data || [];
-      const found = list.find((c) => c.code === countryCode);
-      if (found) setCountryInfo(found);
-    })
-    .catch((err) => console.error("Error loading countries:", err));
-}, [isAuthenticated, countryCode, setCountryInfo]);
+  useCountryInfo(isAuthenticated, countryCode);
 
   return (
     <BrowserRouter>
