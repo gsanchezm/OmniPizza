@@ -10,10 +10,10 @@ import {
 import { apiClient } from "../api/client";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
+import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 
 function money(value: number, currencySymbol: string, currency: string) {
-  // backend already formats decimals by country; keep simple for UI
   return `${currencySymbol}${value} ${currency}`;
 }
 
@@ -95,7 +95,6 @@ export default function CheckoutScreen({ navigation }: any) {
 
       const res = await apiClient.post("/api/checkout", payload);
 
-      // Save delivery details for autofill
       setProfile({
         fullName: form.name,
         address: form.address,
@@ -105,7 +104,6 @@ export default function CheckoutScreen({ navigation }: any) {
       setLastOrder(res.data);
       clearCart();
 
-      // if you already have OrderSuccess
       navigation.replace?.("OrderSuccess");
     } catch (e: any) {
       setError(e?.response?.data?.detail || "Checkout error");
@@ -182,21 +180,21 @@ export default function CheckoutScreen({ navigation }: any) {
           <TextInput
             style={styles.input}
             placeholder={t("fullName")}
-            placeholderTextColor="#777"
+            placeholderTextColor={Colors.text.muted}
             value={form.name}
             onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
           />
           <TextInput
             style={styles.input}
             placeholder={t("address")}
-            placeholderTextColor="#777"
+            placeholderTextColor={Colors.text.muted}
             value={form.address}
             onChangeText={(v) => setForm((p) => ({ ...p, address: v }))}
           />
           <TextInput
             style={styles.input}
             placeholder={t("phone")}
-            placeholderTextColor="#777"
+            placeholderTextColor={Colors.text.muted}
             value={form.phone}
             onChangeText={(v) => setForm((p) => ({ ...p, phone: v }))}
           />
@@ -206,14 +204,14 @@ export default function CheckoutScreen({ navigation }: any) {
               <TextInput
                 style={styles.input}
                 placeholder={t("colonia")}
-                placeholderTextColor="#777"
+                placeholderTextColor={Colors.text.muted}
                 value={form.colonia}
                 onChangeText={(v) => setForm((p) => ({ ...p, colonia: v }))}
               />
               <TextInput
                 style={styles.input}
                 placeholder={t("tip")}
-                placeholderTextColor="#777"
+                placeholderTextColor={Colors.text.muted}
                 keyboardType="numeric"
                 value={form.propina}
                 onChangeText={(v) => setForm((p) => ({ ...p, propina: v }))}
@@ -225,7 +223,7 @@ export default function CheckoutScreen({ navigation }: any) {
             <TextInput
               style={styles.input}
               placeholder={t("zip")}
-              placeholderTextColor="#777"
+              placeholderTextColor={Colors.text.muted}
               keyboardType="numeric"
               value={form.zip_code}
               onChangeText={(v) => setForm((p) => ({ ...p, zip_code: v }))}
@@ -236,7 +234,7 @@ export default function CheckoutScreen({ navigation }: any) {
             <TextInput
               style={styles.input}
               placeholder={t("plz")}
-              placeholderTextColor="#777"
+              placeholderTextColor={Colors.text.muted}
               value={form.plz}
               onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
             />
@@ -246,7 +244,7 @@ export default function CheckoutScreen({ navigation }: any) {
             <TextInput
               style={styles.input}
               placeholder={t("prefecture")}
-              placeholderTextColor="#777"
+              placeholderTextColor={Colors.text.muted}
               value={form.prefectura}
               onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
             />
@@ -264,82 +262,82 @@ export default function CheckoutScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#07070A" },
+  container: { flex: 1, backgroundColor: Colors.surface.base },
 
   card: {
     padding: 14,
     borderRadius: 18,
-    backgroundColor: "#121218",
+    backgroundColor: Colors.surface.card,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
   },
 
-  section: { fontSize: 18, fontWeight: "900", color: "#DCCA87", marginBottom: 10 },
+  section: { fontSize: 18, fontWeight: "800", color: Colors.brand.primary, marginBottom: 10 },
 
   itemRow: {
     flexDirection: "row",
     gap: 12,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(220,202,135,0.18)",
+    borderBottomColor: Colors.surface.border,
   },
-  itemTitle: { color: "#F5F5F5", fontWeight: "900", fontSize: 16 },
-  itemMeta: { color: "rgba(245,245,245,0.68)", fontWeight: "700", fontSize: 12, marginTop: 2 },
+  itemTitle: { color: Colors.text.primary, fontWeight: "800", fontSize: 16 },
+  itemMeta: { color: Colors.text.muted, fontWeight: "700", fontSize: 12, marginTop: 2 },
 
   itemActions: { alignItems: "flex-end" },
-  itemTotal: { color: "#F5F5F5", fontWeight: "900" },
+  itemTotal: { color: Colors.text.primary, fontWeight: "800" },
 
   smallBtn: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: "#0C0C12",
+    backgroundColor: Colors.surface.base2,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
   },
-  smallBtnText: { color: "#F5F5F5", fontWeight: "900", fontSize: 12 },
+  smallBtnText: { color: Colors.text.primary, fontWeight: "800", fontSize: 12 },
 
   subtotalRow: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(220,202,135,0.22)",
+    borderTopColor: Colors.surface.border,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  subtotalLabel: { color: "rgba(245,245,245,0.68)", fontWeight: "900" },
-  subtotalValue: { color: "#DCCA87", fontWeight: "900", fontSize: 16 },
+  subtotalLabel: { color: Colors.text.muted, fontWeight: "800" },
+  subtotalValue: { color: Colors.brand.primary, fontWeight: "800", fontSize: 16 },
 
   input: {
-    backgroundColor: "#0C0C12",
+    backgroundColor: Colors.surface.base2,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
     borderRadius: 12,
     padding: 12,
-    color: "#F5F5F5",
+    color: Colors.text.primary,
     marginBottom: 10,
   },
 
-  error: { marginTop: 8, color: "#CD0508", fontWeight: "900" },
+  error: { marginTop: 8, color: Colors.danger, fontWeight: "800" },
 
   btn: {
     marginTop: 8,
-    backgroundColor: "#DCCA87",
+    backgroundColor: Colors.brand.primary,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: "center",
   },
-  btnText: { fontWeight: "900", color: "#111" },
+  btnText: { fontWeight: "800", color: "#FFFFFF" },
 
-  emptyText: { color: "#F5F5F5", fontWeight: "900", fontSize: 16, marginBottom: 12 },
+  emptyText: { color: Colors.text.primary, fontWeight: "800", fontSize: 16, marginBottom: 12 },
   btnGhost: {
     paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
     backgroundColor: "rgba(255,255,255,0.02)",
     alignItems: "center",
   },
-  btnGhostText: { color: "#F5F5F5", fontWeight: "900" },
+  btnGhostText: { color: Colors.text.primary, fontWeight: "800" },
 });

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
+import { Colors } from "../theme/colors";
 import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
@@ -15,8 +16,8 @@ import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
 function getRate(pizza: any) {
-  const bp = Number(pizza?.base_price); // USD
-  const p = Number(pizza?.price); // local
+  const bp = Number(pizza?.base_price);
+  const p = Number(pizza?.price);
   if (!bp || bp <= 0 || !p || p <= 0) return 1;
   return p / bp;
 }
@@ -81,7 +82,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       <View style={styles.screen}>
         <CustomNavbar title="Pizza" navigation={navigation} />
         <View style={{ padding: 16 }}>
-          <Text style={{ color: "#F5F5F5" }}>Missing pizza param</Text>
+          <Text style={{ color: Colors.text.primary }}>Missing pizza param</Text>
         </View>
       </View>
     );
@@ -180,30 +181,30 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#07070A" },
+  screen: { flex: 1, backgroundColor: Colors.surface.base },
   card: {
     padding: 14,
     borderRadius: 18,
-    backgroundColor: "#121218",
+    backgroundColor: Colors.surface.card,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
   },
 
-  pizzaName: { fontSize: 22, fontWeight: "900", color: "#F5F5F5" },
+  pizzaName: { fontSize: 22, fontWeight: "800", color: Colors.text.primary },
   priceLine: {
     marginTop: 6,
-    color: "rgba(245,245,245,0.68)",
-    fontWeight: "900",
+    color: Colors.text.muted,
+    fontWeight: "800",
   },
 
   section: {
     marginTop: 14,
     marginBottom: 8,
     fontSize: 16,
-    fontWeight: "900",
-    color: "#DCCA87",
+    fontWeight: "800",
+    color: Colors.brand.primary,
   },
-  muted: { color: "rgba(245,245,245,0.68)", fontWeight: "800", fontSize: 12 },
+  muted: { color: Colors.text.muted, fontWeight: "800", fontSize: 12 },
 
   rowBetween: {
     flexDirection: "row",
@@ -215,9 +216,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(220,202,135,0.18)",
+    borderTopColor: Colors.surface.border,
   },
-  groupTitle: { color: "#F5F5F5", fontWeight: "900", marginBottom: 8 },
+  groupTitle: { color: Colors.text.primary, fontWeight: "800", marginBottom: 8 },
 
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   opt: {
@@ -225,19 +226,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(220,202,135,0.22)",
+    borderColor: Colors.surface.border,
     backgroundColor: "rgba(255,255,255,0.02)",
   },
-  optActive: { backgroundColor: "#DCCA87", borderColor: "#DCCA87" },
-  optText: { color: "rgba(245,245,245,0.78)", fontWeight: "900" },
-  optTextActive: { color: "#111" },
+  optActive: { backgroundColor: Colors.brand.primary, borderColor: Colors.brand.primary },
+  optText: { color: Colors.text.muted, fontWeight: "800" },
+  optTextActive: { color: "#FFFFFF" },
 
   btn: {
     marginTop: 16,
-    backgroundColor: "#DCCA87",
+    backgroundColor: Colors.brand.primary,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: "center",
   },
-  btnText: { fontWeight: "900", color: "#111" },
+  btnText: { fontWeight: "800", color: "#FFFFFF" },
 });

@@ -5,6 +5,7 @@ export default {
       colors: {
         brand: {
           primary: "var(--brand-primary)",
+          hover: "var(--brand-hover)",
           secondary: "var(--brand-secondary)",
           accent: "var(--brand-accent)",
         },
@@ -21,7 +22,6 @@ export default {
         },
       },
       fontFamily: {
-        serif: ["var(--font-serif)"],
         sans: ["var(--font-sans)"],
       },
     },

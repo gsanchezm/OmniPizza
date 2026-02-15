@@ -105,15 +105,15 @@ export default function Catalog() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="lux-card rounded-2xl p-6 mb-8">
-        <h1 className="text-4xl font-black text-brand-primary font-serif mb-2">
+        <h1 className="text-4xl font-extrabold text-brand-primary mb-2">
           {t("catalog")}
         </h1>
         <p className="text-text-muted font-semibold">
-          User: <span className="text-text font-black">{username}</span> | Market:{" "}
-          <span className="text-text font-black">{countryCode}</span> | Language:{" "}
-          <span className="text-text font-black">{language}</span> | Currency:{" "}
-          <span className="text-text font-black">{currency}</span> | Cart:{" "}
-          <span className="text-text font-black">{cartCount}</span>
+          User: <span className="text-text font-extrabold">{username}</span> | Market:{" "}
+          <span className="text-text font-extrabold">{countryCode}</span> | Language:{" "}
+          <span className="text-text font-extrabold">{language}</span> | Currency:{" "}
+          <span className="text-text font-extrabold">{currency}</span> | Cart:{" "}
+          <span className="text-text font-extrabold">{cartCount}</span>
         </p>
       </div>
 
@@ -145,7 +145,7 @@ export default function Catalog() {
                 {formatMoney(p.price, p.currency, locale, p.currency_symbol)}
               </div>
 
-              <button className="btn-gold w-full" onClick={() => handleOpenModal(p)}>
+              <button className="btn-primary w-full" onClick={() => handleOpenModal(p)}>
                 {tOpt(UI_STRINGS.title, language)}
               </button>
             </div>

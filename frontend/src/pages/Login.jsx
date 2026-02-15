@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Navigate } from "react-router-dom"; 
+import { useNavigate, Navigate } from "react-router-dom";
 import { authAPI } from "../api";
 import { useAuthStore } from "../store";
 
@@ -20,11 +20,9 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  // ✅ usar token como única fuente de verdad
   const token = useAuthStore((s) => s.token);
   const login = useAuthStore((s) => s.login);
 
-  // ✅ REDIRECCIÓN TEMPRANA
   if (token) {
     return <Navigate to="/catalog" replace />;
   }
@@ -45,7 +43,6 @@ export default function Login() {
       const res = await authAPI.login(username, password);
       const { access_token, username: user, behavior } = res.data;
 
-      // guarda token + user
       login(access_token, user, behavior);
 
       navigate("/catalog", { replace: true });
@@ -62,15 +59,7 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage:
-          "linear-gradient(90deg, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.08) 100%), url('/login-bg-gradient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="min-h-screen flex items-center justify-center p-4 bg-surface">
       <div className="w-full max-w-5xl lux-card rounded-2xl overflow-hidden">
         <div className="grid md:grid-cols-2">
           {/* Left: login */}
@@ -82,7 +71,7 @@ export default function Login() {
                   alt="OmniPizza"
                   className="h-10 w-10 rounded-2xl object-cover"
                 />
-                <h1 className="text-5xl font-black text-brand-primary font-serif">
+                <h1 className="text-5xl font-extrabold text-brand-primary">
                   OmniPizza
                 </h1>
               </div>
@@ -100,7 +89,7 @@ export default function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-surface-2 text-text border border-border
-                             focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                             focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   placeholder="standard_user"
                   required
                 />
@@ -115,7 +104,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-surface-2 text-text border border-border
-                             focus:outline-none focus:ring-2 focus:ring-brand-accent"
+                             focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   placeholder="pizza123"
                   required
                 />
@@ -130,21 +119,21 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-gold w-full"
+                className="btn-primary w-full"
               >
                 {loading ? "Signing in…" : "Sign In"}
               </button>
 
               <p className="text-sm text-text-muted">
                 Tip: use any test user with password{" "}
-                <span className="font-black text-text">pizza123</span>.
+                <span className="font-extrabold text-text">pizza123</span>.
               </p>
             </form>
           </div>
 
           {/* Right: test users */}
           <div className="p-8 md:p-12">
-            <h2 className="text-4xl font-black text-text font-serif mb-2">
+            <h2 className="text-4xl font-extrabold text-text mb-2">
               Test Users
             </h2>
             <p className="text-text-muted font-semibold mb-6">
@@ -157,9 +146,9 @@ export default function Login() {
                   key={u.username}
                   onClick={() => selectUser(u)}
                   className="w-full text-left p-4 rounded-2xl border border-border bg-surface-2
-                             hover:bg-[rgba(255,255,255,0.04)] transition"
+                             hover:bg-[rgba(255,255,255,0.06)] transition"
                 >
-                  <div className="text-lg font-black text-text">
+                  <div className="text-lg font-extrabold text-text">
                     {u.username}
                   </div>
                   <div className="text-sm text-text-muted font-semibold mt-1">
@@ -171,7 +160,7 @@ export default function Login() {
 
             <div className="mt-6 p-4 rounded-2xl border border-border bg-surface-2">
               <p className="text-sm text-text-muted font-semibold">
-                <span className="font-black text-text">Password:</span> pizza123
+                <span className="font-extrabold text-text">Password:</span> pizza123
                 (all users)
               </p>
             </div>

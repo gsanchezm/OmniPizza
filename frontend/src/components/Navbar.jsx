@@ -7,7 +7,7 @@ const linkBase =
   "px-3 py-2 rounded-xl font-extrabold transition border border-transparent";
 const linkActive = "bg-surface-2 border-border text-text";
 const linkIdle =
-  "text-text-muted hover:text-text hover:bg-[rgba(255,255,255,0.04)]";
+  "text-text-muted hover:text-text hover:bg-[rgba(255,255,255,0.06)]";
 
 function cx(...xs) {
   return xs.filter(Boolean).join(" ");
@@ -43,7 +43,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-50">
-      <div className="bg-[rgba(10,10,10,0.78)] backdrop-blur border-b border-border">
+      <div className="glass-nav">
         <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
           {/* Brand */}
           <button
@@ -61,7 +61,7 @@ export default function Navbar() {
               className="h-9 w-9 rounded-2xl object-cover"
             />
             <div className="hidden sm:block text-left">
-              <div className="text-xl font-black text-brand-primary font-serif leading-none">
+              <div className="text-xl font-extrabold text-brand-primary leading-none">
                 OmniPizza
               </div>
               <div className="text-xs font-semibold text-text-muted -mt-0.5">
@@ -89,7 +89,7 @@ export default function Navbar() {
             >
               {t("checkout")}
               {cartCount > 0 && (
-                <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
+                <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
                   {cartCount}
                 </span>
               )}
@@ -124,10 +124,10 @@ export default function Navbar() {
                 <button
                   type="button"
                   className={cx(
-                    "px-3 py-2 font-extrabold",
+                    "px-3 py-2 font-extrabold transition",
                     language === "de"
-                      ? "bg-brand-primary text-black"
-                      : "text-text-muted"
+                      ? "bg-brand-primary text-white"
+                      : "text-text-muted hover:text-text"
                   )}
                   onClick={() => setLanguage("de")}
                 >
@@ -136,10 +136,10 @@ export default function Navbar() {
                 <button
                   type="button"
                   className={cx(
-                    "px-3 py-2 font-extrabold",
+                    "px-3 py-2 font-extrabold transition",
                     language === "fr"
-                      ? "bg-brand-primary text-black"
-                      : "text-text-muted"
+                      ? "bg-brand-primary text-white"
+                      : "text-text-muted hover:text-text"
                   )}
                   onClick={() => setLanguage("fr")}
                 >
@@ -156,7 +156,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             type="button"
-            className="md:hidden px-3 py-2 rounded-xl border border-border bg-surface-2 font-extrabold"
+            className="md:hidden px-3 py-2 rounded-xl border border-border bg-surface-2 font-extrabold text-text"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Open menu"
           >
@@ -185,9 +185,9 @@ export default function Navbar() {
                   <button
                     type="button"
                     className={cx(
-                      "px-3 py-2 font-extrabold",
+                      "px-3 py-2 font-extrabold transition",
                       language === "de"
-                        ? "bg-brand-primary text-black"
+                        ? "bg-brand-primary text-white"
                         : "text-text-muted"
                     )}
                     onClick={() => setLanguage("de")}
@@ -197,9 +197,9 @@ export default function Navbar() {
                   <button
                     type="button"
                     className={cx(
-                      "px-3 py-2 font-extrabold",
+                      "px-3 py-2 font-extrabold transition",
                       language === "fr"
-                        ? "bg-brand-primary text-black"
+                        ? "bg-brand-primary text-white"
                         : "text-text-muted"
                     )}
                     onClick={() => setLanguage("fr")}
@@ -228,7 +228,7 @@ export default function Navbar() {
               >
                 {t("checkout")}
                 {cartCount > 0 && (
-                  <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-black text-xs font-black">
+                  <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
                     {cartCount}
                   </span>
                 )}

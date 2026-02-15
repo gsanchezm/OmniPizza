@@ -37,11 +37,11 @@ export default function OrderSuccessScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.surface.base },
   card: { margin: 14, padding: 16, borderRadius: 18, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
-  title: { fontSize: 22, fontWeight: "900", color: Colors.brand.accent },
+  title: { fontSize: 22, fontWeight: "800", color: Colors.brand.primary },
   sub: { marginTop: 6, color: Colors.text.muted, fontWeight: "700" },
   box: { marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: Colors.surface.base2, borderWidth: 1, borderColor: Colors.surface.border },
   muted: { color: Colors.text.muted, fontWeight: "700" },
-  orderId: { marginTop: 4, fontSize: 20, fontWeight: "900", color: Colors.text.primary },
-  btn: { marginTop: 16, backgroundColor: Colors.brand.accent, borderRadius: 14, paddingVertical: 12, alignItems: "center" },
-  btnText: { fontWeight: "900", color: "#111" },
+  orderId: { marginTop: 4, fontSize: 20, fontWeight: "800", color: Colors.text.primary },
+  btn: { marginTop: 16, backgroundColor: Colors.brand.primary, borderRadius: 14, paddingVertical: 12, alignItems: "center" },
+  btnText: { fontWeight: "800", color: "#FFFFFF" },
 });

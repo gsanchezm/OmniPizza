@@ -8,11 +8,11 @@ export default function Profile() {
 
   const input =
     "w-full px-4 py-3 rounded-xl bg-surface-2 text-text border border-border " +
-    "focus:outline-none focus:ring-2 focus:ring-brand-accent";
+    "focus:outline-none focus:ring-2 focus:ring-brand-primary";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-4xl font-black tracking-tight text-brand-primary font-serif mb-2">
+      <h1 className="text-4xl font-extrabold tracking-tight text-brand-primary mb-2">
         {t('profile')}
       </h1>
       <p className="text-text-muted mb-6">{t('profileHint')}</p>
@@ -40,7 +40,7 @@ export default function Profile() {
           </div>
 
           <div className="flex justify-end">
-            <button className="btn-gold">{t('save')}</button>
+            <button className="btn-primary">{t('save')}</button>
           </div>
         </div>
       </div>

@@ -49,7 +49,7 @@ export default function LoginScreen({ navigation }: any) {
         <TextInput
           style={[GlobalStyles.input, styles.input]}
           placeholder="Username"
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors.text.muted}
           value={username}
           onChangeText={setUsername}
           {...getTestProps("input-username")}
@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }: any) {
         <TextInput
           style={[GlobalStyles.input, styles.input]}
           placeholder="Password"
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors.text.muted}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -84,17 +84,19 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     textAlign: "center",
     fontWeight: "800",
-    color: Colors.brand.secondary,
+    color: Colors.text.muted,
   },
   card: {
     backgroundColor: Colors.surface.card,
     borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.surface.border,
   },
   sectionLabel: {
     fontSize: 12,
-    fontWeight: "900",
-    color: Colors.brand.secondary,
+    fontWeight: "800",
+    color: Colors.brand.primary,
     marginBottom: 10,
   },
   presets: {

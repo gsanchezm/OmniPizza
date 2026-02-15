@@ -106,7 +106,7 @@ export default function PizzaCustomizerModal({
         <div className="p-4 sm:p-6 border-b border-border bg-[rgba(0,0,0,0.25)] backdrop-blur">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-2xl font-black text-brand-primary font-serif">
+              <div className="text-2xl font-black text-brand-primary font-sans">
                 {t(UI_STRINGS.title, language)}
               </div>
               <div className="text-text-muted font-semibold">{pizzaName}</div>
@@ -137,7 +137,7 @@ export default function PizzaCustomizerModal({
                   className={[
                     "px-4 py-3 rounded-xl border text-left font-extrabold transition",
                     size === opt.id
-                      ? "bg-surface-2 border-brand-accent text-text"
+                      ? "bg-surface-2 border-brand-primary text-text"
                       : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
                   ].join(" ")}
                 >
@@ -181,7 +181,7 @@ export default function PizzaCustomizerModal({
                           className={[
                             "px-3 py-2 rounded-lg border text-left font-extrabold transition",
                             checked
-                              ? "bg-brand-primary text-black border-brand-primary"
+                              ? "bg-brand-primary text-white border-brand-primary"
                               : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
                             disabled ? "opacity-50 cursor-not-allowed" : "",
                           ].join(" ")}
@@ -206,7 +206,7 @@ export default function PizzaCustomizerModal({
               {t(UI_STRINGS.cancel, language)}
             </button>
             <button
-              className="btn-gold"
+              className="btn-primary"
               type="button"
               onClick={() =>
                 onConfirm({

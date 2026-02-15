@@ -4,30 +4,30 @@
     "slug": "omnipizza",
     "version": "1.0.0",
     "orientation": "portrait",
-    
+
     "icon": "./assets/icon.png",
-    
-    "userInterfaceStyle": "light",
-    
+
+    "userInterfaceStyle": "dark",
+
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain", 
-      "backgroundColor": "#C0392B" 
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0F0F"
     },
-    
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#C0392B"
+        "backgroundColor": "#0F0F0F"
       },
       "package": "com.omnipizza.app"
     },
-    
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.omnipizza.app"
     },
-    
+
     "web": {
       "favicon": "./assets/icon.png"
     }

@@ -131,7 +131,7 @@ function PizzaCustomizerModal({
           <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-border">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-2xl font-black text-brand-primary font-serif">
+                <div className="text-2xl font-black text-brand-primary font-sans">
                   {tOpt(UI_STRINGS.title, language)}
                 </div>
                 <div className="text-text-muted font-semibold">{pizza.name}</div>
@@ -161,7 +161,7 @@ function PizzaCustomizerModal({
                     className={[
                       "px-4 py-3 rounded-xl border text-left font-extrabold transition",
                       size === opt.id
-                        ? "bg-surface-2 border-brand-accent text-text"
+                        ? "bg-surface-2 border-brand-primary text-text"
                         : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
                     ].join(" ")}
                   >
@@ -208,7 +208,7 @@ function PizzaCustomizerModal({
                             className={[
                               "px-3 py-2 rounded-lg border text-left font-extrabold transition",
                               checked
-                                ? "bg-brand-primary text-black border-brand-primary"
+                                ? "bg-brand-primary text-white border-brand-primary"
                                 : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
                               disabled ? "opacity-50 cursor-not-allowed" : "",
                             ].join(" ")}
@@ -233,7 +233,7 @@ function PizzaCustomizerModal({
                 {tOpt(UI_STRINGS.cancel, language)}
               </button>
               <button
-                className="btn-gold"
+                className="btn-primary"
                 type="button"
                 onClick={() =>
                   onConfirm({
@@ -402,7 +402,7 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black text-brand-primary font-serif mb-8">
+      <h1 className="text-4xl font-black text-brand-primary font-sans mb-8">
         🛒{" "}
         {tOpt(
           {
@@ -419,7 +419,7 @@ export default function Checkout() {
       <div className="grid md:grid-cols-2 gap-8">
         {/* Left: items + form */}
         <div className="lux-card rounded-2xl p-6">
-          <div className="text-2xl font-black text-text font-serif mb-4">
+          <div className="text-2xl font-black text-text font-sans mb-4">
             {tOpt(
               {
                 en: "Delivery details",
@@ -589,7 +589,7 @@ export default function Checkout() {
               </div>
             )}
 
-            <button className="btn-gold w-full" disabled={loading}>
+            <button className="btn-primary w-full" disabled={loading}>
               {loading
                 ? "…"
                 : tOpt(
@@ -608,7 +608,7 @@ export default function Checkout() {
 
         {/* Right: totals */}
         <div className="lux-card rounded-2xl p-6">
-          <div className="text-2xl font-black text-text font-serif mb-4">
+          <div className="text-2xl font-black text-text font-sans mb-4">
             {tOpt(
               {
                 en: "Summary",

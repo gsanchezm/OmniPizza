@@ -12,7 +12,7 @@ export default function OrderSuccess() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="lux-card p-8 rounded-2xl">
-        <h1 className="text-4xl font-black text-brand-primary font-serif mb-2">{t('successTitle')}</h1>
+        <h1 className="text-4xl font-extrabold text-brand-primary mb-2">{t('successTitle')}</h1>
         <p className="text-text-muted mb-6">{t('successSubtitle')}</p>
 
         {!order ? (
@@ -20,7 +20,7 @@ export default function OrderSuccess() {
             <div className="border border-border rounded-xl p-4 mb-6">
               <p className="text-text-muted">No last order found.</p>
             </div>
-            <button className="btn-gold" onClick={() => navigate('/catalog')}>
+            <button className="btn-primary" onClick={() => navigate('/catalog')}>
               {t('backToCatalog')}
             </button>
           </>
@@ -55,7 +55,7 @@ export default function OrderSuccess() {
             </div>
 
             <div className="mt-8">
-              <button className="btn-gold" onClick={() => navigate('/catalog')}>
+              <button className="btn-primary" onClick={() => navigate('/catalog')}>
                 {t('backToCatalog')}
               </button>
             </div>
