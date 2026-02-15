@@ -397,11 +397,11 @@ export default function Checkout() {
                         )?.label,
                         language,
                       )}{" "}
-                      • {(it.config?.toppings || []).length} toppings • Qty{" "}
+                      • {(it.config?.toppings || []).length} {tOpt({en:"toppings", es:"ingredients", de:"Beläge", fr:"Garnitures", ja:"トッピング"}, language)} • {tOpt({en:"Qty", es:"Cant.", de:"Anz.", fr:"Qté", ja:"数量"}, language)}{" "}
                       {it.quantity}
                     </div>
                     <div className="text-text-muted text-sm">
-                      Unit:{" "}
+                      {tOpt({en:"Unit", es:"Unit.", de:"Einh.", fr:"Unit.", ja:"単価"}, language)}:{" "}
                       {formatMoney(
                         it.unit_price,
                         it.currency,
@@ -449,14 +449,14 @@ export default function Checkout() {
           <form onSubmit={onSubmit} className="grid gap-4">
             <input
               className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder="Name"
+              placeholder={tOpt({en:"Full name", es:"Nombre completo", de:"Vollständiger Name", fr:"Nom complet", ja:"氏名"}, language)}
               value={form.name}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
               required
             />
             <input
               className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder="Address"
+              placeholder={tOpt({en:"Address", es:"Dirección", de:"Adresse", fr:"Adresse", ja:"住所"}, language)}
               value={form.address}
               onChange={(e) =>
                 setForm((p) => ({ ...p, address: e.target.value }))
@@ -465,7 +465,7 @@ export default function Checkout() {
             />
             <input
               className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder="Phone"
+              placeholder={tOpt({en:"Phone", es:"Teléfono", de:"Telefon", fr:"Téléphone", ja:"電話番号"}, language)}
               value={form.phone}
               onChange={(e) =>
                 setForm((p) => ({ ...p, phone: e.target.value }))
@@ -477,7 +477,7 @@ export default function Checkout() {
               <>
                 <input
                   className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                  placeholder="Colonia"
+                  placeholder={tOpt({en:"Neighborhood (Colonia)", es:"Colonia", de:"Stadtteil", fr:"Quartier", ja:"地区"}, language)}
                   value={form.colonia}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, colonia: e.target.value }))
@@ -486,7 +486,7 @@ export default function Checkout() {
                 />
                 <input
                   className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                  placeholder="Tip (optional)"
+                  placeholder={tOpt({en:"Tip (optional)", es:"Propina (opcional)", de:"Trinkgeld (optional)", fr:"Pourboire (optionnel)", ja:"チップ（任意）"}, language)}
                   value={form.propina}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, propina: e.target.value }))
@@ -498,7 +498,7 @@ export default function Checkout() {
             {countryCode === "US" && (
               <input
                 className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                placeholder="ZIP Code"
+                placeholder={tOpt({en:"ZIP Code", es:"Código Postal", de:"PLZ", fr:"Code Postal", ja:"郵便番号"}, language)}
                 value={form.zip_code}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, zip_code: e.target.value }))
@@ -522,7 +522,7 @@ export default function Checkout() {
             {countryCode === "JP" && (
               <input
                 className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                placeholder="Prefecture"
+                placeholder={tOpt({en:"Prefecture", es:"Prefectura", de:"Präfektur", fr:"Préfecture", ja:"都道府県"}, language)}
                 value={form.prefectura}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, prefectura: e.target.value }))

@@ -5,7 +5,7 @@ const API_ORIGIN = "https://omnipizza-backend.onrender.com";
 
 export const apiClient = axios.create({
   baseURL: API_ORIGIN,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 apiClient.interceptors.request.use((config) => {

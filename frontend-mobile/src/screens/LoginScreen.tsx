@@ -1,6 +1,15 @@
 import React, { useState } from "react";
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { useAppStore } from "../store/useAppStore";
+import { authService } from "../services/auth.service";
 import { getTestProps } from "../utils/qa";
 import { Colors } from "../theme/colors";
 import { GlobalStyles } from "../theme/styles";
@@ -10,21 +19,50 @@ const PRESET_USERS = ["standard_user", "locked_out_user", "problem_user"];
 export default function LoginScreen({ navigation }: any) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  
   const setToken = useAppStore((s) => s.setToken);
   const country = useAppStore((s) => s.country);
 
-  const handleLogin = () => {
-    if (username === "locked_out_user") {
-      alert("User is locked out!");
+  const handleLogin = async () => {
+    if (!username) {
+      Alert.alert("Error", "Username is required");
       return;
     }
-    setToken("fake-jwt-token");
-    navigation.replace("Catalog");
+
+    setLoading(true);
+    try {
+      // Use provided password or default 'pizza123'
+      const finalPassword = password || "pizza123";
+      
+      const response = await authService.login(username, finalPassword);
+      
+      if (response && response.access_token) {
+        setToken(response.access_token);
+        // Navigate to Catalog
+        navigation.replace("Catalog");
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.detail || "Login failed. Please try again.";
+      Alert.alert("Login Error", msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fillUser = (u: string) => {
+    setUsername(u);
+    setPassword("pizza123");
   };
 
   return (
     <View style={[GlobalStyles.screen, styles.container]}>
-      <Text style={GlobalStyles.title}>OmniPizza</Text>
+      <Text style={[GlobalStyles.title, { textAlign: "center", marginBottom: 10 }]}>
+        OmniPizza
+      </Text>
       <Text style={styles.subTitle}>Login ({country})</Text>
 
       <View style={styles.card}>
@@ -34,10 +72,7 @@ export default function LoginScreen({ navigation }: any) {
           {PRESET_USERS.map((u) => (
             <TouchableOpacity
               key={u}
-              onPress={() => {
-                setUsername(u);
-                setPassword("pizza123");
-              }}
+              onPress={() => fillUser(u)}
               style={GlobalStyles.accentChip}
               {...getTestProps(`btn-preset-${u}`)}
             >
@@ -52,6 +87,7 @@ export default function LoginScreen({ navigation }: any) {
           placeholderTextColor={Colors.text.muted}
           value={username}
           onChangeText={setUsername}
+          autoCapitalize="none"
           {...getTestProps("input-username")}
         />
 
@@ -67,10 +103,15 @@ export default function LoginScreen({ navigation }: any) {
 
         <TouchableOpacity
           onPress={handleLogin}
-          style={GlobalStyles.primaryButton}
+          disabled={loading}
+          style={[GlobalStyles.primaryButton, loading && { opacity: 0.7 }]}
           {...getTestProps("btn-login")}
         >
-          <Text style={GlobalStyles.primaryButtonText}>LOGIN</Text>
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={GlobalStyles.primaryButtonText}>LOGIN</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -102,6 +143,7 @@ const styles = StyleSheet.create({
   presets: {
     flexDirection: "row",
     flexWrap: "wrap",
+    gap: 8,
     marginBottom: 14,
   },
   input: { marginBottom: 12 },

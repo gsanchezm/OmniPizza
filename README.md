@@ -121,10 +121,16 @@ npm run dev
 ```bash
 cd frontend-mobile
 npm install
-npm start
+npm run ios   # or npm run android
 ```
 
-> Mobile is configured to use the **Render API** by default (no `.env` needed).  
+> **Configuration:**
+> - Mobile is configured to use the **Render API** (`https://omnipizza-backend.onrender.com`) strictly, with **mock data fallback removed**.
+> - **Real Authentication:** Uses `/api/auth/login` to obtain valid JWT tokens.
+> - **Market Selector:** New modal interface to switch markets (US/MX/CH/JP).
+> - **Localization:** Full i18n support for Profile, Checkout, and Navbar.
+> - **Error Handling:** Includes UI for connection retries.
+
 > To run against local backend, change `API_ORIGIN` in `frontend-mobile/src/api/client.ts`.
 
 ---

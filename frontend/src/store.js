@@ -90,6 +90,7 @@ export const useCountryStore = create(
 
         setCountryCode: (code) => {
           localStorage.setItem("countryCode", code); // ✅ CRITICAL for headers
+          useCartStore.getState().clearCart(); // Clear cart on market change
           const next = pickMarket(code);
 
           // switch UI language to market default on change

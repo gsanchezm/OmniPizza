@@ -149,7 +149,7 @@ export default function Navbar() {
             )}
 
             <button className="btn-ghost" type="button" onClick={doLogout}>
-              Logout
+              {t("logout")}
             </button>
           </div>
 

@@ -33,12 +33,26 @@ function computeUnitPrice(pizza: Pizza, sizeUsd: number, toppingsCount: number) 
 }
 
 export default function PizzaBuilderScreen({ route, navigation }: any) {
-  const { language, addConfiguredItem, updateCartItem } = useAppStore();
+  const { country, language, addConfiguredItem, updateCartItem } = useAppStore();
 
   const mode = route?.params?.mode || "add";
-  const pizza = route?.params?.pizza as Pizza | undefined;
+  const initialPizza = route?.params?.pizza as Pizza | undefined;
   const cartItemId = route?.params?.cartItemId;
   const initialConfig = route?.params?.initialConfig;
+
+  const [pizza, setPizza] = useState<Pizza | undefined>(initialPizza);
+
+  // Refresh pizza when market changes
+  React.useEffect(() => {
+    if (!initialPizza?.id) return;
+    import("../services/pizza.service").then(({ pizzaService }) => {
+      pizzaService.getPizzas().then((list) => {
+        const found = list.find((p) => p.id === initialPizza.id);
+        if (found) setPizza(found);
+        else navigation.goBack(); // Pizza not available in this market
+      });
+    });
+  }, [country, language, initialPizza?.id, navigation]);
 
   const [size, setSize] = useState<PizzaSize>(
     (initialConfig?.size as PizzaSize) || "small",

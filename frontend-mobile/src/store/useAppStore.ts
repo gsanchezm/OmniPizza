@@ -79,7 +79,7 @@ function makeId() {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  country: "MX",
+  country: "US",
   language: "en",      // starts in English
   chLanguage: "de",
   token: null,
@@ -94,7 +94,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       let nextLang: LanguageCode;
       if (country === "CH") nextLang = state.chLanguage; // keep DE/FR preference
       else nextLang = MARKET_LANG[country] ?? "en";
-      return { country, language: nextLang };
+      return { country, language: nextLang, cartItems: [] };
     }),
 
   setLanguage: (lang) =>

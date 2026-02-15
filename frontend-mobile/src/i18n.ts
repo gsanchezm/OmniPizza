@@ -21,6 +21,13 @@ const DICT: Record<string, Record<string, string>> = {
     edit: "Edit",
     remove: "Remove",
     cart: "Cart",
+    save: "Save",
+    notes: "Notes",
+    subtotal: "Subtotal",
+    size: "Size",
+    qty: "Qty",
+    toppings: "Toppings",
+    unit: "Unit",
   },
 
   es: {
@@ -43,6 +50,13 @@ const DICT: Record<string, Record<string, string>> = {
     edit: "Editar",
     remove: "Eliminar",
     cart: "Carrito",
+    save: "Guardar",
+    notes: "Notas",
+    subtotal: "Subtotal",
+    size: "Tamaño",
+    qty: "Cant.",
+    toppings: "Toppings",
+    unit: "Unit.",
   },
 
   de: {
@@ -65,6 +79,13 @@ const DICT: Record<string, Record<string, string>> = {
     edit: "Bearbeiten",
     remove: "Entfernen",
     cart: "Warenkorb",
+    save: "Speichern",
+    notes: "Notizen",
+    subtotal: "Zwischensumme",
+    size: "Größe",
+    qty: "Anz.",
+    toppings: "Beläge",
+    unit: "Einh.",
   },
 
   fr: {
@@ -87,6 +108,13 @@ const DICT: Record<string, Record<string, string>> = {
     edit: "Modifier",
     remove: "Supprimer",
     cart: "Panier",
+    save: "Enregistrer",
+    notes: "Notes",
+    subtotal: "Sous-total",
+    size: "Taille",
+    qty: "Qté",
+    toppings: "Garnitures",
+    unit: "Unit.",
   },
 
   ja: {
@@ -109,6 +137,13 @@ const DICT: Record<string, Record<string, string>> = {
     edit: "編集",
     remove: "削除",
     cart: "カート",
+    save: "保存",
+    notes: "メモ",
+    subtotal: "小計",
+    size: "サイズ",
+    qty: "数量",
+    toppings: "トッピング",
+    unit: "単価",
   },
 };
 

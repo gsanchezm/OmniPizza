@@ -14,16 +14,16 @@ export default function ProfileScreen({ navigation }: any) {
       <CustomNavbar title={t("profile")} navigation={navigation} />
 
       <View style={styles.card}>
-        <Text style={styles.label}>Full name</Text>
+        <Text style={styles.label}>{t("fullName")}</Text>
         <TextInput style={styles.input} placeholderTextColor={Colors.text.muted} value={profile?.fullName || ""} onChangeText={(v)=>setProfile({ fullName: v })} />
 
-        <Text style={styles.label}>Address</Text>
+        <Text style={styles.label}>{t("address")}</Text>
         <TextInput style={styles.input} placeholderTextColor={Colors.text.muted} value={profile?.address || ""} onChangeText={(v)=>setProfile({ address: v })} />
 
-        <Text style={styles.label}>Phone</Text>
+        <Text style={styles.label}>{t("phone")}</Text>
         <TextInput style={styles.input} placeholderTextColor={Colors.text.muted} value={profile?.phone || ""} onChangeText={(v)=>setProfile({ phone: v })} />
 
-        <Text style={styles.label}>Notes</Text>
+        <Text style={styles.label}>{t("notes")}</Text>
         <TextInput style={[styles.input, { height: 90 }]} multiline placeholderTextColor={Colors.text.muted} value={profile?.notes || ""} onChangeText={(v)=>setProfile({ notes: v })} />
 
         <TouchableOpacity style={styles.btn} onPress={() => navigation.goBack()}>

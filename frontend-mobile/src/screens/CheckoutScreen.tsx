@@ -146,10 +146,10 @@ export default function CheckoutScreen({ navigation }: any) {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemTitle}>{it.pizza?.name}</Text>
                 <Text style={styles.itemMeta}>
-                  Size: {it.config?.size} • Toppings: {(it.config?.toppings || []).length} • Qty: {it.quantity}
+                  {t("size")}: {it.config?.size} • {t("toppings")}: {(it.config?.toppings || []).length} • {t("qty")}: {it.quantity}
                 </Text>
                 <Text style={styles.itemMeta}>
-                  Unit: {money(it.unit_price, it.currency_symbol, it.currency)}
+                  {t("unit")}: {money(it.unit_price, it.currency_symbol, it.currency)}
                 </Text>
               </View>
 
@@ -171,7 +171,7 @@ export default function CheckoutScreen({ navigation }: any) {
           ))}
 
           <View style={styles.subtotalRow}>
-            <Text style={styles.subtotalLabel}>Subtotal</Text>
+            <Text style={styles.subtotalLabel}>{t("subtotal")}</Text>
             <Text style={styles.subtotalValue}>{money(subtotal, currencySymbol, currency)}</Text>
           </View>
         </View>
