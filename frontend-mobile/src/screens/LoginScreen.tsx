@@ -9,6 +9,7 @@ import {
   Alert,
   ScrollView,
   Image,
+  useWindowDimensions,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { authService } from "../services/auth.service";
@@ -45,6 +46,9 @@ const MARKET_OPTIONS = [
 ] as const;
 
 export default function LoginScreen({ navigation }: any) {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [username, setUsername] = useState("standard_user");
   const [password, setPassword] = useState("pizza123");
   const [loading, setLoading] = useState(false);
@@ -110,82 +114,95 @@ export default function LoginScreen({ navigation }: any) {
   return (
     <View style={GlobalStyles.screen}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={require("../../assets/icon.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <View
+          style={[
+            styles.contentWrap,
+            isLandscape && styles.contentWrapLandscape,
+          ]}
+        >
+          <Image
+            source={require("../../assets/icon.png")}
+            style={[styles.logo, isLandscape && styles.logoLandscape]}
+            resizeMode="contain"
+          />
 
-        <Text style={[GlobalStyles.title, { textAlign: "center", marginBottom: 10 }]}>
-          OmniPizza
-        </Text>
+          <Text style={[GlobalStyles.title, { textAlign: "center", marginBottom: 10 }]}>
+            OmniPizza
+          </Text>
 
-        <Text style={styles.subTitle}>Select Market</Text>
-        <View style={styles.marketRow}>
-          {MARKET_OPTIONS.map((market) => {
-            const active = selectedMarket === market.code;
-            return (
-              <TouchableOpacity
-                key={market.code}
-                onPress={() => setSelectedMarket(market.code)}
-                style={[styles.marketFlagBtn, active && styles.marketFlagBtnActive]}
-                accessibilityLabel={`Market ${market.label}`}
-                {...getTestProps(`btn-market-${market.code.toLowerCase()}`)}
-              >
-                <Text style={styles.marketFlag}>{market.flag}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionLabel}>Quick fill (QA)</Text>
-
-          <View style={styles.presets}>
-            {testUsers.map((u) => (
-              <TouchableOpacity
-                key={u.username}
-                onPress={() => fillUser(u)}
-                style={GlobalStyles.accentChip}
-                {...getTestProps(`btn-preset-${u.username}`)}
-              >
-                <Text style={GlobalStyles.accentChipText}>{u.username}</Text>
-              </TouchableOpacity>
-            ))}
+          <Text style={styles.subTitle}>Select Market</Text>
+          <View style={styles.marketRow}>
+            {MARKET_OPTIONS.map((market) => {
+              const active = selectedMarket === market.code;
+              return (
+                <TouchableOpacity
+                  key={market.code}
+                  onPress={() => setSelectedMarket(market.code)}
+                  style={[
+                    styles.marketFlagBtn,
+                    isLandscape && styles.marketFlagBtnLandscape,
+                    active && styles.marketFlagBtnActive,
+                  ]}
+                  accessibilityLabel={`Market ${market.label}`}
+                  {...getTestProps(`btn-market-${market.code.toLowerCase()}`)}
+                >
+                  <Text style={[styles.marketFlag, isLandscape && styles.marketFlagLandscape]}>
+                    {market.flag}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          <TextInput
-            style={[GlobalStyles.input, styles.input]}
-            placeholder="Username"
-            placeholderTextColor={Colors.text.muted}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            {...getTestProps("input-username")}
-          />
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>Quick fill (QA)</Text>
 
-          <TextInput
-            style={[GlobalStyles.input, styles.input]}
-            placeholder="Password"
-            placeholderTextColor={Colors.text.muted}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            {...getTestProps("input-password")}
-          />
+            <View style={styles.presets}>
+              {testUsers.map((u) => (
+                <TouchableOpacity
+                  key={u.username}
+                  onPress={() => fillUser(u)}
+                  style={GlobalStyles.accentChip}
+                  {...getTestProps(`btn-preset-${u.username}`)}
+                >
+                  <Text style={GlobalStyles.accentChipText}>{u.username}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={loading}
-            style={[GlobalStyles.primaryButton, loading && { opacity: 0.7 }]}
-            {...getTestProps("btn-login")}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={GlobalStyles.primaryButtonText}>LOGIN</Text>
-            )}
-          </TouchableOpacity>
+            <TextInput
+              style={[GlobalStyles.input, styles.input]}
+              placeholder="Username"
+              placeholderTextColor={Colors.text.muted}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              {...getTestProps("input-username")}
+            />
+
+            <TextInput
+              style={[GlobalStyles.input, styles.input]}
+              placeholder="Password"
+              placeholderTextColor={Colors.text.muted}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              {...getTestProps("input-password")}
+            />
+
+            <TouchableOpacity
+              onPress={handleLogin}
+              disabled={loading}
+              style={[GlobalStyles.primaryButton, loading && { opacity: 0.7 }]}
+              {...getTestProps("btn-login")}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={GlobalStyles.primaryButtonText}>LOGIN</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -196,14 +213,27 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 20,
+  },
+  contentWrap: {
+    width: "100%",
+    maxWidth: 560,
+  },
+  contentWrapLandscape: {
+    maxWidth: 860,
   },
   logo: {
     width: 72,
     height: 72,
     alignSelf: "center",
     marginBottom: 8,
+  },
+  logoLandscape: {
+    width: 60,
+    height: 60,
+    marginBottom: 4,
   },
   subTitle: {
     marginTop: 4,
@@ -249,9 +279,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  marketFlagBtnLandscape: {
+    width: 48,
+    height: 48,
+  },
   marketFlagBtnActive: {
     borderColor: Colors.brand.primary,
     backgroundColor: Colors.brand.primary + "22",
   },
   marketFlag: { fontSize: 24, textAlign: "center" },
+  marketFlagLandscape: { fontSize: 22 },
 });

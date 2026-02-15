@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
@@ -13,30 +13,33 @@ export default function OrderSuccessScreen({ navigation }: any) {
     <View style={styles.screen}>
       <CustomNavbar title="✅" navigation={navigation} />
 
-      <View style={styles.card}>
-        <Text style={styles.title}>{t("successTitle")}</Text>
-        <Text style={styles.sub}>{t("successSubtitle")}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.card}>
+          <Text style={styles.title}>{t("successTitle")}</Text>
+          <Text style={styles.sub}>{t("successSubtitle")}</Text>
 
-        {lastOrder?.order_id ? (
-          <View style={styles.box}>
-            <Text style={styles.muted}>Order ID</Text>
-            <Text style={styles.orderId}>{lastOrder.order_id}</Text>
-          </View>
-        ) : (
-          <Text style={styles.muted}>No order found</Text>
-        )}
+          {lastOrder?.order_id ? (
+            <View style={styles.box}>
+              <Text style={styles.muted}>Order ID</Text>
+              <Text style={styles.orderId}>{lastOrder.order_id}</Text>
+            </View>
+          ) : (
+            <Text style={styles.muted}>No order found</Text>
+          )}
 
-        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate("Catalog")}>
-          <Text style={styles.btnText}>{t("backToCatalog")}</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate("Catalog")}>
+            <Text style={styles.btnText}>{t("backToCatalog")}</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.surface.base },
-  card: { margin: 14, padding: 16, borderRadius: 18, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
+  scrollContent: { padding: 14, alignItems: "center" },
+  card: { width: "100%", maxWidth: 920, padding: 16, borderRadius: 18, backgroundColor: Colors.surface.card, borderWidth: 1, borderColor: Colors.surface.border },
   title: { fontSize: 22, fontWeight: "800", color: Colors.brand.primary },
   sub: { marginTop: 6, color: Colors.text.muted, fontWeight: "700" },
   box: { marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: Colors.surface.base2, borderWidth: 1, borderColor: Colors.surface.border },

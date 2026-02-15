@@ -1,7 +1,8 @@
 # OmniPizza — QA Testing Platform
 
 OmniPizza is a multi-platform, test-friendly pizza ordering sandbox designed for practicing UI + API automation across **Web (React/Vite)** and **Mobile (React Native)**.  
-It includes deterministic “chaos” users, multi-market pricing, language switching, and a pizza configurator (size + toppings) with cart edit/remove.
+It includes deterministic “chaos” users, multi-market pricing, language switching, and a pizza configurator (size + toppings) with cart edit/remove.  
+Users select market on the **login** screen (web + mobile) before entering the app.
 
 ## Live Deployments (Render)
 - **Web:** https://omnipizza-frontend.onrender.com
@@ -46,11 +47,12 @@ It includes deterministic “chaos” users, multi-market pricing, language swit
 
 ### 3) Language behavior
 - **Web + Mobile start in English.**
-- On market change, UI switches to the market default:
+- The selected market at login sets the default UI language:
   - **MX → Spanish (es)**
   - **US → English (en)**
   - **CH → German (de)** (toggle to **French (fr)**)
   - **JP → Japanese (ja)**
+- After login, market is not changeable from navbar/menu.
 
 ### 4) Pizza Configurator (Web modal + Mobile PizzaBuilderScreen)
 When adding a pizza, the user can customize:
@@ -74,6 +76,16 @@ When adding a pizza, the user can customize:
   - **Edited** (re-opens the configurator)
   - **Removed**
 - Totals update immediately based on item changes.
+
+### 6) Mobile UX
+- Login quick-fill includes all test users.
+- Navbar includes logout action.
+- Checkout validates required fields before submit.
+- Portrait/landscape rotation is supported.
+
+### 7) Web visual assets
+- Public icons/logo are standardized from `frontend-mobile/assets/icon.png`.
+- Login page background uses `frontend/public/login-bg-gradient.png`.
 
 ---
 

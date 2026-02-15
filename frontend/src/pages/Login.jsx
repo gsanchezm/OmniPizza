@@ -70,7 +70,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-surface">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-surface bg-cover bg-center"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(15,15,15,0.72), rgba(15,15,15,0.72)), url('/login-bg-gradient.png')",
+      }}
+    >
       <div className="w-full max-w-5xl lux-card rounded-2xl overflow-hidden">
         <div className="grid md:grid-cols-2">
           {/* Left: login */}

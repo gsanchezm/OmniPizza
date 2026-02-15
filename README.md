@@ -1,6 +1,7 @@
 # OmniPizza — QA Testing Platform
 
-OmniPizza is a multi-platform, test-friendly food ordering sandbox designed for practicing UI + API automation (web + mobile) with deterministic chaos users and multi-market pricing.
+OmniPizza is a multi-platform, test-friendly food ordering sandbox designed for practicing UI + API automation (web + mobile) with deterministic chaos users and multi-market pricing.  
+Users now select market directly on the **login** screen (web + mobile) before entering the app.
 
 ## Live Deployments (Render)
 - **Web:** https://omnipizza-frontend.onrender.com
@@ -62,11 +63,12 @@ These headers are automatically sent by the **Web** and **Mobile** clients.
 
 ### Language behavior
 - The app **starts in English** (web + mobile).
-- When the user changes the market, the UI switches to the market default:
+- The selected market at login sets the default UI language:
   - **MX → Spanish (es)**
   - **US → English (en)**
   - **CH → German (de)** (with toggle to **French (fr)**)
   - **JP → Japanese (ja)**
+- After login, market is no longer changeable from app navigation.
 
 ### Payment (UI simulation)
 Checkout supports:
@@ -78,6 +80,15 @@ The **Profile** page stores delivery details (name/address/phone) and **auto-fil
 
 ### Order Success
 After checkout, the **Order Success** screen is shown and the last order remains accessible (web persists it via local storage).
+
+### Mobile UX updates
+- Navbar includes a **logout** button.
+- Checkout validates required fields before submit (country-specific + inline errors).
+- Layouts are rotation-ready (portrait/landscape) for iOS and Android.
+
+### Web visual assets
+- Public icons/logos were standardized from `frontend-mobile/assets/icon.png`.
+- Login page uses `frontend/public/login-bg-gradient.png` as the background.
 
 ---
 
@@ -127,9 +138,10 @@ npm run ios   # or npm run android
 > **Configuration:**
 > - Mobile is configured to use the **Render API** (`https://omnipizza-backend.onrender.com`) strictly, with **mock data fallback removed**.
 > - **Real Authentication:** Uses `/api/auth/login` to obtain valid JWT tokens.
-> - **Market Selector:** New modal interface to switch markets (US/MX/CH/JP).
+> - **Market selection at login:** user picks market on the login screen (flag selector).
 > - **Localization:** Full i18n support for Profile, Checkout, and Navbar.
 > - **Error Handling:** Includes UI for connection retries.
+> - **Orientation:** `frontend-mobile/app.json` uses `"orientation": "default"` for device rotation.
 
 > To run against local backend, change `API_ORIGIN` in `frontend-mobile/src/api/client.ts`.
 

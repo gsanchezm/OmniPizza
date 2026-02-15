@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
@@ -33,6 +34,9 @@ function computeUnitPrice(pizza: Pizza, sizeUsd: number, toppingsCount: number) 
 }
 
 export default function PizzaBuilderScreen({ route, navigation }: any) {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const { country, language, addConfiguredItem, updateCartItem } = useAppStore();
 
   const mode = route?.params?.mode || "add";
@@ -112,8 +116,9 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         navigation={navigation}
       />
 
-      <ScrollView contentContainerStyle={{ padding: 14 }}>
-        <View style={styles.card}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={[styles.contentWrap, isLandscape && styles.contentWrapLandscape]}>
+          <View style={styles.card}>
           <Text style={styles.pizzaName}>{pizza.name}</Text>
           <Text style={styles.priceLine}>
             {pizza.currency_symbol}
@@ -191,6 +196,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
               {tOpt(UI_STRINGS.confirm, language)}
             </Text>
           </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -199,6 +205,17 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.surface.base },
+  scrollContent: {
+    padding: 14,
+    alignItems: "center",
+  },
+  contentWrap: {
+    width: "100%",
+    maxWidth: 1080,
+  },
+  contentWrapLandscape: {
+    maxWidth: 1280,
+  },
   card: {
     padding: 14,
     borderRadius: 18,

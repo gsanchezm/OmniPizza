@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "../store/useAppStore";
@@ -11,6 +12,9 @@ import { getTestProps } from "../utils/qa";
 import { Colors } from "../theme/colors";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
+  const { width } = useWindowDimensions();
+  const compact = width < 390;
+
   const { country, language, setLanguage, logout } = useAppStore();
 
   const handleLogout = () => {
@@ -23,7 +27,7 @@ export const CustomNavbar = ({ title, navigation }: any) => {
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.containerCompact]}>
         {/* CH language toggle (only visible for CH) */}
         {country === "CH" && (
           <View style={styles.langWrap}>
@@ -55,40 +59,40 @@ export const CustomNavbar = ({ title, navigation }: any) => {
         </Text>
 
         {/* Right actions */}
-        <View style={styles.right}>
+        <View style={[styles.right, compact && styles.rightCompact]}>
           {/* Catalog Button (New) */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Catalog")}
-            style={styles.iconBtn}
+            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
             {...getTestProps("btn-navbar-catalog")}
           >
-            <Text style={styles.icon}>🍕</Text>
+            <Text style={[styles.icon, compact && styles.iconCompact]}>🍕</Text>
           </TouchableOpacity>
 
           {/* Profile Button */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
-            style={styles.iconBtn}
+            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
             {...getTestProps("btn-navbar-profile")}
           >
-            <Text style={styles.icon}>👤</Text>
+            <Text style={[styles.icon, compact && styles.iconCompact]}>👤</Text>
           </TouchableOpacity>
 
           {/* Checkout Button */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Checkout")}
-            style={styles.iconBtn}
+            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
             {...getTestProps("btn-navbar-cart")}
           >
-            <Text style={styles.icon}>🛒</Text>
+            <Text style={[styles.icon, compact && styles.iconCompact]}>🛒</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleLogout}
-            style={styles.iconBtn}
+            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
             {...getTestProps("btn-navbar-logout")}
           >
-            <Text style={styles.icon}>↩</Text>
+            <Text style={[styles.icon, compact && styles.iconCompact]}>↩</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -100,6 +104,9 @@ const styles = StyleSheet.create({
   safeArea: { backgroundColor: Colors.surface.base, zIndex: 10 },
   container: {
     height: 56,
+    width: "100%",
+    maxWidth: 1200,
+    alignSelf: "center",
     paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -107,14 +114,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.surface.border,
   },
+  containerCompact: {
+    height: 52,
+    paddingHorizontal: 8,
+  },
   title: {
     flex: 1,
+    minWidth: 0,
     textAlign: "center",
     fontWeight: "800",
     color: Colors.text.primary,
-    marginHorizontal: 8,
+    marginHorizontal: 6,
   },
   right: { flexDirection: "row", gap: 8 },
+  rightCompact: { gap: 6 },
 
   iconBtn: {
     padding: 8,
@@ -127,7 +140,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
   },
+  iconBtnCompact: {
+    width: 32,
+    height: 32,
+    padding: 6,
+    borderRadius: 10,
+  },
   icon: { fontSize: 16, color: Colors.text.primary, textAlign: "center" },
+  iconCompact: { fontSize: 14 },
 
   langWrap: {
     flexDirection: "row",

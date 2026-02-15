@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
@@ -16,6 +17,9 @@ import { usePizzas } from "../hooks/usePizzas";
 import type { Pizza } from "../types/api";
 
 export default function CatalogScreen({ navigation }: any) {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const t = useT();
   const { country, language } = useAppStore();
   const { pizzas, loading, error, reload } = usePizzas(country, language);
@@ -54,7 +58,8 @@ export default function CatalogScreen({ navigation }: any) {
           data={pizzas}
           keyExtractor={(pizza) => pizza.id}
           renderItem={renderItem}
-          contentContainerStyle={styles.list}
+          style={styles.listSurface}
+          contentContainerStyle={[styles.list, isLandscape && styles.listLandscape]}
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={styles.emptyText}>No pizzas found.</Text>
@@ -68,7 +73,13 @@ export default function CatalogScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface.base },
+  listSurface: {
+    width: "100%",
+    alignSelf: "center",
+    maxWidth: 980,
+  },
   list: { padding: 12 },
+  listLandscape: { paddingHorizontal: 18, paddingVertical: 14 },
   center: {
     flex: 1,
     justifyContent: "center",

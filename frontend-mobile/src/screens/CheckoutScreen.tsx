@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
@@ -41,6 +42,10 @@ const REQUIRED_BY_COUNTRY: Record<string, FieldKey[]> = {
 };
 
 export default function CheckoutScreen({ navigation }: any) {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+  const isWideLandscape = isLandscape && width >= 960;
+
   const t = useT();
 
   const {
@@ -226,9 +231,15 @@ export default function CheckoutScreen({ navigation }: any) {
     <View style={styles.container}>
       <CustomNavbar title={t("checkout")} navigation={navigation} />
 
-      <ScrollView contentContainerStyle={{ padding: 14 }}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View
+          style={[
+            styles.contentWrap,
+            isWideLandscape && styles.contentWrapLandscape,
+          ]}
+        >
         {/* Cart items */}
-        <View style={styles.card}>
+        <View style={[styles.card, isWideLandscape && styles.cardLandscape]}>
           <Text style={styles.section}>{t("orderSummary")}</Text>
 
           {cartItems.map((it: CartItem) => (
@@ -267,7 +278,14 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
 
         {/* Delivery form */}
-        <View style={[styles.card, { marginTop: 12 }]}>
+        <View
+          style={[
+            styles.card,
+            styles.deliveryCard,
+            isWideLandscape && styles.cardLandscape,
+            isWideLandscape && styles.deliveryCardLandscape,
+          ]}
+        >
           <Text style={styles.section}>{t("deliveryInfo")}</Text>
 
           <TextInput
@@ -363,6 +381,7 @@ export default function CheckoutScreen({ navigation }: any) {
             <Text style={styles.btnText}>{loading ? "…" : t("placeOrder")}</Text>
           </TouchableOpacity>
         </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -370,6 +389,19 @@ export default function CheckoutScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface.base },
+  scrollContent: {
+    padding: 14,
+    alignItems: "center",
+  },
+  contentWrap: {
+    width: "100%",
+    maxWidth: 1080,
+  },
+  contentWrapLandscape: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "flex-start",
+  },
 
   card: {
     padding: 14,
@@ -377,6 +409,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface.card,
     borderWidth: 1,
     borderColor: Colors.surface.border,
+  },
+  cardLandscape: {
+    flex: 1,
+  },
+  deliveryCard: {
+    marginTop: 12,
+  },
+  deliveryCardLandscape: {
+    marginTop: 0,
   },
 
   section: { fontSize: 18, fontWeight: "800", color: Colors.brand.primary, marginBottom: 10 },
