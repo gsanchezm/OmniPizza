@@ -63,3 +63,7 @@ android/
 # Testing
 coverage/
 .nyc_output/
+
+#docs
+/docs
+CLAUDE.md
