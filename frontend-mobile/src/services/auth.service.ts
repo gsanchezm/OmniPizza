@@ -8,4 +8,8 @@ export const authService = {
         });
         return response.data;
     },
+    async getTestUsers() {
+        const response = await apiClient.get("/api/auth/users");
+        return response.data;
+    },
 };

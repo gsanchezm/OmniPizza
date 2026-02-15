@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useAuthStore } from "../store";
+import { useAuthStore, useCountryStore } from "../store";
 import { authService } from "../services/auth.service";
 
 const USER_HINTS = {
@@ -10,6 +10,13 @@ const USER_HINTS = {
   performance_glitch_user: "API calls include ~3s delay",
   error_user: "Checkout may fail randomly (~50%)",
 };
+
+const MARKET_OPTIONS = [
+  { code: "US", label: "United States", flag: "🇺🇸" },
+  { code: "MX", label: "Mexico", flag: "🇲🇽" },
+  { code: "CH", label: "Switzerland", flag: "🇨🇭" },
+  { code: "JP", label: "Japan", flag: "🇯🇵" },
+];
 
 export default function Login() {
   const [username, setUsername] = useState("standard_user");
@@ -22,6 +29,9 @@ export default function Login() {
 
   const token = useAuthStore((s) => s.token);
   const login = useAuthStore((s) => s.login);
+  const countryCode = useCountryStore((s) => s.countryCode);
+  const setCountryCode = useCountryStore((s) => s.setCountryCode);
+  const [selectedMarket, setSelectedMarket] = useState(countryCode || "US");
 
   if (token) {
     return <Navigate to="/catalog" replace />;
@@ -43,6 +53,7 @@ export default function Login() {
       const res = await authService.login(username, password);
       const { access_token, username: user, behavior } = res.data;
 
+      setCountryCode(selectedMarket);
       login(access_token, user, behavior);
 
       navigate("/catalog", { replace: true });
@@ -108,6 +119,36 @@ export default function Login() {
                   placeholder="pizza123"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-extrabold text-text-muted mb-2">
+                  Select Market
+                </label>
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-4 gap-3">
+                    {MARKET_OPTIONS.map((market) => {
+                      const active = selectedMarket === market.code;
+                      return (
+                        <button
+                          key={market.code}
+                          type="button"
+                          title={market.label}
+                          aria-label={`Select ${market.label}`}
+                          onClick={() => setSelectedMarket(market.code)}
+                          className={[
+                            "h-12 w-12 rounded-full border bg-surface-2 text-2xl flex items-center justify-center transition",
+                            active
+                              ? "border-brand-primary ring-2 ring-brand-primary/40"
+                              : "border-border hover:border-brand-primary/60",
+                          ].join(" ")}
+                        >
+                          <span className="leading-none">{market.flag}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {error && (

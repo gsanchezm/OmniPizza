@@ -30,7 +30,6 @@ export default function Navbar() {
 
   const countryCode = useCountryStore((s) => s.countryCode);
   const language = useCountryStore((s) => s.language);
-  const setCountryCode = useCountryStore((s) => s.setCountryCode);
   const setLanguage = useCountryStore((s) => s.setLanguage);
 
   const isCH = countryCode === "CH";
@@ -65,7 +64,7 @@ export default function Navbar() {
                 OmniPizza
               </div>
               <div className="text-xs font-semibold text-text-muted -mt-0.5">
-                {username || "user"} • {countryCode}/{language}
+                {username || "user"}
               </div>
             </div>
           </button>
@@ -107,18 +106,6 @@ export default function Navbar() {
 
           {/* Desktop controls */}
           <div className="hidden md:flex items-center gap-2">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-surface-2 text-text border border-border font-extrabold"
-              aria-label="Market"
-            >
-              <option value="MX">MX</option>
-              <option value="US">US</option>
-              <option value="CH">CH</option>
-              <option value="JP">JP</option>
-            </select>
-
             {isCH && (
               <div className="flex items-center rounded-xl border border-border overflow-hidden">
                 <button
@@ -168,18 +155,6 @@ export default function Navbar() {
         {mobileOpen && (
           <div className="md:hidden border-t border-border">
             <div className="mx-auto max-w-6xl px-4 py-3 grid gap-3">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-surface-2 text-text border border-border font-extrabold"
-                aria-label="Market"
-              >
-                <option value="MX">MX</option>
-                <option value="US">US</option>
-                <option value="CH">CH</option>
-                <option value="JP">JP</option>
-              </select>
-
               {isCH && (
                 <div className="flex items-center rounded-xl border border-border overflow-hidden">
                   <button

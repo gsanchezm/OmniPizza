@@ -57,7 +57,7 @@ export default function CatalogScreen({ navigation }: any) {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={styles.emptyText}>No pizzas found for this market.</Text>
+              <Text style={styles.emptyText}>No pizzas found.</Text>
             </View>
           }
         />

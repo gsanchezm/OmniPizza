@@ -89,8 +89,7 @@ export default function Catalog() {
           {t("catalog")}
         </h1>
         <p className="text-text-muted font-semibold">
-          User: <span className="text-text font-extrabold">{username}</span> | Market:{" "}
-          <span className="text-text font-extrabold">{countryCode}</span> | Language:{" "}
+          User: <span className="text-text font-extrabold">{username}</span> | Language:{" "}
           <span className="text-text font-extrabold">{language}</span> | Currency:{" "}
           <span className="text-text font-extrabold">{currency}</span> | Cart:{" "}
           <span className="text-text font-extrabold">{cartCount}</span>

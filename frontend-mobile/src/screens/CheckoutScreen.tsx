@@ -19,6 +19,27 @@ function money(value: number, currencySymbol: string, currency: string) {
   return `${currencySymbol}${value} ${currency}`;
 }
 
+type CheckoutForm = {
+  name: string;
+  address: string;
+  phone: string;
+  colonia: string;
+  propina: string;
+  zip_code: string;
+  plz: string;
+  prefectura: string;
+};
+
+type FieldKey = keyof CheckoutForm;
+
+const REQUIRED_BASE_FIELDS: FieldKey[] = ["name", "address", "phone"];
+const REQUIRED_BY_COUNTRY: Record<string, FieldKey[]> = {
+  MX: ["colonia"],
+  US: ["zip_code"],
+  CH: ["plz"],
+  JP: ["prefectura"],
+};
+
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
 
@@ -32,7 +53,7 @@ export default function CheckoutScreen({ navigation }: any) {
     setLastOrder,
   } = useAppStore();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CheckoutForm>({
     name: profile?.fullName || "",
     address: profile?.address || "",
     phone: profile?.phone || "",
@@ -45,6 +66,74 @@ export default function CheckoutScreen({ navigation }: any) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
+
+  const updateField = (field: FieldKey, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const fieldLabel = (field: FieldKey) => {
+    switch (field) {
+      case "name":
+        return t("fullName");
+      case "address":
+        return t("address");
+      case "phone":
+        return t("phone");
+      case "colonia":
+        return t("colonia");
+      case "zip_code":
+        return t("zip");
+      case "plz":
+        return t("plz");
+      case "prefectura":
+        return t("prefecture");
+      case "propina":
+        return t("tip");
+      default:
+        return field;
+    }
+  };
+
+  const validateForm = () => {
+    const nextErrors: Partial<Record<FieldKey, string>> = {};
+    const requiredFields = [
+      ...REQUIRED_BASE_FIELDS,
+      ...(REQUIRED_BY_COUNTRY[country] || []),
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!String(form[field] || "").trim()) {
+        nextErrors[field] = `${fieldLabel(field)} is required`;
+      }
+    });
+
+    const zip = form.zip_code.trim();
+    if (country === "US" && zip && !/^\d{5}$/.test(zip)) {
+      nextErrors.zip_code = "ZIP code must contain exactly 5 digits";
+    }
+
+    const tip = form.propina.trim();
+    if (tip && Number.isNaN(Number(tip))) {
+      nextErrors.propina = "Tip must be a valid number";
+    }
+
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setError("Please complete required fields");
+      return false;
+    }
+
+    setError("");
+    return true;
+  };
 
   const subtotal = useMemo(() => {
     return cartItems.reduce(
@@ -69,6 +158,7 @@ export default function CheckoutScreen({ navigation }: any) {
   const placeOrder = async () => {
     setError("");
     if (!cartItems.length) return;
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -80,20 +170,20 @@ export default function CheckoutScreen({ navigation }: any) {
           size: item.config?.size || "small",
           toppings: item.config?.toppings || [],
         })),
-        name: form.name,
-        address: form.address,
-        phone: form.phone,
+        name: form.name.trim(),
+        address: form.address.trim(),
+        phone: form.phone.trim(),
       };
 
       if (country === "MX") {
-        payload.colonia = form.colonia;
-        if (form.propina) payload.propina = parseFloat(form.propina);
+        payload.colonia = form.colonia.trim();
+        if (form.propina.trim()) payload.propina = parseFloat(form.propina);
       } else if (country === "US") {
-        payload.zip_code = form.zip_code;
+        payload.zip_code = form.zip_code.trim();
       } else if (country === "CH") {
-        payload.plz = form.plz;
+        payload.plz = form.plz.trim();
       } else if (country === "JP") {
-        payload.prefectura = form.prefectura;
+        payload.prefectura = form.prefectura.trim();
       }
 
       const order = await orderService.checkout(payload);
@@ -181,77 +271,91 @@ export default function CheckoutScreen({ navigation }: any) {
           <Text style={styles.section}>{t("deliveryInfo")}</Text>
 
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.name && styles.inputError]}
             placeholder={t("fullName")}
             placeholderTextColor={Colors.text.muted}
             value={form.name}
-            onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
+            onChangeText={(v) => updateField("name", v)}
           />
+          {fieldErrors.name ? <Text style={styles.fieldError}>{fieldErrors.name}</Text> : null}
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.address && styles.inputError]}
             placeholder={t("address")}
             placeholderTextColor={Colors.text.muted}
             value={form.address}
-            onChangeText={(v) => setForm((p) => ({ ...p, address: v }))}
+            onChangeText={(v) => updateField("address", v)}
           />
+          {fieldErrors.address ? <Text style={styles.fieldError}>{fieldErrors.address}</Text> : null}
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.phone && styles.inputError]}
             placeholder={t("phone")}
             placeholderTextColor={Colors.text.muted}
             value={form.phone}
-            onChangeText={(v) => setForm((p) => ({ ...p, phone: v }))}
+            onChangeText={(v) => updateField("phone", v)}
           />
+          {fieldErrors.phone ? <Text style={styles.fieldError}>{fieldErrors.phone}</Text> : null}
 
           {country === "MX" && (
             <>
               <TextInput
-                style={styles.input}
+                style={[styles.input, fieldErrors.colonia && styles.inputError]}
                 placeholder={t("colonia")}
                 placeholderTextColor={Colors.text.muted}
                 value={form.colonia}
-                onChangeText={(v) => setForm((p) => ({ ...p, colonia: v }))}
+                onChangeText={(v) => updateField("colonia", v)}
               />
+              {fieldErrors.colonia ? <Text style={styles.fieldError}>{fieldErrors.colonia}</Text> : null}
               <TextInput
-                style={styles.input}
+                style={[styles.input, fieldErrors.propina && styles.inputError]}
                 placeholder={t("tip")}
                 placeholderTextColor={Colors.text.muted}
                 keyboardType="numeric"
                 value={form.propina}
-                onChangeText={(v) => setForm((p) => ({ ...p, propina: v }))}
+                onChangeText={(v) => updateField("propina", v)}
               />
+              {fieldErrors.propina ? <Text style={styles.fieldError}>{fieldErrors.propina}</Text> : null}
             </>
           )}
 
           {country === "US" && (
             <TextInput
-              style={styles.input}
+              style={[styles.input, fieldErrors.zip_code && styles.inputError]}
               placeholder={t("zip")}
               placeholderTextColor={Colors.text.muted}
               keyboardType="numeric"
               value={form.zip_code}
-              onChangeText={(v) => setForm((p) => ({ ...p, zip_code: v }))}
+              onChangeText={(v) => updateField("zip_code", v)}
             />
           )}
+          {country === "US" && fieldErrors.zip_code ? (
+            <Text style={styles.fieldError}>{fieldErrors.zip_code}</Text>
+          ) : null}
 
           {country === "CH" && (
             <TextInput
-              style={styles.input}
+              style={[styles.input, fieldErrors.plz && styles.inputError]}
               placeholder={t("plz")}
               placeholderTextColor={Colors.text.muted}
               value={form.plz}
-              onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
+              onChangeText={(v) => updateField("plz", v)}
             />
           )}
+          {country === "CH" && fieldErrors.plz ? (
+            <Text style={styles.fieldError}>{fieldErrors.plz}</Text>
+          ) : null}
 
           {country === "JP" && (
             <TextInput
-              style={styles.input}
+              style={[styles.input, fieldErrors.prefectura && styles.inputError]}
               placeholder={t("prefecture")}
               placeholderTextColor={Colors.text.muted}
               value={form.prefectura}
-              onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
+              onChangeText={(v) => updateField("prefectura", v)}
             />
           )}
+          {country === "JP" && fieldErrors.prefectura ? (
+            <Text style={styles.fieldError}>{fieldErrors.prefectura}</Text>
+          ) : null}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -320,6 +424,16 @@ const styles = StyleSheet.create({
     padding: 12,
     color: Colors.text.primary,
     marginBottom: 10,
+  },
+  inputError: {
+    borderColor: Colors.danger,
+  },
+  fieldError: {
+    marginTop: -6,
+    marginBottom: 8,
+    color: Colors.danger,
+    fontWeight: "700",
+    fontSize: 12,
   },
 
   error: { marginTop: 8, color: Colors.danger, fontWeight: "800" },
