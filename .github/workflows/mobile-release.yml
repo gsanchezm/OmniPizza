@@ -1,0 +1,126 @@
+name: Build Mobile Apps
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend-mobile
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: frontend-mobile/pnpm-lock.yaml
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prebuild Android Project
+        run: npx expo prebuild --platform android --clean
+
+      - name: Build Release APK
+        run: cd android && ./gradlew assembleRelease
+
+      - name: Build Android Test APK
+        run: cd android && ./gradlew assembleAndroidTest
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniPizza-Android
+          path: |
+            frontend-mobile/android/app/build/outputs/apk/release/app-release.apk
+            frontend-mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+
+      - name: Release APK
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            frontend-mobile/android/app/build/outputs/apk/release/app-release.apk
+            frontend-mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-ios:
+    name: Build iOS Simulator App
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./frontend-mobile
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: frontend-mobile/pnpm-lock.yaml
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prebuild iOS Project
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Install CocoaPods
+        run: cd ios && pod install
+
+      - name: Build for Simulator
+        run: |
+          cd ios
+          xcodebuild -workspace OmniPizza.xcworkspace \
+            -scheme OmniPizza \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -derivedDataPath build
+
+      - name: Zip .app Bundle
+        run: |
+          cd ios/build/Build/Products/Release-iphonesimulator
+          zip -r OmniPizza-Simulator.zip OmniPizza.app
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniPizza-iOS-Simulator
+          path: frontend-mobile/ios/build/Build/Products/Release-iphonesimulator/OmniPizza-Simulator.zip
+
+      - name: Release iOS App
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: frontend-mobile/ios/build/Build/Products/Release-iphonesimulator/OmniPizza-Simulator.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
