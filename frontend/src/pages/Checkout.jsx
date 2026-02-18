@@ -350,253 +350,199 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black text-brand-primary font-sans mb-8">
-        🛒{" "}
-        {tOpt(
-          {
-            en: "Checkout",
-            es: "Checkout",
-            de: "Kasse",
-            fr: "Paiement",
-            ja: "チェックアウト",
-          },
-          language,
-        )}
-      </h1>
+      <h1 className="text-4xl font-black text-white font-sans mb-8">Checkout</h1>
+      <div className="text-gray-400 mb-8 -mt-6">Complete your details to enjoy the finest pizza experience.</div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Left: items + form */}
-        <div className="lux-card rounded-2xl p-6">
-          <div className="text-2xl font-black text-text font-sans mb-4">
-            {tOpt(
-              {
-                en: "Delivery details",
-                es: "Datos de entrega",
-                de: "Lieferdaten",
-                fr: "Livraison",
-                ja: "配送情報",
-              },
-              language,
-            )}
-          </div>
+      <div className="grid lg:grid-cols-3 gap-12">
+        {/* Left Column: Forms */}
+        <div className="lg:col-span-2 space-y-10">
+          
+          {/* Section 1: Delivery Address */}
+          <div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">1</div>
+              <h2 className="text-xl font-bold text-white tracking-widest uppercase">DELIVERY ADDRESS</h2>
+            </div>
+            
+            <form id="checkout-form" onSubmit={onSubmit} className="space-y-6 pl-12">
+              <div className="grid gap-6">
+                <div>
+                  <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Street & House Number</label>
+                  <input
+                    className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                    placeholder={tOpt({en:"123 Luxury Avenue", es:"Av. Reforma 123", de:"Musterstraße 123", fr:"123 Rue de la Paix", ja:"東京都渋谷区..."}, language)}
+                    value={form.address}
+                    onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
+                    required
+                  />
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  {countryCode === "MX" && (
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Colonia / Neighborhood</label>
+                      <input
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="Polanco"
+                        value={form.colonia}
+                        onChange={(e) => setForm((p) => ({ ...p, colonia: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  )}
 
-          {/* Items list */}
-          <div className="grid gap-3 mb-6">
-            {items.map((it) => (
-              <div
-                key={it.id}
-                className="rounded-xl border border-border bg-surface-2 p-4"
-              >
-                <div className="flex justify-between gap-3">
+                  {countryCode === "US" && (
+                     <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Zip Code</label>
+                      <input
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="90210"
+                        value={form.zip_code}
+                        onChange={(e) => setForm((p) => ({ ...p, zip_code: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  )}
+                   
+                   {/* Add other country fields similarly if needed */}
+                </div>
+              </div>
+
+               {/* Section 2: Contact Info */}
+              <div className="pt-8">
+                <div className="flex items-center gap-4 mb-6 -ml-12">
+                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">2</div>
+                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">CONTACT INFO</h2>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <div className="text-text font-black">{it.pizza.name}</div>
-                    <div className="text-text-muted text-sm font-semibold">
-                      {tOpt(
-                        SIZE_OPTIONS.find(
-                          (s) => s.id === (it.config?.size || "small"),
-                        )?.label,
-                        language,
-                      )}{" "}
-                      • {(it.config?.toppings || []).length} {tOpt({en:"toppings", es:"ingredients", de:"Beläge", fr:"Garnitures", ja:"トッピング"}, language)} • {tOpt({en:"Qty", es:"Cant.", de:"Anz.", fr:"Qté", ja:"数量"}, language)}{" "}
-                      {it.quantity}
-                    </div>
-                    <div className="text-text-muted text-sm">
-                      {tOpt({en:"Unit", es:"Unit.", de:"Einh.", fr:"Unit.", ja:"単価"}, language)}:{" "}
-                      {formatMoney(
-                        it.unit_price,
-                        it.currency,
-                        locale,
-                        it.currency_symbol,
-                      )}
-                    </div>
+                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Full Name</label>
+                     <input
+                      className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                      placeholder="Julian Casablancas"
+                      value={form.name}
+                      onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                      required
+                    />
                   </div>
-
-                  <div className="text-right">
-                    <div className="text-text font-black">
-                      {formatMoney(
-                        it.unit_price * it.quantity,
-                        it.currency,
-                        locale,
-                        it.currency_symbol,
-                      )}
-                    </div>
-                    <div className="mt-2 flex gap-2 justify-end">
-                      <button
-                        type="button"
-                        className="btn-ghost text-sm"
-                        onClick={() => {
-                          setEditing(it);
-                          setEditOpen(true);
-                        }}
-                      >
-                        {tOpt(UI_STRINGS.edit, language)}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-ghost text-sm"
-                        onClick={() => removeItem(it.id)}
-                      >
-                        {tOpt(UI_STRINGS.remove, language)}
-                      </button>
-                    </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Phone Number</label>
+                     <input
+                      className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                      placeholder="+52 55 1234 5678"
+                      value={form.phone}
+                      onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                      required
+                    />
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Form */}
-          <form onSubmit={onSubmit} className="grid gap-4">
-            <input
-              className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder={tOpt({en:"Full name", es:"Nombre completo", de:"Vollständiger Name", fr:"Nom complet", ja:"氏名"}, language)}
-              value={form.name}
-              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              required
-            />
-            <input
-              className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder={tOpt({en:"Address", es:"Dirección", de:"Adresse", fr:"Adresse", ja:"住所"}, language)}
-              value={form.address}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, address: e.target.value }))
-              }
-              required
-            />
-            <input
-              className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-              placeholder={tOpt({en:"Phone", es:"Teléfono", de:"Telefon", fr:"Téléphone", ja:"電話番号"}, language)}
-              value={form.phone}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, phone: e.target.value }))
-              }
-              required
-            />
+              {/* Section 3: Payment Method */}
+              <div className="pt-8">
+                <div className="flex items-center gap-4 mb-6 -ml-12">
+                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">3</div>
+                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">PAYMENT METHOD</h2>
+                </div>
 
-            {countryCode === "MX" && (
-              <>
-                <input
-                  className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                  placeholder={tOpt({en:"Neighborhood (Colonia)", es:"Colonia", de:"Stadtteil", fr:"Quartier", ja:"地区"}, language)}
-                  value={form.colonia}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, colonia: e.target.value }))
-                  }
-                  required
-                />
-                <input
-                  className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                  placeholder={tOpt({en:"Tip (optional)", es:"Propina (opcional)", de:"Trinkgeld (optional)", fr:"Pourboire (optionnel)", ja:"チップ（任意）"}, language)}
-                  value={form.propina}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, propina: e.target.value }))
-                  }
-                />
-              </>
-            )}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <button type="button" className="p-4 rounded-2xl border border-[#FF5722] bg-[#1a1a1a] flex items-center gap-4 transition-all">
+                    <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[#FF5722]">
+                       <span className="material-icons">credit_card</span>
+                    </div>
+                    <div className="text-left">
+                       <div className="text-white font-bold">Credit Card</div>
+                       <div className="text-xs text-gray-500 uppercase">VISA, Mastercard, AMEX</div>
+                    </div>
+                  </button>
 
-            {countryCode === "US" && (
-              <input
-                className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                placeholder={tOpt({en:"ZIP Code", es:"Código Postal", de:"PLZ", fr:"Code Postal", ja:"郵便番号"}, language)}
-                value={form.zip_code}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, zip_code: e.target.value }))
-                }
-                required
-              />
-            )}
-
-            {countryCode === "CH" && (
-              <input
-                className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                placeholder="PLZ"
-                value={form.plz}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, plz: e.target.value }))
-                }
-                required
-              />
-            )}
-
-            {countryCode === "JP" && (
-              <input
-                className="w-full px-4 py-3 border border-border rounded-xl bg-surface-2 text-text"
-                placeholder={tOpt({en:"Prefecture", es:"Prefectura", de:"Präfektur", fr:"Préfecture", ja:"都道府県"}, language)}
-                value={form.prefectura}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, prefectura: e.target.value }))
-                }
-                required
-              />
-            )}
-
-            {error && (
-              <div className="border border-danger text-danger bg-surface-2 px-4 py-3 rounded-xl font-semibold">
-                {error}
+                  <button type="button" className="p-4 rounded-2xl border border-[#333] bg-[#0F0F0F] flex items-center gap-4 hover:border-gray-600 transition-all opacity-60">
+                    <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-gray-400">
+                       <span className="material-icons">local_atm</span>
+                    </div>
+                    <div className="text-left">
+                       <div className="text-white font-bold">Cash</div>
+                       <div className="text-xs text-gray-500 uppercase">Pay on Delivery</div>
+                    </div>
+                  </button>
+                </div>
               </div>
-            )}
-
-            <button className="btn-primary w-full" disabled={loading}>
-              {loading
-                ? "…"
-                : tOpt(
-                    {
-                      en: "Place order",
-                      es: "Confirmar",
-                      de: "Bestellen",
-                      fr: "Valider",
-                      ja: "注文確定",
-                    },
-                    language,
-                  )}
-            </button>
-          </form>
+            </form>
+          </div>
         </div>
 
-        {/* Right: totals */}
-        <div className="lux-card rounded-2xl p-6">
-          <div className="text-2xl font-black text-text font-sans mb-4">
-            {tOpt(
-              {
-                en: "Summary",
-                es: "Resumen",
-                de: "Übersicht",
-                fr: "Résumé",
-                ja: "概要",
-              },
-              language,
-            )}
-          </div>
+        {/* Right Column: Order Summary */}
+        <div className="lg:col-span-1">
+          <div className="bg-[#121212] rounded-3xl p-8 border border-[#1F1F1F] sticky top-8">
+             <h2 className="text-2xl font-black text-white mb-8">Your Order</h2>
+             
+             <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {items.map((it) => (
+                  <div key={it.id} className="flex gap-4 items-start relative group">
+                     {/* Using generic pizza image for now, can be dynamic later */}
+                     <div className="w-12 h-12 rounded-full bg-[#1F1F1F] flex-shrink-0 overflow-hidden">
+                       <img src={"https://omnipizza.onrender.com/static/images/pizza-1.png"} alt={it.pizza.name} className="w-full h-full object-cover" />
+                     </div>
+                     <div className="flex-1">
+                        <div className="text-white font-bold text-sm">{it.pizza.name}</div>
+                        <div className="text-gray-500 text-xs">
+                          {it.quantity}x • {tOpt(SIZE_OPTIONS.find(s => s.id === (it.config?.size || "small"))?.label, language)}
+                        </div>
+                     </div>
+                     <div className="text-white font-bold text-sm">
+                        {formatMoney(it.unit_price * it.quantity, it.currency, locale, it.currency_symbol)}
+                     </div>
+                     
+                     <button 
+                       onClick={() => removeItem(it.id)}
+                       className="absolute -right-2 -top-2 w-5 h-5 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                     >
+                       ✕
+                     </button>
+                  </div>
+                ))}
+             </div>
 
-          <div className="text-text-muted font-semibold mb-2">
-            {tOpt(
-              {
-                en: "Subtotal",
-                es: "Subtotal",
-                de: "Zwischensumme",
-                fr: "Sous-total",
-                ja: "小計",
-              },
-              language,
-            )}
-          </div>
+             <div className="border-t border-[#1F1F1F] pt-4 space-y-3 mb-8">
+                 <div className="flex justify-between text-gray-400 text-sm">
+                    <span>Subtotal</span>
+                    <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
+                 </div>
+                 <div className="flex justify-between text-gray-400 text-sm">
+                    <span>Tax (8%)</span>
+                    <span>$4.12</span>
+                 </div>
+                 <div className="flex justify-between text-[#FF5722] text-sm font-bold">
+                    <span>Delivery Fee</span>
+                    <span>Free</span>
+                 </div>
+             </div>
 
-          <div className="text-4xl font-black text-brand-primary">
-            {formatMoney(subtotal, currency, locale, symbol)}
-          </div>
+             <div className="flex justify-between items-end mb-8">
+                 <div className="text-xl text-white font-black">Total</div>
+                 <div className="text-2xl text-white font-black">
+                   {formatMoney(subtotal, currency, locale, symbol)} 
+                   {/* Note: Tax logic is backend side in this demo, showing subtotal as total for now or update if needed */}
+                 </div>
+             </div>
 
-          <div className="text-text-muted text-sm mt-4">
-            {tOpt(
-              {
-                en: "Taxes/total are computed by backend on success screen.",
-                es: "Impuestos/total se calculan en backend al finalizar.",
-                de: "Steuern/Gesamt werden im Backend berechnet.",
-                fr: "Taxes/total calculés par le backend.",
-                ja: "税金/合計はバックエンドで計算されます。",
-              },
-              language,
-            )}
+             <button 
+                onClick={() => document.getElementById("checkout-form").requestSubmit()}
+                disabled={loading}
+                className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+             >
+                {loading ? "Processing..." : (
+                  <>
+                    Place Order 
+                    <span className="material-icons text-sm">arrow_forward</span>
+                  </>
+                )}
+             </button>
+
+             <p className="text-center text-xs text-gray-600 mt-6 leading-relaxed">
+                By placing your order, you agree to OmniPizza's <a href="#" className="underline hover:text-gray-500">Terms of Service</a> and <a href="#" className="underline hover:text-gray-500">Privacy Policy</a>.
+             </p>
           </div>
         </div>
       </div>

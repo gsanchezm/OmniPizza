@@ -153,7 +153,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-border">
+          <div className="md:hidden border-t border-[#2A2A2A] bg-[#1E1E1E] absolute top-16 left-0 right-0 shadow-2xl z-50">
             <div className="mx-auto max-w-6xl px-4 py-3 grid gap-3">
               {isCH && (
                 <div className="flex items-center rounded-xl border border-border overflow-hidden">

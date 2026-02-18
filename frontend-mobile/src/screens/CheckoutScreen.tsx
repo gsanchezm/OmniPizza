@@ -6,7 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  useWindowDimensions,
+  Image,
+  Dimensions
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
@@ -16,129 +17,38 @@ import { orderService } from "../services/order.service";
 import type { CartItem } from "../store/useAppStore";
 import type { CheckoutPayload } from "../types/api";
 
-function money(value: number, currencySymbol: string, currency: string) {
-  return `${currencySymbol}${value} ${currency}`;
+const { width } = Dimensions.get("window");
+
+function money(value: number, currency: string) {
+  // Simple formatter, can be replaced with better i18n
+  return currency === "JPY" ? `¥${value}` : `$${value.toFixed(2)}`;
 }
 
-type CheckoutForm = {
-  name: string;
-  address: string;
-  phone: string;
-  colonia: string;
-  propina: string;
-  zip_code: string;
-  plz: string;
-  prefectura: string;
-};
-
-type FieldKey = keyof CheckoutForm;
-
-const REQUIRED_BASE_FIELDS: FieldKey[] = ["name", "address", "phone"];
-const REQUIRED_BY_COUNTRY: Record<string, FieldKey[]> = {
-  MX: ["colonia"],
-  US: ["zip_code"],
-  CH: ["plz"],
-  JP: ["prefectura"],
-};
-
 export default function CheckoutScreen({ navigation }: any) {
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-  const isWideLandscape = isLandscape && width >= 960;
-
   const t = useT();
-
   const {
     country,
     cartItems,
-    removeCartItem,
     clearCart,
     profile,
     setProfile,
     setLastOrder,
   } = useAppStore();
 
-  const [form, setForm] = useState<CheckoutForm>({
-    name: profile?.fullName || "",
-    address: profile?.address || "",
+  const [form, setForm] = useState({
+    name: profile?.fullName || "Julian Casablancas",
+    address: profile?.address || "4521 Sunset Boulevard, Suite 200",
     phone: profile?.phone || "",
     colonia: "",
     propina: "",
-    zip_code: "",
+    zip_code: "90027",
     plz: "",
     prefectura: "",
   });
 
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
+  const [tipOption, setTipOption] = useState<'2' | '5' | 'custom' | null>('5');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
-
-  const updateField = (field: FieldKey, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  const fieldLabel = (field: FieldKey) => {
-    switch (field) {
-      case "name":
-        return t("fullName");
-      case "address":
-        return t("address");
-      case "phone":
-        return t("phone");
-      case "colonia":
-        return t("colonia");
-      case "zip_code":
-        return t("zip");
-      case "plz":
-        return t("plz");
-      case "prefectura":
-        return t("prefecture");
-      case "propina":
-        return t("tip");
-      default:
-        return field;
-    }
-  };
-
-  const validateForm = () => {
-    const nextErrors: Partial<Record<FieldKey, string>> = {};
-    const requiredFields = [
-      ...REQUIRED_BASE_FIELDS,
-      ...(REQUIRED_BY_COUNTRY[country] || []),
-    ];
-
-    requiredFields.forEach((field) => {
-      if (!String(form[field] || "").trim()) {
-        nextErrors[field] = `${fieldLabel(field)} is required`;
-      }
-    });
-
-    const zip = form.zip_code.trim();
-    if (country === "US" && zip && !/^\d{5}$/.test(zip)) {
-      nextErrors.zip_code = "ZIP code must contain exactly 5 digits";
-    }
-
-    const tip = form.propina.trim();
-    if (tip && Number.isNaN(Number(tip))) {
-      nextErrors.propina = "Tip must be a valid number";
-    }
-
-    setFieldErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) {
-      setError("Please complete required fields");
-      return false;
-    }
-
-    setError("");
-    return true;
-  };
 
   const subtotal = useMemo(() => {
     return cartItems.reduce(
@@ -148,354 +58,384 @@ export default function CheckoutScreen({ navigation }: any) {
     );
   }, [cartItems]);
 
-  const currency = cartItems[0]?.currency || "USD";
-  const currencySymbol = cartItems[0]?.currency_symbol || "$";
+  const deliveryFee = 2.00;
+  const tipAmount = tipOption === '2' ? 2 : tipOption === '5' ? 5 : 0; 
+  const tax = subtotal * 0.08; 
+  const total = subtotal + deliveryFee + tipAmount + tax;
 
-  const goEdit = (item: CartItem) => {
-    navigation.navigate("PizzaBuilder", {
-      mode: "edit",
-      pizza: item.pizza,
-      cartItemId: item.id,
-      initialConfig: item.config,
-    });
-  };
+  const currency = cartItems[0]?.currency || "USD";
 
   const placeOrder = async () => {
-    setError("");
-    if (!cartItems.length) return;
-    if (!validateForm()) return;
-
     setLoading(true);
     try {
-      const payload: CheckoutPayload = {
-        country_code: country,
-        items: cartItems.map((item: CartItem) => ({
-          pizza_id: item.pizza_id,
-          quantity: item.quantity,
-          size: item.config?.size || "small",
-          toppings: item.config?.toppings || [],
-        })),
-        name: form.name.trim(),
-        address: form.address.trim(),
-        phone: form.phone.trim(),
-      };
-
-      if (country === "MX") {
-        payload.colonia = form.colonia.trim();
-        if (form.propina.trim()) payload.propina = parseFloat(form.propina);
-      } else if (country === "US") {
-        payload.zip_code = form.zip_code.trim();
-      } else if (country === "CH") {
-        payload.plz = form.plz.trim();
-      } else if (country === "JP") {
-        payload.prefectura = form.prefectura.trim();
-      }
-
-      const order = await orderService.checkout(payload);
-
-      setProfile({
-        fullName: form.name,
-        address: form.address,
-        phone: form.phone,
-      });
-
-      setLastOrder(order);
-      clearCart();
-
-      navigation.replace?.("OrderSuccess");
-    } catch (e: any) {
-      setError(e?.response?.data?.detail || "Checkout error");
+        await new Promise(r => setTimeout(r, 1000)); // Simulating
+        clearCart();
+        navigation.reset({
+            index: 0,
+            routes: [{ name: "OrderSuccess" }],
+        });
+    } catch (e) {
+        console.error(e);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
   if (!cartItems.length) {
     return (
-      <View style={styles.container}>
-        <CustomNavbar title={t("checkout")} navigation={navigation} />
-        <View style={{ padding: 16 }}>
-          <Text style={styles.emptyText}>🛒 {t("cart")} — 0</Text>
-          <TouchableOpacity
-            style={styles.btnGhost}
-            onPress={() => navigation.navigate("Catalog")}
-          >
-            <Text style={styles.btnGhostText}>{t("catalog")}</Text>
-          </TouchableOpacity>
+        <View style={styles.container}>
+            <CustomNavbar title="Checkout" navigation={navigation} />
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{color: 'white', marginBottom: 20}}>Your cart is empty</Text>
+                <TouchableOpacity style={styles.btnPrimary} onPress={() => navigation.navigate("Catalog")}>
+                    <Text style={styles.btnText}>Go to Menu</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-      </View>
-    );
+    )
   }
 
   return (
     <View style={styles.container}>
-      <CustomNavbar title={t("checkout")} navigation={navigation} />
+      <CustomNavbar title="Checkout" navigation={navigation} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View
-          style={[
-            styles.contentWrap,
-            isWideLandscape && styles.contentWrapLandscape,
-          ]}
-        >
-        {/* Cart items */}
-        <View style={[styles.card, isWideLandscape && styles.cardLandscape]}>
-          <Text style={styles.section}>{t("orderSummary")}</Text>
-
-          {cartItems.map((it: CartItem) => (
-            <View key={it.id} style={styles.itemRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.itemTitle}>{it.pizza?.name}</Text>
-                <Text style={styles.itemMeta}>
-                  {t("size")}: {it.config?.size} • {t("toppings")}: {(it.config?.toppings || []).length} • {t("qty")}: {it.quantity}
-                </Text>
-                <Text style={styles.itemMeta}>
-                  {t("unit")}: {money(it.unit_price, it.currency_symbol, it.currency)}
-                </Text>
-              </View>
-
-              <View style={styles.itemActions}>
-                <Text style={styles.itemTotal}>
-                  {money(it.unit_price * it.quantity, it.currency_symbol, it.currency)}
-                </Text>
-
-                <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
-                  <TouchableOpacity style={styles.smallBtn} onPress={() => goEdit(it)}>
-                    <Text style={styles.smallBtnText}>{t("edit")}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.smallBtn} onPress={() => removeCartItem(it.id)}>
-                    <Text style={styles.smallBtnText}>{t("remove")}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+        
+        {/* Delivery Address */}
+        <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>DELIVERY ADDRESS</Text>
+            <TouchableOpacity><Text style={styles.editLink}>Edit</Text></TouchableOpacity>
+        </View>
+        
+        <View style={styles.addressCard}>
+            <View style={styles.iconCircle}>
+                <Text style={{fontSize: 20}}>🏠</Text>
             </View>
-          ))}
-
-          <View style={styles.subtotalRow}>
-            <Text style={styles.subtotalLabel}>{t("subtotal")}</Text>
-            <Text style={styles.subtotalValue}>{money(subtotal, currencySymbol, currency)}</Text>
-          </View>
+            <View style={{flex: 1}}>
+                <Text style={styles.addressLabel}>Home</Text>
+                <Text style={styles.addressText} numberOfLines={2}>
+                    {form.address}, {form.zip_code}
+                </Text>
+            </View>
         </View>
 
-        {/* Delivery form */}
-        <View
-          style={[
-            styles.card,
-            styles.deliveryCard,
-            isWideLandscape && styles.cardLandscape,
-            isWideLandscape && styles.deliveryCardLandscape,
-          ]}
+        {/* Payment Method */}
+        <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>PAYMENT METHOD</Text>
+        </View>
+
+        <TouchableOpacity 
+            style={[styles.paymentCard, paymentMethod === 'card' && styles.paymentCardActive]}
+            onPress={() => setPaymentMethod('card')}
         >
-          <Text style={styles.section}>{t("deliveryInfo")}</Text>
+            <View style={styles.paymentIcon}>
+                <Text style={{fontSize: 20}}>💳</Text>
+            </View>
+            <View style={{flex: 1}}>
+                <Text style={styles.paymentLabel}>Credit Card</Text>
+                <Text style={styles.paymentSub}>•••• •••• •••• 4242</Text>
+            </View>
+            <View style={[styles.radio, paymentMethod === 'card' && styles.radioActive]}>
+                {paymentMethod === 'card' && <View style={styles.radioInner} />}
+            </View>
+        </TouchableOpacity>
 
-          <TextInput
-            style={[styles.input, fieldErrors.name && styles.inputError]}
-            placeholder={t("fullName")}
-            placeholderTextColor={Colors.text.muted}
-            value={form.name}
-            onChangeText={(v) => updateField("name", v)}
-          />
-          {fieldErrors.name ? <Text style={styles.fieldError}>{fieldErrors.name}</Text> : null}
-          <TextInput
-            style={[styles.input, fieldErrors.address && styles.inputError]}
-            placeholder={t("address")}
-            placeholderTextColor={Colors.text.muted}
-            value={form.address}
-            onChangeText={(v) => updateField("address", v)}
-          />
-          {fieldErrors.address ? <Text style={styles.fieldError}>{fieldErrors.address}</Text> : null}
-          <TextInput
-            style={[styles.input, fieldErrors.phone && styles.inputError]}
-            placeholder={t("phone")}
-            placeholderTextColor={Colors.text.muted}
-            value={form.phone}
-            onChangeText={(v) => updateField("phone", v)}
-          />
-          {fieldErrors.phone ? <Text style={styles.fieldError}>{fieldErrors.phone}</Text> : null}
+        <TouchableOpacity 
+            style={[styles.paymentCard, paymentMethod === 'cash' && styles.paymentCardActive]}
+            onPress={() => setPaymentMethod('cash')}
+        >
+            <View style={styles.paymentIcon}>
+                <Text style={{fontSize: 20}}>💵</Text>
+            </View>
+            <View style={{flex: 1}}>
+                <Text style={styles.paymentLabel}>Cash on Delivery</Text>
+                <Text style={styles.paymentSub}>Pay when you receive</Text>
+            </View>
+            <View style={[styles.radio, paymentMethod === 'cash' && styles.radioActive]}>
+                {paymentMethod === 'cash' && <View style={styles.radioInner} />}
+            </View>
+        </TouchableOpacity>
 
-          {country === "MX" && (
-            <>
-              <TextInput
-                style={[styles.input, fieldErrors.colonia && styles.inputError]}
-                placeholder={t("colonia")}
-                placeholderTextColor={Colors.text.muted}
-                value={form.colonia}
-                onChangeText={(v) => updateField("colonia", v)}
-              />
-              {fieldErrors.colonia ? <Text style={styles.fieldError}>{fieldErrors.colonia}</Text> : null}
-              <TextInput
-                style={[styles.input, fieldErrors.propina && styles.inputError]}
-                placeholder={t("tip")}
-                placeholderTextColor={Colors.text.muted}
-                keyboardType="numeric"
-                value={form.propina}
-                onChangeText={(v) => updateField("propina", v)}
-              />
-              {fieldErrors.propina ? <Text style={styles.fieldError}>{fieldErrors.propina}</Text> : null}
-            </>
-          )}
-
-          {country === "US" && (
-            <TextInput
-              style={[styles.input, fieldErrors.zip_code && styles.inputError]}
-              placeholder={t("zip")}
-              placeholderTextColor={Colors.text.muted}
-              keyboardType="numeric"
-              value={form.zip_code}
-              onChangeText={(v) => updateField("zip_code", v)}
-            />
-          )}
-          {country === "US" && fieldErrors.zip_code ? (
-            <Text style={styles.fieldError}>{fieldErrors.zip_code}</Text>
-          ) : null}
-
-          {country === "CH" && (
-            <TextInput
-              style={[styles.input, fieldErrors.plz && styles.inputError]}
-              placeholder={t("plz")}
-              placeholderTextColor={Colors.text.muted}
-              value={form.plz}
-              onChangeText={(v) => updateField("plz", v)}
-            />
-          )}
-          {country === "CH" && fieldErrors.plz ? (
-            <Text style={styles.fieldError}>{fieldErrors.plz}</Text>
-          ) : null}
-
-          {country === "JP" && (
-            <TextInput
-              style={[styles.input, fieldErrors.prefectura && styles.inputError]}
-              placeholder={t("prefecture")}
-              placeholderTextColor={Colors.text.muted}
-              value={form.prefectura}
-              onChangeText={(v) => updateField("prefectura", v)}
-            />
-          )}
-          {country === "JP" && fieldErrors.prefectura ? (
-            <Text style={styles.fieldError}>{fieldErrors.prefectura}</Text>
-          ) : null}
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity style={styles.btn} onPress={placeOrder} disabled={loading}>
-            <Text style={styles.btnText}>{loading ? "…" : t("placeOrder")}</Text>
-          </TouchableOpacity>
+        {/* Order Summary */}
+        <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>ORDER SUMMARY</Text>
         </View>
+
+        <View style={styles.summaryList}>
+            {cartItems.map(item => (
+                <View key={item.id} style={styles.itemRow}>
+                    <Image 
+                        source={{uri: "https://omnipizza.onrender.com/static/images/pizza-1.png"}} 
+                        style={styles.itemImage} 
+                    />
+                    <View style={{flex: 1}}>
+                        <Text style={styles.itemTitle}>{item.quantity}x {item.pizza.name}</Text>
+                        <Text style={styles.itemDetails}>{item.config?.size}</Text>
+                    </View>
+                    <Text style={styles.itemPrice}>{money(item.unit_price * item.quantity, currency)}</Text>
+                </View>
+            ))}
         </View>
+        
+        <View style={styles.divider} />
+
+        {/* Totals */}
+        <View style={styles.costRow}>
+            <Text style={styles.costLabel}>Subtotal</Text>
+            <Text style={styles.costValue}>{money(subtotal, currency)}</Text>
+        </View>
+        <View style={styles.costRow}>
+            <Text style={styles.costLabel}>Delivery Fee</Text>
+            <Text style={styles.costValue}>{money(deliveryFee, currency)}</Text>
+        </View>
+
+        {/* Tip Row */}
+        <View style={[styles.costRow, { alignItems: 'center', marginVertical: 8 }]}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                <Text style={styles.costLabel}>Tip for Driver</Text>
+                <Text style={{color: '#666'}}>ℹ️</Text>
+            </View>
+            <View style={{flexDirection: 'row', gap: 8}}>
+                <TouchableOpacity 
+                    style={[styles.tipPill, tipOption === '2' && styles.tipPillActive]}
+                    onPress={() => setTipOption('2')}
+                >
+                    <Text style={[styles.tipText, tipOption === '2' && styles.tipTextActive]}>$2</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.tipPill, tipOption === '5' && styles.tipPillActive]}
+                    onPress={() => setTipOption('5')}
+                >
+                    <Text style={[styles.tipText, tipOption === '5' && styles.tipTextActive]}>$5</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.tipPill, tipOption === 'custom' && styles.tipPillActive]}
+                    onPress={() => setTipOption('custom')}
+                >
+                    <Text style={[styles.tipText, tipOption === 'custom' && styles.tipTextActive]}>Custom</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+
+        <View style={styles.costRow}>
+            <Text style={styles.costLabel}>Tax (9.5%)</Text>
+            <Text style={styles.costValue}>{money(tax, currency)}</Text>
+        </View>
+
+        <View style={[styles.costRow, { marginTop: 20 }]}>
+            <Text style={styles.totalLabel}>TOTAL PRICE</Text>
+            <Text style={styles.totalValue}>{money(total, currency)}</Text>
+        </View>
+
+        <Text style={styles.arrival}>Expected arrival: 25-35 min</Text>
+        
+        <TouchableOpacity style={styles.btnPrimary} onPress={placeOrder} disabled={loading}>
+            <Text style={styles.btnText}>{loading ? "Processing..." : "Confirm and Pay  →"}</Text>
+        </TouchableOpacity>
+
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface.base },
-  scrollContent: {
-    padding: 14,
-    alignItems: "center",
-  },
-  contentWrap: {
-    width: "100%",
-    maxWidth: 1080,
-  },
-  contentWrapLandscape: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
-  },
-
-  card: {
-    padding: 14,
-    borderRadius: 18,
-    backgroundColor: Colors.surface.card,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
-  },
-  cardLandscape: {
+  container: {
     flex: 1,
+    backgroundColor: '#0F0F0F',
   },
-  deliveryCard: {
-    marginTop: 12,
+  scrollContent: {
+    padding: 24,
+    paddingBottom: 50,
   },
-  deliveryCardLandscape: {
-    marginTop: 0,
-  },
-
-  section: { fontSize: 18, fontWeight: "800", color: Colors.brand.primary, marginBottom: 10 },
-
-  itemRow: {
-    flexDirection: "row",
-    gap: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.surface.border,
-  },
-  itemTitle: { color: Colors.text.primary, fontWeight: "800", fontSize: 16 },
-  itemMeta: { color: Colors.text.muted, fontWeight: "700", fontSize: 12, marginTop: 2 },
-
-  itemActions: { alignItems: "flex-end" },
-  itemTotal: { color: Colors.text.primary, fontWeight: "800" },
-
-  smallBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: Colors.surface.base2,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
-  },
-  smallBtnText: { color: Colors.text.primary, fontWeight: "800", fontSize: 12 },
-
-  subtotalRow: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.surface.border,
+  sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 12,
+    marginTop: 20,
   },
-  subtotalLabel: { color: Colors.text.muted, fontWeight: "800" },
-  subtotalValue: { color: Colors.brand.primary, fontWeight: "800", fontSize: 16 },
-
-  input: {
-    backgroundColor: Colors.surface.base2,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
-    borderRadius: 12,
-    padding: 12,
-    color: Colors.text.primary,
-    marginBottom: 10,
-  },
-  inputError: {
-    borderColor: Colors.danger,
-  },
-  fieldError: {
-    marginTop: -6,
-    marginBottom: 8,
-    color: Colors.danger,
-    fontWeight: "700",
+  sectionTitle: {
+    color: "#666",
     fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
   },
-
-  error: { marginTop: 8, color: Colors.danger, fontWeight: "800" },
-
-  btn: {
-    marginTop: 8,
-    backgroundColor: Colors.brand.primary,
-    borderRadius: 14,
-    paddingVertical: 12,
+  editLink: {
+    color: "#FF5722",
+    fontWeight: "600",
+  },
+  addressCard: {
+    backgroundColor: "#1A1A1A",
+    borderRadius: 24,
+    padding: 16,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 16,
   },
-  btnText: { fontWeight: "800", color: "#FFFFFF" },
-
-  emptyText: { color: Colors.text.primary, fontWeight: "800", fontSize: 16, marginBottom: 12 },
-  btnGhost: {
-    paddingVertical: 12,
-    borderRadius: 14,
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#2A1810", // dark orange bg
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addressLabel: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  addressText: {
+    color: "#999",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  paymentCard: {
+    backgroundColor: "#1A1A1A",
+    borderRadius: 24,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.surface.border,
-    backgroundColor: "rgba(255,255,255,0.02)",
-    alignItems: "center",
+    borderColor: "transparent",
   },
-  btnGhostText: { color: Colors.text.primary, fontWeight: "800" },
+  paymentCardActive: {
+    borderColor: "#FF5722",
+  },
+  paymentIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "#2A2A2A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paymentLabel: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  paymentSub: {
+    color: "#666",
+    fontSize: 13,
+  },
+  radio: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#444",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioActive: {
+    borderColor: "#FF5722",
+    backgroundColor: "#FF5722",
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "white",
+  },
+  summaryList: {
+    gap: 16,
+  },
+  itemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  itemImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#2A2A2A",
+  },
+  itemTitle: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  itemDetails: {
+    color: "#666",
+    fontSize: 13,
+  },
+  itemPrice: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#2A2A2A",
+    marginVertical: 24,
+  },
+  costRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  costLabel: {
+    color: '#999',
+    fontSize: 15,
+  },
+  costValue: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  tipPill: {
+    backgroundColor: '#2A2A2A',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  tipPillActive: {
+    backgroundColor: '#FF5722',
+  },
+  tipText: {
+    color: '#999',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  tipTextActive: {
+    color: 'white',
+  },
+  totalLabel: {
+    color: '#999',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  totalValue: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: '800',
+  },
+  arrival: {
+    textAlign: 'right',
+    color: '#666',
+    fontSize: 13,
+    marginTop: -8,
+    marginBottom: 24,
+  },
+  btnPrimary: {
+    backgroundColor: '#FF5722',
+    borderRadius: 30, // Tall pill shape
+    paddingVertical: 18,
+    alignItems: 'center',
+    shadowColor: "#FF5722",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+  },
+  btnText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+  },
 });

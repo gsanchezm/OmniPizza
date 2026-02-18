@@ -16,13 +16,14 @@ export const LocationHeader = ({ onProfilePress }: { onProfilePress?: () => void
   return (
     <View style={styles.container}>
        <View style={styles.left}>
-          <View style={styles.iconBg}>
-             <Text style={{ fontSize: 18 }}>📍</Text>
-          </View>
-          <View>
-             <Text style={styles.label}>DELIVER TO</Text>
-             <Text style={styles.location}>{MARKETS[country] || "Select Location"} ▼</Text>
-          </View>
+          <Image 
+            source={{ uri: "https://omnipizza-frontend.onrender.com/omnipizza-logo.png" }}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)' }}
+            resizeMode="contain"
+          />
+          <Text style={{ fontSize: 20, fontWeight: '900', color: 'white', marginLeft: 12 }}>
+            OMNIPIZZA
+          </Text>
        </View>
 
        <TouchableOpacity style={styles.bell} onPress={onProfilePress}>

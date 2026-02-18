@@ -1,14 +1,17 @@
 import React from 'react';
+import { useT } from '../i18n';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All Pizza' },
-  { id: 'popular', label: 'Popular' },
-  { id: 'veggie', label: 'Veggie Delight' },
-  { id: 'meat', label: 'Meat Lovers' },
-  { id: 'sides', label: 'Sides & Drinks' },
+  { id: 'all', labelKey: 'allPizza' },
+  { id: 'popular', labelKey: 'popular' },
+  { id: 'veggie', labelKey: 'veggie' },
+  { id: 'meat', labelKey: 'meat' },
+  { id: 'sides', labelKey: 'sides' },
 ];
 
 export default function CategoryFilter({ selected, onSelect }) {
+  const t = useT();
+
   return (
     <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
       {CATEGORIES.map((cat) => (
@@ -22,7 +25,7 @@ export default function CategoryFilter({ selected, onSelect }) {
               : 'bg-[#1E1E1E] text-gray-400 hover:bg-[#2A2A2A] hover:text-white border border-[#2A2A2A]'}
           `}
         >
-          {cat.label}
+          {t(cat.labelKey)}
         </button>
       ))}
     </div>

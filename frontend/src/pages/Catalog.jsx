@@ -109,44 +109,15 @@ export default function Catalog() {
                    <div className="absolute inset-0 bg-gradient-to-r from-[#E64A19] to-[#FF5722]"></div>
                    <div className="absolute -right-10 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
                    
-                   <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                      <div>
-                         <div className="flex items-center gap-2 mb-2 text-white/80 font-bold text-xs uppercase tracking-wider">
-                            <span className="material-icons text-sm">location_on</span>
-                            CURRENT MARKET
-                         </div>
-                         <div className="flex items-center gap-2">
-                            <h1 className="text-3xl font-black text-white">
-                               {MARKET_OPTIONS.find(m => m.code === countryCode)?.label || "Select Market"}
-                            </h1>
-                            {/* Market Dropdown (Simplified) */}
-                            <div className="relative group ml-2">
-                               <button className="bg-white/20 hover:bg-white/30 p-1 rounded-lg transition">
-                                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                               </button>
-                               <div className="absolute top-full left-0 mt-2 bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl overflow-hidden hidden group-hover:block w-48 shadow-2xl z-50">
-                                  {MARKET_OPTIONS.map(m => (
-                                     <button 
-                                       key={m.code} 
-                                       onClick={() => setCountryCode(m.code)}
-                                       className="w-full text-left px-4 py-3 hover:bg-[#2A2A2A] text-sm font-bold flex items-center gap-2"
-                                     >
-                                        <span className="text-lg">{m.flag}</span> {m.label.split(' - ')[0]}
-                                     </button>
-                                  ))}
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-
-                      {/* Search Bar */}
-                      <div className="w-full md:w-96 relative">
+                   <div className="relative z-10 flex flex-col md:flex-row justify-center items-center gap-6 py-8">
+                      {/* Search Bar Only - as requested */}
+                      <div className="w-full max-w-2xl relative">
                          <input 
                            type="text" 
-                           placeholder="Search your favorite pizza..." 
+                           placeholder={t('searchPlaceholder')} 
                            value={searchQuery}
                            onChange={(e) => setSearchQuery(e.target.value)}
-                           className="w-full bg-white/10 border border-white/20 rounded-2xl px-5 py-4 pl-12 text-white placeholder-white/60 focus:outline-none focus:bg-white/20 transition-all font-medium"
+                           className="w-full bg-white/10 border border-white/20 rounded-2xl px-5 py-4 pl-12 text-white placeholder-white/60 focus:outline-none focus:bg-white/20 transition-all font-medium text-lg shadow-lg"
                          />
                          <svg className="w-6 h-6 text-white/60 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

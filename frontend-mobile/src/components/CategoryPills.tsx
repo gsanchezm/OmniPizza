@@ -1,13 +1,14 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../theme/colors';
+import { useT } from '../i18n';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'popular', label: 'Popular' },
-  { id: 'veggie', label: 'Veggie' },
-  { id: 'meat', label: 'Meat Lovers' },
-  { id: 'sides', label: 'Sides' },
+  { id: 'all', labelKey: 'allPizza' },
+  { id: 'popular', labelKey: 'popular' },
+  { id: 'veggie', labelKey: 'veggie' },
+  { id: 'meat', labelKey: 'meat' },
+  { id: 'sides', labelKey: 'sides' },
 ];
 
 interface CategoryPillsProps {
@@ -16,6 +17,7 @@ interface CategoryPillsProps {
 }
 
 export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
+  const t = useT();
   return (
     <ScrollView 
       horizontal 
@@ -31,7 +33,7 @@ export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
             style={[styles.pill, isActive && styles.pillActive]}
           >
             <Text style={[styles.text, isActive && styles.textActive]}>
-              {cat.label}
+              {t(cat.labelKey)}
             </Text>
           </TouchableOpacity>
         );

@@ -17,8 +17,10 @@ import { HeroBanner } from "../components/HeroBanner";
 import { CategoryPills } from "../components/CategoryPills";
 import { MobileProductCard } from "../components/MobileProductCard";
 import type { Pizza } from "../types/api";
+import { useT } from "../i18n";
 
 export default function CatalogScreen({ navigation }: any) {
+  const t = useT();
   const { country, language } = useAppStore();
   const { pizzas, loading, error } = usePizzas(country, language);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -51,7 +53,7 @@ export default function CatalogScreen({ navigation }: any) {
            <View style={styles.searchBar}>
               <Text style={{ fontSize: 16 }}>🔍</Text>
               <TextInput 
-                placeholder="Search your pizza..."
+                placeholder={t("searchPlaceholder")}
                 placeholderTextColor={Colors.text.muted}
                 style={styles.input}
                 value={searchQuery}
@@ -105,11 +107,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface.base,
   },
   scrollContent: {
-    paddingBottom: 100, // Space for tab bar
+    paddingBottom: 40,
   },
   searchContainer: {
     paddingHorizontal: 24,
     marginBottom: 24,
+    marginTop: 8,
   },
   searchBar: {
     flexDirection: 'row',
@@ -117,41 +120,40 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface.base2,
     borderRadius: 16,
     paddingHorizontal: 16,
-    height: 50,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: Colors.surface.border,
-    gap: 10,
   },
   input: {
     flex: 1,
-    color: 'white',
+    marginLeft: 12,
+    color: '#FFFFFF',
     fontSize: 16,
-    height: '100%',
   },
   sectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 24,
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   sectionTitle: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '800',
   },
   list: {
     paddingHorizontal: 24,
+    gap: 16,
   },
   errorText: {
     color: Colors.danger,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 40,
   },
   emptyText: {
     color: Colors.text.muted,
     textAlign: 'center',
     marginTop: 40,
-    fontStyle: 'italic',
   },
 });
