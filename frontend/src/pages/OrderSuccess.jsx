@@ -18,7 +18,7 @@ export default function OrderSuccess() {
         {!order ? (
           <>
             <div className="border border-border rounded-xl p-4 mb-6">
-              <p className="text-text-muted">No last order found.</p>
+              <p className="text-text-muted">{t('noOrderFound')}</p>
             </div>
             <button className="btn-primary" onClick={() => navigate('/catalog')}>
               {t('backToCatalog')}
@@ -27,29 +27,29 @@ export default function OrderSuccess() {
         ) : (
           <>
             <div className="border border-border rounded-xl p-4 mb-6">
-              <div className="text-text-muted text-sm">Order ID</div>
+              <div className="text-text-muted text-sm">{t('orderId')}</div>
               <div className="text-2xl font-black text-text">{order.order_id}</div>
             </div>
 
             <div className="grid gap-2 text-lg">
               <div className="flex justify-between">
-                <span className="text-text-muted">Subtotal</span>
+                <span className="text-text-muted">{t('subtotal')}</span>
                 <span className="font-bold">{formatMoney(order.subtotal)}</span>
               </div>
               {order.tax > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Tax</span>
+                  <span className="text-text-muted">{t('tax')}</span>
                   <span className="font-bold">{formatMoney(order.tax)}</span>
                 </div>
               )}
               {order.tip > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Tip</span>
+                  <span className="text-text-muted">{t('tip')}</span>
                   <span className="font-bold">{formatMoney(order.tip)}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-border pt-3 mt-2">
-                <span className="text-text-muted">Total</span>
+                <span className="text-text-muted">{t('total')}</span>
                 <span className="font-black text-brand-primary">{formatMoney(order.total)}</span>
               </div>
             </div>

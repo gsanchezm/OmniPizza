@@ -4,25 +4,24 @@ export default {
     extend: {
       colors: {
         brand: {
-          primary: "var(--brand-primary)",
-          hover: "var(--brand-hover)",
-          secondary: "var(--brand-secondary)",
-          accent: "var(--brand-accent)",
+          primary: "#FF5722", // Vibrant Orange
+          hover: "#E64A19",
+          secondary: "#FF8A65",
+          accent: "#FFCCBC",
         },
-        danger: "var(--danger)",
         surface: {
-          DEFAULT: "var(--surface)",
-          2: "var(--surface-2)",
-          card: "var(--card)",
+          DEFAULT: "#0F0F0F", // Deep Dark
+          2: "#1F1F1F", // Input/Card BG
+          card: "rgba(30, 30, 30, 0.6)", // Glassy
         },
-        border: "var(--border)",
+        border: "#2A2A2A",
         text: {
-          DEFAULT: "var(--text)",
-          muted: "var(--text-muted)",
+          DEFAULT: "#FFFFFF",
+          muted: "#9CA3AF",
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
+        sans: ['"Plus Jakarta Sans"', "sans-serif"],
       },
     },
   },

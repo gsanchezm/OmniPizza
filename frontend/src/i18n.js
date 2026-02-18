@@ -22,6 +22,14 @@ const DICT = {
     toppings: 'Toppings',
     qty: 'Qty',
     unit: 'Unit',
+    successTitle: 'Order Confirmed!',
+    successSubtitle: 'Your pizza is on its way. Thank you for your order!',
+    backToCatalog: 'Back to Catalog',
+    orderId: 'Order ID',
+    tax: 'Tax',
+    tip: 'Tip',
+    total: 'Total',
+    noOrderFound: 'No last order found.',
   },
 
   es: {
@@ -45,6 +53,14 @@ const DICT = {
     toppings: 'Toppings',
     qty: 'Cant.',
     unit: 'Unit.',
+    successTitle: '¡Pedido Confirmado!',
+    successSubtitle: 'Tu pizza va en camino. ¡Gracias por tu pedido!',
+    backToCatalog: 'Volver al Catálogo',
+    orderId: 'ID de Pedido',
+    tax: 'Impuesto',
+    tip: 'Propina',
+    total: 'Total',
+    noOrderFound: 'No se encontró ningún pedido.',
   },
 
   de: {
@@ -68,6 +84,14 @@ const DICT = {
     toppings: 'Beläge',
     qty: 'Anz.',
     unit: 'Einh.',
+    successTitle: 'Bestellung bestätigt!',
+    successSubtitle: 'Deine Pizza ist unterwegs. Vielen Dank für deine Bestellung!',
+    backToCatalog: 'Zurück zum Katalog',
+    orderId: 'Bestell-ID',
+    tax: 'Steuer',
+    tip: 'Trinkgeld',
+    total: 'Gesamt',
+    noOrderFound: 'Keine Bestellung gefunden.',
   },
 
   fr: {
@@ -91,6 +115,14 @@ const DICT = {
     toppings: 'Garnitures',
     qty: 'Qté',
     unit: 'Unit.',
+    successTitle: 'Commande confirmée !',
+    successSubtitle: 'Votre pizza est en route. Merci pour votre commande !',
+    backToCatalog: 'Retour au catalogue',
+    orderId: 'N° de commande',
+    tax: 'Taxe',
+    tip: 'Pourboire',
+    total: 'Total',
+    noOrderFound: 'Aucune commande trouvée.',
   },
 
   ja: {
@@ -114,6 +146,14 @@ const DICT = {
     toppings: 'トッピング',
     qty: '数量',
     unit: '単価',
+    successTitle: '注文確定！',
+    successSubtitle: 'ピザは配送中です。ご注文ありがとうございます！',
+    backToCatalog: 'カタログに戻る',
+    orderId: '注文ID',
+    tax: '税金',
+    tip: 'チップ',
+    total: '合計',
+    noOrderFound: '注文が見つかりません。',
   },
 };
 

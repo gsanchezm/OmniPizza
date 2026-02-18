@@ -1,292 +1,286 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
-  TextInput,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Image,
-  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+  ImageBackground,
+  Dimensions,
+  SafeAreaView,
+  StatusBar
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
-import { authService } from "../services/auth.service";
-import { getTestProps } from "../utils/qa";
+import { LinearGradient } from "expo-linear-gradient";
+import { ThemedInput } from "../components/ThemedInput";
+import { PrimaryButton } from "../components/PrimaryButton";
+import { SocialButton } from "../components/SocialButton";
 import { Colors } from "../theme/colors";
-import { GlobalStyles } from "../theme/styles";
 
-const USER_HINTS: Record<string, string> = {
-  standard_user: "Normal user, stable flow",
-  locked_out_user: "Login fails (deterministic lockout)",
-  problem_user: "UI shows broken images or $0 prices",
-  performance_glitch_user: "API calls include ~3s delay",
-  error_user: "Checkout may fail randomly (~50%)",
-};
-
-type TestUser = {
-  username: string;
-  description?: string;
-};
-
-const DEFAULT_TEST_USERS: TestUser[] = [
-  { username: "standard_user", description: USER_HINTS.standard_user },
-  { username: "locked_out_user", description: USER_HINTS.locked_out_user },
-  { username: "problem_user", description: USER_HINTS.problem_user },
-  { username: "performance_glitch_user", description: USER_HINTS.performance_glitch_user },
-  { username: "error_user", description: USER_HINTS.error_user },
-];
-
-const MARKET_OPTIONS = [
-  { code: "US", flag: "🇺🇸", label: "United States" },
-  { code: "MX", flag: "🇲🇽", label: "Mexico" },
-  { code: "CH", flag: "🇨🇭", label: "Switzerland" },
-  { code: "JP", flag: "🇯🇵", label: "Japan" },
-] as const;
+const { height } = Dimensions.get("window");
 
 export default function LoginScreen({ navigation }: any) {
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-
   const [username, setUsername] = useState("standard_user");
   const [password, setPassword] = useState("pizza123");
   const [loading, setLoading] = useState(false);
-  const [testUsers, setTestUsers] = useState<TestUser[]>(DEFAULT_TEST_USERS);
-  
-  const setToken = useAppStore((s) => s.setToken);
-  const setCountry = useAppStore((s) => s.setCountry);
-  const country = useAppStore((s) => s.country);
-  const [selectedMarket, setSelectedMarket] = useState(country);
+  const [error, setError] = useState("");
+
+  const login = useAppStore((s) => s.login);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
 
   useEffect(() => {
-    let mounted = true;
-    authService
-      .getTestUsers()
-      .then((users) => {
-        if (!mounted) return;
-        if (Array.isArray(users) && users.length) setTestUsers(users);
-      })
-      .catch(() => {
-        if (mounted) setTestUsers(DEFAULT_TEST_USERS);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    if (isAuthenticated) {
+      navigation.replace("Main");
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = async () => {
-    if (!username) {
-      Alert.alert("Error", "Username is required");
-      return;
-    }
-
+    setError("");
     setLoading(true);
     try {
-      // Use provided password or default 'pizza123'
-      const finalPassword = password || "pizza123";
+      // Small delay to simulate network/interaction (since auth is mocked or fast)
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      const response = await authService.login(username, finalPassword);
-      
-      if (response && response.access_token) {
-        setCountry(selectedMarket);
-        setToken(response.access_token);
-        // Navigate to Catalog
-        navigation.replace("Catalog");
-      } else {
-        throw new Error("Invalid response");
+      const success = await login(username, password);
+      if (!success) {
+        setError("Invalid credentials or user locked out.");
       }
-    } catch (error: any) {
-      console.error(error);
-      const msg = error.response?.data?.detail || "Login failed. Please try again.";
-      Alert.alert("Login Error", msg);
+    } catch (e: any) {
+      setError(e.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const fillUser = (u: TestUser) => {
-    setUsername(u.username);
+  const fillUser = (u: string) => {
+    setUsername(u);
     setPassword("pizza123");
   };
 
   return (
-    <View style={GlobalStyles.screen}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View
-          style={[
-            styles.contentWrap,
-            isLandscape && styles.contentWrapLandscape,
-          ]}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      
+      {/* Hero Background */}
+      <View style={styles.heroContainer}>
+        <ImageBackground
+          source={{ uri: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop" }}
+          style={styles.heroImage}
         >
-          <Image
-            source={require("../../assets/icon.png")}
-            style={[styles.logo, isLandscape && styles.logoLandscape]}
-            resizeMode="contain"
+          <LinearGradient
+            colors={["transparent", "#0F0F0F"]}
+            style={styles.gradient}
           />
+        </ImageBackground>
+      </View>
 
-          <Text style={[GlobalStyles.title, { textAlign: "center", marginBottom: 10 }]}>
-            OmniPizza
-          </Text>
-
-          <Text style={styles.subTitle}>Select Market</Text>
-          <View style={styles.marketRow}>
-            {MARKET_OPTIONS.map((market) => {
-              const active = selectedMarket === market.code;
-              return (
-                <TouchableOpacity
-                  key={market.code}
-                  onPress={() => setSelectedMarket(market.code)}
-                  style={[
-                    styles.marketFlagBtn,
-                    isLandscape && styles.marketFlagBtnLandscape,
-                    active && styles.marketFlagBtnActive,
-                  ]}
-                  accessibilityLabel={`Market ${market.label}`}
-                  {...getTestProps(`btn-market-${market.code.toLowerCase()}`)}
-                >
-                  <Text style={[styles.marketFlag, isLandscape && styles.marketFlagLandscape]}>
-                    {market.flag}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.sectionLabel}>Quick fill (QA)</Text>
-
-            <View style={styles.presets}>
-              {testUsers.map((u) => (
-                <TouchableOpacity
-                  key={u.username}
-                  onPress={() => fillUser(u)}
-                  style={GlobalStyles.accentChip}
-                  {...getTestProps(`btn-preset-${u.username}`)}
-                >
-                  <Text style={GlobalStyles.accentChipText}>{u.username}</Text>
-                </TouchableOpacity>
-              ))}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.content}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.formContainer}>
+            
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.logoBadge}>
+                 <Text style={styles.logoIcon}>🍕</Text>
+              </View>
+              <Text style={styles.appName}>OmniPizza</Text>
+              <Text style={styles.welcomeTitle}>Welcome back!</Text>
+              <Text style={styles.subtitle}>Login to order your favorites.</Text>
             </View>
 
-            <TextInput
-              style={[GlobalStyles.input, styles.input]}
-              placeholder="Username"
-              placeholderTextColor={Colors.text.muted}
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              {...getTestProps("input-username")}
-            />
+            {/* Inputs */}
+            <View style={styles.inputs}>
+              <ThemedInput
+                label="Email Address"
+                value={username}
+                onChangeText={setUsername}
+                placeholder="standard_user"
+                autoCapitalize="none"
+              />
+              <ThemedInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                secureTextEntry
+              />
+              
+              <TouchableOpacity style={styles.forgotBtn}>
+                <Text style={styles.forgotText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TextInput
-              style={[GlobalStyles.input, styles.input]}
-              placeholder="Password"
-              placeholderTextColor={Colors.text.muted}
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              {...getTestProps("input-password")}
-            />
+            {/* Error Message */}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <TouchableOpacity
-              onPress={handleLogin}
-              disabled={loading}
-              style={[GlobalStyles.primaryButton, loading && { opacity: 0.7 }]}
-              {...getTestProps("btn-login")}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <Text style={GlobalStyles.primaryButtonText}>LOGIN</Text>
-              )}
+            {/* Actions */}
+            <View style={styles.actions}>
+              <PrimaryButton 
+                title={loading ? "Signing In..." : "Sign In"} 
+                onPress={handleLogin} 
+                loading={loading}
+              />
+            </View>
+
+            {/* Social / Test Users */}
+            <View style={styles.socialSection}>
+              <View style={styles.divider}>
+                <View style={styles.line} />
+                <Text style={styles.orText}>OR CONTINUE WITH</Text>
+                <View style={styles.line} />
+              </View>
+              
+              <View style={styles.grid}>
+                 <SocialButton label="Google" onPress={() => fillUser('problem_user')} />
+                 <SocialButton label="GitHub" onPress={() => fillUser('error_user')} />
+              </View>
+            </View>
+            
+            <TouchableOpacity style={styles.registerLink}>
+              <Text style={styles.registerText}>
+                New here? <Text style={styles.registerTextBold}>Register Now</Text>
+              </Text>
             </TouchableOpacity>
+
           </View>
-        </View>
-      </ScrollView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    flex: 1,
+    backgroundColor: Colors.surface.base,
   },
-  contentWrap: {
+  heroContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.45,
+    zIndex: 0,
+  },
+  heroImage: {
     width: "100%",
-    maxWidth: 560,
+    height: "100%",
   },
-  contentWrapLandscape: {
-    maxWidth: 860,
+  gradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "100%",
+    justifyContent: "flex-end",
   },
-  logo: {
-    width: 72,
-    height: 72,
-    alignSelf: "center",
+  content: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  safeArea: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  formContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 100, // Space for hero
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  logoBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: Colors.brand.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    shadowColor: Colors.brand.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+  },
+  logoIcon: {
+    fontSize: 28,
+  },
+  appName: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#FFFFFF",
     marginBottom: 8,
   },
-  logoLandscape: {
-    width: 60,
-    height: 60,
-    marginBottom: 4,
-  },
-  subTitle: {
-    marginTop: 4,
-    marginBottom: 10,
-    textAlign: "center",
+  welcomeTitle: {
+    fontSize: 28,
     fontWeight: "800",
+    color: "#FFFFFF",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
     color: Colors.text.muted,
   },
-  card: {
-    backgroundColor: Colors.surface.card,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
+  inputs: {
+    marginBottom: 16,
   },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: "800",
+  forgotBtn: {
+    alignSelf: "flex-end",
+    marginBottom: 24,
+  },
+  forgotText: {
     color: Colors.brand.primary,
-    marginBottom: 10,
+    fontWeight: "700",
+    fontSize: 14,
   },
-  presets: {
+  errorText: {
+    color: Colors.danger,
+    textAlign: "center",
+    marginBottom: 16,
+    fontWeight: "600",
+  },
+  actions: {
+    marginBottom: 32,
+  },
+  socialSection: {
+    marginBottom: 32,
+  },
+  divider: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 14,
+    alignItems: "center",
+    marginBottom: 24,
   },
-  input: { marginBottom: 12 },
-  marketRow: {
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.surface.border,
+  },
+  orText: {
+    marginHorizontal: 16,
+    color: Colors.text.muted,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  grid: {
     flexDirection: "row",
-    justifyContent: "center",
+    gap: 16,
+  },
+  registerLink: {
     alignItems: "center",
-    gap: 12,
-    marginBottom: 14,
   },
-  marketFlagBtn: {
-    width: 54,
-    height: 54,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
-    backgroundColor: Colors.surface.base2,
-    alignItems: "center",
-    justifyContent: "center",
+  registerText: {
+    color: Colors.text.muted,
+    fontSize: 14,
   },
-  marketFlagBtnLandscape: {
-    width: 48,
-    height: 48,
+  registerTextBold: {
+    color: Colors.brand.primary,
+    fontWeight: "800",
   },
-  marketFlagBtnActive: {
-    borderColor: Colors.brand.primary,
-    backgroundColor: Colors.brand.primary + "22",
-  },
-  marketFlag: { fontSize: 24, textAlign: "center" },
-  marketFlagLandscape: { fontSize: 22 },
 });

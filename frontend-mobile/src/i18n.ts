@@ -28,6 +28,11 @@ const DICT: Record<string, Record<string, string>> = {
     qty: "Qty",
     toppings: "Toppings",
     unit: "Unit",
+    successTitle: "Order Confirmed!",
+    successSubtitle: "Your pizza is on its way. Thank you for your order!",
+    backToCatalog: "Back to Catalog",
+    orderId: "Order ID",
+    noOrderFound: "No order found.",
   },
 
   es: {
@@ -57,6 +62,11 @@ const DICT: Record<string, Record<string, string>> = {
     qty: "Cant.",
     toppings: "Toppings",
     unit: "Unit.",
+    successTitle: "¡Pedido Confirmado!",
+    successSubtitle: "Tu pizza va en camino. ¡Gracias por tu pedido!",
+    backToCatalog: "Volver al Catálogo",
+    orderId: "ID de Pedido",
+    noOrderFound: "No se encontró ningún pedido.",
   },
 
   de: {
@@ -86,6 +96,11 @@ const DICT: Record<string, Record<string, string>> = {
     qty: "Anz.",
     toppings: "Beläge",
     unit: "Einh.",
+    successTitle: "Bestellung bestätigt!",
+    successSubtitle: "Deine Pizza ist unterwegs. Vielen Dank für deine Bestellung!",
+    backToCatalog: "Zurück zum Katalog",
+    orderId: "Bestell-ID",
+    noOrderFound: "Keine Bestellung gefunden.",
   },
 
   fr: {
@@ -115,6 +130,11 @@ const DICT: Record<string, Record<string, string>> = {
     qty: "Qté",
     toppings: "Garnitures",
     unit: "Unit.",
+    successTitle: "Commande confirmée !",
+    successSubtitle: "Votre pizza est en route. Merci pour votre commande !",
+    backToCatalog: "Retour au catalogue",
+    orderId: "N° de commande",
+    noOrderFound: "Aucune commande trouvée.",
   },
 
   ja: {
@@ -144,6 +164,11 @@ const DICT: Record<string, Record<string, string>> = {
     qty: "数量",
     toppings: "トッピング",
     unit: "単価",
+    successTitle: "注文確定！",
+    successSubtitle: "ピザは配送中です。ご注文ありがとうございます！",
+    backToCatalog: "カタログに戻る",
+    orderId: "注文ID",
+    noOrderFound: "注文が見つかりません。",
   },
 };
 

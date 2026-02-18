@@ -9,6 +9,21 @@ Users now select market directly on the **login** screen (web + mobile) before e
 
 ---
 
+## Screenshots
+
+### Web Platform
+> *Add web screenshots here (e.g., Login, Catalog, Checkout)*
+<!-- <img src="docs/screenshots/web.png" width="100%" /> -->
+
+### Mobile Platform (iOS/Android)
+> *Add mobile screenshots here (e.g., Pizza Builder, Mobile Checkout)*
+<!-- \
+<img src="docs/screenshots/mobile-1.png" width="200" /> \
+<img src="docs/screenshots/mobile-2.png" width="200" /> \
+-->
+
+---
+
 ## API Documentation (Swagger)
 
 The backend exposes full OpenAPI documentation using **Swagger UI** and **ReDoc**.
@@ -99,8 +114,18 @@ OmniPizza/
 ├── backend/          # FastAPI backend (in-memory DB)
 ├── frontend/         # React + Vite + Tailwind web app
 ├── frontend-mobile/  # React Native / Expo mobile app
-└── tests/            # Contract tests (Schemathesis)
+├── tests/            # Contract tests (Schemathesis)
+└── docs/             # Project Documentation
+    └── specs/        # PRD, Design Specs, Tech Stack
 ```
+
+## Project Documentation
+Detailed specifications for the project can be found in `docs/specs/`:
+
+- **[Product Requirements (PRD)](docs/specs/Product_Requirement_Doc.md):** User personas, functional requirements, and chaos behaviors.
+- **[Design Document](docs/specs/Design_Doc.md):** System architecture, data flow, and "Chaos Middleware" design.
+- **[UI Design System](docs/specs/UI_Design_Doc.md):** "Dark Premium" aesthetic, color palette, typography, and component specs.
+- **[Tech Stack](docs/specs/Tech_Stack_Doc.md):** Technology choices and justification (FastAPI, React, Zustand, etc.).
 
 ---
 

@@ -20,11 +20,11 @@ export default function OrderSuccessScreen({ navigation }: any) {
 
           {lastOrder?.order_id ? (
             <View style={styles.box}>
-              <Text style={styles.muted}>Order ID</Text>
+              <Text style={styles.muted}>{t("orderId")}</Text>
               <Text style={styles.orderId}>{lastOrder.order_id}</Text>
             </View>
           ) : (
-            <Text style={styles.muted}>No order found</Text>
+            <Text style={styles.muted}>{t("noOrderFound")}</Text>
           )}
 
           <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate("Catalog")}>

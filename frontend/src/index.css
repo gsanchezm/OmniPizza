@@ -1,56 +1,32 @@
-@import "./styles/theme.css";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body { height: 100%; }
-body { font-family: var(--font-sans); }
-
-.lux-bg{
-  background: var(--surface);
+html, body { 
+  height: 100%; 
+  background-color: #0F0F0F;
+  color: #FFFFFF;
 }
 
-.lux-card{
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
-  backdrop-filter: blur(12px);
+body { 
+  font-family: "Plus Jakarta Sans", sans-serif; 
 }
 
-.btn-primary{
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-weight: 800;
-  color: #fff;
-  background: var(--brand-primary);
-  transition: background .15s ease, transform .12s ease;
+/* Custom Utilities for Redesign */
+.btn-primary {
+  @apply bg-brand-primary text-white font-bold rounded-xl px-6 py-3 transition-all duration-200;
 }
-.btn-primary:hover{ background: var(--brand-hover); transform: translateY(-1px); }
-.btn-primary:disabled{ opacity:.5; cursor: not-allowed; transform: none; }
-
-
-.btn-ghost{
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-weight: 800;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.03);
-  color: var(--text);
-  transition: background .15s ease;
-}
-.btn-ghost:hover{ background: rgba(255,255,255,0.08); }
-
-.glass-nav{
-  background: rgba(15, 15, 15, 0.78);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+.btn-primary:hover {
+  @apply bg-brand-hover -translate-y-0.5 shadow-lg shadow-brand-primary/20;
 }
 
-.lux-radio{
-  display:flex; gap:10px; align-items:center;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,0.02);
+.input-field {
+  @apply w-full bg-surface-2 border border-border rounded-xl px-4 py-3 text-white placeholder-text-muted focus:outline-none focus:border-brand-primary transition-colors;
 }
+
+.glass-card {
+  @apply bg-surface-card backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
