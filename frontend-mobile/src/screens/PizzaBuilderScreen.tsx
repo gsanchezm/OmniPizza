@@ -121,7 +121,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
              {/* Radial Gradient Background approximation with view layers */}
             <View style={styles.glow} />
             <Image 
-                source={{ uri: "https://omnipizza.onrender.com/static/images/pizza-1.png" }}
+                source={{ uri: pizza.image || "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg" }}
                 style={styles.pizzaImage}
             />
         </View>
@@ -159,34 +159,42 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                 </Text>
             </View>
 
-            <View style={styles.grid}>
-                 {/* Flatten toppings for grid view as per design inspiration */}
-                 {TOPPING_GROUPS.flatMap(g => g.items).map((it) => {
-                     const isSelected = toppings.includes(it.id);
-                     const disabled = !isSelected && toppings.length >= 10;
-                     return (
-                         <TouchableOpacity
-                             key={it.id}
-                             onPress={() => toggleTopping(it.id)}
-                             disabled={disabled}
-                             style={[styles.toppingCard, isSelected && styles.toppingCardActive, disabled && {opacity: 0.5}]}
-                         >
-                             <View style={[styles.toppingIconCircle, isSelected && { backgroundColor: 'rgba(255, 87, 34, 0.2)' }]}>
-                                 <Text style={{fontSize: 24}}>🍄</Text>
-                             </View>
-                             <Text style={[styles.toppingName, isSelected && { color: 'white' }]}>
-                                 {tOpt(it.label, language)}
-                             </Text>
-                             
-                             {isSelected && (
-                                <View style={styles.checkBadge}>
-                                    <Text style={{color: 'white', fontSize: 10, fontWeight: 'bold'}}>✓</Text>
+            {TOPPING_GROUPS.map((group) => (
+              <View key={group.id} style={{ marginBottom: 20 }}>
+                <Text style={styles.groupTitle}>{tOpt(group.label, language)}</Text>
+                <View style={styles.grid}>
+                    {group.items.map((it) => {
+                        const isSelected = toppings.includes(it.id);
+                        const disabled = !isSelected && toppings.length >= 10;
+                        return (
+                            <TouchableOpacity
+                                key={it.id}
+                                onPress={() => toggleTopping(it.id)}
+                                disabled={disabled}
+                                style={[styles.toppingCard, isSelected && styles.toppingCardActive, disabled && {opacity: 0.5}]}
+                            >
+                                <View style={[styles.toppingIconCircle, isSelected && { backgroundColor: 'rgba(255, 87, 34, 0.2)' }]}>
+                                    {(it as any).image ? (
+                                      <Image source={(it as any).image} style={{ width: 40, height: 40, resizeMode: 'contain' }} />
+                                    ) : (
+                                      <Text style={{fontSize: 24}}>🧀</Text>
+                                    )}
                                 </View>
-                             )}
-                         </TouchableOpacity>
-                     )
-                 })}
-            </View>
+                                <Text style={[styles.toppingName, isSelected && { color: 'white' }]}>
+                                    {tOpt(it.label, language)}
+                                </Text>
+                                
+                                {isSelected && (
+                                   <View style={styles.checkBadge}>
+                                       <Text style={{color: 'white', fontSize: 10, fontWeight: 'bold'}}>✓</Text>
+                                   </View>
+                                )}
+                            </TouchableOpacity>
+                        )
+                    })}
+                </View>
+              </View>
+            ))}
 
             <View style={{height: 120}} />
         </View>
@@ -209,7 +217,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                   <Text style={styles.addToCartText}>
                       {mode === 'edit' ? tOpt({en:"Update", es:"Actualizar"}, language) : tOpt({en:"Add to Cart", es:"Agregar"}, language)}
                   </Text>
-                  <Text style={{color: 'white', fontSize: 18}}>🛍</Text>
+                  <Image source={require('../../assets/ui/shopping_bag.png')} style={{ width: 20, height: 20, tintColor: 'white' }} />
               </TouchableOpacity>
           </View>
       </View>
@@ -410,5 +418,14 @@ const styles = StyleSheet.create({
       color: 'white',
       fontWeight: '800',
       fontSize: 16,
+  },
+  groupTitle: {
+      color: '#888',
+      fontSize: 12,
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginBottom: 10,
+      marginLeft: 4,
   },
 });

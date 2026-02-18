@@ -142,8 +142,11 @@ export default function PizzaCustomizerModal({
                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#2A2A2A] to-[#121212]"></div>
                  
                  <img 
-                   src={"https://omnipizza.onrender.com/static/images/pizza-1.png"} 
+                   src={pizza.image || "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg"} 
                    alt={pizzaName}
+                   onError={(e) => {
+                     e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg";
+                   }}
                    className="w-56 h-56 object-cover drop-shadow-2xl transform hover:scale-105 transition-transform duration-500"
                  />
              </div>
@@ -173,39 +176,49 @@ export default function PizzaCustomizerModal({
                  </div>
 
                  {/* Toppings Selector */}
-                 <div>
+                 <div className="space-y-6">
                      <div className="flex justify-between items-center mb-4">
                          <h3 className="text-white font-black text-xl">{t({en:"Add Toppings", es:"Agregar Toppings", de:"Beläge Hinzufügen", fr:"Ajouter Garnitures", ja:"トッピング追加"}, language)}</h3>
                          <span className="text-gray-500 text-sm font-medium">+{toppingLocalText} {t({en:"each", es:"c/u", de:"pro stück", fr:"chacun", ja:"各"}, language)}</span>
                      </div>
                      
-                     <div className="grid grid-cols-3 gap-3">
-                         {TOPPING_GROUPS.flatMap(g => g.items).map((it) => {
-                             const isSelected = toppings.includes(it.id);
-                             return (
-                                 <button
-                                     key={it.id}
-                                     onClick={() => toggleTopping(it.id)}
-                                     disabled={!isSelected && toppings.length >= 10}
-                                     className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-2 border-2 transition-all relative overflow-hidden ${isSelected ? 'border-[#FF5722] bg-[#FF5722]/10' : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-gray-600'} ${(!isSelected && toppings.length >= 10) ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                 >
-                                     <div className={`w-12 h-12 rounded-full mb-2 flex items-center justify-center ${isSelected ? 'bg-[#FF5722]/20' : 'bg-[#2A2A2A]'}`}>
-                                         {/* Placeholder Icon/Image for Topping */}
-                                         <span className="text-xl">🧀</span> 
-                                     </div>
-                                     <span className={`text-xs font-bold text-center leading-tight ${isSelected ? 'text-white' : 'text-gray-400'}`}>
-                                         {t(it.label, language)}
-                                     </span>
-                                     
-                                     {isSelected && (
-                                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
-                                             ✓
+                     {TOPPING_GROUPS.map((group) => (
+                       <div key={group.id}>
+                         <h4 className="text-white/70 font-bold uppercase tracking-wider text-sm mb-3 pl-1">
+                           {t(group.label, language)}
+                         </h4>
+                         <div className="grid grid-cols-3 gap-3">
+                             {group.items.map((it) => {
+                                 const isSelected = toppings.includes(it.id);
+                                 return (
+                                     <button
+                                         key={it.id}
+                                         onClick={() => toggleTopping(it.id)}
+                                         disabled={!isSelected && toppings.length >= 10}
+                                         className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-2 border-2 transition-all relative overflow-hidden ${isSelected ? 'border-[#FF5722] bg-[#FF5722]/10' : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-gray-600'} ${(!isSelected && toppings.length >= 10) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                     >
+                                         <div className={`w-12 h-12 rounded-full mb-2 flex items-center justify-center ${isSelected ? 'bg-[#FF5722]/20' : 'bg-[#2A2A2A]'} overflow-hidden`}>
+                                             {it.image ? (
+                                               <img src={it.image} alt={t(it.label, language)} className="w-full h-full object-cover" />
+                                             ) : (
+                                               <span className="text-xl">🧀</span> 
+                                             )}
                                          </div>
-                                     )}
-                                 </button>
-                             );
-                         })}
-                     </div>
+                                         <span className={`text-xs font-bold text-center leading-tight ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                                             {t(it.label, language)}
+                                         </span>
+                                         
+                                         {isSelected && (
+                                             <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
+                                                 ✓
+                                             </div>
+                                         )}
+                                     </button>
+                                 );
+                             })}
+                         </div>
+                       </div>
+                     ))}
                  </div>
 
                  {/* Spacer for bottom bar */}
@@ -230,7 +243,7 @@ export default function PizzaCustomizerModal({
                      className="bg-[#FF5722] hover:bg-[#E64A19] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
                  >
                      {t({en:"Add to Cart", es:"Agregar", de:"Hinzufügen", fr:"Ajouter", ja:"追加"}, language)}
-                     <span className="material-icons text-sm">shopping_bag</span>
+                     <img src="/images/ui/shopping_bag.png" alt="Cart" className="w-5 h-5 object-contain" />
                  </button>
              </div>
         </div>
