@@ -15,12 +15,11 @@ import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { orderService } from "../services/order.service";
 import type { CartItem } from "../store/useAppStore";
-import type { CheckoutPayload } from "../types/api";
+import { SIZE_OPTIONS } from "../constants/pizza";
 
 const { width } = Dimensions.get("window");
 
 function money(value: number, currency: string) {
-  // Simple formatter, can be replaced with better i18n
   return currency === "JPY" ? `¥${value}` : `$${value.toFixed(2)}`;
 }
 
@@ -84,11 +83,11 @@ export default function CheckoutScreen({ navigation }: any) {
   if (!cartItems.length) {
     return (
         <View style={styles.container}>
-            <CustomNavbar title="Checkout" navigation={navigation} />
+            <CustomNavbar title={t("checkout")} navigation={navigation} />
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{color: 'white', marginBottom: 20}}>Your cart is empty</Text>
+                <Text style={{color: 'white', marginBottom: 20}}>{t("cartEmpty")}</Text>
                 <TouchableOpacity style={styles.btnPrimary} onPress={() => navigation.navigate("Catalog")}>
-                    <Text style={styles.btnText}>Go to Menu</Text>
+                    <Text style={styles.btnText}>{t("goToMenu")}</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -97,14 +96,14 @@ export default function CheckoutScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <CustomNavbar title="Checkout" navigation={navigation} />
+      <CustomNavbar title={t("checkout")} navigation={navigation} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Delivery Address */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>DELIVERY ADDRESS</Text>
-            <TouchableOpacity><Text style={styles.editLink}>Edit</Text></TouchableOpacity>
+            <Text style={styles.sectionTitle}>{t("streetAndNumber")}</Text>
+            <TouchableOpacity><Text style={styles.editLink}>{t("edit")}</Text></TouchableOpacity>
         </View>
         
         <View style={styles.addressCard}>
@@ -112,7 +111,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 <Text style={{fontSize: 20}}>🏠</Text>
             </View>
             <View style={{flex: 1}}>
-                <Text style={styles.addressLabel}>Home</Text>
+                <Text style={styles.addressLabel}>{t("home")}</Text>
                 <Text style={styles.addressText} numberOfLines={2}>
                     {form.address}, {form.zip_code}
                 </Text>
@@ -121,7 +120,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Payment Method */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>PAYMENT METHOD</Text>
+            <Text style={styles.sectionTitle}>{t("paymentMethod")}</Text>
         </View>
 
         <TouchableOpacity 
@@ -132,7 +131,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 <Text style={{fontSize: 20}}>💳</Text>
             </View>
             <View style={{flex: 1}}>
-                <Text style={styles.paymentLabel}>Credit Card</Text>
+                <Text style={styles.paymentLabel}>{t("creditCard")}</Text>
                 <Text style={styles.paymentSub}>•••• •••• •••• 4242</Text>
             </View>
             <View style={[styles.radio, paymentMethod === 'card' && styles.radioActive]}>
@@ -148,8 +147,8 @@ export default function CheckoutScreen({ navigation }: any) {
                 <Text style={{fontSize: 20}}>💵</Text>
             </View>
             <View style={{flex: 1}}>
-                <Text style={styles.paymentLabel}>Cash on Delivery</Text>
-                <Text style={styles.paymentSub}>Pay when you receive</Text>
+                <Text style={styles.paymentLabel}>{t("payOnDelivery")}</Text>
+                <Text style={styles.paymentSub}>{t("cash")}</Text>
             </View>
             <View style={[styles.radio, paymentMethod === 'cash' && styles.radioActive]}>
                 {paymentMethod === 'cash' && <View style={styles.radioInner} />}
@@ -158,19 +157,28 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Order Summary */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>ORDER SUMMARY</Text>
+            <Text style={styles.sectionTitle}>{t("orderSummary")}</Text>
         </View>
 
         <View style={styles.summaryList}>
             {cartItems.map(item => (
                 <View key={item.id} style={styles.itemRow}>
                     <Image 
-                        source={{uri: "https://omnipizza.onrender.com/static/images/pizza-1.png"}} 
+                        source={{uri: item.pizza.image || "https://omnipizza.onrender.com/static/images/pizza-1.png"}} 
                         style={styles.itemImage} 
                     />
                     <View style={{flex: 1}}>
                         <Text style={styles.itemTitle}>{item.quantity}x {item.pizza.name}</Text>
                         <Text style={styles.itemDetails}>{item.config?.size}</Text>
+                        
+                        <View style={{flexDirection: 'row', gap: 16, marginTop: 4}}>
+                            <TouchableOpacity onPress={() => {/* Edit logic would go here, ideally passing item to builder */}}>
+                                <Text style={styles.actionLink}>{t("edit").toUpperCase()}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => useAppStore.getState().removeCartItem(item.id)}>
+                                <Text style={[styles.actionLink, {color: '#EF4444'}]}>{t("remove").toUpperCase()}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                     <Text style={styles.itemPrice}>{money(item.unit_price * item.quantity, currency)}</Text>
                 </View>
@@ -181,18 +189,18 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Totals */}
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>Subtotal</Text>
+            <Text style={styles.costLabel}>{t("subtotal")}</Text>
             <Text style={styles.costValue}>{money(subtotal, currency)}</Text>
         </View>
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>Delivery Fee</Text>
+            <Text style={styles.costLabel}>{t("deliveryFee")}</Text>
             <Text style={styles.costValue}>{money(deliveryFee, currency)}</Text>
         </View>
 
         {/* Tip Row */}
         <View style={[styles.costRow, { alignItems: 'center', marginVertical: 8 }]}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                <Text style={styles.costLabel}>Tip for Driver</Text>
+                <Text style={styles.costLabel}>{t("tipForDriver")}</Text>
                 <Text style={{color: '#666'}}>ℹ️</Text>
             </View>
             <View style={{flexDirection: 'row', gap: 8}}>
@@ -218,19 +226,19 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
 
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>Tax (9.5%)</Text>
+            <Text style={styles.costLabel}>{t("tax")} (9.5%)</Text>
             <Text style={styles.costValue}>{money(tax, currency)}</Text>
         </View>
 
         <View style={[styles.costRow, { marginTop: 20 }]}>
-            <Text style={styles.totalLabel}>TOTAL PRICE</Text>
+            <Text style={styles.totalLabel}>{t("totalPrice")}</Text>
             <Text style={styles.totalValue}>{money(total, currency)}</Text>
         </View>
 
-        <Text style={styles.arrival}>Expected arrival: 25-35 min</Text>
+        <Text style={styles.arrival}>{t("expectedArrival")}: 25-35 min</Text>
         
         <TouchableOpacity style={styles.btnPrimary} onPress={placeOrder} disabled={loading}>
-            <Text style={styles.btnText}>{loading ? "Processing..." : "Confirm and Pay  →"}</Text>
+            <Text style={styles.btnText}>{loading ? t("processing") : t("confirmPay") + "  →"}</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -259,6 +267,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   editLink: {
     color: "#FF5722",
@@ -432,6 +441,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
+  },
+  actionLink: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: '#FF5722',
+      letterSpacing: 0.5,
   },
   btnText: {
     color: 'white',

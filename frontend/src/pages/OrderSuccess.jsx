@@ -24,9 +24,9 @@ export default function OrderSuccess() {
            <div className="absolute inset-0 bg-gray-800">
                {/* Placeholder for map - using a dark map style image if available, or just a placeholder pattern */}
                <img 
-                 src="https://maps.geoapify.com/v1/staticmap?style=osm-dark-grey&width=1200&height=400&center=lonlat:-99.1332,19.4326&zoom=14&apiKey=demo" 
+                 src="/images/ui/map_background.png" 
                  alt="Map"
-                 className="w-full h-full object-cover opacity-60"
+                 className="w-full h-full object-cover opacity-80"
                  onError={(e) => {
                      e.target.onerror = null;
                      e.target.style.display = 'none';
@@ -100,10 +100,10 @@ export default function OrderSuccess() {
                    
                    <div className="flex gap-3">
                        <button className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
-                           <span className="material-icons text-white text-sm">chat_bubble</span>
+                           <img src="/images/ui/icon_chat.png" alt="Chat" className="w-5 h-5 object-contain" />
                        </button>
                        <button className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">
-                           <span className="material-icons text-white text-sm">phone</span>
+                           <img src="/images/ui/icon_phone.png" alt="Call" className="w-5 h-5 object-contain invert brightness-0" />
                        </button>
                    </div>
                </div>

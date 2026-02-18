@@ -33,7 +33,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
           {/* Placeholder for map */}
           <View style={styles.mapPlaceholder}>
                <Image 
-                 source={{ uri: "https://maps.geoapify.com/v1/staticmap?style=osm-dark-grey&width=600&height=800&center=lonlat:-99.1332,19.4326&zoom=14&apiKey=demo" }}
+                 source={require('../../assets/ui/map_background.png')}
                  style={styles.mapImage}
                />
                <View style={styles.mapOverlay} />
@@ -97,10 +97,10 @@ export default function OrderSuccessScreen({ navigation }: any) {
 
               <View style={styles.actions}>
                   <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#333' }]}>
-                      <Text style={{fontSize: 20, color: 'white'}}>💬</Text>
+                      <Image source={require('../../assets/ui/icon_chat.png')} style={{width: 20, height: 20, tintColor: 'white'}} />
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FF5722' }]}>
-                      <Text style={{fontSize: 20, color: 'white'}}>📞</Text>
+                      <Image source={require('../../assets/ui/icon_phone.png')} style={{width: 20, height: 20, tintColor: 'white'}} />
                   </TouchableOpacity>
               </View>
           </View>

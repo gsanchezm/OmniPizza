@@ -52,6 +52,7 @@ export const TOPPING_GROUPS = [
     items: [
       {
         id: "pepperoni",
+        image: "/images/toppings/pepperoni.png",
         label: {
           en: "Pepperoni",
           es: "Pepperoni",
@@ -62,6 +63,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "york_ham",
+        image: "/images/toppings/york_ham.png",
         label: {
           en: "York ham",
           es: "Jamón york",
@@ -72,6 +74,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "italian_sausage",
+        image: "/images/toppings/italian_sausage.png",
         label: {
           en: "Italian sausage",
           es: "Salchicha italiana",
@@ -82,6 +85,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "shredded_chicken",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Chicken",
         label: {
           en: "Shredded chicken",
           es: "Pollo desmenuzado",
@@ -92,12 +96,24 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "sardines",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Sardine",
         label: {
           en: "Sardines",
           es: "Sardinas",
           de: "Sardinen",
           fr: "Sardines",
           ja: "サーディン",
+        },
+      },
+      {
+        id: "bacon",
+        image: "/images/toppings/bacon.png",
+        label: {
+          en: "Bacon",
+          es: "Tocino",
+          de: "Speck",
+          fr: "Lardons",
+          ja: "ベーコン",
         },
       },
     ],
@@ -114,6 +130,7 @@ export const TOPPING_GROUPS = [
     items: [
       {
         id: "mozzarella",
+        image: "/images/toppings/mozzarella.png",
         label: {
           en: "Mozzarella",
           es: "Mozzarella",
@@ -124,6 +141,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "provolone",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Prov",
         label: {
           en: "Provolone",
           es: "Provolone",
@@ -134,6 +152,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "gorgonzola",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Gorg",
         label: {
           en: "Gorgonzola",
           es: "Gorgonzola",
@@ -144,6 +163,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "ricotta",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Ricotta",
         label: {
           en: "Ricotta",
           es: "Ricotta",
@@ -154,6 +174,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "parmesan",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Parm",
         label: {
           en: "Parmesan",
           es: "Parmesano",
@@ -176,6 +197,7 @@ export const TOPPING_GROUPS = [
     items: [
       {
         id: "mushrooms",
+        image: "/images/toppings/mushrooms.png",
         label: {
           en: "Mushrooms",
           es: "Champiñones",
@@ -186,6 +208,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "red_peppers",
+        image: "/images/toppings/red_peppers.png",
         label: {
           en: "Red peppers",
           es: "Pimientos rojos",
@@ -196,6 +219,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "cherry_tomatoes",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Tomato",
         label: {
           en: "Cherry tomatoes",
           es: "Tomates cherry",
@@ -206,6 +230,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "black_olives",
+        image: "/images/toppings/black_olives.png",
         label: {
           en: "Black olives",
           es: "Aceitunas negras",
@@ -216,12 +241,35 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "artichokes",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Artich",
         label: {
           en: "Artichokes",
           es: "Alcachofas",
           de: "Artischocken",
           fr: "Artichauts",
           ja: "アーティチョーク",
+        },
+      },
+      {
+        id: "onions",
+        image: "/images/toppings/onions.png",
+        label: {
+          en: "Onions",
+          es: "Cebollas",
+          de: "Zwiebeln",
+          fr: "Oignons",
+          ja: "玉ねぎ",
+        },
+      },
+      {
+        id: "pineapple",
+        image: "/images/toppings/pineapple.png",
+        label: {
+          en: "Pineapple",
+          es: "Piña",
+          de: "Ananas",
+          fr: "Ananas",
+          ja: "パイナップル",
         },
       },
     ],
@@ -238,6 +286,7 @@ export const TOPPING_GROUPS = [
     items: [
       {
         id: "pesto",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Pesto",
         label: {
           en: "Pesto",
           es: "Pesto",
@@ -248,10 +297,12 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "bbq",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=BBQ",
         label: { en: "BBQ", es: "BBQ", de: "BBQ", fr: "BBQ", ja: "BBQ" },
       },
       {
         id: "alfredo",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Alf",
         label: {
           en: "Alfredo",
           es: "Salsa Alfredo",
@@ -262,6 +313,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "garlic_cream",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Garlic",
         label: {
           en: "Garlic cream",
           es: "Crema de ajo",
@@ -272,6 +324,7 @@ export const TOPPING_GROUPS = [
       },
       {
         id: "extra_virgin_olive_oil",
+        image: "https://placehold.co/100x100/2A2A2A/FF5722.png?text=Oil",
         label: {
           en: "Extra virgin olive oil",
           es: "Aceite de oliva virgen",
@@ -288,7 +341,7 @@ export const UI_STRINGS = {
   title: {
     en: "Customize your pizza",
     es: "Configura tu pizza",
-    de: "Pizza konfigurieren",
+    de: "Pizza Anpassen",
     fr: "Personnaliser",
     ja: "ピザをカスタム",
   },

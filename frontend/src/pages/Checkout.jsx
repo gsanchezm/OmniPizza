@@ -7,31 +7,31 @@ import {
   useProfileStore,
   useOrderStore,
 } from "../store";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../constants/pizza";
-import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
+import { SIZE_OPTIONS } from "../constants/pizza";
+import { computeUnitPrice } from "../utils/pizzaPricing";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
+import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
 
-const tFmt = (obj, lang, vars) => {
-  let s = tOpt(obj, lang);
-  for (const [k, v] of Object.entries(vars || {})) {
-    s = s.replaceAll(`{${k}}`, String(v));
-  }
-  return s;
+// SVG Icons
+const Icons = {
+  CreditCard: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
+      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
+    </svg>
+  ),
+  Cash: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
+      <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+    </svg>
+  ),
+  ArrowForward: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 inline-block ml-2">
+      <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+    </svg>
+  ),
 };
-
-function formatMoneyInt(value, currency, locale, symbol) {
-  try {
-    return new Intl.NumberFormat(locale || "en-US", {
-      style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: 0, // ✅ entero más cercano visualmente
-    }).format(Number(value));
-  } catch {
-    return `${symbol || ""}${Math.round(Number(value) || 0)}`;
-  }
-}
 
 function formatMoney(value, currency, locale, symbol) {
   try {
@@ -54,193 +54,50 @@ function signatureOf(pizzaId, size, toppings) {
   return `${pizzaId}|${size}|${t}`;
 }
 
-/** Reuse same modal, but allow initialConfig + edit confirm */
-function PizzaCustomizerModal({
-  open,
-  pizza,
-  language,
-  locale,
-  initialConfig,
-  onClose,
-  onConfirm,
-}) {
-  const [size, setSize] = useState(initialConfig?.size || "small");
-  const [toppings, setToppings] = useState(initialConfig?.toppings || []);
-  const scrollRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (open) {
-      setSize(initialConfig?.size || "small");
-      setToppings(initialConfig?.toppings || []);
-      requestAnimationFrame(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = 0;
-      });
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open, initialConfig, pizza?.id]);
-
-  const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
-
-  const unitPrice = useMemo(() => {
-    if (!pizza) return 0;
-    return computeUnitPriceValue(pizza, sizeObj.usd, toppings.length);
-  }, [pizza, sizeObj.usd, toppings.length]);
-
-  const toggleTopping = (id) => {
-    setToppings((prev) => {
-      const has = prev.includes(id);
-      if (has) return prev.filter((x) => x !== id);
-      if (prev.length >= 10) return prev;
-      return [...prev, id];
-    });
-  };
-
-  if (!open || !pizza) return null;
-
-  // ✅ costo por topping en moneda local (entero más cercano)
-  const toppingLocalInt = Math.round(getRateFromPizza(pizza) * 1);
-  const toppingLocalText = formatMoneyInt(
-    toppingLocalInt,
-    pizza.currency,
-    locale,
-    pizza.currency_symbol
-  );
-
-  return (
-    <div className="fixed inset-0 z-[9999] bg-black/70 overflow-y-auto">
-      <div className="min-h-screen flex items-start justify-center py-6 px-3">
-        <div
-          className="relative lux-card w-full max-w-2xl rounded-2xl flex flex-col overflow-hidden"
-          style={{ maxHeight: "calc(100vh - 5rem)" }}
-        >
-          {/* Header fijo */}
-          <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-border">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-2xl font-black text-brand-primary font-sans">
-                  {tOpt(UI_STRINGS.title, language)}
-                </div>
-                <div className="text-text-muted font-semibold">{pizza.name}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-text-muted">{pizza.currency}</div>
-                <div className="text-3xl font-black text-text">
-                  {formatMoney(unitPrice, pizza.currency, locale, pizza.currency_symbol)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Body scrolleable */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-4 grid gap-6">
-            {/* Size */}
-            <div>
-              <div className="text-lg font-black text-text mb-2">
-                {tOpt(UI_STRINGS.size, language)}
-              </div>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {SIZE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setSize(opt.id)}
-                    className={[
-                      "px-4 py-3 rounded-xl border text-left font-extrabold transition",
-                      size === opt.id
-                        ? "bg-surface-2 border-brand-primary text-text"
-                        : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
-                    ].join(" ")}
-                  >
-                    {tOpt(opt.label, language)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Toppings */}
-            <div>
-              <div className="flex items-end justify-between gap-4">
-                <div className="text-lg font-black text-text">
-                  {tOpt(UI_STRINGS.toppings, language)}
-                </div>
-
-                <div className="text-right">
-                  <div className="text-sm text-text-muted font-semibold">
-                    {tOpt(UI_STRINGS.upTo10, language)} • {toppings.length}/10
-                  </div>
-                  <div className="text-xs text-text-muted font-semibold mt-1">
-                    {tFmt(UI_STRINGS.toppingCostInfo, language, {
-                      usd: "$1 USD",
-                      local: toppingLocalText,
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 grid gap-4">
-                {TOPPING_GROUPS.map((g) => (
-                  <div key={g.id} className="rounded-xl border border-border p-4 bg-surface-2">
-                    <div className="font-black text-text mb-3">{tOpt(g.label, language)}</div>
-                    <div className="grid sm:grid-cols-2 gap-2">
-                      {g.items.map((it) => {
-                        const checked = toppings.includes(it.id);
-                        const disabled = !checked && toppings.length >= 10;
-                        return (
-                          <button
-                            key={it.id}
-                            type="button"
-                            disabled={disabled}
-                            onClick={() => toggleTopping(it.id)}
-                            className={[
-                              "px-3 py-2 rounded-lg border text-left font-extrabold transition",
-                              checked
-                                ? "bg-brand-primary text-white border-brand-primary"
-                                : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
-                              disabled ? "opacity-50 cursor-not-allowed" : "",
-                            ].join(" ")}
-                          >
-                            {tOpt(it.label, language)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="h-10" />
-            </div>
-          </div>
-
-          {/* Footer fijo */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-border bg-surface">
-            <div className="flex justify-end gap-3">
-              <button className="btn-ghost" type="button" onClick={onClose}>
-                {tOpt(UI_STRINGS.cancel, language)}
-              </button>
-              <button
-                className="btn-primary"
-                type="button"
-                onClick={() =>
-                  onConfirm({
-                    size,
-                    toppings,
-                    unit_price: unitPrice,
-                  })
-                }
-              >
-                {tOpt(UI_STRINGS.confirm, language)}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const UI_TEXT = {
+  checkout: { en: "Checkout", es: "Finalizar Compra", de: "Kasse", fr: "Paiement", ja: "チェックアウト" },
+  completeDetails: { en: "Complete your details to enjoy the finest pizza experience.", es: "Completa tus detalles para disfrutar de la mejor experiencia de pizza.", de: "Vervollständige deine Angaben für das beste Pizza-Erlebnis.", fr: "Complétez vos coordonnées pour profiter de la meilleure pizza.", ja: "最高のピザ体験のために詳細を入力してください。" },
+  deliveryAddress: { en: "DELIVERY ADDRESS", es: "DIRECCIÓN DE ENTREGA", de: "LIEFERADRESSE", fr: "ADRESSE DE LIVRAISON", ja: "配送先住所" },
+  contactInfo: { en: "CONTACT INFO", es: "INFORMACIÓN DE CONTACTO", de: "KONTAKTINFORMATIONEN", fr: "INFOS CONTACT ", ja: "連絡先情報" },
+  paymentMethod: { en: "PAYMENT METHOD", es: "MÉTODO DE PAGO", de: "ZAHLUNGSMETHODE", fr: "MÉTHODE DE PAIEMENT", ja: "支払い方法" },
+  orderSummary: { en: "Your Order", es: "Tu pedido", de: "Deine Bestellung", fr: "Votre commande", ja: "ご注文" },
+  subtotal: { en: "Subtotal", es: "Subtotal", de: "Zwischensumme", fr: "Sous-total", ja: "小計" },
+  tax: { en: "Tax", es: "Impuesto", de: "Steuer", fr: "Taxe", ja: "税金" },
+  deliveryFee: { en: "Delivery Fee", es: "Costo de entrega", de: "Liefergebühr", fr: "Frais de livraison", ja: "配達料" },
+  total: { en: "Total", es: "Total", de: "Gesamt", fr: "Total", ja: "合計" },
+  placeOrder: { en: "Place Order", es: "Realizar Pedido", de: "Bestellung aufgeben", fr: "Passer la commande", ja: "注文する" },
+  termsText: { en: "By placing your order, you agree to OmniPizza's", es: "Al realizar tu pedido, aceptas los", de: "Mit deiner Bestellung stimmst du den", fr: "En passant commande, vous acceptez les", ja: "注文することで、OmniPizzaの" },
+  terms: { en: "Terms of Service", es: "Términos de Servicio", de: "Nutzungsbedingungen", fr: "Conditions d'utilisation", ja: "利用規約" },
+  privacy: { en: "Privacy Policy", es: "Política de Privacidad", de: "Datenschutzrichtlinien", fr: "Politique de confidentialité", ja: "プライバシーポリシー" },
+  free: { en: "Free", es: "Gratis", de: "Gratis", fr: "Gratuit", ja: "無料" },
+  processing: { en: "Processing...", es: "Procesando...", de: "Verarbeitung...", fr: "Traitement...", ja: "処理中..." },
+  creditCard: { en: "Credit Card", es: "Tarjeta de Crédito", de: "Kreditkarte", fr: "Carte de Crédit", ja: "クレジットカード" },
+  creditCardDesc: { en: "VISA, Mastercard, AMEX", es: "VISA, Mastercard, AMEX", de: "VISA, Mastercard, AMEX", fr: "VISA, Mastercard, AMEX", ja: "VISA, Mastercard, AMEX" },
+  cash: { en: "Cash", es: "Efectivo", de: "Barzahlung", fr: "Espèces", ja: "現金" },
+  cashDesc: { en: "Pay on Delivery", es: "Pagar al recibir", de: "Zahlung bei Lieferung", fr: "Payer à la livraison", ja: "代金引換" },
+  streetPlaceholder: { en: "Street & House Number", es: "Calle y Número", de: "Straße & Hausnummer", fr: "Rue et Numéro", ja: "住所" },
+  coloniaPlaceholder: { en: "Colonia / Neighborhood", es: "Colonia", de: "Stadtteil", fr: "Quartier", ja: "地区" },
+  zipPlaceholder: { en: "Zip Code", es: "Código Postal", de: "Postleitzahl", fr: "Code Postal", ja: "郵便番号" },
+  fullName: { en: "Full Name", es: "Nombre completo", de: "Vollständiger Name", fr: "Nom complet", ja: "氏名" },
+  phone: { en: "Phone Number", es: "Teléfono", de: "Telefonnummer", fr: "Numéro de téléphone", ja: "電話番号" },
+  edit: { en: "Edit", es: "Editar", de: "Bearbeiten", fr: "Modifier", ja: "編集" },
+  remove: { en: "Remove", es: "Eliminar", de: "Entfernen", fr: "Supprimer", ja: "削除" },
+  and: { en: "and", es: "y", de: "und", fr: "et", ja: "と" },
+  cartEmpty: {
+    en: "Your cart is empty",
+    es: "Carrito vacío",
+    de: "Warenkorb leer",
+    fr: "Panier vide",
+    ja: "カートは空です",
+  },
+  startOrder: {
+    en: "Start Your Order",
+    es: "Comienza tu Pedido",
+    de: "Bestellung starten",
+    fr: "Commencer votre commande",
+    ja: "注文を始める",
+  }
+};
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -332,17 +189,16 @@ export default function Checkout() {
   if (!items.length) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="lux-card p-6 rounded-2xl text-text-muted font-semibold">
-          {tOpt(
-            {
-              en: "Your cart is empty",
-              es: "Carrito vacío",
-              de: "Warenkorb leer",
-              fr: "Panier vide",
-              ja: "カートは空です",
-            },
-            language,
-          )}
+        <div className="lux-card p-6 rounded-2xl text-text-muted font-semibold flex flex-col items-center gap-6 py-16">
+          <span className="text-lg">{tOpt(UI_TEXT.cartEmpty, language)}</span>
+          <button
+            data-testid="start-order-btn"
+            onClick={() => navigate("/catalog")}
+            className="bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-3 px-8 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+          >
+            {tOpt(UI_TEXT.startOrder, language)}
+            <Icons.ArrowForward />
+          </button>
         </div>
       </div>
     );
@@ -350,8 +206,8 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black text-white font-sans mb-8">Checkout</h1>
-      <div className="text-gray-400 mb-8 -mt-6">Complete your details to enjoy the finest pizza experience.</div>
+      <h1 className="text-4xl font-black text-white font-sans mb-8">{tOpt(UI_TEXT.checkout, language)}</h1>
+      <div className="text-gray-400 mb-8 -mt-6">{tOpt(UI_TEXT.completeDetails, language)}</div>
 
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Left Column: Forms */}
@@ -361,13 +217,13 @@ export default function Checkout() {
           <div>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">1</div>
-              <h2 className="text-xl font-bold text-white tracking-widest uppercase">DELIVERY ADDRESS</h2>
+              <h2 className="text-xl font-bold text-white tracking-widest uppercase">{tOpt(UI_TEXT.deliveryAddress, language)}</h2>
             </div>
             
             <form id="checkout-form" onSubmit={onSubmit} className="space-y-6 pl-12">
               <div className="grid gap-6">
                 <div>
-                  <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Street & House Number</label>
+                  <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.streetPlaceholder, language)}</label>
                   <input
                     className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                     placeholder={tOpt({en:"123 Luxury Avenue", es:"Av. Reforma 123", de:"Musterstraße 123", fr:"123 Rue de la Paix", ja:"東京都渋谷区..."}, language)}
@@ -380,7 +236,7 @@ export default function Checkout() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {countryCode === "MX" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Colonia / Neighborhood</label>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.coloniaPlaceholder, language)}</label>
                       <input
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="Polanco"
@@ -393,7 +249,7 @@ export default function Checkout() {
 
                   {countryCode === "US" && (
                      <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Zip Code</label>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.zipPlaceholder, language)}</label>
                       <input
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="90210"
@@ -403,8 +259,6 @@ export default function Checkout() {
                       />
                     </div>
                   )}
-                   
-                   {/* Add other country fields similarly if needed */}
                 </div>
               </div>
 
@@ -412,12 +266,12 @@ export default function Checkout() {
               <div className="pt-8">
                 <div className="flex items-center gap-4 mb-6 -ml-12">
                   <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">2</div>
-                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">CONTACT INFO</h2>
+                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">{tOpt(UI_TEXT.contactInfo, language)}</h2>
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Full Name</label>
+                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.fullName, language)}</label>
                      <input
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="Julian Casablancas"
@@ -427,7 +281,7 @@ export default function Checkout() {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">Phone Number</label>
+                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.phone, language)}</label>
                      <input
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="+52 55 1234 5678"
@@ -443,27 +297,27 @@ export default function Checkout() {
               <div className="pt-8">
                 <div className="flex items-center gap-4 mb-6 -ml-12">
                   <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">3</div>
-                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">PAYMENT METHOD</h2>
+                  <h2 className="text-xl font-bold text-white tracking-widest uppercase">{tOpt(UI_TEXT.paymentMethod, language)}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <button type="button" className="p-4 rounded-2xl border border-[#FF5722] bg-[#1a1a1a] flex items-center gap-4 transition-all">
                     <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[#FF5722]">
-                       <span className="material-icons">credit_card</span>
+                       <Icons.CreditCard />
                     </div>
                     <div className="text-left">
-                       <div className="text-white font-bold">Credit Card</div>
-                       <div className="text-xs text-gray-500 uppercase">VISA, Mastercard, AMEX</div>
+                       <div className="text-white font-bold text-left">{tOpt(UI_TEXT.creditCard, language)}</div>
+                       <div className="text-xs text-gray-500 uppercase text-left">{tOpt(UI_TEXT.creditCardDesc, language)}</div>
                     </div>
                   </button>
 
                   <button type="button" className="p-4 rounded-2xl border border-[#333] bg-[#0F0F0F] flex items-center gap-4 hover:border-gray-600 transition-all opacity-60">
                     <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-gray-400">
-                       <span className="material-icons">local_atm</span>
+                       <Icons.Cash />
                     </div>
                     <div className="text-left">
-                       <div className="text-white font-bold">Cash</div>
-                       <div className="text-xs text-gray-500 uppercase">Pay on Delivery</div>
+                       <div className="text-white font-bold text-left">{tOpt(UI_TEXT.cash, language)}</div>
+                       <div className="text-xs text-gray-500 uppercase text-left">{tOpt(UI_TEXT.cashDesc, language)}</div>
                     </div>
                   </button>
                 </div>
@@ -475,55 +329,61 @@ export default function Checkout() {
         {/* Right Column: Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-[#121212] rounded-3xl p-8 border border-[#1F1F1F] sticky top-8">
-             <h2 className="text-2xl font-black text-white mb-8">Your Order</h2>
+             <h2 className="text-2xl font-black text-white mb-8">{tOpt(UI_TEXT.orderSummary, language)}</h2>
              
              <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((it) => (
                   <div key={it.id} className="flex gap-4 items-start relative group">
                      {/* Using generic pizza image for now, can be dynamic later */}
                      <div className="w-12 h-12 rounded-full bg-[#1F1F1F] flex-shrink-0 overflow-hidden">
-                       <img src={"https://omnipizza.onrender.com/static/images/pizza-1.png"} alt={it.pizza.name} className="w-full h-full object-cover" />
+                       <img src={it.pizza.image || "https://omnipizza.onrender.com/static/images/pizza-1.png"} alt={it.pizza.name} className="w-full h-full object-cover" />
                      </div>
                      <div className="flex-1">
                         <div className="text-white font-bold text-sm">{it.pizza.name}</div>
                         <div className="text-gray-500 text-xs">
                           {it.quantity}x • {tOpt(SIZE_OPTIONS.find(s => s.id === (it.config?.size || "small"))?.label, language)}
                         </div>
+                        <div className="flex gap-3 mt-1.5">
+                            <button 
+                                onClick={() => { setEditing(it); setEditOpen(true); }}
+                                className="text-[10px] font-bold text-gray-500 hover:text-[#FF5722] uppercase tracking-wider transition-colors"
+                            >
+                                {tOpt(UI_TEXT.edit, language)}
+                            </button>
+                            <button 
+                                onClick={() => removeItem(it.id)}
+                                className="text-[10px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-wider transition-colors"
+                            >
+                                {tOpt(UI_TEXT.remove, language)}
+                            </button>
+                        </div>
                      </div>
                      <div className="text-white font-bold text-sm">
                         {formatMoney(it.unit_price * it.quantity, it.currency, locale, it.currency_symbol)}
                      </div>
-                     
-                     <button 
-                       onClick={() => removeItem(it.id)}
-                       className="absolute -right-2 -top-2 w-5 h-5 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                     >
-                       ✕
-                     </button>
                   </div>
                 ))}
              </div>
 
              <div className="border-t border-[#1F1F1F] pt-4 space-y-3 mb-8">
                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>Subtotal</span>
+                    <span>{tOpt(UI_TEXT.subtotal, language)}</span>
                     <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
                  </div>
                  <div className="flex justify-between text-gray-400 text-sm">
-                    <span>Tax (8%)</span>
+                    <span>{tOpt(UI_TEXT.tax, language)} (8%)</span>
                     <span>$4.12</span>
                  </div>
                  <div className="flex justify-between text-[#FF5722] text-sm font-bold">
-                    <span>Delivery Fee</span>
-                    <span>Free</span>
+                    <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
+                    <span>{tOpt(UI_TEXT.free, language)}</span>
                  </div>
              </div>
 
              <div className="flex justify-between items-end mb-8">
-                 <div className="text-xl text-white font-black">Total</div>
+                 <div className="text-xl text-white font-black">{tOpt(UI_TEXT.total, language)}</div>
                  <div className="text-2xl text-white font-black">
                    {formatMoney(subtotal, currency, locale, symbol)} 
-                   {/* Note: Tax logic is backend side in this demo, showing subtotal as total for now or update if needed */}
                  </div>
              </div>
 
@@ -532,16 +392,22 @@ export default function Checkout() {
                 disabled={loading}
                 className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
              >
-                {loading ? "Processing..." : (
+                {loading ? tOpt(UI_TEXT.processing, language) : (
                   <>
-                    Place Order 
-                    <span className="material-icons text-sm">arrow_forward</span>
+                    {tOpt(UI_TEXT.placeOrder, language)}
+                    <Icons.ArrowForward />
                   </>
                 )}
              </button>
 
              <p className="text-center text-xs text-gray-600 mt-6 leading-relaxed">
-                By placing your order, you agree to OmniPizza's <a href="#" className="underline hover:text-gray-500">Terms of Service</a> and <a href="#" className="underline hover:text-gray-500">Privacy Policy</a>.
+                {tOpt(UI_TEXT.termsText, language)} 
+                {" "}
+                <a href="#" className="underline hover:text-gray-500">{tOpt(UI_TEXT.terms, language)}</a> 
+                {" "}
+                {tOpt(UI_TEXT.and, language)} 
+                {" "}
+                <a href="#" className="underline hover:text-gray-500">{tOpt(UI_TEXT.privacy, language)}</a>.
              </p>
           </div>
         </div>
@@ -550,8 +416,6 @@ export default function Checkout() {
       <PizzaCustomizerModal
         open={editOpen}
         pizza={editing?.pizza}
-        language={language}
-        locale={locale}
         initialConfig={editing?.config}
         onClose={() => setEditOpen(false)}
         onConfirm={(config) => {
