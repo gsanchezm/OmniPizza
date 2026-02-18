@@ -44,5 +44,15 @@
   "veggie": "Délice Végétarien",
   "meat": "Amateurs de Viande",
   "sides": "Accompagnements",
-  "searchPlaceholder": "Recherchez votre pizza préférée..."
+  "searchPlaceholder": "Recherchez votre pizza préférée...",
+  "liveTracking": "Suivi en direct",
+  "outForDelivery": "En cours de livraison",
+  "expectedArrival": "Arrivée prévue",
+  "min": "MIN",
+  "yourCourier": "VOTRE LIVREUR",
+  "driving": "Conduit un scooter argent",
+  "call": "Appeler",
+  "chat": "Discuter",
+  "orderDetails": "DÉTAILS DE LA COMMANDE",
+  "viewOrderDetails": "Voir les détails"
 }

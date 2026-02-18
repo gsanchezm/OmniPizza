@@ -44,5 +44,15 @@
   "veggie": "Veggie Delight",
   "meat": "Meat Lovers",
   "sides": "Sides & Drinks",
-  "searchPlaceholder": "Search your favorite pizza..."
+  "searchPlaceholder": "Search your favorite pizza...",
+  "liveTracking": "Live Tracking",
+  "outForDelivery": "Out for delivery",
+  "expectedArrival": "Expected arrival",
+  "min": "MIN",
+  "yourCourier": "YOUR COURIER",
+  "driving": "Driving a Silver Scooter",
+  "call": "Call",
+  "chat": "Chat",
+  "orderDetails": "ORDER DETAILS",
+  "viewOrderDetails": "View Order Details"
 }

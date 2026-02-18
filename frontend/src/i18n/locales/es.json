@@ -41,5 +41,15 @@
   "veggie": "Vegetarianas",
   "meat": "Amantes de la Carne",
   "sides": "Bebidas y Acompañantes",
-  "searchPlaceholder": "Busca tu pizza favorita..."
+  "searchPlaceholder": "Busca tu pizza favorita...",
+  "liveTracking": "Seguimiento en vivo",
+  "outForDelivery": "En camino",
+  "expectedArrival": "Llegada estimada",
+  "min": "MIN",
+  "yourCourier": "TU REPARTIDOR",
+  "driving": "Conduciendo scooter plata",
+  "call": "Llamar",
+  "chat": "Chat",
+  "orderDetails": "DETALLES DEL PEDIDO",
+  "viewOrderDetails": "Ver detalles"
 }

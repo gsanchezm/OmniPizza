@@ -41,5 +41,15 @@
   "veggie": "Vegetarisch",
   "meat": "Fleischliebhaber",
   "sides": "Beilagen & Getränke",
-  "searchPlaceholder": "Suche deine Lieblingspizza..."
+  "searchPlaceholder": "Suche deine Lieblingspizza...",
+  "liveTracking": "Live-Tracking",
+  "outForDelivery": "In Zustellung",
+  "expectedArrival": "Ankunft erwartet",
+  "min": "MIN",
+  "yourCourier": "IHR KURIER",
+  "driving": "Fährt Silberroller",
+  "call": "Anrufen",
+  "chat": "Chat",
+  "orderDetails": "BESTELLDETAILS",
+  "viewOrderDetails": "Details anzeigen"
 }

@@ -44,5 +44,15 @@
   "veggie": "ベジタリアン",
   "meat": "ミートラバー",
   "sides": "サイド＆ドリンク",
-  "searchPlaceholder": "お気に入りのピザを検索..."
+  "searchPlaceholder": "お気に入りのピザを検索...",
+  "liveTracking": "ライブトラッキング",
+  "outForDelivery": "配達中",
+  "expectedArrival": "到着予定",
+  "min": "分",
+  "yourCourier": "担当ドライバー",
+  "driving": "シルバースクーターで配達中",
+  "call": "電話",
+  "chat": "チャット",
+  "orderDetails": "注文詳細",
+  "viewOrderDetails": "詳細を見る"
 }
