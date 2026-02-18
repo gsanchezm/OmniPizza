@@ -1,18 +1,21 @@
-# OmniPizza QA Platform Tests
+# OmniPizza API Tests
 
-This directory contains automated tests for the OmniPizza API.
+This directory contains automated API integration tests for the OmniPizza platform, written in TypeScript using [Vitest](https://vitest.dev/).
 
-## Contract Tests
+## Prerequisites
 
-Contract tests validate that the API implementation matches its OpenAPI specification using [Schemathesis](https://schemathesis.readthedocs.io/).
+- Node.js >= 18
+- pnpm
+- OmniPizza backend running on `http://localhost:8000`
 
-### Setup
+## Setup
 
 ```bash
-pip install -r requirements.txt
+cd tests
+pnpm install
 ```
 
-### Running Tests
+## Running Tests
 
 Make sure the API is running first:
 
@@ -23,43 +26,53 @@ python main.py
 
 # In another terminal
 cd tests
-pytest test_contract.py -v
+pnpm test
 ```
 
-### What is Tested
-
-1. **Schema Validation**: All API responses match the OpenAPI spec
-2. **Authentication Flow**: Login, token generation, protected endpoints
-3. **Country-Specific Logic**: Field validations per country
-4. **User Behaviors**: All 5 test user types
-5. **Chaos Endpoints**: Debug/performance endpoints
-6. **Error Handling**: Proper error codes and messages
-
-### Test Reports
-
-Generate detailed HTML report:
+### Watch mode (re-runs on file changes)
 
 ```bash
-pytest test_contract.py --html=report.html --self-contained-html
+pnpm test:watch
 ```
 
-### Continuous Integration
+### Interactive UI
 
-These tests can be integrated into CI/CD pipelines:
-
-```yaml
-# Example GitHub Actions
-- name: Run Contract Tests
-  run: |
-    cd tests
-    pytest test_contract.py --junitxml=junit.xml
+```bash
+pnpm test:ui
 ```
+
+### Custom API URL
+
+```bash
+API_BASE_URL=http://your-api-host:8000 pnpm test
+```
+
+## What is Tested
+
+| Test Suite | Description |
+| :--- | :--- |
+| `POST /api/auth/login` | Login response structure (token, username, behavior) and invalid credentials |
+| `GET /api/pizzas validation` | Requires `X-Country-Code` header; returns pizza catalog |
+| `POST /api/checkout validation` | Requires authentication |
+| `User Behavior: Locked Out` | `locked_out_user` receives 403 |
+| `E2E Flow: Standard User` | Full flow: Login → Get Pizzas → Checkout → Verify Order |
+| `Country Specific Logic` | US checkout requires `zip_code`; validates acceptance with valid ZIP |
+| `Debug Endpoints` | Latency spike, CPU load (fibonacci), and metrics endpoints |
 
 ## Test Coverage
 
-- ✅ Authentication endpoints
-- ✅ Pizza catalog with multi-currency
-- ✅ Checkout flow with country validations
-- ✅ User behavior patterns
-- ✅ Debug/chaos endpoints
-- ✅ Error responses
+- Authentication endpoints
+- Pizza catalog with multi-currency
+- Checkout flow with country validations
+- User behavior patterns
+- Debug/chaos endpoints
+- Error responses
+
+## Legacy Python Tests
+
+The original Python contract tests (`test_contract.py`) using Schemathesis are still available in this directory for reference. To run them:
+
+```bash
+pip install -r requirements.txt
+pytest test_contract.py -v
+```
