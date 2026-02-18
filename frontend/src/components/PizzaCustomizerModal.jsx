@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../constants/pizza";
-import { computeUnitPrice } from "../utils/pizzaPricing";
+import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
 import { useCountryStore } from "../store";
 
 const t = (obj, lang) => obj?.[lang] || obj?.en || "";
@@ -14,11 +14,9 @@ function toNumber(v) {
   return 0;
 }
 
-// ✅ Soporta computeUnitPrice devolviendo número o devolviendo objeto
 function normalizeUnitPrice(result) {
   if (typeof result === "number") return result;
   if (result && typeof result === "object") {
-    // intenta campos típicos
     return (
       toNumber(result.unitPrice) ||
       toNumber(result.unit_price) ||
@@ -46,6 +44,18 @@ function formatMoney(value, currency, locale, symbol) {
   }
 }
 
+function formatMoneyInt(value, currency, locale, symbol) {
+  try {
+    return new Intl.NumberFormat(locale || "en-US", {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: 0, 
+    }).format(Number(value));
+  } catch {
+    return `${symbol || ""}${Math.round(Number(value) || 0)}`;
+  }
+}
+
 export default function PizzaCustomizerModal({
   open,
   onClose,
@@ -70,7 +80,7 @@ export default function PizzaCustomizerModal({
     requestAnimationFrame(() => {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
     });
-  }, [open, pizza?.id]); // reset al abrir o cambiar pizza
+  }, [open, pizza?.id]);
 
   const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
@@ -84,142 +94,147 @@ export default function PizzaCustomizerModal({
     setToppings((prev) => {
       const has = prev.includes(id);
       if (has) return prev.filter((x) => x !== id);
-      if (prev.length >= 10) return prev; // limit
+      if (prev.length >= 10) return prev; 
       return [...prev, id];
     });
   };
 
   if (!open || !pizza) return null;
 
-  // ✅ crash-safe strings (por si backend devuelve algo raro)
   const pizzaName = typeof pizza.name === "string" ? pizza.name : String(pizza.name ?? "");
   const currency = typeof pizza.currency === "string" ? pizza.currency : "USD";
   const currencySymbol =
     typeof pizza.currency_symbol === "string" ? pizza.currency_symbol : "";
 
+  // Helper text for topping cost
+  const toppingLocalInt = Math.round(getRateFromPizza(pizza) * 1);
+  const toppingLocalText = formatMoneyInt(
+    toppingLocalInt,
+    pizza.currency,
+    locale,
+    pizza.currency_symbol
+  );
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-
-      <div className="relative lux-card w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col max-h-[90dvh]">
-        {/* Header fijo */}
-        <div className="p-4 sm:p-6 border-b border-border bg-[rgba(0,0,0,0.25)] backdrop-blur">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-2xl font-black text-brand-primary font-sans">
-                {t(UI_STRINGS.title, language)}
-              </div>
-              <div className="text-text-muted font-semibold">{pizzaName}</div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-sm text-text-muted">{currency}</div>
-              <div className="text-3xl font-black text-text">
-                {formatMoney(unitPrice, currency, locale, currencySymbol)}
-              </div>
-            </div>
-          </div>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-black/90">
+      
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#121212] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[#1F1F1F]">
+        
+        {/* Header */}
+        <div className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+             <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+                 ✕
+             </button>
+             <h2 className="text-white font-bold text-lg drop-shadow-md">
+                 {t({en:"Customize Pizza", es:"Personalizar Pizza", de:"Pizza Anpassen", fr:"Personnaliser Pizza", ja:"ピザをカスタマイズ"}, language)}
+             </h2>
+             <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white">
+                 ⓘ
+             </div>
         </div>
 
-        {/* Body scrolleable */}
-        <div ref={scrollRef} className="p-4 sm:p-6 overflow-y-auto flex-1">
-          {/* Size */}
-          <div>
-            <div className="text-lg font-black text-text mb-2">
-              {t(UI_STRINGS.size, language)}
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {SIZE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setSize(opt.id)}
-                  className={[
-                    "px-4 py-3 rounded-xl border text-left font-extrabold transition",
-                    size === opt.id
-                      ? "bg-surface-2 border-brand-primary text-text"
-                      : "bg-[rgba(255,255,255,0.02)] border-border text-text-muted hover:text-text",
-                  ].join(" ")}
-                >
-                  {t(opt.label, language)}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Scrollable Content */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar bg-[#121212]">
+             
+             {/* Pizza Image Area */}
+             <div className="relative h-64 sm:h-72 w-full flex items-center justify-center bg-[#1a1a1a] overflow-hidden">
+                 {/* Radial Gradient Background */}
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#2A2A2A] to-[#121212]"></div>
+                 
+                 <img 
+                   src={"https://omnipizza.onrender.com/static/images/pizza-1.png"} 
+                   alt={pizzaName}
+                   className="w-56 h-56 object-cover drop-shadow-2xl transform hover:scale-105 transition-transform duration-500"
+                 />
+             </div>
 
-          {/* Toppings */}
-          <div className="mt-6">
-            <div className="flex items-end justify-between">
-              <div className="text-lg font-black text-text">
-                {t(UI_STRINGS.toppings, language)}
-              </div>
-              <div className="text-sm text-text-muted font-semibold">
-                {t(UI_STRINGS.upTo10, language)} • {toppings.length}/10
-              </div>
-            </div>
+             <div className="p-6 space-y-8">
+                 
+                 {/* Size Selector */}
+                 <div>
+                     <div className="flex justify-between items-center mb-4">
+                         <h3 className="text-white font-black text-xl">{t({en:"Choose Size", es:"Elige Tamaño", de:"Größe Wählen", fr:"Choisir Taille", ja:"サイズを選択"}, language)}</h3>
+                         <span className="text-[#FF5722] text-xs font-bold uppercase bg-[#FF5722]/10 px-2 py-1 rounded">{t({en:"Required", es:"Requerido", de:"Erforderlich", fr:"Requis", ja:"必須"}, language)}</span>
+                     </div>
+                     <div className="flex bg-[#1F1F1F] p-1 rounded-full">
+                         {SIZE_OPTIONS.map((opt) => {
+                             const isSelected = size === opt.id;
+                             return (
+                                 <button
+                                     key={opt.id}
+                                     onClick={() => setSize(opt.id)}
+                                     className={`flex-1 py-3 rounded-full text-sm font-bold transition-all ${isSelected ? 'bg-[#FF5722] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                 >
+                                     {t(opt.label, language)}
+                                 </button>
+                             );
+                         })}
+                     </div>
+                 </div>
 
-            <div className="mt-3 grid gap-4">
-              {TOPPING_GROUPS.map((g) => (
-                <div
-                  key={g.id}
-                  className="rounded-xl border border-border p-4 bg-surface-2"
-                >
-                  <div className="font-black text-text mb-3">
-                    {t(g.label, language)}
-                  </div>
+                 {/* Toppings Selector */}
+                 <div>
+                     <div className="flex justify-between items-center mb-4">
+                         <h3 className="text-white font-black text-xl">{t({en:"Add Toppings", es:"Agregar Toppings", de:"Beläge Hinzufügen", fr:"Ajouter Garnitures", ja:"トッピング追加"}, language)}</h3>
+                         <span className="text-gray-500 text-sm font-medium">+{toppingLocalText} {t({en:"each", es:"c/u", de:"pro stück", fr:"chacun", ja:"各"}, language)}</span>
+                     </div>
+                     
+                     <div className="grid grid-cols-3 gap-3">
+                         {TOPPING_GROUPS.flatMap(g => g.items).map((it) => {
+                             const isSelected = toppings.includes(it.id);
+                             return (
+                                 <button
+                                     key={it.id}
+                                     onClick={() => toggleTopping(it.id)}
+                                     disabled={!isSelected && toppings.length >= 10}
+                                     className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-2 border-2 transition-all relative overflow-hidden ${isSelected ? 'border-[#FF5722] bg-[#FF5722]/10' : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-gray-600'} ${(!isSelected && toppings.length >= 10) ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                 >
+                                     <div className={`w-12 h-12 rounded-full mb-2 flex items-center justify-center ${isSelected ? 'bg-[#FF5722]/20' : 'bg-[#2A2A2A]'}`}>
+                                         {/* Placeholder Icon/Image for Topping */}
+                                         <span className="text-xl">🧀</span> 
+                                     </div>
+                                     <span className={`text-xs font-bold text-center leading-tight ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                                         {t(it.label, language)}
+                                     </span>
+                                     
+                                     {isSelected && (
+                                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
+                                             ✓
+                                         </div>
+                                     )}
+                                 </button>
+                             );
+                         })}
+                     </div>
+                 </div>
 
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {g.items.map((it) => {
-                      const checked = toppings.includes(it.id);
-                      const disabled = !checked && toppings.length >= 10;
-                      return (
-                        <button
-                          key={it.id}
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => toggleTopping(it.id)}
-                          className={[
-                            "px-3 py-2 rounded-lg border text-left font-extrabold transition",
-                            checked
-                              ? "bg-brand-primary text-white border-brand-primary"
-                              : "bg-[rgba(255,255,255,0.02)] border-border text-text hover:bg-[rgba(255,255,255,0.05)]",
-                            disabled ? "opacity-50 cursor-not-allowed" : "",
-                          ].join(" ")}
-                        >
-                          {t(it.label, language)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="h-20" />
-          </div>
+                 {/* Spacer for bottom bar */}
+                 <div className="h-24"></div>
+             </div>
         </div>
 
-        {/* Footer fijo */}
-        <div className="p-4 sm:p-6 border-t border-border bg-[rgba(0,0,0,0.25)] backdrop-blur">
-          <div className="flex justify-end gap-3">
-            <button className="btn-ghost" type="button" onClick={onClose}>
-              {t(UI_STRINGS.cancel, language)}
-            </button>
-            <button
-              className="btn-primary"
-              type="button"
-              onClick={() =>
-                onConfirm({
-                  size,
-                  toppings,
-                  unit_price: unitPrice, // ✅ siempre número
-                })
-              }
-            >
-              {t(UI_STRINGS.confirm, language)}
-            </button>
-          </div>
+        {/* Floating Bottom Bar */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-[#121212] to-transparent pointer-events-none flex justify-center items-end h-32">
+             <div className="w-full bg-[#1F1F1F] rounded-2xl p-4 flex items-center justify-between shadow-2xl border border-[#333] pointer-events-auto">
+                 <div>
+                     <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">
+                         {t({en:"Estimated Total", es:"Total Estimado", de:"Geschätzter Gesamtbetrag", fr:"Total Estimé", ja:"推定合計"}, language)}
+                     </div>
+                     <div className="text-white text-2xl font-black">
+                         {formatMoney(unitPrice, currency, locale, currencySymbol)}
+                     </div>
+                 </div>
+                 
+                 <button 
+                     onClick={() => onConfirm({ size, toppings, unit_price: unitPrice })}
+                     className="bg-[#FF5722] hover:bg-[#E64A19] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+                 >
+                     {t({en:"Add to Cart", es:"Agregar", de:"Hinzufügen", fr:"Ajouter", ja:"追加"}, language)}
+                     <span className="material-icons text-sm">shopping_bag</span>
+                 </button>
+             </div>
         </div>
+
       </div>
     </div>
   );
