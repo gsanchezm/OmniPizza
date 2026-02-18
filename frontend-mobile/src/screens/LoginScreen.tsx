@@ -30,14 +30,23 @@ const TEST_USERS = [
   { id: "error_user", label: "Error" },
 ];
 
+const MARKETS = [
+  { code: "US", flag: "🇺🇸" },
+  { code: "MX", flag: "🇲🇽" },
+  { code: "CH", flag: "🇨🇭" },
+  { code: "JP", flag: "🇯🇵" },
+] as const;
+
 export default function LoginScreen({ navigation }: any) {
   const [username, setUsername] = useState("standard_user");
   const [password, setPassword] = useState("pizza123");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedMarket, setSelectedMarket] = useState<"US" | "MX" | "CH" | "JP">("US");
 
   const setToken = useAppStore((s) => s.setToken);
   const token = useAppStore((s) => s.token);
+  const setCountry = useAppStore((s) => s.setCountry);
 
   useEffect(() => {
     if (token) {
@@ -54,6 +63,7 @@ export default function LoginScreen({ navigation }: any) {
       
       const data = await authService.login(username, password);
       if (data && data.access_token) {
+        setCountry(selectedMarket);
         setToken(data.access_token);
       } else {
         setError("Invalid credentials.");
@@ -107,30 +117,6 @@ export default function LoginScreen({ navigation }: any) {
                 <Text style={styles.subtitle}>Login to order your favorites.</Text>
               </View>
 
-// ... imports
-import { Colors } from "../theme/colors";
-import { authService } from "../services/auth.service";
-
-const { height } = Dimensions.get("window");
-
-const MARKETS = [
-  { code: "US", flag: "🇺🇸" },
-  { code: "MX", flag: "🇲🇽" },
-  { code: "CH", flag: "🇨🇭" },
-  { code: "JP", flag: "🇯🇵" },
-] as const;
-
-// ... inside component
-  const [selectedMarket, setSelectedMarket] = useState<"US" | "MX" | "CH" | "JP">("US");
-  const setCountry = useAppStore((s) => s.setCountry); // Ensure this action exists in store
-
-  // ... handleLogin
-      const data = await authService.login(username, password);
-      if (data && data.access_token) {
-        setCountry(selectedMarket); // Update store with selected market
-        setToken(data.access_token);
-      } else {
-  // ... render
               {/* Inputs */}
               <View style={styles.inputs}>
                 <ThemedInput
@@ -170,6 +156,9 @@ const MARKETS = [
 
               {/* Error Message */}
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+              {/* Actions */}
+              <View style={styles.actions}>
                 <PrimaryButton 
                   title={loading ? "Signing In..." : "Sign In"} 
                   onPress={handleLogin} 
