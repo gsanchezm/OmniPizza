@@ -27,7 +27,7 @@ export default function Login() {
   const setCountryCode = useCountryStore((s) => s.setCountryCode);
   
   // Defaulting to US for the "clean" login
-  const selectedMarket = "US";
+  const [selectedMarket, setSelectedMarket] = useState("US");
 
   if (token) {
     return <Navigate to="/catalog" replace />;
@@ -143,15 +143,40 @@ export default function Login() {
               }
             />
 
+            {/* Market Selection */}
+            <div className="flex justify-center gap-4 py-2">
+              {[
+                { code: "US", flag: "🇺🇸", label: "US" },
+                { code: "MX", flag: "🇲🇽", label: "MX" },
+                { code: "CH", flag: "🇨🇭", label: "CH" },
+                { code: "JP", flag: "🇯🇵", label: "JP" },
+              ].map((m) => (
+                <button
+                  key={m.code}
+                  type="button"
+                  onClick={() => setSelectedMarket(m.code)}
+                  className={`
+                    w-10 h-10 flex items-center justify-center rounded-full text-xl transition-all
+                    ${selectedMarket === m.code 
+                      ? "bg-[#FF5722] ring-2 ring-[#FF5722] ring-offset-2 ring-offset-[#0F0F0F] scale-110" 
+                      : "bg-[#1F1F1F] hover:bg-[#2A2A2A] grayscale opacity-70 hover:grayscale-0 hover:opacity-100"}
+                  `}
+                  title={`Select ${m.label}`}
+                >
+                  {m.flag}
+                </button>
+              ))}
+            </div>
+
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-medium">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-medium text-center">
                 {error}
               </div>
             )}
 
             <PrimaryButton type="submit" fullWidth disabled={loading}>
               {loading ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                   <span>Signing In...</span>
                 </div>

@@ -107,6 +107,30 @@ export default function LoginScreen({ navigation }: any) {
                 <Text style={styles.subtitle}>Login to order your favorites.</Text>
               </View>
 
+// ... imports
+import { Colors } from "../theme/colors";
+import { authService } from "../services/auth.service";
+
+const { height } = Dimensions.get("window");
+
+const MARKETS = [
+  { code: "US", flag: "🇺🇸" },
+  { code: "MX", flag: "🇲🇽" },
+  { code: "CH", flag: "🇨🇭" },
+  { code: "JP", flag: "🇯🇵" },
+] as const;
+
+// ... inside component
+  const [selectedMarket, setSelectedMarket] = useState<"US" | "MX" | "CH" | "JP">("US");
+  const setCountry = useAppStore((s) => s.setCountry); // Ensure this action exists in store
+
+  // ... handleLogin
+      const data = await authService.login(username, password);
+      if (data && data.access_token) {
+        setCountry(selectedMarket); // Update store with selected market
+        setToken(data.access_token);
+      } else {
+  // ... render
               {/* Inputs */}
               <View style={styles.inputs}>
                 <ThemedInput
@@ -125,11 +149,27 @@ export default function LoginScreen({ navigation }: any) {
                 />
               </View>
 
+              {/* Market Selection */}
+              <View style={styles.marketRow}>
+                {MARKETS.map((m) => {
+                  const isActive = selectedMarket === m.code;
+                  return (
+                    <TouchableOpacity
+                      key={m.code}
+                      onPress={() => setSelectedMarket(m.code)}
+                      style={[
+                        styles.flagBtn,
+                        isActive && styles.flagBtnActive
+                      ]}
+                    >
+                      <Text style={[styles.flagText, isActive && { opacity: 1 }]}>{m.flag}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
               {/* Error Message */}
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-              {/* Actions */}
-              <View style={styles.actions}>
                 <PrimaryButton 
                   title={loading ? "Signing In..." : "Sign In"} 
                   onPress={handleLogin} 
@@ -283,5 +323,31 @@ const styles = StyleSheet.create({
     color: Colors.text.muted,
     fontSize: 12,
     fontWeight: "600",
+  },
+  marketRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    marginBottom: 24,
+  },
+  flagBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.surface.base2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.surface.border,
+    opacity: 0.6,
+  },
+  flagBtnActive: {
+    backgroundColor: Colors.brand.primary,
+    borderColor: Colors.brand.primary,
+    opacity: 1,
+    transform: [{ scale: 1.1 }],
+  },
+  flagText: {
+    fontSize: 20,
   },
 });
