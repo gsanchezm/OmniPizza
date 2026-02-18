@@ -3,22 +3,32 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   ImageBackground,
   Dimensions,
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedInput } from "../components/ThemedInput";
 import { PrimaryButton } from "../components/PrimaryButton";
-import { SocialButton } from "../components/SocialButton";
 import { Colors } from "../theme/colors";
+import { authService } from "../services/auth.service";
 
 const { height } = Dimensions.get("window");
+
+const TEST_USERS = [
+  { id: "standard_user", label: "Standard" },
+  { id: "locked_out_user", label: "Locked" },
+  { id: "problem_user", label: "Problem" },
+  { id: "performance_glitch_user", label: "Glitch" },
+  { id: "error_user", label: "Error" },
+];
 
 export default function LoginScreen({ navigation }: any) {
   const [username, setUsername] = useState("standard_user");
@@ -26,28 +36,30 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const login = useAppStore((s) => s.login);
-  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const setToken = useAppStore((s) => s.setToken);
+  const token = useAppStore((s) => s.token);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (token) {
       navigation.replace("Main");
     }
-  }, [isAuthenticated]);
+  }, [token]);
 
   const handleLogin = async () => {
     setError("");
     setLoading(true);
     try {
-      // Small delay to simulate network/interaction (since auth is mocked or fast)
+      // Small delay for UX
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const success = await login(username, password);
-      if (!success) {
-        setError("Invalid credentials or user locked out.");
+      const data = await authService.login(username, password);
+      if (data && data.access_token) {
+        setToken(data.access_token);
+      } else {
+        setError("Invalid credentials.");
       }
     } catch (e: any) {
-      setError(e.message || "Login failed");
+      setError(e.response?.data?.detail || e.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -80,73 +92,74 @@ export default function LoginScreen({ navigation }: any) {
         style={styles.content}
       >
         <SafeAreaView style={styles.safeArea}>
-          <View style={styles.formContainer}>
-            
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.logoBadge}>
-                 <Text style={styles.logoIcon}>🍕</Text>
-              </View>
-              <Text style={styles.appName}>OmniPizza</Text>
-              <Text style={styles.welcomeTitle}>Welcome back!</Text>
-              <Text style={styles.subtitle}>Login to order your favorites.</Text>
-            </View>
-
-            {/* Inputs */}
-            <View style={styles.inputs}>
-              <ThemedInput
-                label="Email Address"
-                value={username}
-                onChangeText={setUsername}
-                placeholder="standard_user"
-                autoCapitalize="none"
-              />
-              <ThemedInput
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                secureTextEntry
-              />
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.formContainer}>
               
-              <TouchableOpacity style={styles.forgotBtn}>
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Error Message */}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-            {/* Actions */}
-            <View style={styles.actions}>
-              <PrimaryButton 
-                title={loading ? "Signing In..." : "Sign In"} 
-                onPress={handleLogin} 
-                loading={loading}
-              />
-            </View>
-
-            {/* Social / Test Users */}
-            <View style={styles.socialSection}>
-              <View style={styles.divider}>
-                <View style={styles.line} />
-                <Text style={styles.orText}>OR CONTINUE WITH</Text>
-                <View style={styles.line} />
+              {/* Header */}
+              <View style={styles.header}>
+                <Image 
+                  source={{ uri: "https://omnipizza-frontend.onrender.com/omnipizza-logo.png" }}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.appName}>OmniPizza</Text>
+                <Text style={styles.welcomeTitle}>Welcome back!</Text>
+                <Text style={styles.subtitle}>Login to order your favorites.</Text>
               </View>
-              
-              <View style={styles.grid}>
-                 <SocialButton label="Google" onPress={() => fillUser('problem_user')} />
-                 <SocialButton label="GitHub" onPress={() => fillUser('error_user')} />
-              </View>
-            </View>
-            
-            <TouchableOpacity style={styles.registerLink}>
-              <Text style={styles.registerText}>
-                New here? <Text style={styles.registerTextBold}>Register Now</Text>
-              </Text>
-            </TouchableOpacity>
 
-          </View>
+              {/* Inputs */}
+              <View style={styles.inputs}>
+                <ThemedInput
+                  label="Email Address"
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="standard_user"
+                  autoCapitalize="none"
+                />
+                <ThemedInput
+                  label="Password"
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="••••••••"
+                  secureTextEntry
+                />
+              </View>
+
+              {/* Error Message */}
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+              {/* Actions */}
+              <View style={styles.actions}>
+                <PrimaryButton 
+                  title={loading ? "Signing In..." : "Sign In"} 
+                  onPress={handleLogin} 
+                  loading={loading}
+                />
+              </View>
+
+              {/* Quick Login Pills */}
+              <View style={styles.quickLoginSection}>
+                <View style={styles.divider}>
+                  <View style={styles.line} />
+                  <Text style={styles.orText}>QUICK LOGIN</Text>
+                  <View style={styles.line} />
+                </View>
+                
+                <View style={styles.pillsRow}>
+                  {TEST_USERS.map((u) => (
+                    <TouchableOpacity 
+                      key={u.id} 
+                      style={styles.pill} 
+                      onPress={() => fillUser(u.id)}
+                    >
+                      <Text style={styles.pillText}>{u.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+            </View>
+          </ScrollView>
         </SafeAreaView>
       </KeyboardAvoidingView>
     </View>
@@ -180,10 +193,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "flex-end",
   },
   safeArea: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "flex-end",
   },
   formContainer: {
@@ -195,21 +210,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 32,
   },
-  logoBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: Colors.brand.primary,
-    alignItems: "center",
-    justifyContent: "center",
+  logoImage: {
+    width: 64,
+    height: 64,
     marginBottom: 16,
-    shadowColor: Colors.brand.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-  },
-  logoIcon: {
-    fontSize: 28,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   appName: {
     fontSize: 20,
@@ -228,16 +234,7 @@ const styles = StyleSheet.create({
     color: Colors.text.muted,
   },
   inputs: {
-    marginBottom: 16,
-  },
-  forgotBtn: {
-    alignSelf: "flex-end",
     marginBottom: 24,
-  },
-  forgotText: {
-    color: Colors.brand.primary,
-    fontWeight: "700",
-    fontSize: 14,
   },
   errorText: {
     color: Colors.danger,
@@ -248,13 +245,13 @@ const styles = StyleSheet.create({
   actions: {
     marginBottom: 32,
   },
-  socialSection: {
-    marginBottom: 32,
+  quickLoginSection: {
+    marginBottom: 16,
   },
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   line: {
     flex: 1,
@@ -268,19 +265,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
   },
-  grid: {
+  pillsRow: {
     flexDirection: "row",
-    gap: 16,
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
   },
-  registerLink: {
-    alignItems: "center",
+  pill: {
+    backgroundColor: Colors.surface.base2,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.surface.border,
   },
-  registerText: {
+  pillText: {
     color: Colors.text.muted,
-    fontSize: 14,
-  },
-  registerTextBold: {
-    color: Colors.brand.primary,
-    fontWeight: "800",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
