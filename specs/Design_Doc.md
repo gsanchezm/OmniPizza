@@ -54,7 +54,7 @@ graph TD
 
 ### 4.2. Key Modules
 *   **Market Selector:** A critical component that sets the global context (Currency, Language, Validation Rules) before the user enters the main app flow.
-*   **Dynamic Checkout:** A form component that renders different input fields and applies different validation schemas (Zod or Yup) based on the active `countryCode`.
+*   **Dynamic Checkout:** A form component that renders different input fields based on the active `countryCode` (MX: colonia, US: zip_code, CH: plz, JP: prefectura). Includes a payment method toggle (Credit Card / Cash) that conditionally shows/hides credit card input fields (Cardholder, Card Number, Expiry, CVV). Phone input includes `type="tel"` validation.
 *   **Testability:** A strict convention of applying `data-testid` attributes to all interactive elements (buttons, inputs, cards) to support Selenium/Cypress selectors.
 
 ## 5. Mobile Design (React Native)
@@ -111,4 +111,6 @@ graph TD
 *   **Docker**: Used for consistent local development and as the deployment artifact format.
 
 ### 7.2. Continuous Integration
-*   **Tests**: Contract tests using Schemathesis run against the OpenAPI spec to ensure backend reliability.
+*   **API Integration Tests**: TypeScript tests using Vitest validate auth, catalog, checkout flows (all 4 markets), user behaviors, and debug endpoints (`tests/api.test.ts`).
+*   **Contract Tests (Legacy)**: Schemathesis validates API compliance against the OpenAPI spec.
+*   **Mobile CI**: GitHub Actions workflow builds Android APK and iOS IPA, with release asset uploads via `softprops/action-gh-release@v2`.

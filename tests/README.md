@@ -56,7 +56,7 @@ API_BASE_URL=http://your-api-host:8000 pnpm test
 | `POST /api/checkout validation` | Requires authentication |
 | `User Behavior: Locked Out` | `locked_out_user` receives 403 |
 | `E2E Flow: Standard User` | Full flow: Login → Get Pizzas → Checkout → Verify Order |
-| `Country Specific Logic` | US checkout requires `zip_code`; validates acceptance with valid ZIP |
+| `Country Specific Logic` | US requires `zip_code`, CH requires `plz`, JP requires `prefectura`; validates rejection without and acceptance with valid fields |
 | `Debug Endpoints` | Latency spike, CPU load (fibonacci), and metrics endpoints |
 
 ## Test Coverage

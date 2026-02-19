@@ -83,8 +83,17 @@ Se hace un uso extensivo de pesos altos para transmitir solidez y confianza.
 *   **Border Radius:** `12px`.
 *   **Padding:** `12px`.
 *   **Color Texto:** Blanco.
+*   **Focus State:** Borde cambia a Primary (`#FF5722`) con transición suave.
 
-### 4.4. Chips / Etiquetas
+### 4.4. Toggle de Método de Pago
+Botones de selección para Tarjeta de Crédito / Efectivo:
+*   **Activo:** Borde `#FF5722`, fondo `#1A1A1A`, opacidad 100%.
+*   **Inactivo:** Borde `#333`, fondo `#0F0F0F`, opacidad 60%, `hover:opacity-100`.
+*   **Layout:** Grid de 2 columnas, cada botón con icono (SVG) + texto + descripción.
+*   **Tarjeta de Crédito (formulario condicional):** Cuando está seleccionada, muestra campos: Nombre del Titular, Número de Tarjeta, Fecha de Expiración (MM/YY), CVV. Todos los campos son obligatorios.
+*   **Efectivo:** Oculta el formulario de tarjeta.
+
+### 4.5. Chips / Etiquetas
 Elemento característico para categorías o selección de opciones.
 *   **Background:** `#FF5722` (Primary).
 *   **Forma:** Pill / Capsula (`borderRadius: 999px`).

@@ -86,9 +86,11 @@ These headers are automatically sent by the **Web** and **Mobile** clients.
 - After login, market is no longer changeable from app navigation.
 
 ### Payment (UI simulation)
-Checkout supports:
-- **Online (Card)** — UI form only (card details are **not sent** to backend)
-- **On delivery** — Cash / Card
+Checkout supports two selectable payment methods:
+- **Credit Card** — Displays a full card form (Cardholder Name, Card Number, Expiry, CVV). Card details are **UI-only** and are **not sent** to the backend.
+- **Cash on Delivery** — Hides the card form; order is placed without card details.
+
+The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` for automation.
 
 ### Profile (Delivery Details)
 The **Profile** page stores delivery details (name/address/phone) and **auto-fills Checkout**.
@@ -114,18 +116,18 @@ OmniPizza/
 ├── backend/          # FastAPI backend (in-memory DB)
 ├── frontend/         # React + Vite + Tailwind web app
 ├── frontend-mobile/  # React Native / Expo mobile app
-├── tests/            # Contract tests (Schemathesis)
+├── tests/            # API integration tests (Vitest + TypeScript)
+├── specs/            # PRD, Design Specs, Tech Stack
 └── docs/             # Project Documentation
-    └── specs/        # PRD, Design Specs, Tech Stack
 ```
 
 ## Project Documentation
-Detailed specifications for the project can be found in `docs/specs/`:
+Detailed specifications for the project can be found in `specs/`:
 
-- **[Product Requirements (PRD)](docs/specs/Product_Requirement_Doc.md):** User personas, functional requirements, and chaos behaviors.
-- **[Design Document](docs/specs/Design_Doc.md):** System architecture, data flow, and "Chaos Middleware" design.
-- **[UI Design System](docs/specs/UI_Design_Doc.md):** "Dark Premium" aesthetic, color palette, typography, and component specs.
-- **[Tech Stack](docs/specs/Tech_Stack_Doc.md):** Technology choices and justification (FastAPI, React, Zustand, etc.).
+- **[Product Requirements (PRD)](specs/Product_Requirement_Doc.md):** User personas, functional requirements, and chaos behaviors.
+- **[Design Document](specs/Design_Doc.md):** System architecture, data flow, and "Chaos Middleware" design.
+- **[UI Design System](specs/UI_Design_Doc.md):** "Dark Premium" aesthetic, color palette, typography, and component specs.
+- **[Tech Stack](specs/Tech_Stack_Doc.md):** Technology choices and justification (FastAPI, React, Zustand, etc.).
 
 ---
 
@@ -172,9 +174,32 @@ npm run ios   # or npm run android
 
 ---
 
+## API Tests (Vitest)
+
+The `tests/` directory contains automated API integration tests written in **TypeScript** with **Vitest**.
+
+```bash
+cd tests
+pnpm install
+pnpm test           # Run all tests
+pnpm test:watch     # Watch mode
+pnpm test:ui        # Interactive UI
+```
+
+Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
+
+**Test suites:** Auth login, Pizza catalog, Checkout validation, Locked-out user, E2E standard flow, Country-specific logic (MX/US/CH/JP), Debug endpoints.
+
+> Legacy Python contract tests (Schemathesis) are also available — see `tests/README.md`.
+
+---
+
 ## Automation notes
 - `/api/pizzas` requires `X-Country-Code` header for market pricing.
 - Use the test users to validate reliability and chaos behaviors.
+- All interactive elements have `data-testid` attributes for stable selectors.
+- Checkout form fields are dynamic per market — ensure automation handles conditional rendering.
+- Phone input uses `type="tel"` with pattern validation (`7-20 digits/spaces/+/-`).
 
 ---
 

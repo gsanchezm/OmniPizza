@@ -48,8 +48,11 @@ The application provides specific user accounts with predefined behaviors to sim
 *   **Validation:** Client-side and server-side validation for required fields.
 *   **Order Placement:** Users can submit an order. Successful orders display a confirmation screen.
 *   **Payment Simulation:**
-    *   Credit Card (UI only, no actual processing).
-    *   Pay on Delivery (Cash/Card).
+    *   **Credit Card:** Selectable via toggle. Displays a card form with fields: Cardholder Name, Card Number, Expiry Date (MM/YY), and CVV. All fields are required when card is selected. Card data is UI-only and is **not** sent to the backend.
+    *   **Cash on Delivery:** Selectable via toggle. Hides the card form; no card details are required.
+    *   Payment method buttons use `data-testid="payment-card"` and `data-testid="payment-cash"`.
+*   **Phone Validation:** Phone input uses `type="tel"` with pattern validation (7-20 characters: digits, spaces, +, -, parentheses). Invalid input shows a localized validation message.
+*   **Empty Cart:** When the cart is empty, the checkout page displays a "Start Your Order" button that navigates back to the catalog.
 *   **Chaos:** The `error_user` should experience random failures during checkout submission.
 
 ### 4.5. User Profile

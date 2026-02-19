@@ -13,7 +13,16 @@ This document outlines the technology decisions made for the OmniPizza platform.
 | **Authentication** | PyJWT | Latest | Standard solution for stateless JWT authentication. |
 | **Server** | Uvicorn | Latest | Lightning-fast ASGI server implementation. |
 | **Testing** | Pytest | Latest | Industry standard testing framework for Python. |
-| **Contract Testing**| Schemathesis | Latest | Validates API compliance against the generated OpenAPI schema. |
+| **Contract Testing**| Schemathesis | Latest | Validates API compliance against the generated OpenAPI schema (legacy). |
+
+## 2.1. API Integration Testing (TypeScript)
+
+| Category | Technology | Version | Justification |
+| :--- | :--- | :--- | :--- |
+| **Language** | TypeScript | 5.x | Type safety for test code, consistent with mobile codebase. |
+| **Test Runner** | Vitest | Latest | Fast, ESM-native test runner with watch mode and interactive UI. |
+| **HTTP Client** | Axios | Latest | Consistent with frontend clients, supports interceptors. |
+| **Package Manager** | pnpm | Latest | Fast, disk-efficient package management. |
 
 ## 3. Frontend Web Stack
 
@@ -61,3 +70,5 @@ This document outlines the technology decisions made for the OmniPizza platform.
 The project makes heavy use of:
 *   **`data-testid`**: A convention for reliable DOM selection in automated tests.
 *   **Chaos Middleware**: Custom code to inject faults (latency, errors) for testing robustness.
+*   **Vitest API Tests** (`tests/api.test.ts`): TypeScript integration tests covering auth, catalog, checkout (all 4 markets), user behaviors, and debug endpoints.
+*   **Schemathesis** (legacy): Python-based contract tests validating API against OpenAPI spec.

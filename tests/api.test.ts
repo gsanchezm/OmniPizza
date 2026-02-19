@@ -238,6 +238,122 @@ describe('Country Specific Logic', () => {
 
     expect(res.status).toBe(200);
   });
+
+  it('should reject CH checkout without plz', async () => {
+    const chRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'CH'),
+    });
+    const chPizzaId = chRes.data.pizzas[0].id;
+
+    try {
+      await axios.post(
+        `${API_URL}/api/checkout`,
+        {
+          country_code: 'CH',
+          items: [{ pizza_id: chPizzaId, quantity: 1 }],
+          name: 'Test User',
+          address: 'Bahnhofstrasse 1',
+          phone: '+41441234567',
+          // Missing plz
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(400);
+    }
+  });
+
+  it('should accept CH checkout with valid plz', async () => {
+    const chRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'CH'),
+    });
+    const chPizzaId = chRes.data.pizzas[0].id;
+
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'CH',
+        items: [{ pizza_id: chPizzaId, quantity: 1 }],
+        name: 'Test User',
+        address: 'Bahnhofstrasse 1',
+        phone: '+41441234567',
+        plz: '8001',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    expect(res.status).toBe(200);
+  });
+
+  it('should reject JP checkout without prefectura', async () => {
+    const jpRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'JP'),
+    });
+    const jpPizzaId = jpRes.data.pizzas[0].id;
+
+    try {
+      await axios.post(
+        `${API_URL}/api/checkout`,
+        {
+          country_code: 'JP',
+          items: [{ pizza_id: jpPizzaId, quantity: 1 }],
+          name: 'Test User',
+          address: 'Shibuya 1-2-3',
+          phone: '+81312345678',
+          // Missing prefectura
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(400);
+    }
+  });
+
+  it('should accept JP checkout with valid prefectura', async () => {
+    const jpRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'JP'),
+    });
+    const jpPizzaId = jpRes.data.pizzas[0].id;
+
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'JP',
+        items: [{ pizza_id: jpPizzaId, quantity: 1 }],
+        name: 'Test User',
+        address: 'Shibuya 1-2-3',
+        phone: '+81312345678',
+        prefectura: 'Tokyo',
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    expect(res.status).toBe(200);
+  });
 });
 
 // ---------------------------------------------------------------------------
