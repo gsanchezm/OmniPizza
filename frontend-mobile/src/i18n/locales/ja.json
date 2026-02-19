@@ -86,5 +86,11 @@
   "confirmPay": "確認して支払う",
   "goToMenu": "メニューへ",
   "colonia": "地区",
-  "zipCode": "郵便番号"
+  "zipCode": "郵便番号",
+  "cardHolder": "カード名義人",
+  "cardNumber": "カード番号",
+  "cardExpiry": "有効期限",
+  "cvv": "CVV",
+  "plz": "郵便番号",
+  "prefecture": "都道府県"
 }

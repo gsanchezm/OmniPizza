@@ -43,6 +43,10 @@ export default function CheckoutScreen({ navigation }: any) {
     zip_code: "90027",
     plz: "",
     prefectura: "",
+    card_holder: "",
+    card_number: "",
+    card_expiry: "",
+    card_cvv: "",
   });
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
@@ -118,6 +122,85 @@ export default function CheckoutScreen({ navigation }: any) {
             </View>
         </View>
 
+        {/* Country-specific fields */}
+        {country === 'MX' && (
+          <View style={{marginTop: 12}}>
+            <Text style={styles.cardFieldLabel}>{t("colonia")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="Polanco"
+              placeholderTextColor="#555"
+              value={form.colonia}
+              onChangeText={(v) => setForm(p => ({ ...p, colonia: v }))}
+            />
+          </View>
+        )}
+        {country === 'US' && (
+          <View style={{marginTop: 12}}>
+            <Text style={styles.cardFieldLabel}>{t("zipCode")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="90210"
+              placeholderTextColor="#555"
+              keyboardType="number-pad"
+              value={form.zip_code}
+              onChangeText={(v) => setForm(p => ({ ...p, zip_code: v }))}
+            />
+          </View>
+        )}
+        {country === 'CH' && (
+          <View style={{marginTop: 12}}>
+            <Text style={styles.cardFieldLabel}>{t("plz")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="8001"
+              placeholderTextColor="#555"
+              value={form.plz}
+              onChangeText={(v) => setForm(p => ({ ...p, plz: v }))}
+            />
+          </View>
+        )}
+        {country === 'JP' && (
+          <View style={{marginTop: 12}}>
+            <Text style={styles.cardFieldLabel}>{t("prefecture")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="東京都"
+              placeholderTextColor="#555"
+              value={form.prefectura}
+              onChangeText={(v) => setForm(p => ({ ...p, prefectura: v }))}
+            />
+          </View>
+        )}
+
+        {/* Contact Info */}
+        <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t("contactInfo")}</Text>
+        </View>
+        <View style={{gap: 12}}>
+          <View>
+            <Text style={styles.cardFieldLabel}>{t("fullName")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="Julian Casablancas"
+              placeholderTextColor="#555"
+              value={form.name}
+              onChangeText={(v) => setForm(p => ({ ...p, name: v }))}
+            />
+          </View>
+          <View>
+            <Text style={styles.cardFieldLabel}>{t("phone")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="+52 55 1234 5678"
+              placeholderTextColor="#555"
+              keyboardType="phone-pad"
+              value={form.phone}
+              onChangeText={(v) => setForm(p => ({ ...p, phone: v }))}
+            />
+          </View>
+        </View>
+
         {/* Payment Method */}
         <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t("paymentMethod")}</Text>
@@ -139,7 +222,7 @@ export default function CheckoutScreen({ navigation }: any) {
             </View>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
             style={[styles.paymentCard, paymentMethod === 'cash' && styles.paymentCardActive]}
             onPress={() => setPaymentMethod('cash')}
         >
@@ -154,6 +237,60 @@ export default function CheckoutScreen({ navigation }: any) {
                 {paymentMethod === 'cash' && <View style={styles.radioInner} />}
             </View>
         </TouchableOpacity>
+
+        {paymentMethod === 'card' && (
+          <View style={styles.cardFields}>
+            <View>
+              <Text style={styles.cardFieldLabel}>{t("cardHolder")}</Text>
+              <TextInput
+                style={styles.cardInput}
+                placeholder="Julian Casablancas"
+                placeholderTextColor="#555"
+                value={form.card_holder}
+                onChangeText={(v) => setForm(p => ({ ...p, card_holder: v }))}
+              />
+            </View>
+            <View>
+              <Text style={styles.cardFieldLabel}>{t("cardNumber")}</Text>
+              <TextInput
+                style={styles.cardInput}
+                placeholder="4242 4242 4242 4242"
+                placeholderTextColor="#555"
+                keyboardType="number-pad"
+                maxLength={19}
+                value={form.card_number}
+                onChangeText={(v) => setForm(p => ({ ...p, card_number: v }))}
+              />
+            </View>
+            <View style={{flexDirection: 'row', gap: 12}}>
+              <View style={{flex: 1}}>
+                <Text style={styles.cardFieldLabel}>{t("cardExpiry")}</Text>
+                <TextInput
+                  style={styles.cardInput}
+                  placeholder="MM/YY"
+                  placeholderTextColor="#555"
+                  keyboardType="number-pad"
+                  maxLength={5}
+                  value={form.card_expiry}
+                  onChangeText={(v) => setForm(p => ({ ...p, card_expiry: v }))}
+                />
+              </View>
+              <View style={{flex: 1}}>
+                <Text style={styles.cardFieldLabel}>{t("cvv")}</Text>
+                <TextInput
+                  style={styles.cardInput}
+                  placeholder="123"
+                  placeholderTextColor="#555"
+                  keyboardType="number-pad"
+                  maxLength={4}
+                  secureTextEntry
+                  value={form.card_cvv}
+                  onChangeText={(v) => setForm(p => ({ ...p, card_cvv: v }))}
+                />
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Order Summary */}
         <View style={styles.sectionHeader}>
@@ -452,5 +589,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '700',
+  },
+  cardFields: {
+    gap: 16,
+    marginBottom: 8,
+  },
+  cardFieldLabel: {
+    color: '#666',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  cardInput: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#333',
+    color: 'white',
+    fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
 });

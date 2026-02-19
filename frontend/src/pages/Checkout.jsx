@@ -75,9 +75,16 @@ const UI_TEXT = {
   creditCardDesc: { en: "VISA, Mastercard, AMEX", es: "VISA, Mastercard, AMEX", de: "VISA, Mastercard, AMEX", fr: "VISA, Mastercard, AMEX", ja: "VISA, Mastercard, AMEX" },
   cash: { en: "Cash", es: "Efectivo", de: "Barzahlung", fr: "Espèces", ja: "現金" },
   cashDesc: { en: "Pay on Delivery", es: "Pagar al recibir", de: "Zahlung bei Lieferung", fr: "Payer à la livraison", ja: "代金引換" },
+  cardNumber: { en: "Card Number", es: "Número de Tarjeta", de: "Kartennummer", fr: "Numéro de carte", ja: "カード番号" },
+  cardExpiry: { en: "Expiry Date", es: "Fecha de Expiración", de: "Ablaufdatum", fr: "Date d'expiration", ja: "有効期限" },
+  cardCvv: { en: "CVV", es: "CVV", de: "CVV", fr: "CVV", ja: "CVV" },
+  cardHolder: { en: "Cardholder Name", es: "Nombre del Titular", de: "Karteninhaber", fr: "Nom du titulaire", ja: "カード名義人" },
   streetPlaceholder: { en: "Street & House Number", es: "Calle y Número", de: "Straße & Hausnummer", fr: "Rue et Numéro", ja: "住所" },
   coloniaPlaceholder: { en: "Colonia / Neighborhood", es: "Colonia", de: "Stadtteil", fr: "Quartier", ja: "地区" },
   zipPlaceholder: { en: "Zip Code", es: "Código Postal", de: "Postleitzahl", fr: "Code Postal", ja: "郵便番号" },
+  plzPlaceholder: { en: "PLZ / Postal Code", es: "Código Postal", de: "PLZ", fr: "Code Postal", ja: "郵便番号" },
+  prefecturaPlaceholder: { en: "Prefecture", es: "Prefectura", de: "Präfektur", fr: "Préfecture", ja: "都道府県" },
+  invalidPhone: { en: "Enter a valid phone number (7-15 digits)", es: "Ingrese un teléfono válido (7-15 dígitos)", de: "Geben Sie eine gültige Telefonnummer ein (7-15 Ziffern)", fr: "Entrez un numéro valide (7-15 chiffres)", ja: "有効な電話番号を入力してください（7〜15桁）" },
   fullName: { en: "Full Name", es: "Nombre completo", de: "Vollständiger Name", fr: "Nom complet", ja: "氏名" },
   phone: { en: "Phone Number", es: "Teléfono", de: "Telefonnummer", fr: "Numéro de téléphone", ja: "電話番号" },
   edit: { en: "Edit", es: "Editar", de: "Bearbeiten", fr: "Modifier", ja: "編集" },
@@ -125,8 +132,13 @@ export default function Checkout() {
     zip_code: "",
     plz: "",
     prefectura: "",
+    card_number: "",
+    card_expiry: "",
+    card_cvv: "",
+    card_holder: "",
   });
 
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -251,10 +263,39 @@ export default function Checkout() {
                      <div>
                       <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.zipPlaceholder, language)}</label>
                       <input
+                        data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="90210"
                         value={form.zip_code}
                         onChange={(e) => setForm((p) => ({ ...p, zip_code: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {countryCode === "CH" && (
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.plzPlaceholder, language)}</label>
+                      <input
+                        data-testid="plz"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="8001"
+                        value={form.plz}
+                        onChange={(e) => setForm((p) => ({ ...p, plz: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {countryCode === "JP" && (
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.prefecturaPlaceholder, language)}</label>
+                      <input
+                        data-testid="prefectura"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder={tOpt({en:"Tokyo", es:"Tokio", de:"Tokio", fr:"Tokyo", ja:"東京都"}, language)}
+                        value={form.prefectura}
+                        onChange={(e) => setForm((p) => ({ ...p, prefectura: e.target.value }))}
                         required
                       />
                     </div>
@@ -283,10 +324,14 @@ export default function Checkout() {
                   <div>
                     <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.phone, language)}</label>
                      <input
+                      type="tel"
+                      data-testid="phone"
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="+52 55 1234 5678"
                       value={form.phone}
                       onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                      pattern="[\d\s\+\-\(\)]{7,20}"
+                      title={tOpt(UI_TEXT.invalidPhone, language)}
                       required
                     />
                   </div>
@@ -301,8 +346,13 @@ export default function Checkout() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <button type="button" className="p-4 rounded-2xl border border-[#FF5722] bg-[#1a1a1a] flex items-center gap-4 transition-all">
-                    <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[#FF5722]">
+                  <button
+                    type="button"
+                    data-testid="payment-card"
+                    onClick={() => setPaymentMethod("card")}
+                    className={`p-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${paymentMethod === "card" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === "card" ? "bg-[#2A2A2A] text-[#FF5722]" : "bg-[#1A1A1A] text-gray-400"}`}>
                        <Icons.CreditCard />
                     </div>
                     <div className="text-left">
@@ -311,8 +361,13 @@ export default function Checkout() {
                     </div>
                   </button>
 
-                  <button type="button" className="p-4 rounded-2xl border border-[#333] bg-[#0F0F0F] flex items-center gap-4 hover:border-gray-600 transition-all opacity-60">
-                    <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-gray-400">
+                  <button
+                    type="button"
+                    data-testid="payment-cash"
+                    onClick={() => setPaymentMethod("cash")}
+                    className={`p-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${paymentMethod === "cash" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === "cash" ? "bg-[#2A2A2A] text-[#FF5722]" : "bg-[#1A1A1A] text-gray-400"}`}>
                        <Icons.Cash />
                     </div>
                     <div className="text-left">
@@ -321,6 +376,60 @@ export default function Checkout() {
                     </div>
                   </button>
                 </div>
+
+                {paymentMethod === "card" && (
+                  <div className="grid gap-6 mt-6">
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.cardHolder, language)}</label>
+                      <input
+                        data-testid="card-holder"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="Julian Casablancas"
+                        value={form.card_holder}
+                        onChange={(e) => setForm((p) => ({ ...p, card_holder: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.cardNumber, language)}</label>
+                      <input
+                        data-testid="card-number"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="4242 4242 4242 4242"
+                        value={form.card_number}
+                        onChange={(e) => setForm((p) => ({ ...p, card_number: e.target.value }))}
+                        maxLength={19}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.cardExpiry, language)}</label>
+                        <input
+                          data-testid="card-expiry"
+                          className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                          placeholder="MM/YY"
+                          value={form.card_expiry}
+                          onChange={(e) => setForm((p) => ({ ...p, card_expiry: e.target.value }))}
+                          maxLength={5}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">{tOpt(UI_TEXT.cardCvv, language)}</label>
+                        <input
+                          data-testid="card-cvv"
+                          className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                          placeholder="123"
+                          value={form.card_cvv}
+                          onChange={(e) => setForm((p) => ({ ...p, card_cvv: e.target.value }))}
+                          maxLength={4}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           </div>

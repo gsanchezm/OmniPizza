@@ -86,5 +86,11 @@
   "confirmPay": "Bestätigen und bezahlen",
   "goToMenu": "Zum Menü",
   "colonia": "Stadtteil",
-  "zipCode": "Postleitzahl"
+  "zipCode": "Postleitzahl",
+  "cardHolder": "Karteninhaber",
+  "cardNumber": "Kartennummer",
+  "cardExpiry": "Ablaufdatum",
+  "cvv": "CVV",
+  "plz": "PLZ",
+  "prefecture": "Präfektur"
 }

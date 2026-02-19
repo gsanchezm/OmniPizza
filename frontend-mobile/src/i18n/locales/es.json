@@ -86,5 +86,11 @@
   "confirmPay": "Confirmar y Pagar",
   "goToMenu": "Ir al Menú",
   "colonia": "Colonia",
-  "zipCode": "Código Postal"
+  "zipCode": "Código Postal",
+  "cardHolder": "Nombre del Titular",
+  "cardNumber": "Número de Tarjeta",
+  "cardExpiry": "Fecha de Expiración",
+  "cvv": "CVV",
+  "plz": "Código Postal",
+  "prefecture": "Prefectura"
 }
