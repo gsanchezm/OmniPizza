@@ -15,15 +15,7 @@ export const CustomNavbar = ({ title, navigation }: any) => {
   const { width } = useWindowDimensions();
   const compact = width < 390;
 
-  const { country, language, setLanguage, logout } = useAppStore();
-
-  const handleLogout = () => {
-    logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
+  const { country, language, setLanguage } = useAppStore();
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -33,20 +25,36 @@ export const CustomNavbar = ({ title, navigation }: any) => {
           <View style={styles.langWrap}>
             <TouchableOpacity
               onPress={() => setLanguage("de")}
-              style={[styles.langBtn, language === "de" && styles.langBtnActive]}
+              style={[
+                styles.langBtn,
+                language === "de" && styles.langBtnActive,
+              ]}
               {...getTestProps("btn-lang-de")}
             >
-              <Text style={[styles.langText, language === "de" && styles.langTextActive]}>
+              <Text
+                style={[
+                  styles.langText,
+                  language === "de" && styles.langTextActive,
+                ]}
+              >
                 DE
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => setLanguage("fr")}
-              style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
+              style={[
+                styles.langBtn,
+                language === "fr" && styles.langBtnActive,
+              ]}
               {...getTestProps("btn-lang-fr")}
             >
-              <Text style={[styles.langText, language === "fr" && styles.langTextActive]}>
+              <Text
+                style={[
+                  styles.langText,
+                  language === "fr" && styles.langTextActive,
+                ]}
+              >
                 FR
               </Text>
             </TouchableOpacity>
@@ -54,47 +62,13 @@ export const CustomNavbar = ({ title, navigation }: any) => {
         )}
 
         {/* Title */}
-        <Text style={styles.title} numberOfLines={1} {...getTestProps("text-navbar-title")}>
+        <Text
+          style={styles.title}
+          numberOfLines={1}
+          {...getTestProps("text-navbar-title")}
+        >
           {title}
         </Text>
-
-        {/* Right actions */}
-        <View style={[styles.right, compact && styles.rightCompact]}>
-          {/* Catalog Button (New) */}
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Catalog")}
-            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
-            {...getTestProps("btn-navbar-catalog")}
-          >
-            <Text style={[styles.icon, compact && styles.iconCompact]}>🍕</Text>
-          </TouchableOpacity>
-
-          {/* Profile Button */}
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Profile")}
-            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
-            {...getTestProps("btn-navbar-profile")}
-          >
-            <Text style={[styles.icon, compact && styles.iconCompact]}>👤</Text>
-          </TouchableOpacity>
-
-          {/* Checkout Button */}
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Checkout")}
-            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
-            {...getTestProps("btn-navbar-cart")}
-          >
-            <Text style={[styles.icon, compact && styles.iconCompact]}>🛒</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={[styles.iconBtn, compact && styles.iconBtnCompact]}
-            {...getTestProps("btn-navbar-logout")}
-          >
-            <Text style={[styles.icon, compact && styles.iconCompact]}>↩</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -148,6 +122,25 @@ const styles = StyleSheet.create({
   },
   icon: { fontSize: 16, color: Colors.text.primary, textAlign: "center" },
   iconCompact: { fontSize: 14 },
+  iconWrap: { position: "relative" },
+  badge: {
+    position: "absolute",
+    right: -10,
+    top: -6,
+    backgroundColor: Colors.brand.primary,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "800",
+    lineHeight: 12,
+  },
 
   langWrap: {
     flexDirection: "row",

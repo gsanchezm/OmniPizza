@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
+import { BottomNavBar } from "../components/BottomNavBar";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { orderService } from "../services/order.service";
@@ -25,22 +26,16 @@ function money(value: number, currency: string) {
 
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
-  const {
-    country,
-    cartItems,
-    clearCart,
-    profile,
-    setProfile,
-    setLastOrder,
-  } = useAppStore();
+  const { country, cartItems, clearCart, profile, setProfile, setLastOrder } =
+    useAppStore();
 
   const [form, setForm] = useState({
-    name: profile?.fullName || "Julian Casablancas",
-    address: profile?.address || "4521 Sunset Boulevard, Suite 200",
+    name: profile?.fullName || "",
+    address: profile?.address || "",
     phone: profile?.phone || "",
     colonia: "",
     propina: "",
-    zip_code: "90027",
+    zip_code: "",
     plz: "",
     prefectura: "",
     card_holder: "",
@@ -49,53 +44,118 @@ export default function CheckoutScreen({ navigation }: any) {
     card_cvv: "",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
-  const [tipOption, setTipOption] = useState<'2' | '5' | 'custom' | null>('5');
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
+  const [tipOption, setTipOption] = useState<"2" | "5" | "10" | null>("5");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const subtotal = useMemo(() => {
     return cartItems.reduce(
       (sum: number, item: CartItem) =>
         sum + Number(item.unit_price) * Number(item.quantity),
-      0
+      0,
     );
   }, [cartItems]);
 
-  const deliveryFee = 2.00;
-  const tipAmount = tipOption === '2' ? 2 : tipOption === '5' ? 5 : 0; 
-  const tax = subtotal * 0.08; 
+  const deliveryFee = 2.0;
+  const tipAmount = tipOption === "2" ? 2 : tipOption === "5" ? 5 : tipOption === "10" ? 10 : 0;
+  const tax = subtotal * 0.08;
   const total = subtotal + deliveryFee + tipAmount + tax;
 
   const currency = cartItems[0]?.currency || "USD";
 
   const placeOrder = async () => {
+    setError("");
+
+    if (!form.address.trim()) {
+      setError(t("streetAndNumber") + " is required.");
+      return;
+    }
+    if (country === "MX" && !form.colonia.trim()) {
+      setError(t("colonia") + " is required.");
+      return;
+    }
+    if (country === "US" && !form.zip_code.trim()) {
+      setError(t("zipCode") + " is required.");
+      return;
+    }
+    if (country === "CH" && !form.plz.trim()) {
+      setError(t("plz") + " is required.");
+      return;
+    }
+    if (country === "JP" && !form.prefectura.trim()) {
+      setError(t("prefecture") + " is required.");
+      return;
+    }
+    if (!form.name.trim()) {
+      setError(t("fullName") + " is required.");
+      return;
+    }
+    if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 7) {
+      setError(t("phone") + " must be at least 7 digits.");
+      return;
+    }
+    if (paymentMethod === "card") {
+      if (!form.card_holder.trim()) {
+        setError(t("cardHolder") + " is required.");
+        return;
+      }
+      if (form.card_number.replace(/\D/g, "").length < 13) {
+        setError(t("cardNumber") + " must be at least 13 digits.");
+        return;
+      }
+      if (form.card_expiry.replace(/\D/g, "").length < 4) {
+        setError(t("cardExpiry") + " is required (MMYY).");
+        return;
+      }
+      if (form.card_cvv.replace(/\D/g, "").length < 3) {
+        setError(t("cvv") + " must be at least 3 digits.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-        await new Promise(r => setTimeout(r, 1000)); // Simulating
-        clearCart();
-        navigation.reset({
-            index: 0,
-            routes: [{ name: "OrderSuccess" }],
-        });
-    } catch (e) {
-        console.error(e);
+      await new Promise((r) => setTimeout(r, 1000)); // Simulating
+      clearCart();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "OrderSuccess" }],
+      });
+    } catch (e: any) {
+      const detail = e.response?.data?.detail;
+      if (typeof detail === "string") {
+        setError(detail);
+      } else if (Array.isArray(detail)) {
+        setError(detail.map((d: any) => d.msg || String(d)).join(", "));
+      } else {
+        setError(e.message || "Checkout failed");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   if (!cartItems.length) {
     return (
-        <View style={styles.container}>
-            <CustomNavbar title={t("checkout")} navigation={navigation} />
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{color: 'white', marginBottom: 20}}>{t("cartEmpty")}</Text>
-                <TouchableOpacity style={styles.btnPrimary} onPress={() => navigation.navigate("Catalog")}>
-                    <Text style={styles.btnText}>{t("goToMenu")}</Text>
-                </TouchableOpacity>
-            </View>
+      <View style={styles.container}>
+        <CustomNavbar title={t("checkout")} navigation={navigation} />
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Text style={{ color: "white", marginBottom: 20 }}>
+            {t("cartEmpty")}
+          </Text>
+          <TouchableOpacity
+            style={styles.btnPrimary}
+            onPress={() => navigation.navigate("Catalog")}
+          >
+            <Text style={styles.btnText}>{t("goToMenu")}</Text>
+          </TouchableOpacity>
         </View>
-    )
+        <BottomNavBar />
+      </View>
+    );
   }
 
   return (
@@ -103,40 +163,34 @@ export default function CheckoutScreen({ navigation }: any) {
       <CustomNavbar title={t("checkout")} navigation={navigation} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
         {/* Delivery Address */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("streetAndNumber")}</Text>
-            <TouchableOpacity><Text style={styles.editLink}>{t("edit")}</Text></TouchableOpacity>
-        </View>
-        
-        <View style={styles.addressCard}>
-            <View style={styles.iconCircle}>
-                <Text style={{fontSize: 20}}>🏠</Text>
-            </View>
-            <View style={{flex: 1}}>
-                <Text style={styles.addressLabel}>{t("home")}</Text>
-                <Text style={styles.addressText} numberOfLines={2}>
-                    {form.address}, {form.zip_code}
-                </Text>
-            </View>
+          <Text style={styles.sectionTitle}>{t("streetAndNumber")}</Text>
         </View>
 
+        <TextInput
+          style={styles.cardInput}
+          placeholder="4521 Sunset Boulevard, Suite 200"
+          placeholderTextColor="#555"
+          value={form.address}
+          onChangeText={(v) => setForm((p) => ({ ...p, address: v }))}
+        />
+
         {/* Country-specific fields */}
-        {country === 'MX' && (
-          <View style={{marginTop: 12}}>
+        {country === "MX" && (
+          <View style={{ marginTop: 12 }}>
             <Text style={styles.cardFieldLabel}>{t("colonia")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Polanco"
               placeholderTextColor="#555"
               value={form.colonia}
-              onChangeText={(v) => setForm(p => ({ ...p, colonia: v }))}
+              onChangeText={(v) => setForm((p) => ({ ...p, colonia: v }))}
             />
           </View>
         )}
-        {country === 'US' && (
-          <View style={{marginTop: 12}}>
+        {country === "US" && (
+          <View style={{ marginTop: 12 }}>
             <Text style={styles.cardFieldLabel}>{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
@@ -144,40 +198,42 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               keyboardType="number-pad"
               value={form.zip_code}
-              onChangeText={(v) => setForm(p => ({ ...p, zip_code: v }))}
+              onChangeText={(v) =>
+                setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
+              }
             />
           </View>
         )}
-        {country === 'CH' && (
-          <View style={{marginTop: 12}}>
+        {country === "CH" && (
+          <View style={{ marginTop: 12 }}>
             <Text style={styles.cardFieldLabel}>{t("plz")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="8001"
               placeholderTextColor="#555"
               value={form.plz}
-              onChangeText={(v) => setForm(p => ({ ...p, plz: v }))}
+              onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
             />
           </View>
         )}
-        {country === 'JP' && (
-          <View style={{marginTop: 12}}>
+        {country === "JP" && (
+          <View style={{ marginTop: 12 }}>
             <Text style={styles.cardFieldLabel}>{t("prefecture")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="東京都"
               placeholderTextColor="#555"
               value={form.prefectura}
-              onChangeText={(v) => setForm(p => ({ ...p, prefectura: v }))}
+              onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
             />
           </View>
         )}
 
         {/* Contact Info */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("contactInfo")}</Text>
+          <Text style={styles.sectionTitle}>{t("contactInfo")}</Text>
         </View>
-        <View style={{gap: 12}}>
+        <View style={{ gap: 12 }}>
           <View>
             <Text style={styles.cardFieldLabel}>{t("fullName")}</Text>
             <TextInput
@@ -185,7 +241,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholder="Julian Casablancas"
               placeholderTextColor="#555"
               value={form.name}
-              onChangeText={(v) => setForm(p => ({ ...p, name: v }))}
+              onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
             />
           </View>
           <View>
@@ -196,49 +252,67 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               keyboardType="phone-pad"
               value={form.phone}
-              onChangeText={(v) => setForm(p => ({ ...p, phone: v }))}
+              onChangeText={(v) =>
+                setForm((p) => ({ ...p, phone: v.replace(/[^0-9]/g, "") }))
+              }
             />
           </View>
         </View>
 
         {/* Payment Method */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("paymentMethod")}</Text>
+          <Text style={styles.sectionTitle}>{t("paymentMethod")}</Text>
         </View>
 
-        <TouchableOpacity 
-            style={[styles.paymentCard, paymentMethod === 'card' && styles.paymentCardActive]}
-            onPress={() => setPaymentMethod('card')}
+        <TouchableOpacity
+          style={[
+            styles.paymentCard,
+            paymentMethod === "card" && styles.paymentCardActive,
+          ]}
+          onPress={() => setPaymentMethod("card")}
         >
-            <View style={styles.paymentIcon}>
-                <Text style={{fontSize: 20}}>💳</Text>
-            </View>
-            <View style={{flex: 1}}>
-                <Text style={styles.paymentLabel}>{t("creditCard")}</Text>
-                <Text style={styles.paymentSub}>•••• •••• •••• 4242</Text>
-            </View>
-            <View style={[styles.radio, paymentMethod === 'card' && styles.radioActive]}>
-                {paymentMethod === 'card' && <View style={styles.radioInner} />}
-            </View>
+          <View style={styles.paymentIcon}>
+            <Text style={{ fontSize: 20 }}>💳</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.paymentLabel}>{t("creditCard")}</Text>
+            <Text style={styles.paymentSub}>•••• •••• •••• 4242</Text>
+          </View>
+          <View
+            style={[
+              styles.radio,
+              paymentMethod === "card" && styles.radioActive,
+            ]}
+          >
+            {paymentMethod === "card" && <View style={styles.radioInner} />}
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-            style={[styles.paymentCard, paymentMethod === 'cash' && styles.paymentCardActive]}
-            onPress={() => setPaymentMethod('cash')}
+          style={[
+            styles.paymentCard,
+            paymentMethod === "cash" && styles.paymentCardActive,
+          ]}
+          onPress={() => setPaymentMethod("cash")}
         >
-            <View style={styles.paymentIcon}>
-                <Text style={{fontSize: 20}}>💵</Text>
-            </View>
-            <View style={{flex: 1}}>
-                <Text style={styles.paymentLabel}>{t("payOnDelivery")}</Text>
-                <Text style={styles.paymentSub}>{t("cash")}</Text>
-            </View>
-            <View style={[styles.radio, paymentMethod === 'cash' && styles.radioActive]}>
-                {paymentMethod === 'cash' && <View style={styles.radioInner} />}
-            </View>
+          <View style={styles.paymentIcon}>
+            <Text style={{ fontSize: 20 }}>💵</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.paymentLabel}>{t("payOnDelivery")}</Text>
+            <Text style={styles.paymentSub}>{t("cash")}</Text>
+          </View>
+          <View
+            style={[
+              styles.radio,
+              paymentMethod === "cash" && styles.radioActive,
+            ]}
+          >
+            {paymentMethod === "cash" && <View style={styles.radioInner} />}
+          </View>
         </TouchableOpacity>
 
-        {paymentMethod === 'card' && (
+        {paymentMethod === "card" && (
           <View style={styles.cardFields}>
             <View>
               <Text style={styles.cardFieldLabel}>{t("cardHolder")}</Text>
@@ -247,7 +321,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 placeholder="Julian Casablancas"
                 placeholderTextColor="#555"
                 value={form.card_holder}
-                onChangeText={(v) => setForm(p => ({ ...p, card_holder: v }))}
+                onChangeText={(v) => setForm((p) => ({ ...p, card_holder: v }))}
               />
             </View>
             <View>
@@ -259,11 +333,16 @@ export default function CheckoutScreen({ navigation }: any) {
                 keyboardType="number-pad"
                 maxLength={19}
                 value={form.card_number}
-                onChangeText={(v) => setForm(p => ({ ...p, card_number: v }))}
+                onChangeText={(v) =>
+                  setForm((p) => ({
+                    ...p,
+                    card_number: v.replace(/[^0-9]/g, ""),
+                  }))
+                }
               />
             </View>
-            <View style={{flexDirection: 'row', gap: 12}}>
-              <View style={{flex: 1}}>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.cardFieldLabel}>{t("cardExpiry")}</Text>
                 <TextInput
                   style={styles.cardInput}
@@ -272,10 +351,15 @@ export default function CheckoutScreen({ navigation }: any) {
                   keyboardType="number-pad"
                   maxLength={5}
                   value={form.card_expiry}
-                  onChangeText={(v) => setForm(p => ({ ...p, card_expiry: v }))}
+                  onChangeText={(v) =>
+                    setForm((p) => ({
+                      ...p,
+                      card_expiry: v.replace(/[^0-9]/g, ""),
+                    }))
+                  }
                 />
               </View>
-              <View style={{flex: 1}}>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.cardFieldLabel}>{t("cvv")}</Text>
                 <TextInput
                   style={styles.cardInput}
@@ -285,7 +369,12 @@ export default function CheckoutScreen({ navigation }: any) {
                   maxLength={4}
                   secureTextEntry
                   value={form.card_cvv}
-                  onChangeText={(v) => setForm(p => ({ ...p, card_cvv: v }))}
+                  onChangeText={(v) =>
+                    setForm((p) => ({
+                      ...p,
+                      card_cvv: v.replace(/[^0-9]/g, ""),
+                    }))
+                  }
                 />
               </View>
             </View>
@@ -294,91 +383,155 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Order Summary */}
         <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("orderSummary")}</Text>
+          <Text style={styles.sectionTitle}>{t("orderSummary")}</Text>
         </View>
 
         <View style={styles.summaryList}>
-            {cartItems.map(item => (
-                <View key={item.id} style={styles.itemRow}>
-                    <Image 
-                        source={{uri: item.pizza.image || "https://omnipizza.onrender.com/static/images/pizza-1.png"}} 
-                        style={styles.itemImage} 
-                    />
-                    <View style={{flex: 1}}>
-                        <Text style={styles.itemTitle}>{item.quantity}x {item.pizza.name}</Text>
-                        <Text style={styles.itemDetails}>{item.config?.size}</Text>
-                        
-                        <View style={{flexDirection: 'row', gap: 16, marginTop: 4}}>
-                            <TouchableOpacity onPress={() => {/* Edit logic would go here, ideally passing item to builder */}}>
-                                <Text style={styles.actionLink}>{t("edit").toUpperCase()}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => useAppStore.getState().removeCartItem(item.id)}>
-                                <Text style={[styles.actionLink, {color: '#EF4444'}]}>{t("remove").toUpperCase()}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <Text style={styles.itemPrice}>{money(item.unit_price * item.quantity, currency)}</Text>
+          {cartItems.map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <Image
+                source={{
+                  uri:
+                    item.pizza.image ||
+                    "https://omnipizza.onrender.com/static/images/pizza-1.png",
+                }}
+                style={styles.itemImage}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.itemTitle}>
+                  {item.quantity}x {item.pizza.name}
+                </Text>
+                <Text style={styles.itemDetails}>{item.config?.size}</Text>
+
+                <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      /* Edit logic would go here, ideally passing item to builder */
+                    }}
+                  >
+                    <Text style={styles.actionLink}>
+                      {t("edit").toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      useAppStore.getState().removeCartItem(item.id)
+                    }
+                  >
+                    <Text style={[styles.actionLink, { color: "#EF4444" }]}>
+                      {t("remove").toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-            ))}
+              </View>
+              <Text style={styles.itemPrice}>
+                {money(item.unit_price * item.quantity, currency)}
+              </Text>
+            </View>
+          ))}
         </View>
-        
+
         <View style={styles.divider} />
 
         {/* Totals */}
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>{t("subtotal")}</Text>
-            <Text style={styles.costValue}>{money(subtotal, currency)}</Text>
+          <Text style={styles.costLabel}>{t("subtotal")}</Text>
+          <Text style={styles.costValue}>{money(subtotal, currency)}</Text>
         </View>
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>{t("deliveryFee")}</Text>
-            <Text style={styles.costValue}>{money(deliveryFee, currency)}</Text>
+          <Text style={styles.costLabel}>{t("deliveryFee")}</Text>
+          <Text style={styles.costValue}>{money(deliveryFee, currency)}</Text>
         </View>
 
         {/* Tip Row */}
-        <View style={[styles.costRow, { alignItems: 'center', marginVertical: 8 }]}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                <Text style={styles.costLabel}>{t("tipForDriver")}</Text>
-                <Text style={{color: '#666'}}>ℹ️</Text>
-            </View>
-            <View style={{flexDirection: 'row', gap: 8}}>
-                <TouchableOpacity 
-                    style={[styles.tipPill, tipOption === '2' && styles.tipPillActive]}
-                    onPress={() => setTipOption('2')}
-                >
-                    <Text style={[styles.tipText, tipOption === '2' && styles.tipTextActive]}>$2</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.tipPill, tipOption === '5' && styles.tipPillActive]}
-                    onPress={() => setTipOption('5')}
-                >
-                    <Text style={[styles.tipText, tipOption === '5' && styles.tipTextActive]}>$5</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.tipPill, tipOption === 'custom' && styles.tipPillActive]}
-                    onPress={() => setTipOption('custom')}
-                >
-                    <Text style={[styles.tipText, tipOption === 'custom' && styles.tipTextActive]}>Custom</Text>
-                </TouchableOpacity>
-            </View>
+        <View
+          style={[styles.costRow, { alignItems: "center", marginVertical: 8 }]}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+            <Text style={styles.costLabel}>{t("tipForDriver")}</Text>
+            <Text style={{ color: "#666" }}>ℹ️</Text>
+          </View>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TouchableOpacity
+              style={[
+                styles.tipPill,
+                tipOption === "2" && styles.tipPillActive,
+              ]}
+              onPress={() => setTipOption("2")}
+            >
+              <Text
+                style={[
+                  styles.tipText,
+                  tipOption === "2" && styles.tipTextActive,
+                ]}
+              >
+                $2
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tipPill,
+                tipOption === "5" && styles.tipPillActive,
+              ]}
+              onPress={() => setTipOption("5")}
+            >
+              <Text
+                style={[
+                  styles.tipText,
+                  tipOption === "5" && styles.tipTextActive,
+                ]}
+              >
+                $5
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tipPill,
+                tipOption === "10" && styles.tipPillActive,
+              ]}
+              onPress={() => setTipOption("10")}
+            >
+              <Text
+                style={[
+                  styles.tipText,
+                  tipOption === "10" && styles.tipTextActive,
+                ]}
+              >
+                $10
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.costRow}>
-            <Text style={styles.costLabel}>{t("tax")} (9.5%)</Text>
-            <Text style={styles.costValue}>{money(tax, currency)}</Text>
+          <Text style={styles.costLabel}>{t("tax")} (9.5%)</Text>
+          <Text style={styles.costValue}>{money(tax, currency)}</Text>
         </View>
 
         <View style={[styles.costRow, { marginTop: 20 }]}>
-            <Text style={styles.totalLabel}>{t("totalPrice")}</Text>
-            <Text style={styles.totalValue}>{money(total, currency)}</Text>
+          <Text style={styles.totalLabel}>{t("totalPrice")}</Text>
+          <Text style={styles.totalValue}>{money(total, currency)}</Text>
         </View>
 
         <Text style={styles.arrival}>{t("expectedArrival")}: 25-35 min</Text>
-        
-        <TouchableOpacity style={styles.btnPrimary} onPress={placeOrder} disabled={loading}>
-            <Text style={styles.btnText}>{loading ? t("processing") : t("confirmPay") + "  →"}</Text>
-        </TouchableOpacity>
 
+        {error ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorBoxText}>{error}</Text>
+          </View>
+        ) : null}
+
+        <TouchableOpacity
+          style={styles.btnPrimary}
+          onPress={placeOrder}
+          disabled={loading}
+        >
+          <Text style={styles.btnText}>
+            {loading ? t("processing") : t("confirmPay") + "  →"}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
+      <BottomNavBar />
     </View>
   );
 }
@@ -386,7 +539,7 @@ export default function CheckoutScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F0F0F',
+    backgroundColor: "#0F0F0F",
   },
   scrollContent: {
     padding: 24,
@@ -404,7 +557,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   editLink: {
     color: "#FF5722",
@@ -474,8 +627,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: "#444",
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioActive: {
     borderColor: "#FF5722",
@@ -521,95 +674,109 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   costRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
   costLabel: {
-    color: '#999',
+    color: "#999",
     fontSize: 15,
   },
   costValue: {
-    color: 'white',
+    color: "white",
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   tipPill: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: "#2A2A2A",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
   },
   tipPillActive: {
-    backgroundColor: '#FF5722',
+    backgroundColor: "#FF5722",
   },
   tipText: {
-    color: '#999',
+    color: "#999",
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   tipTextActive: {
-    color: 'white',
+    color: "white",
   },
   totalLabel: {
-    color: '#999',
+    color: "#999",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 1,
   },
   totalValue: {
-    color: 'white',
+    color: "white",
     fontSize: 32,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   arrival: {
-    textAlign: 'right',
-    color: '#666',
+    textAlign: "right",
+    color: "#666",
     fontSize: 13,
     marginTop: -8,
     marginBottom: 24,
   },
   btnPrimary: {
-    backgroundColor: '#FF5722',
+    backgroundColor: "#FF5722",
     borderRadius: 30, // Tall pill shape
     paddingVertical: 18,
-    alignItems: 'center',
+    alignItems: "center",
     shadowColor: "#FF5722",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
   },
   actionLink: {
-      fontSize: 10,
-      fontWeight: '800',
-      color: '#FF5722',
-      letterSpacing: 0.5,
+    fontSize: 10,
+    fontWeight: "800",
+    color: "#FF5722",
+    letterSpacing: 0.5,
   },
   btnText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   cardFields: {
     gap: 16,
     marginBottom: 8,
   },
   cardFieldLabel: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: 8,
   },
   cardInput: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: "#1A1A1A",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#333',
-    color: 'white',
+    borderColor: "#333",
+    color: "white",
     fontSize: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
+  },
+  errorBox: {
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.2)",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+  },
+  errorBoxText: {
+    color: "#EF4444",
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

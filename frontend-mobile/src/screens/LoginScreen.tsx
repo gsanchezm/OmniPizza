@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ImageBackground,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   Image,
@@ -13,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "../store/useAppStore";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedInput } from "../components/ThemedInput";
@@ -50,18 +50,27 @@ export default function LoginScreen({ navigation }: any) {
 
   useEffect(() => {
     if (token) {
-      navigation.replace("Main");
+      navigation.replace("Catalog");
     }
   }, [token]);
 
   const handleLogin = async () => {
+    if (!username.trim()) {
+      setError("Username is required.");
+      return;
+    }
+    if (!password.trim()) {
+      setError("Password is required.");
+      return;
+    }
+
     setError("");
     setLoading(true);
     try {
       // Small delay for UX
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const data = await authService.login(username, password);
+
+      const data = await authService.login(username.trim(), password);
       if (data && data.access_token) {
         setCountry(selectedMarket);
         setToken(data.access_token);
@@ -69,7 +78,14 @@ export default function LoginScreen({ navigation }: any) {
         setError("Invalid credentials.");
       }
     } catch (e: any) {
-      setError(e.response?.data?.detail || e.message || "Login failed");
+      const detail = e.response?.data?.detail;
+      if (typeof detail === "string") {
+        setError(detail);
+      } else if (Array.isArray(detail)) {
+        setError(detail.map((d: any) => d.msg || String(d)).join(", "));
+      } else {
+        setError(e.message || "Login failed");
+      }
     } finally {
       setLoading(false);
     }
