@@ -26,6 +26,14 @@ body {
   @apply w-full bg-surface-2 border border-border rounded-xl px-4 py-3 text-white placeholder-text-muted focus:outline-none focus:border-brand-primary transition-colors;
 }
 
+.glass-nav {
+  background-color: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 .glass-card {
   @apply bg-surface-card backdrop-blur-md border border-white/10 shadow-2xl;
 }

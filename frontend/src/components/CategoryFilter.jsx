@@ -17,6 +17,7 @@ export default function CategoryFilter({ selected, onSelect }) {
       {CATEGORIES.map((cat) => (
         <button
           key={cat.id}
+          data-testid={`category-${cat.id}`}
           onClick={() => onSelect(cat.id)}
           className={`
             whitespace-nowrap px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200

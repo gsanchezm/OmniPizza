@@ -49,7 +49,8 @@ export default function OrderSuccess() {
                <span className="text-[#FF5722] font-black tracking-widest text-xs uppercase animate-pulse">● {t('liveTracking')}</span>
            </div>
 
-           <button 
+           <button
+             data-testid="back-to-catalog"
              onClick={() => navigate('/catalog')}
              className="absolute top-6 left-6 w-10 h-10 bg-[#1A1A1A] rounded-full flex items-center justify-center border border-[#333] text-white hover:bg-[#333]"
            >
@@ -63,7 +64,7 @@ export default function OrderSuccess() {
                
                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
                    <div>
-                       <h1 className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
+                       <h1 data-testid="order-success-title" className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
                            {t('outForDelivery')}
                        </h1>
                        <p className="text-gray-500 font-medium">
@@ -81,7 +82,7 @@ export default function OrderSuccess() {
                </div>
 
                {/* Courier Info */}
-               <div className="bg-[#1F1F1F] rounded-2xl p-4 md:p-6 flex items-center justify-between">
+               <div data-testid="courier-info" className="bg-[#1F1F1F] rounded-2xl p-4 md:p-6 flex items-center justify-between">
                    <div className="flex items-center gap-4">
                        <div className="relative">
                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#2A2A2A] border border-[#333]">
@@ -99,10 +100,10 @@ export default function OrderSuccess() {
                    </div>
                    
                    <div className="flex gap-3">
-                       <button className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
+                       <button data-testid="courier-chat" className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
                            <img src="/images/ui/icon_chat.png" alt="Chat" className="w-5 h-5 object-contain" />
                        </button>
-                       <button className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">
+                       <button data-testid="courier-call" className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">
                            <img src="/images/ui/icon_phone.png" alt="Call" className="w-5 h-5 object-contain invert brightness-0" />
                        </button>
                    </div>
@@ -113,11 +114,11 @@ export default function OrderSuccess() {
                    <div className="mt-8 border-t border-[#2A2A2A] pt-6">
                        <div className="flex justify-between items-center mb-4">
                            <h3 className="text-gray-500 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
-                           <span className="text-white font-mono text-sm">#{order.order_id}</span>
+                           <span data-testid="order-id" className="text-white font-mono text-sm">#{order.order_id}</span>
                        </div>
                        <div className="flex justify-between items-center">
-                           <span className="text-[#FF5722] font-black text-xl">{formatMoney(order.total)}</span>
-                           <button className="text-gray-400 text-xs font-bold hover:text-white underline decoration-gray-600 underline-offset-4">
+                           <span data-testid="order-total" className="text-[#FF5722] font-black text-xl">{formatMoney(order.total)}</span>
+                           <button data-testid="view-order-details" className="text-gray-400 text-xs font-bold hover:text-white underline decoration-gray-600 underline-offset-4">
                                {t('viewOrderDetails')}
                            </button>
                        </div>

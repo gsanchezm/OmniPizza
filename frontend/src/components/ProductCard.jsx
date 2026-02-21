@@ -3,7 +3,7 @@ import { UI_STRINGS } from "../constants/pizza"; // Keep localized strings logic
 
 export default function ProductCard({ pizza, onAdd, formatPrice, t }) {
   return (
-    <div className="bg-[#1E1E1E] rounded-[2rem] p-4 border border-[#2A2A2A] hover:border-[#FF5722]/50 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+    <div data-testid={`pizza-card-${pizza.id}`} className="bg-[#1E1E1E] rounded-[2rem] p-4 border border-[#2A2A2A] hover:border-[#FF5722]/50 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
        {/* Badge (optional - e.g. Bestseller) */}
        {pizza.type === 'meat' && (
          <div className="absolute top-4 right-4 bg-[#FF5722] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 uppercase tracking-wide">
@@ -19,9 +19,10 @@ export default function ProductCard({ pizza, onAdd, formatPrice, t }) {
        {/* Image Area */}
        <div className="mt-4 mb-2 flex justify-center relative">
           <div className="w-48 h-48 rounded-full shadow-2xl overflow-hidden border-4 border-[#252525] group-hover:scale-105 transition-transform duration-300">
-             <img 
-               src={pizza.image} 
-               alt={pizza.name} 
+             <img
+               data-testid={`pizza-image-${pizza.id}`}
+               src={pizza.image}
+               alt={pizza.name}
                className="w-full h-full object-cover"
                onError={(e) => {e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg'}}
              />
@@ -31,15 +32,16 @@ export default function ProductCard({ pizza, onAdd, formatPrice, t }) {
        {/* Checkered pattern overlay at bottom (optional flair) */}
        
        <div className="flex-1 flex flex-col items-center text-center mt-2 px-2">
-          <h3 className="text-xl font-extrabold text-white mb-1 group-hover:text-[#FF5722] transition-colors line-clamp-1">{pizza.name}</h3>
-          <p className="text-xs text-gray-500 line-clamp-2 mb-4 h-8">{pizza.description}</p>
+          <h3 data-testid={`pizza-name-${pizza.id}`} className="text-xl font-extrabold text-white mb-1 group-hover:text-[#FF5722] transition-colors line-clamp-1">{pizza.name}</h3>
+          <p data-testid={`pizza-description-${pizza.id}`} className="text-xs text-gray-500 line-clamp-2 mb-4 h-8">{pizza.description}</p>
           
           <div className="mt-auto w-full flex items-center justify-between">
-             <span className="text-xl font-black text-[#FF5722]">
+             <span data-testid={`pizza-price-${pizza.id}`} className="text-xl font-black text-[#FF5722]">
                 {formatPrice(pizza.price, pizza.currency)}
              </span>
-             
-             <button 
+
+             <button
+               data-testid={`add-to-cart-${pizza.id}`}
                onClick={() => onAdd(pizza)}
                className="w-10 h-10 rounded-full bg-[#FF5722] text-white flex items-center justify-center hover:bg-[#E64A19] hover:scale-110 transition-all shadow-lg shadow-[#FF5722]/30"
              >

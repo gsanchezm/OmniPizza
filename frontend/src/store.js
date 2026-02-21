@@ -182,6 +182,18 @@ export const useCartStore = create(
           items: get().items.map((i) => (i.id === id ? { ...i, ...patch } : i)),
         }),
 
+      setQty: (id, qty) => {
+        if (qty <= 0) {
+          set({ items: get().items.filter((i) => i.id !== id) });
+        } else {
+          set({
+            items: get().items.map((i) =>
+              i.id === id ? { ...i, quantity: qty } : i
+            ),
+          });
+        }
+      },
+
       clearCart: () => set({ items: [] }),
     }),
     { name: "omnipizza-cart" }

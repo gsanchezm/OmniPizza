@@ -1,11 +1,12 @@
 import React from 'react';
 
-export default function PrimaryButton({ children, onClick, type = "button", disabled, fullWidth = false }) {
+export default function PrimaryButton({ children, onClick, type = "button", disabled, fullWidth = false, "data-testid": dataTestId }) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
+      data-testid={dataTestId}
       className={`
         ${fullWidth ? 'w-full' : ''}
         bg-brand-primary hover:bg-brand-hover 

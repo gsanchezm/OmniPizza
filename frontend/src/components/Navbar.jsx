@@ -46,6 +46,7 @@ export default function Navbar() {
         <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
           {/* Brand */}
           <button
+            data-testid="nav-logo"
             className="flex items-center gap-2"
             type="button"
             onClick={() => {
@@ -72,6 +73,7 @@ export default function Navbar() {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-2">
             <NavLink
+              data-testid="nav-catalog"
               to="/catalog"
               className={({ isActive }) =>
                 cx(linkBase, isActive ? linkActive : linkIdle)
@@ -81,6 +83,7 @@ export default function Navbar() {
             </NavLink>
 
             <NavLink
+              data-testid="nav-checkout"
               to="/checkout"
               className={({ isActive }) =>
                 cx(linkBase, isActive ? linkActive : linkIdle)
@@ -88,13 +91,14 @@ export default function Navbar() {
             >
               {t("checkout")}
               {cartCount > 0 && (
-                <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
+                <span data-testid="nav-cart-count" className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
                   {cartCount}
                 </span>
               )}
             </NavLink>
 
             <NavLink
+              data-testid="nav-profile"
               to="/profile"
               className={({ isActive }) =>
                 cx(linkBase, isActive ? linkActive : linkIdle)
@@ -110,6 +114,7 @@ export default function Navbar() {
               <div className="flex items-center rounded-xl border border-border overflow-hidden">
                 <button
                   type="button"
+                  data-testid="lang-de"
                   className={cx(
                     "px-3 py-2 font-extrabold transition",
                     language === "de"
@@ -122,6 +127,7 @@ export default function Navbar() {
                 </button>
                 <button
                   type="button"
+                  data-testid="lang-fr"
                   className={cx(
                     "px-3 py-2 font-extrabold transition",
                     language === "fr"
@@ -135,7 +141,7 @@ export default function Navbar() {
               </div>
             )}
 
-            <button className="btn-ghost" type="button" onClick={doLogout}>
+            <button data-testid="logout-btn" className="btn-ghost" type="button" onClick={doLogout}>
               {t("logout")}
             </button>
           </div>
@@ -143,6 +149,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             type="button"
+            data-testid="mobile-menu-btn"
             className="md:hidden px-3 py-2 rounded-xl border border-border bg-surface-2 font-extrabold text-text"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Open menu"
@@ -185,6 +192,7 @@ export default function Navbar() {
               )}
 
               <NavLink
+                data-testid="mobile-nav-catalog"
                 to="/catalog"
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
@@ -195,6 +203,7 @@ export default function Navbar() {
               </NavLink>
 
               <NavLink
+                data-testid="mobile-nav-checkout"
                 to="/checkout"
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
@@ -210,6 +219,7 @@ export default function Navbar() {
               </NavLink>
 
               <NavLink
+                data-testid="mobile-nav-profile"
                 to="/profile"
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
@@ -219,7 +229,7 @@ export default function Navbar() {
                 {t("profile")}
               </NavLink>
 
-              <button className="btn-ghost w-full" type="button" onClick={doLogout}>
+              <button data-testid="mobile-logout-btn" className="btn-ghost w-full" type="button" onClick={doLogout}>
                 {t("logout")}
               </button>
             </div>

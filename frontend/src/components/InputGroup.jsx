@@ -1,14 +1,15 @@
 import React from 'react';
 
-export default function InputGroup({ 
-  label, 
-  type = "text", 
-  value, 
-  onChange, 
-  placeholder, 
-  icon, 
+export default function InputGroup({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  icon,
   error,
-  rightElement 
+  rightElement,
+  "data-testid": dataTestId
 }) {
   return (
     <div className="space-y-2">
@@ -26,6 +27,7 @@ export default function InputGroup({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          data-testid={dataTestId}
           className={`
             w-full bg-[#1F1F1F] text-white rounded-xl py-3.5 
             ${icon ? 'pl-11' : 'pl-4'} 

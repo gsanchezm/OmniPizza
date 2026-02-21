@@ -11,16 +11,68 @@ Users now select market directly on the **login** screen (web + mobile) before e
 
 ## Screenshots
 
-### Web Platform
-> *Add web screenshots here (e.g., Login, Catalog, Checkout)*
-<!-- <img src="docs/screenshots/web.png" width="100%" /> -->
+### Desktop
 
-### Mobile Platform (iOS/Android)
-> *Add mobile screenshots here (e.g., Pizza Builder, Mobile Checkout)*
-<!-- \
-<img src="docs/screenshots/mobile-1.png" width="200" /> \
-<img src="docs/screenshots/mobile-2.png" width="200" /> \
--->
+<table>
+  <tr>
+    <td align="center"><strong>Login</strong></td>
+    <td align="center"><strong>Catalog</strong></td>
+    <td align="center"><strong>Pizza Customizer</strong></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/desktop/login_desktop.png" width="300" /></td>
+    <td><img src="screenshots/desktop/catalog_desktop.png" width="300" /></td>
+    <td><img src="screenshots/desktop/pizzabuilder_desktop.png" width="300" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Checkout</strong></td>
+    <td align="center"><strong>Order Success</strong></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/desktop/checkout_desktop.png" width="300" /></td>
+    <td><img src="screenshots/desktop/ordersuccess_desktop.png" width="300" /></td>
+    <td></td>
+  </tr>
+</table>
+
+### Responsive (Mobile Web)
+
+<table>
+  <tr>
+    <td align="center"><strong>Login</strong></td>
+    <td align="center"><strong>Catalog</strong></td>
+    <td align="center"><strong>Pizza Customizer</strong></td>
+    <td align="center"><strong>Checkout</strong></td>
+    <td align="center"><strong>Order Success</strong></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/responsive/login_responsive.png" width="160" /></td>
+    <td><img src="screenshots/responsive/catalog_responsive.png" width="160" /></td>
+    <td><img src="screenshots/responsive/pizzabuilder_responsive.png" width="160" /></td>
+    <td><img src="screenshots/responsive/checkout_responsive.png" width="160" /></td>
+    <td><img src="screenshots/responsive/ordersuccess_responsive.png" width="160" /></td>
+  </tr>
+</table>
+
+### iOS (React Native)
+
+<table>
+  <tr>
+    <td align="center"><strong>Login</strong></td>
+    <td align="center"><strong>Catalog</strong></td>
+    <td align="center"><strong>Pizza Builder</strong></td>
+    <td align="center"><strong>Checkout</strong></td>
+    <td align="center"><strong>Order Success</strong></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/ios/login_ios.png" width="160" /></td>
+    <td><img src="screenshots/ios/catalog_ios.png" width="160" /></td>
+    <td><img src="screenshots/ios/pizzabuilder_ios.png" width="160" /></td>
+    <td><img src="screenshots/ios/checkout_ios.png" width="160" /></td>
+    <td><img src="screenshots/ios/ordersuccess_ios.png" width="160" /></td>
+  </tr>
+</table>
 
 ---
 

@@ -36,7 +36,7 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
 
   if (cartItems.length === 0) {
      return (
-        <div className="bg-[#1E1E1E] rounded-3xl p-6 border border-[#2A2A2A] sticky top-24">
+        <div data-testid="cart-sidebar-empty" className="bg-[#1E1E1E] rounded-3xl p-6 border border-[#2A2A2A] sticky top-24">
            <h2 className="text-xl font-extrabold text-white mb-4">{t('yourOrder')}</h2>
            <div className="text-center py-10 text-gray-500">
               <div className="mb-2 text-4xl">🛒</div>
@@ -48,7 +48,7 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
   }
 
   return (
-    <div className="bg-[#1E1E1E] rounded-3xl p-6 border border-[#2A2A2A] sticky top-24 h-[calc(100vh-8rem)] flex flex-col">
+    <div data-testid="cart-sidebar" className="bg-[#1E1E1E] rounded-3xl p-6 border border-[#2A2A2A] sticky top-24 h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-extrabold text-white">{t('yourOrder')}</h2>
         <span className="bg-[#FF5722]/20 text-[#FF5722] text-xs font-bold px-3 py-1 rounded-full">
@@ -59,7 +59,7 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
       {/* Scrollable Items List */}
       <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6 custom-scrollbar">
         {cartItems.map((item) => (
-          <div key={item.id} className="flex gap-4 items-start group">
+          <div key={item.id} data-testid={`cart-item-${item.pizza_id}`} className="flex gap-4 items-start group">
             <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0F0F0F] shrink-0 border border-[#2A2A2A]">
                <img 
                  src={item.pizza.image} 
@@ -76,12 +76,14 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
                
                <div className="flex items-center justify-between mt-2">
                   <div className="flex items-center gap-3 bg-[#0F0F0F] rounded-lg px-2 py-1 border border-[#2A2A2A]">
-                     <button 
+                     <button
+                       data-testid={`cart-qty-minus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity - 1)}
                        className="text-gray-400 hover:text-white px-1"
                      >−</button>
-                     <span className="text-xs font-bold text-white w-3 text-center">{item.quantity}</span>
-                     <button 
+                     <span data-testid={`cart-qty-${item.pizza_id}`} className="text-xs font-bold text-white w-3 text-center">{item.quantity}</span>
+                     <button
+                       data-testid={`cart-qty-plus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity + 1)}
                        className="text-gray-400 hover:text-white px-1"
                      >+</button>
@@ -109,7 +111,7 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
          </div>
          
          <div className="pt-4">
-             <PrimaryButton fullWidth onClick={onCheckout}>
+             <PrimaryButton fullWidth onClick={onCheckout} data-testid="cart-checkout-btn">
                 {t('checkoutNow')} <span className="ml-2">→</span>
              </PrimaryButton>
          </div>

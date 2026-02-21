@@ -122,7 +122,7 @@ export default function PizzaCustomizerModal({
         
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-             <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+             <button data-testid="customizer-close" onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-colors">
                  ✕
              </button>
              <h2 className="text-white font-bold text-lg drop-shadow-md">
@@ -165,6 +165,7 @@ export default function PizzaCustomizerModal({
                              return (
                                  <button
                                      key={opt.id}
+                                     data-testid={`size-${opt.id}`}
                                      onClick={() => setSize(opt.id)}
                                      className={`flex-1 py-3 rounded-full text-sm font-bold transition-all ${isSelected ? 'bg-[#FF5722] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
                                  >
@@ -193,6 +194,7 @@ export default function PizzaCustomizerModal({
                                  return (
                                      <button
                                          key={it.id}
+                                         data-testid={`topping-${it.id}`}
                                          onClick={() => toggleTopping(it.id)}
                                          disabled={!isSelected && toppings.length >= 10}
                                          className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-2 border-2 transition-all relative overflow-hidden ${isSelected ? 'border-[#FF5722] bg-[#FF5722]/10' : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-gray-600'} ${(!isSelected && toppings.length >= 10) ? 'opacity-40 cursor-not-allowed' : ''}`}
@@ -233,12 +235,13 @@ export default function PizzaCustomizerModal({
                      <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">
                          {t({en:"Estimated Total", es:"Total Estimado", de:"Geschätzter Gesamtbetrag", fr:"Total Estimé", ja:"推定合計"}, language)}
                      </div>
-                     <div className="text-white text-2xl font-black">
+                     <div data-testid="customizer-price" className="text-white text-2xl font-black">
                          {formatMoney(unitPrice, currency, locale, currencySymbol)}
                      </div>
                  </div>
                  
-                 <button 
+                 <button
+                     data-testid="confirm-add-to-cart"
                      onClick={() => onConfirm({ size, toppings, unit_price: unitPrice })}
                      className="bg-[#FF5722] hover:bg-[#E64A19] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
                  >

@@ -91,8 +91,8 @@ export default function Catalog() {
 
 
   // --- Render ---
-  if (loading) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white">Loading Menu...</div>;
-  if (error) return <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-red-500">{error}</div>;
+  if (loading) return <div data-testid="catalog-loading" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white">Loading Menu...</div>;
+  if (error) return <div data-testid="catalog-error" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12">
@@ -112,9 +112,10 @@ export default function Catalog() {
                    <div className="relative z-10 flex flex-col md:flex-row justify-center items-center gap-6 py-8">
                       {/* Search Bar Only - as requested */}
                       <div className="w-full max-w-2xl relative">
-                         <input 
-                           type="text" 
-                           placeholder={t('searchPlaceholder')} 
+                         <input
+                           type="text"
+                           data-testid="search-pizza"
+                           placeholder={t('searchPlaceholder')}
                            value={searchQuery}
                            onChange={(e) => setSearchQuery(e.target.value)}
                            className="w-full bg-white/10 border border-white/20 rounded-2xl px-5 py-4 pl-12 text-white placeholder-white/60 focus:outline-none focus:bg-white/20 transition-all font-medium text-lg shadow-lg"
@@ -144,7 +145,7 @@ export default function Catalog() {
                 ) : (
                    <div className="text-center py-20 bg-[#1E1E1E] rounded-3xl border border-[#2A2A2A]">
                       <p className="text-gray-500 font-bold">No pizzas found matching your criteria.</p>
-                      <button onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">Clear Filters</button>
+                      <button data-testid="clear-filters" onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">Clear Filters</button>
                    </div>
                 )}
              </div>

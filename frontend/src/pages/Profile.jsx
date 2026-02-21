@@ -72,9 +72,10 @@ export default function Profile() {
                <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('fullName')}
                </label>
-               <input 
+               <input
+                 data-testid="profile-fullname"
                  className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
-                 value={fullName} 
+                 value={fullName}
                  onChange={(e)=>setProfile({fullName:e.target.value})}
                />
              </div>
@@ -82,9 +83,10 @@ export default function Profile() {
                <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('phone') || "Phone Number"}
                </label>
-               <input 
+               <input
+                 data-testid="profile-phone"
                  className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
-                 value={phone} 
+                 value={phone}
                  onChange={(e)=>setProfile({phone:e.target.value})}
                />
              </div>
@@ -94,9 +96,10 @@ export default function Profile() {
              <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('address') || "Delivery Address"}
              </label>
-             <input 
+             <input
+               data-testid="profile-address"
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
-               value={address} 
+               value={address}
                onChange={(e)=>setProfile({address:e.target.value})}
              />
            </div>
@@ -105,26 +108,28 @@ export default function Profile() {
              <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('deliveryNotes') || "Delivery Notes"}
              </label>
-             <textarea 
+             <textarea
+               data-testid="profile-notes"
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium resize-none"
                rows="3"
-               value={notes} 
+               value={notes}
                onChange={(e)=>setProfile({notes:e.target.value})}
              />
            </div>
         </div>
 
         <div className="px-6 py-5 bg-[#161616] border-t border-[#1F1F1F] flex flex-col sm:flex-row items-center justify-between gap-4">
-           <button className="text-gray-500 text-sm font-bold hover:text-red-500 transition-colors flex items-center gap-2">
+           <button data-testid="delete-account-btn" className="text-gray-500 text-sm font-bold hover:text-red-500 transition-colors flex items-center gap-2">
              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
              {t('deleteAccount') || "Delete Account"}
            </button>
            
            <div className="flex items-center gap-3 w-full sm:w-auto">
-             <button className="flex-1 sm:flex-none py-3 px-6 rounded-xl border border-[#333] text-white font-bold text-sm hover:bg-[#222] transition-colors">
+             <button data-testid="profile-cancel-btn" className="flex-1 sm:flex-none py-3 px-6 rounded-xl border border-[#333] text-white font-bold text-sm hover:bg-[#222] transition-colors">
                {t('cancel') || "CANCEL"}
              </button>
-             <button 
+             <button
+               data-testid="profile-save-btn"
                onClick={handleSave}
                className="flex-1 sm:flex-none py-3 px-6 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20"
              >

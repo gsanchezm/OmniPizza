@@ -109,9 +109,10 @@ export default function Login() {
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-6">
-            <InputGroup 
-              label="Username" 
+            <InputGroup
+              label="Username"
               placeholder="standard_user"
+              data-testid="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               icon={
@@ -121,10 +122,11 @@ export default function Login() {
               }
             />
             
-            <InputGroup 
-              label="Password" 
+            <InputGroup
+              label="Password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
+              data-testid="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               icon={
@@ -133,7 +135,7 @@ export default function Login() {
                 </svg>
               }
               rightElement={
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-500 hover:text-white transition-colors">
+                <button type="button" data-testid="toggle-password" onClick={() => setShowPassword(!showPassword)} className="text-gray-500 hover:text-white transition-colors">
                   {showPassword ? (
                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
                   ) : (
@@ -154,6 +156,7 @@ export default function Login() {
                 <button
                   key={m.code}
                   type="button"
+                  data-testid={`market-${m.code}`}
                   onClick={() => setSelectedMarket(m.code)}
                   className={`
                     w-10 h-10 flex items-center justify-center rounded-full text-xl transition-all
@@ -169,12 +172,12 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-medium text-center">
+              <div data-testid="login-error" className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-medium text-center">
                 {error}
               </div>
             )}
 
-            <PrimaryButton type="submit" fullWidth disabled={loading}>
+            <PrimaryButton type="submit" fullWidth disabled={loading} data-testid="login-button">
               {loading ? (
                 <div className="flex items-center gap-2 justify-center">
                   <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
@@ -199,8 +202,9 @@ export default function Login() {
 
             <div className="flex flex-wrap justify-center gap-2">
               {testUsers.length > 0 ? testUsers.map(u => (
-                 <button 
+                 <button
                    key={u.username}
+                   data-testid={`user-${u.username}`}
                    onClick={() => fillUser(u.username)}
                    className="bg-[#1F1F1F] hover:bg-[#2A2A2A] text-gray-300 hover:text-white border border-[#2A2A2A] px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
                    title={u.username}
