@@ -8,7 +8,7 @@
       name="description"
       content="A multi-platform, test-friendly food ordering sandbox designed for practicing UI + API automation (web + mobile) with deterministic chaos users and multi-market pricing."
     />
-    <link rel="stylesheet" href="docs/styles.css" />
+    <link rel="stylesheet" href="./docs/styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,24 +24,13 @@
 
     <nav class="navbar">
       <div class="logo">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
+        <img
+          src="./frontend-mobile/assets/icon.png"
+          alt="OmniPizza Logo"
           width="32"
           height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          style="color: var(--primary)"
-        >
-          <path d="M15 11h.01"></path>
-          <path d="M11 15h.01"></path>
-          <path d="M16 16h.01"></path>
-          <path d="m2 16 20 6-6-20A20 20 0 0 0 2 16"></path>
-          <path d="M5.71 17.11a17.04 17.04 0 0 1 11.4-11.4"></path>
-        </svg>
+          style="border-radius: 8px"
+        />
         <span>OmniPizza</span>
       </div>
       <ul class="nav-links">
@@ -55,20 +44,17 @@
 
     <header class="hero" id="about">
       <!-- Replaced app icon with a stylized symbol for OmniPizza -->
-      <div class="hero-icon">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-        </svg>
+      <div
+        class="hero-icon"
+        style="border: none; background: transparent; box-shadow: none"
+      >
+        <img
+          src="./frontend-mobile/assets/icon.png"
+          alt="OmniPizza Logo"
+          width="64"
+          height="64"
+          style="border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2)"
+        />
       </div>
       <h1>OmniPizza — QA Testing Platform</h1>
       <p>
