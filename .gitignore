@@ -58,6 +58,7 @@ pids/
 .expo/
 .expo-shared/
 ios/
+!screenshots/ios/
 android/
 
 # Testing
