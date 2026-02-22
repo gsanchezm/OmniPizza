@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OmniPizza — QA Testing Platform</title>
+    <meta
+      name="description"
+      content="A multi-platform, test-friendly food ordering sandbox designed for practicing UI + API automation (web + mobile) with deterministic chaos users and multi-market pricing."
+    />
+    <link rel="stylesheet" href="docs/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-container">
+      <div class="bg-glow"></div>
+      <div class="bg-grid"></div>
+    </div>
+
+    <nav class="navbar">
+      <div class="logo">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="color: var(--primary)"
+        >
+          <path d="M15 11h.01"></path>
+          <path d="M11 15h.01"></path>
+          <path d="M16 16h.01"></path>
+          <path d="m2 16 20 6-6-20A20 20 0 0 0 2 16"></path>
+          <path d="M5.71 17.11a17.04 17.04 0 0 1 11.4-11.4"></path>
+        </svg>
+        <span>OmniPizza</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#documentation">Documentation</a></li>
+        <li>
+          <a href="#get-started" class="btn-primary">Get started &rarr;</a>
+        </li>
+      </ul>
+    </nav>
+
+    <header class="hero" id="about">
+      <!-- Replaced app icon with a stylized symbol for OmniPizza -->
+      <div class="hero-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+      </div>
+      <h1>OmniPizza — QA Testing Platform</h1>
+      <p>
+        A multi-platform, test-friendly food ordering sandbox designed for
+        practicing UI + API automation with deterministic chaos users and
+        multi-market pricing.
+      </p>
+
+      <div class="hero-action">
+        <div class="input-group">
+          <input type="email" placeholder="Enter your email" />
+          <button class="btn-subscribe">Subscribe</button>
+        </div>
+      </div>
+
+      <div
+        class="tech-stack-logos"
+        style="
+          font-weight: 600;
+          font-size: 1.2rem;
+          color: var(--text-muted);
+          opacity: 0.8;
+          gap: 2rem;
+        "
+      >
+        <span>React</span>
+        <span>FastAPI</span>
+        <span>Vitest</span>
+        <span>Expo</span>
+      </div>
+    </header>
+
+    <main>
+      <section id="documentation">
+        <h2>Live Deployments (Render)</h2>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Web Application</h4>
+            <p>Access the live frontend instance with multi-market pricing.</p>
+            <a
+              href="https://omnipizza-frontend.onrender.com"
+              target="_blank"
+              class="btn-primary"
+              style="display: inline-block"
+              >Open Web App &rarr;</a
+            >
+          </div>
+          <div class="card">
+            <h4>Backend API</h4>
+            <p>Access the live API with Swagger documentation.</p>
+            <a
+              href="https://omnipizza-backend.onrender.com"
+              target="_blank"
+              class="btn-primary"
+              style="display: inline-block; background: #2563eb"
+              >Open API &rarr;</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="screenshots">
+        <h2>Platform Screenshots</h2>
+
+        <h3>Desktop View</h3>
+        <div class="screenshot-grid">
+          <div class="screenshot-item">
+            <img
+              src="screenshots/desktop/login_desktop.png"
+              alt="Desktop Login"
+            />
+            <span>Login</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/desktop/catalog_desktop.png"
+              alt="Desktop Catalog"
+            />
+            <span>Catalog</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/desktop/pizzabuilder_desktop.png"
+              alt="Pizza Customizer"
+            />
+            <span>Pizza Customizer</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/desktop/checkout_desktop.png"
+              alt="Checkout"
+            />
+            <span>Checkout</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/desktop/ordersuccess_desktop.png"
+              alt="Order Success"
+            />
+            <span>Order Success</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 4rem">Responsive (Mobile Web)</h3>
+        <div
+          class="screenshot-grid"
+          style="grid-template-columns: repeat(5, 1fr)"
+        >
+          <div class="screenshot-item">
+            <img
+              src="screenshots/responsive/login_responsive.png"
+              alt="Responsive Login"
+            />
+            <span>Login</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/responsive/catalog_responsive.png"
+              alt="Responsive Catalog"
+            />
+            <span>Catalog</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/responsive/pizzabuilder_responsive.png"
+              alt="Pizza Customizer"
+            />
+            <span>Builder</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/responsive/checkout_responsive.png"
+              alt="Checkout"
+            />
+            <span>Checkout</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/responsive/ordersuccess_responsive.png"
+              alt="Success"
+            />
+            <span>Success</span>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 4rem">iOS (React Native)</h3>
+        <div
+          class="screenshot-grid"
+          style="grid-template-columns: repeat(5, 1fr)"
+        >
+          <div class="screenshot-item">
+            <img src="screenshots/ios/login_ios.png" alt="iOS Login" />
+            <span>Login</span>
+          </div>
+          <div class="screenshot-item">
+            <img src="screenshots/ios/catalog_ios.png" alt="iOS Catalog" />
+            <span>Catalog</span>
+          </div>
+          <div class="screenshot-item">
+            <img
+              src="screenshots/ios/pizzabuilder_ios.png"
+              alt="Pizza Builder"
+            />
+            <span>Builder</span>
+          </div>
+          <div class="screenshot-item">
+            <img src="screenshots/ios/checkout_ios.png" alt="iOS Checkout" />
+            <span>Checkout</span>
+          </div>
+          <div class="screenshot-item">
+            <img src="screenshots/ios/ordersuccess_ios.png" alt="iOS Success" />
+            <span>Success</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>What's Inside</h2>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Test Users (Chaos Behaviors)</h4>
+            <p>
+              Designed with deterministic user personas for solid automated
+              testing.
+            </p>
+            <ul>
+              <li class="list-item">
+                <strong>standard_user:</strong> Normal flow (pw: pizza123)
+              </li>
+              <li class="list-item">
+                <strong>locked_out_user:</strong> Login fails (deterministic)
+              </li>
+              <li class="list-item">
+                <strong>problem_user:</strong> $0 prices + broken images
+              </li>
+              <li class="list-item">
+                <strong>performance_glitch_user:</strong> API delay (~3s)
+              </li>
+              <li class="list-item">
+                <strong>error_user:</strong> Random checkout error (~50%)
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Multi-Market Support</h4>
+            <p>Simulates complex regional business rules and i18n logic.</p>
+            <ul>
+              <li class="list-item">
+                <strong>MX (MXN):</strong> Requires `colonia`, Spanish (es)
+              </li>
+              <li class="list-item">
+                <strong>US (USD):</strong> Requires `zip_code`, English (en)
+              </li>
+              <li class="list-item">
+                <strong>CH (CHF):</strong> Requires `plz`, DE/FR Toggle
+              </li>
+              <li class="list-item">
+                <strong>JP (JPY):</strong> Requires `prefectura`, Japanese (ja)
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>API Testing Features</h4>
+            <p>Extensive header-based variations testing.</p>
+            <ul>
+              <li class="list-item">
+                Headers `X-Country-Code` & `X-Language` define runtime API
+                behaviors.
+              </li>
+              <li class="list-item">
+                Fully authenticated endpoints using JWT.
+              </li>
+              <li class="list-item">
+                Swagger, Redoc, and OpenAPI JSON exposed standard.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="api-docs">
+        <h2>API Documentation</h2>
+        <p>
+          The backend exposes full OpenAPI documentation via
+          <strong>Swagger UI</strong> and <strong>ReDoc</strong>.
+        </p>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Swagger UI</h4>
+            <p>Interactive documentation to test endpoints.</p>
+            <a
+              href="https://omnipizza-backend.onrender.com/api/docs"
+              target="_blank"
+              >View Swagger API &rarr;</a
+            >
+          </div>
+          <div class="card">
+            <h4>ReDoc</h4>
+            <p>Clean, readable API reference.</p>
+            <a
+              href="https://omnipizza-backend.onrender.com/api/redoc"
+              target="_blank"
+              >View ReDoc API &rarr;</a
+            >
+          </div>
+          <div class="card">
+            <h4>OpenAPI JSON</h4>
+            <p>Raw specification for contract testing.</p>
+            <a
+              href="https://omnipizza-backend.onrender.com/api/openapi.json"
+              target="_blank"
+              >View Raw JSON &rarr;</a
+            >
+          </div>
+        </div>
+
+        <h3 style="margin-top: 3rem">Required Request Headers</h3>
+        <pre><code>X-Country-Code: MX | US | CH | JP
+X-Language: en | es | de | fr | ja
+Authorization: Bearer &lt;token&gt; (after login)</code></pre>
+      </section>
+
+      <section id="get-started">
+        <h2>Run Locally</h2>
+
+        <h3>Backend Environment</h3>
+        <pre><code>cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py</code></pre>
+
+        <h3>Web Application</h3>
+        <pre><code>cd frontend
+npm install
+VITE_API_URL=http://localhost:8000 npm run dev</code></pre>
+
+        <h3>Mobile Application (Expo / RN)</h3>
+        <pre><code>cd frontend-mobile
+npm install
+npm run ios   # or npm run android</code></pre>
+
+        <h3>API Tests (Vitest)</h3>
+        <pre><code>cd tests
+pnpm install
+pnpm test        # Run all tests
+pnpm test:ui     # Interactive UI runner</code></pre>
+      </section>
+
+      <section id="automation">
+        <h2>Automation Notes</h2>
+        <ul>
+          <li class="list-item">
+            <code>/api/pizzas</code> requires <code>X-Country-Code</code> header
+            for market pricing.
+          </li>
+          <li class="list-item">
+            Use the test users to validate reliability and chaos behaviors.
+          </li>
+          <li class="list-item">
+            All interactive elements have <code>data-testid</code> attributes
+            for stable selectors.
+          </li>
+          <li class="list-item">
+            Checkout form fields are dynamic per market &mdash; ensure
+            automation handles conditional rendering.
+          </li>
+          <li class="list-item">
+            Phone input uses <code>type="tel"</code> with pattern validation
+            (7-20 digits/spaces/+/-).
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 OmniPizza QA Sandbox. Open Sourced under MIT License.</p>
+    </footer>
+  </body>
+</html>
