@@ -302,11 +302,19 @@ const UI_TEXT = {
   },
 };
 
+const FALLBACK_TAX_RATE_BY_COUNTRY = {
+  MX: 0,
+  US: 0.08,
+  CH: 0,
+  JP: 0,
+};
+
 export default function Checkout() {
   const navigate = useNavigate();
   const { tid } = useResponsive();
 
   const countryCode = useCountryStore((s) => s.countryCode);
+  const countryInfo = useCountryStore((s) => s.countryInfo);
   const language = useCountryStore((s) => s.language);
   const locale = useCountryStore((s) => s.locale);
 
@@ -349,6 +357,21 @@ export default function Checkout() {
         0,
       ),
     [items],
+  );
+  const taxRate = useMemo(() => {
+    const apiTaxRate = Number(countryInfo?.tax_rate);
+    if (Number.isFinite(apiTaxRate)) return apiTaxRate;
+    return FALLBACK_TAX_RATE_BY_COUNTRY[countryCode] ?? 0;
+  }, [countryCode, countryInfo]);
+  const taxAmount = useMemo(() => subtotal * taxRate, [subtotal, taxRate]);
+  const totalAmount = useMemo(() => subtotal + taxAmount, [subtotal, taxAmount]);
+  const taxPercent = useMemo(
+    () =>
+      (taxRate * 100).toLocaleString(locale || "en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }),
+    [locale, taxRate],
   );
 
   const currency = items[0]?.currency || "USD";
@@ -822,8 +845,10 @@ export default function Checkout() {
                 <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
               </div>
               <div className="flex justify-between text-gray-400 text-sm">
-                <span>{tOpt(UI_TEXT.tax, language)} (8%)</span>
-                <span>$4.12</span>
+                <span>
+                  {tOpt(UI_TEXT.tax, language)} ({taxPercent}%)
+                </span>
+                <span>{formatMoney(taxAmount, currency, locale, symbol)}</span>
               </div>
               <div className="flex justify-between text-[#FF5722] text-sm font-bold">
                 <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
@@ -836,7 +861,7 @@ export default function Checkout() {
                 {tOpt(UI_TEXT.total, language)}
               </div>
               <div className="text-2xl text-white font-black">
-                {formatMoney(subtotal, currency, locale, symbol)}
+                {formatMoney(totalAmount, currency, locale, symbol)}
               </div>
             </div>
 
