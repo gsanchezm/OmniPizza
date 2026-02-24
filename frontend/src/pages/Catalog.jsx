@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
+import { useResponsive } from "../hooks/useResponsive";
 import { UI_STRINGS } from "../constants/pizza";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 import { useT } from "../i18n";
@@ -32,6 +33,7 @@ function formatMoney(value, currency, locale, symbol) {
 export default function Catalog() {
   const t = useT();
   const navigate = useNavigate();
+  const { tid } = useResponsive();
 
   const username = useAuthStore((s) => s.username);
   const countryCode = useCountryStore((s) => s.countryCode);
@@ -114,7 +116,7 @@ export default function Catalog() {
                       <div className="w-full max-w-2xl relative">
                          <input
                            type="text"
-                           data-testid="search-pizza"
+                           data-testid={tid("search-pizza")}
                            placeholder={t('searchPlaceholder')}
                            value={searchQuery}
                            onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,18 +136,19 @@ export default function Catalog() {
                 {filteredPizzas.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredPizzas.map(pizza => (
-                       <ProductCard 
-                         key={pizza.id} 
-                         pizza={pizza} 
+                       <ProductCard
+                         key={pizza.id}
+                         pizza={pizza}
                          onAdd={handleOpenModal}
                          formatPrice={(val, curr) => formatMoney(val, curr, locale, pizza.currency_symbol)}
+                         tid={tid}
                        />
                     ))}
                   </div>
                 ) : (
                    <div className="text-center py-20 bg-[#1E1E1E] rounded-3xl border border-[#2A2A2A]">
                       <p className="text-gray-500 font-bold">No pizzas found matching your criteria.</p>
-                      <button data-testid="clear-filters" onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">Clear Filters</button>
+                      <button data-testid={tid("clear-filters")} onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">Clear Filters</button>
                    </div>
                 )}
              </div>

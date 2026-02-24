@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useOrderStore } from '../store';
 import { useT } from '../i18n';
 import { formatMoney } from '../utils/money';
+import { useResponsive } from '../hooks/useResponsive';
 
 export default function OrderSuccess() {
   const t = useT();
   const navigate = useNavigate();
+  const { tid } = useResponsive();
   const order = useOrderStore((s) => s.lastOrder);
 
   // Fake courier data
@@ -50,7 +52,7 @@ export default function OrderSuccess() {
            </div>
 
            <button
-             data-testid="back-to-catalog"
+             data-testid={tid("back-to-catalog")}
              onClick={() => navigate('/catalog')}
              className="absolute top-6 left-6 w-10 h-10 bg-[#1A1A1A] rounded-full flex items-center justify-center border border-[#333] text-white hover:bg-[#333]"
            >
@@ -64,7 +66,7 @@ export default function OrderSuccess() {
                
                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
                    <div>
-                       <h1 data-testid="order-success-title" className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
+                       <h1 data-testid={tid("order-success-title")} className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
                            {t('outForDelivery')}
                        </h1>
                        <p className="text-gray-500 font-medium">
@@ -100,7 +102,7 @@ export default function OrderSuccess() {
                    </div>
                    
                    <div className="flex gap-3">
-                       <button data-testid="courier-chat" className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
+                       <button data-testid={tid("courier-chat")} className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
                            <img src="/images/ui/icon_chat.png" alt="Chat" className="w-5 h-5 object-contain" />
                        </button>
                        <button data-testid="courier-call" className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">

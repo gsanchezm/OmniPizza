@@ -1,9 +1,11 @@
 import React from 'react';
 import { useProfileStore } from '../store';
 import { useT } from '../i18n';
+import { useResponsive } from '../hooks/useResponsive';
 
 export default function Profile() {
   const t = useT();
+  const { tid } = useResponsive();
   const { fullName, address, phone, notes, setProfile } = useProfileStore();
 
   const handleSave = () => {
@@ -73,7 +75,7 @@ export default function Profile() {
                  {t('fullName')}
                </label>
                <input
-                 data-testid="profile-fullname"
+                 data-testid={tid("profile-fullname")}
                  className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                  value={fullName}
                  onChange={(e)=>setProfile({fullName:e.target.value})}
@@ -97,7 +99,7 @@ export default function Profile() {
                {t('address') || "Delivery Address"}
              </label>
              <input
-               data-testid="profile-address"
+               data-testid={tid("profile-address")}
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                value={address}
                onChange={(e)=>setProfile({address:e.target.value})}
@@ -129,7 +131,7 @@ export default function Profile() {
                {t('cancel') || "CANCEL"}
              </button>
              <button
-               data-testid="profile-save-btn"
+               data-testid={tid("profile-save-btn")}
                onClick={handleSave}
                className="flex-1 sm:flex-none py-3 px-6 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20"
              >

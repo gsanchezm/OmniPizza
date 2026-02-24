@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useResponsive } from "../hooks/useResponsive";
 import { orderService } from "../services/order.service";
 import {
   useCartStore,
@@ -303,6 +304,7 @@ const UI_TEXT = {
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const { tid } = useResponsive();
 
   const countryCode = useCountryStore((s) => s.countryCode);
   const language = useCountryStore((s) => s.language);
@@ -445,7 +447,7 @@ export default function Checkout() {
                     {tOpt(UI_TEXT.streetPlaceholder, language)}
                   </label>
                   <input
-                    data-testid="address"
+                    data-testid={tid("address")}
                     className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                     placeholder={tOpt(
                       {
@@ -569,7 +571,7 @@ export default function Checkout() {
                       {tOpt(UI_TEXT.fullName, language)}
                     </label>
                     <input
-                      data-testid="full-name"
+                      data-testid={tid("full-name")}
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="Julian Casablancas"
                       value={form.name}
@@ -585,7 +587,7 @@ export default function Checkout() {
                     </label>
                     <input
                       type="tel"
-                      data-testid="phone"
+                      data-testid={tid("phone")}
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="+52 55 1234 5678"
                       value={form.phone}
@@ -617,7 +619,7 @@ export default function Checkout() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <button
                     type="button"
-                    data-testid="payment-card"
+                    data-testid={tid("payment-card")}
                     onClick={() => setPaymentMethod("card")}
                     className={`p-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${paymentMethod === "card" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
                   >
@@ -839,7 +841,7 @@ export default function Checkout() {
             </div>
 
             <button
-              data-testid="place-order-btn"
+              data-testid={tid("place-order-btn")}
               onClick={() =>
                 document.getElementById("checkout-form").requestSubmit()
               }

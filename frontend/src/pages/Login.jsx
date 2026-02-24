@@ -4,6 +4,7 @@ import { useAuthStore, useCountryStore } from "../store";
 import { authService } from "../services/auth.service";
 import InputGroup from "../components/InputGroup";
 import PrimaryButton from "../components/PrimaryButton";
+import { useResponsive } from "../hooks/useResponsive";
 
 const USER_HINTS = {
   standard_user: "Standard",
@@ -22,6 +23,7 @@ export default function Login() {
   const [testUsers, setTestUsers] = useState([]);
 
   const navigate = useNavigate();
+  const { tid } = useResponsive();
   const token = useAuthStore((s) => s.token);
   const login = useAuthStore((s) => s.login);
   const setCountryCode = useCountryStore((s) => s.setCountryCode);
@@ -112,7 +114,7 @@ export default function Login() {
             <InputGroup
               label="Username"
               placeholder="standard_user"
-              data-testid="username"
+              data-testid={tid("username")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               icon={
@@ -126,7 +128,7 @@ export default function Login() {
               label="Password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
-              data-testid="password"
+              data-testid={tid("password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               icon={
@@ -177,7 +179,7 @@ export default function Login() {
               </div>
             )}
 
-            <PrimaryButton type="submit" fullWidth disabled={loading} data-testid="login-button">
+            <PrimaryButton type="submit" fullWidth disabled={loading} data-testid={tid("login-button")}>
               {loading ? (
                 <div className="flex items-center gap-2 justify-center">
                   <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
