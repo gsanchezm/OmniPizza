@@ -775,19 +775,21 @@ export default function Checkout() {
         {/* Right Column: Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-[#121212] rounded-3xl p-8 border border-[#1F1F1F] sticky top-8">
-            <h2 className="text-2xl font-black text-white mb-8">
+            <h2 data-testid="order-summary-title" className="text-2xl font-black text-white mb-8">
               {tOpt(UI_TEXT.orderSummary, language)}
             </h2>
 
-            <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div data-testid="order-summary-items" className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
               {items.map((it) => (
                 <div
                   key={it.id}
+                  data-testid={`order-item-${it.pizza_id}`}
                   className="flex gap-4 items-start relative group"
                 >
                   {/* Using generic pizza image for now, can be dynamic later */}
                   <div className="w-12 h-12 rounded-full bg-[#1F1F1F] flex-shrink-0 overflow-hidden">
                     <img
+                      data-testid={`order-item-image-${it.pizza_id}`}
                       src={
                         it.pizza.image ||
                         "https://omnipizza.onrender.com/static/images/pizza-1.png"
@@ -797,10 +799,10 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="text-white font-bold text-sm">
+                    <div data-testid={`order-item-name-${it.pizza_id}`} className="text-white font-bold text-sm">
                       {it.pizza.name}
                     </div>
-                    <div className="text-gray-500 text-xs">
+                    <div data-testid={`order-item-details-${it.pizza_id}`} className="text-gray-500 text-xs">
                       {it.quantity}x •{" "}
                       {tOpt(
                         SIZE_OPTIONS.find(
@@ -811,6 +813,7 @@ export default function Checkout() {
                     </div>
                     <div className="flex gap-3 mt-1.5">
                       <button
+                        data-testid={`order-item-edit-${it.pizza_id}`}
                         onClick={() => {
                           setEditing(it);
                           setEditOpen(true);
@@ -820,6 +823,7 @@ export default function Checkout() {
                         {tOpt(UI_TEXT.edit, language)}
                       </button>
                       <button
+                        data-testid={`order-item-remove-${it.pizza_id}`}
                         onClick={() => removeItem(it.id)}
                         className="text-[10px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-wider transition-colors"
                       >
@@ -827,7 +831,7 @@ export default function Checkout() {
                       </button>
                     </div>
                   </div>
-                  <div className="text-white font-bold text-sm">
+                  <div data-testid={`order-item-price-${it.pizza_id}`} className="text-white font-bold text-sm">
                     {formatMoney(
                       it.unit_price * it.quantity,
                       it.currency,
@@ -840,23 +844,23 @@ export default function Checkout() {
             </div>
 
             <div className="border-t border-[#1F1F1F] pt-4 space-y-3 mb-8">
-              <div className="flex justify-between text-gray-400 text-sm">
+              <div data-testid="order-subtotal" className="flex justify-between text-gray-400 text-sm">
                 <span>{tOpt(UI_TEXT.subtotal, language)}</span>
                 <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
               </div>
-              <div className="flex justify-between text-gray-400 text-sm">
+              <div data-testid="order-tax" className="flex justify-between text-gray-400 text-sm">
                 <span>
                   {tOpt(UI_TEXT.tax, language)} ({taxPercent}%)
                 </span>
                 <span>{formatMoney(taxAmount, currency, locale, symbol)}</span>
               </div>
-              <div className="flex justify-between text-[#FF5722] text-sm font-bold">
+              <div data-testid="order-delivery-fee" className="flex justify-between text-[#FF5722] text-sm font-bold">
                 <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
                 <span>{tOpt(UI_TEXT.free, language)}</span>
               </div>
             </div>
 
-            <div className="flex justify-between items-end mb-8">
+            <div data-testid="order-total" className="flex justify-between items-end mb-8">
               <div className="text-xl text-white font-black">
                 {tOpt(UI_TEXT.total, language)}
               </div>
