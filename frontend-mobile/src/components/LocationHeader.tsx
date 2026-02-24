@@ -15,11 +15,43 @@ export const LocationHeader = ({
 }: {
   onProfilePress?: () => void;
 }) => {
-  const { country } = useAppStore();
+  const { country, language, setLanguage } = useAppStore();
 
   return (
     <View style={styles.container}>
       <View style={styles.left}>
+        {country === "CH" && (
+          <View style={styles.langWrap}>
+            <TouchableOpacity
+              onPress={() => setLanguage("de")}
+              style={[styles.langBtn, language === "de" && styles.langBtnActive]}
+            >
+              <Text
+                style={[
+                  styles.langText,
+                  language === "de" && styles.langTextActive,
+                ]}
+              >
+                DE
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setLanguage("fr")}
+              style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
+            >
+              <Text
+                style={[
+                  styles.langText,
+                  language === "fr" && styles.langTextActive,
+                ]}
+              >
+                FR
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <Image
           source={{
             uri: "https://omnipizza-frontend.onrender.com/omnipizza-logo.png",
@@ -65,6 +97,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
+  langWrap: {
+    flexDirection: "row",
+    marginRight: 2,
+    padding: 2,
+    borderRadius: 999,
+    backgroundColor: Colors.surface.card,
+    borderWidth: 1,
+    borderColor: Colors.surface.border,
+  },
+  langBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
+  langBtnActive: { backgroundColor: Colors.brand.primary },
+  langText: { fontWeight: "800", fontSize: 10, color: Colors.text.muted },
+  langTextActive: { color: "#FFFFFF" },
   iconBg: {
     width: 40,
     height: 40,

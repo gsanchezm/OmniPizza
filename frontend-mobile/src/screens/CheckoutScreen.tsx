@@ -16,12 +16,21 @@ import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { orderService } from "../services/order.service";
 import type { CartItem } from "../store/useAppStore";
-import { SIZE_OPTIONS } from "../constants/pizza";
 
 const { width } = Dimensions.get("window");
 
-function money(value: number, currency: string) {
-  return currency === "JPY" ? `¥${value}` : `$${value.toFixed(2)}`;
+function normalizeMoneyAmount(value: number, currency: string) {
+  if (!Number.isFinite(value)) return 0;
+  if (currency === "JPY") return Math.round(value);
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function money(value: number, currency: string, symbol?: string) {
+  const amount = normalizeMoneyAmount(value, currency);
+  const safeSymbol =
+    typeof symbol === "string" ? symbol : currency === "JPY" ? "¥" : "$";
+  if (currency === "JPY") return `${safeSymbol}${amount}`;
+  return `${safeSymbol}${amount.toFixed(2)}`;
 }
 
 export default function CheckoutScreen({ navigation }: any) {
@@ -57,12 +66,14 @@ export default function CheckoutScreen({ navigation }: any) {
     );
   }, [cartItems]);
 
+  const TAX_RATE = 0.08;
   const deliveryFee = 2.0;
   const tipAmount = tipOption === "2" ? 2 : tipOption === "5" ? 5 : tipOption === "10" ? 10 : 0;
-  const tax = subtotal * 0.08;
+  const tax = subtotal * TAX_RATE;
   const total = subtotal + deliveryFee + tipAmount + tax;
 
   const currency = cartItems[0]?.currency || "USD";
+  const currencySymbol = cartItems[0]?.currency_symbol;
 
   const placeOrder = async () => {
     setError("");
@@ -425,7 +436,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 </View>
               </View>
               <Text style={styles.itemPrice}>
-                {money(item.unit_price * item.quantity, currency)}
+                {money(item.unit_price * item.quantity, currency, currencySymbol)}
               </Text>
             </View>
           ))}
@@ -436,11 +447,11 @@ export default function CheckoutScreen({ navigation }: any) {
         {/* Totals */}
         <View style={styles.costRow}>
           <Text style={styles.costLabel}>{t("subtotal")}</Text>
-          <Text style={styles.costValue}>{money(subtotal, currency)}</Text>
+          <Text style={styles.costValue}>{money(subtotal, currency, currencySymbol)}</Text>
         </View>
         <View style={styles.costRow}>
           <Text style={styles.costLabel}>{t("deliveryFee")}</Text>
-          <Text style={styles.costValue}>{money(deliveryFee, currency)}</Text>
+          <Text style={styles.costValue}>{money(deliveryFee, currency, currencySymbol)}</Text>
         </View>
 
         {/* Tip Row */}
@@ -465,7 +476,7 @@ export default function CheckoutScreen({ navigation }: any) {
                   tipOption === "2" && styles.tipTextActive,
                 ]}
               >
-                $2
+                {money(2, currency, currencySymbol)}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -481,7 +492,7 @@ export default function CheckoutScreen({ navigation }: any) {
                   tipOption === "5" && styles.tipTextActive,
                 ]}
               >
-                $5
+                {money(5, currency, currencySymbol)}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -497,20 +508,22 @@ export default function CheckoutScreen({ navigation }: any) {
                   tipOption === "10" && styles.tipTextActive,
                 ]}
               >
-                $10
+                {money(10, currency, currencySymbol)}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.costRow}>
-          <Text style={styles.costLabel}>{t("tax")} (9.5%)</Text>
-          <Text style={styles.costValue}>{money(tax, currency)}</Text>
+          <Text style={styles.costLabel}>
+            {t("tax")} ({(TAX_RATE * 100).toFixed(0)}%)
+          </Text>
+          <Text style={styles.costValue}>{money(tax, currency, currencySymbol)}</Text>
         </View>
 
         <View style={[styles.costRow, { marginTop: 20 }]}>
           <Text style={styles.totalLabel}>{t("totalPrice")}</Text>
-          <Text style={styles.totalValue}>{money(total, currency)}</Text>
+          <Text style={styles.totalValue}>{money(total, currency, currencySymbol)}</Text>
         </View>
 
         <Text style={styles.arrival}>{t("expectedArrival")}: 25-35 min</Text>

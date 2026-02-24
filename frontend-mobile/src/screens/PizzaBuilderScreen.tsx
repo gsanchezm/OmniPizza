@@ -168,13 +168,15 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           <View style={styles.sizePills}>
             {SIZE_OPTIONS.map((opt) => {
               const active = opt.id === size;
-              const labelText = String(tOpt(opt.label, language));
-              const hasPrice = labelText.includes("(");
-              const splitIndex = labelText.indexOf("(");
-              const mainText = hasPrice
-                ? labelText.substring(0, splitIndex).trim()
-                : labelText;
-              const subText = hasPrice ? labelText.substring(splitIndex) : null;
+              const rawLabelText = String(tOpt(opt.label, language));
+              const mainText = rawLabelText.replace(/\s*\(.+\)\s*$/, "").trim();
+              const localSizeAdd =
+                opt.usd > 0 ? usdToLocalCeil(opt.usd, pizza) : 0;
+              const subText =
+                localSizeAdd > 0
+                  ? `(+${formatMoney(localSizeAdd, pizza.currency, pizza.currency_symbol)})`
+                  : null;
+              const hasPrice = subText !== null;
 
               return (
                 <TouchableOpacity
@@ -314,8 +316,17 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           <TouchableOpacity style={styles.addToCartBtn} onPress={confirm}>
             <Text style={styles.addToCartText}>
               {mode === "edit"
-                ? tOpt({ en: "Update", es: "Actualizar" }, language)
-                : tOpt({ en: "Add to Cart", es: "Agregar" }, language)}
+                ? tOpt(
+                    {
+                      en: "Update",
+                      es: "Actualizar",
+                      de: "Aktualisieren",
+                      fr: "Mettre à jour",
+                      ja: "更新",
+                    },
+                    language,
+                  )
+                : tOpt(UI_STRINGS.confirm, language)}
             </Text>
             <Text style={{ fontSize: 20 }}>🛒</Text>
           </TouchableOpacity>

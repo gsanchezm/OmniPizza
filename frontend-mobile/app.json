@@ -2,6 +2,7 @@
   "expo": {
     "name": "OmniPizza",
     "slug": "omnipizza",
+    "scheme": "omnipizza",
     "version": "1.0.0",
     "orientation": "default",
 
