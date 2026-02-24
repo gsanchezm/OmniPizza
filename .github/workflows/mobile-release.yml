@@ -12,6 +12,8 @@ jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./frontend-mobile
@@ -65,12 +67,12 @@ jobs:
           files: |
             frontend-mobile/android/app/build/outputs/apk/release/app-release.apk
             frontend-mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-ios:
     name: Build iOS Simulator App
     runs-on: macos-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./frontend-mobile
@@ -125,5 +127,3 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: frontend-mobile/ios/build/Build/Products/Release-iphonesimulator/OmniPizza-Simulator.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
