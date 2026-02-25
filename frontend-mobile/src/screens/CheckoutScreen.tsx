@@ -149,19 +149,22 @@ export default function CheckoutScreen({ navigation }: any) {
 
   if (!cartItems.length) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} accessibilityLabel="screen-checkout-empty" testID="screen-checkout-empty">
         <CustomNavbar title={t("checkout")} navigation={navigation} />
         <View
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+          accessibilityLabel="view-empty-cart"
         >
-          <Text style={{ color: "white", marginBottom: 20 }}>
+          <Text style={{ color: "white", marginBottom: 20 }} accessibilityLabel="text-cart-empty">
             {t("cartEmpty")}
           </Text>
           <TouchableOpacity
             style={styles.btnPrimary}
             onPress={() => navigation.navigate("Catalog")}
+            accessibilityLabel="btn-go-to-menu"
+            testID="btn-go-to-menu"
           >
-            <Text style={styles.btnText}>{t("goToMenu")}</Text>
+            <Text style={styles.btnText} accessibilityLabel="text-go-to-menu">{t("goToMenu")}</Text>
           </TouchableOpacity>
         </View>
         <BottomNavBar />
@@ -170,13 +173,13 @@ export default function CheckoutScreen({ navigation }: any) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityLabel="screen-checkout" testID="screen-checkout">
       <CustomNavbar title={t("checkout")} navigation={navigation} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-checkout">
         {/* Delivery Address */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("streetAndNumber")}</Text>
+        <View style={styles.sectionHeader} accessibilityLabel="view-section-address">
+          <Text style={styles.sectionTitle} accessibilityLabel="text-section-address">{t("streetAndNumber")}</Text>
         </View>
 
         <TextInput
@@ -185,24 +188,28 @@ export default function CheckoutScreen({ navigation }: any) {
           placeholderTextColor="#555"
           value={form.address}
           onChangeText={(v) => setForm((p) => ({ ...p, address: v }))}
+          testID="input-address"
+          accessibilityLabel="input-address"
         />
 
         {/* Country-specific fields */}
         {country === "MX" && (
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.cardFieldLabel}>{t("colonia")}</Text>
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-colonia">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-colonia">{t("colonia")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Polanco"
               placeholderTextColor="#555"
               value={form.colonia}
               onChangeText={(v) => setForm((p) => ({ ...p, colonia: v }))}
+              accessibilityLabel="input-colonia"
+              testID="input-colonia"
             />
           </View>
         )}
         {country === "US" && (
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.cardFieldLabel}>{t("zipCode")}</Text>
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-zipcode">{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="90210"
@@ -212,51 +219,58 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
               }
+              accessibilityLabel="input-zipcode"
+              testID="input-zipcode"
             />
           </View>
         )}
         {country === "CH" && (
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.cardFieldLabel}>{t("plz")}</Text>
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-plz">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-plz">{t("plz")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="8001"
               placeholderTextColor="#555"
               value={form.plz}
               onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
+              accessibilityLabel="input-plz"
             />
           </View>
         )}
         {country === "JP" && (
-          <View style={{ marginTop: 12 }}>
-            <Text style={styles.cardFieldLabel}>{t("prefecture")}</Text>
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-prefecture">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-prefecture">{t("prefecture")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="東京都"
               placeholderTextColor="#555"
               value={form.prefectura}
               onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
+              accessibilityLabel="input-prefecture"
+              testID="input-prefecture"
             />
           </View>
         )}
 
         {/* Contact Info */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("contactInfo")}</Text>
+        <View style={styles.sectionHeader} accessibilityLabel="view-section-contact">
+          <Text style={styles.sectionTitle} accessibilityLabel="text-section-contact">{t("contactInfo")}</Text>
         </View>
-        <View style={{ gap: 12 }}>
-          <View>
-            <Text style={styles.cardFieldLabel}>{t("fullName")}</Text>
+        <View style={{ gap: 12 }} accessibilityLabel="view-contact-fields">
+          <View accessibilityLabel="view-field-fullname">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-fullname">{t("fullName")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Julian Casablancas"
               placeholderTextColor="#555"
               value={form.name}
               onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
+              accessibilityLabel="input-fullname"
+              testID="input-fullname"
             />
           </View>
-          <View>
-            <Text style={styles.cardFieldLabel}>{t("phone")}</Text>
+          <View accessibilityLabel="view-field-phone">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-phone">{t("phone")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="+52 55 1234 5678"
@@ -266,13 +280,15 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, phone: v.replace(/[^0-9]/g, "") }))
               }
+              testID="input-phone"
+              accessibilityLabel="input-phone"
             />
           </View>
         </View>
 
         {/* Payment Method */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("paymentMethod")}</Text>
+        <View style={styles.sectionHeader} accessibilityLabel="view-section-payment">
+          <Text style={styles.sectionTitle} accessibilityLabel="text-section-payment">{t("paymentMethod")}</Text>
         </View>
 
         <TouchableOpacity
@@ -281,21 +297,24 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "card" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("card")}
+          testID="btn-payment-card"
+          accessibilityLabel="btn-payment-card"
         >
-          <View style={styles.paymentIcon}>
-            <Text style={{ fontSize: 20 }}>💳</Text>
+          <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-card">
+            <Text style={{ fontSize: 20 }} accessibilityLabel="icon-credit-card">💳</Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.paymentLabel}>{t("creditCard")}</Text>
-            <Text style={styles.paymentSub}>•••• •••• •••• 4242</Text>
+          <View style={{ flex: 1 }} accessibilityLabel="view-payment-card-info">
+            <Text style={styles.paymentLabel} accessibilityLabel="text-payment-card-label">{t("creditCard")}</Text>
+            <Text style={styles.paymentSub} accessibilityLabel="text-payment-card-number">•••• •••• •••• 4242</Text>
           </View>
           <View
             style={[
               styles.radio,
               paymentMethod === "card" && styles.radioActive,
             ]}
+            accessibilityLabel="radio-payment-card"
           >
-            {paymentMethod === "card" && <View style={styles.radioInner} />}
+            {paymentMethod === "card" && <View style={styles.radioInner} accessibilityLabel="radio-inner-card" />}
           </View>
         </TouchableOpacity>
 
@@ -305,38 +324,43 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "cash" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("cash")}
+          testID="btn-payment-cash"
+          accessibilityLabel="btn-payment-cash"
         >
-          <View style={styles.paymentIcon}>
-            <Text style={{ fontSize: 20 }}>💵</Text>
+          <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-cash">
+            <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cash">💵</Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.paymentLabel}>{t("payOnDelivery")}</Text>
-            <Text style={styles.paymentSub}>{t("cash")}</Text>
+          <View style={{ flex: 1 }} accessibilityLabel="view-payment-cash-info">
+            <Text style={styles.paymentLabel} accessibilityLabel="text-payment-cash-label">{t("payOnDelivery")}</Text>
+            <Text style={styles.paymentSub} accessibilityLabel="text-payment-cash-desc">{t("cash")}</Text>
           </View>
           <View
             style={[
               styles.radio,
               paymentMethod === "cash" && styles.radioActive,
             ]}
+            accessibilityLabel="radio-payment-cash"
           >
-            {paymentMethod === "cash" && <View style={styles.radioInner} />}
+            {paymentMethod === "cash" && <View style={styles.radioInner} accessibilityLabel="radio-inner-cash" />}
           </View>
         </TouchableOpacity>
 
         {paymentMethod === "card" && (
-          <View style={styles.cardFields}>
-            <View>
-              <Text style={styles.cardFieldLabel}>{t("cardHolder")}</Text>
+          <View style={styles.cardFields} accessibilityLabel="view-card-fields" testID="view-card-fields">
+            <View accessibilityLabel="view-field-card-holder">
+              <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-holder">{t("cardHolder")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="Julian Casablancas"
                 placeholderTextColor="#555"
                 value={form.card_holder}
                 onChangeText={(v) => setForm((p) => ({ ...p, card_holder: v }))}
+                accessibilityLabel="input-card-holder"
+                testID="input-card-holder"
               />
             </View>
-            <View>
-              <Text style={styles.cardFieldLabel}>{t("cardNumber")}</Text>
+            <View accessibilityLabel="view-field-card-number">
+              <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-number">{t("cardNumber")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="4242 4242 4242 4242"
@@ -350,11 +374,12 @@ export default function CheckoutScreen({ navigation }: any) {
                     card_number: v.replace(/[^0-9]/g, ""),
                   }))
                 }
+                accessibilityLabel="input-card-number"
               />
             </View>
-            <View style={{ flexDirection: "row", gap: 12 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardFieldLabel}>{t("cardExpiry")}</Text>
+            <View style={{ flexDirection: "row", gap: 12 }} accessibilityLabel="view-card-expiry-cvv">
+              <View style={{ flex: 1 }} accessibilityLabel="view-field-card-expiry">
+                <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-expiry">{t("cardExpiry")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="MM/YY"
@@ -368,10 +393,12 @@ export default function CheckoutScreen({ navigation }: any) {
                       card_expiry: v.replace(/[^0-9]/g, ""),
                     }))
                   }
+                  accessibilityLabel="input-card-expiry"
+                  testID="input-card-expiry"
                 />
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardFieldLabel}>{t("cvv")}</Text>
+              <View style={{ flex: 1 }} accessibilityLabel="view-field-card-cvv">
+                <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-cvv">{t("cvv")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="123"
@@ -386,6 +413,7 @@ export default function CheckoutScreen({ navigation }: any) {
                       card_cvv: v.replace(/[^0-9]/g, ""),
                     }))
                   }
+                  accessibilityLabel="input-card-cvv"
                 />
               </View>
             </View>
@@ -393,13 +421,13 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
 
         {/* Order Summary */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t("orderSummary")}</Text>
+        <View style={styles.sectionHeader} accessibilityLabel="view-section-summary">
+          <Text style={styles.sectionTitle} accessibilityLabel="text-section-summary" testID="text-section-summary">{t("orderSummary")}</Text>
         </View>
 
-        <View style={styles.summaryList}>
+        <View style={styles.summaryList} accessibilityLabel="view-summary-list">
           {cartItems.map((item) => (
-            <View key={item.id} style={styles.itemRow}>
+            <View key={item.id} style={styles.itemRow} accessibilityLabel={`view-item-row-${item.id}`} testID={`view-item-row-${item.id}`}>
               <Image
                 source={{
                   uri:
@@ -407,20 +435,22 @@ export default function CheckoutScreen({ navigation }: any) {
                     "https://omnipizza.onrender.com/static/images/pizza-1.png",
                 }}
                 style={styles.itemImage}
+                accessibilityLabel={`img-item-${item.id}`}
               />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.itemTitle}>
+              <View style={{ flex: 1 }} accessibilityLabel={`view-item-info-${item.id}`}>
+                <Text style={styles.itemTitle} accessibilityLabel={`text-item-title-${item.id}`} testID={`text-item-title-${item.id}`}>
                   {item.quantity}x {item.pizza.name}
                 </Text>
-                <Text style={styles.itemDetails}>{item.config?.size}</Text>
+                <Text style={styles.itemDetails} accessibilityLabel={`text-item-details-${item.id}`}>{item.config?.size}</Text>
 
-                <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }}>
+                <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }} accessibilityLabel={`view-item-actions-${item.id}`}>
                   <TouchableOpacity
                     onPress={() => {
                       /* Edit logic would go here, ideally passing item to builder */
                     }}
+                    accessibilityLabel={`btn-edit-item-${item.id}`}
                   >
-                    <Text style={styles.actionLink}>
+                    <Text style={styles.actionLink} accessibilityLabel={`text-edit-item-${item.id}`}>
                       {t("edit").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
@@ -428,53 +458,59 @@ export default function CheckoutScreen({ navigation }: any) {
                     onPress={() =>
                       useAppStore.getState().removeCartItem(item.id)
                     }
+                    accessibilityLabel={`btn-remove-item-${item.id}`}
+                    testID={`btn-remove-item-${item.id}`}
                   >
-                    <Text style={[styles.actionLink, { color: "#EF4444" }]}>
+                    <Text style={[styles.actionLink, { color: "#EF4444" }]} accessibilityLabel={`text-remove-item-${item.id}`}>
                       {t("remove").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <Text style={styles.itemPrice}>
+              <Text style={styles.itemPrice} accessibilityLabel={`text-item-price-${item.id}`} testID={`text-item-price-${item.id}`}>
                 {money(item.unit_price * item.quantity, currency, currencySymbol)}
               </Text>
             </View>
           ))}
         </View>
 
-        <View style={styles.divider} />
+        <View style={styles.divider} accessibilityLabel="view-divider" />
 
         {/* Totals */}
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>{t("subtotal")}</Text>
-          <Text style={styles.costValue}>{money(subtotal, currency, currencySymbol)}</Text>
+        <View style={styles.costRow} accessibilityLabel="view-row-subtotal">
+          <Text style={styles.costLabel} accessibilityLabel="text-subtotal-label">{t("subtotal")}</Text>
+          <Text style={styles.costValue} accessibilityLabel="text-subtotal-value" testID="text-subtotal-value">{money(subtotal, currency, currencySymbol)}</Text>
         </View>
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>{t("deliveryFee")}</Text>
-          <Text style={styles.costValue}>{money(deliveryFee, currency, currencySymbol)}</Text>
+        <View style={styles.costRow} accessibilityLabel="view-row-delivery">
+          <Text style={styles.costLabel} accessibilityLabel="text-delivery-label">{t("deliveryFee")}</Text>
+          <Text style={styles.costValue} accessibilityLabel="text-delivery-value">{money(deliveryFee, currency, currencySymbol)}</Text>
         </View>
 
         {/* Tip Row */}
         <View
           style={[styles.costRow, { alignItems: "center", marginVertical: 8 }]}
+          accessibilityLabel="view-row-tip"
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-            <Text style={styles.costLabel}>{t("tipForDriver")}</Text>
-            <Text style={{ color: "#666" }}>ℹ️</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }} accessibilityLabel="view-tip-label">
+            <Text style={styles.costLabel} accessibilityLabel="text-tip-label">{t("tipForDriver")}</Text>
+            <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
           </View>
-          <View style={{ flexDirection: "row", gap: 8 }}>
+          <View style={{ flexDirection: "row", gap: 8 }} accessibilityLabel="view-tip-options">
             <TouchableOpacity
               style={[
                 styles.tipPill,
                 tipOption === "2" && styles.tipPillActive,
               ]}
               onPress={() => setTipOption("2")}
+              accessibilityLabel="btn-tip-2"
+              testID="btn-tip-2"
             >
               <Text
                 style={[
                   styles.tipText,
                   tipOption === "2" && styles.tipTextActive,
                 ]}
+                accessibilityLabel="text-tip-2"
               >
                 {money(2, currency, currencySymbol)}
               </Text>
@@ -485,12 +521,14 @@ export default function CheckoutScreen({ navigation }: any) {
                 tipOption === "5" && styles.tipPillActive,
               ]}
               onPress={() => setTipOption("5")}
+              accessibilityLabel="btn-tip-5"
             >
               <Text
                 style={[
                   styles.tipText,
                   tipOption === "5" && styles.tipTextActive,
                 ]}
+                accessibilityLabel="text-tip-5"
               >
                 {money(5, currency, currencySymbol)}
               </Text>
@@ -501,12 +539,15 @@ export default function CheckoutScreen({ navigation }: any) {
                 tipOption === "10" && styles.tipPillActive,
               ]}
               onPress={() => setTipOption("10")}
+              accessibilityLabel="btn-tip-10"
+              testID="btn-tip-10"
             >
               <Text
                 style={[
                   styles.tipText,
                   tipOption === "10" && styles.tipTextActive,
                 ]}
+                accessibilityLabel="text-tip-10"
               >
                 {money(10, currency, currencySymbol)}
               </Text>
@@ -514,23 +555,23 @@ export default function CheckoutScreen({ navigation }: any) {
           </View>
         </View>
 
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>
+        <View style={styles.costRow} accessibilityLabel="view-row-tax">
+          <Text style={styles.costLabel} accessibilityLabel="text-tax-label">
             {t("tax")} ({(TAX_RATE * 100).toFixed(0)}%)
           </Text>
-          <Text style={styles.costValue}>{money(tax, currency, currencySymbol)}</Text>
+          <Text style={styles.costValue} accessibilityLabel="text-tax-value" testID="text-tax-value">{money(tax, currency, currencySymbol)}</Text>
         </View>
 
-        <View style={[styles.costRow, { marginTop: 20 }]}>
-          <Text style={styles.totalLabel}>{t("totalPrice")}</Text>
-          <Text style={styles.totalValue}>{money(total, currency, currencySymbol)}</Text>
+        <View style={[styles.costRow, { marginTop: 20 }]} accessibilityLabel="view-row-total">
+          <Text style={styles.totalLabel} accessibilityLabel="text-total-label">{t("totalPrice")}</Text>
+          <Text style={styles.totalValue} accessibilityLabel="text-total-value" testID="text-total-value">{money(total, currency, currencySymbol)}</Text>
         </View>
 
-        <Text style={styles.arrival}>{t("expectedArrival")}: 25-35 min</Text>
+        <Text style={styles.arrival} accessibilityLabel="text-arrival">{t("expectedArrival")}: 25-35 min</Text>
 
         {error ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorBoxText}>{error}</Text>
+          <View style={styles.errorBox} accessibilityLabel="view-checkout-error">
+            <Text style={styles.errorBoxText} accessibilityLabel="text-checkout-error" testID="text-checkout-error">{error}</Text>
           </View>
         ) : null}
 
@@ -538,8 +579,10 @@ export default function CheckoutScreen({ navigation }: any) {
           style={styles.btnPrimary}
           onPress={placeOrder}
           disabled={loading}
+          testID="btn-place-order"
+          accessibilityLabel="btn-place-order"
         >
-          <Text style={styles.btnText}>
+          <Text style={styles.btnText} accessibilityLabel="text-btn-place-order">
             {loading ? t("processing") : t("confirmPay") + "  →"}
           </Text>
         </TouchableOpacity>
@@ -588,7 +631,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#2A1810", // dark orange bg
+    backgroundColor: "#2A1810",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -737,7 +780,7 @@ const styles = StyleSheet.create({
   },
   btnPrimary: {
     backgroundColor: "#FF5722",
-    borderRadius: 30, // Tall pill shape
+    borderRadius: 30,
     paddingVertical: 18,
     alignItems: "center",
     shadowColor: "#FF5722",

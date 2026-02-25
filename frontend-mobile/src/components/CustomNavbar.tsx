@@ -19,10 +19,10 @@ export const CustomNavbar = ({ title, navigation }: any) => {
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <View style={[styles.container, compact && styles.containerCompact]} accessibilityLabel="view-navbar" testID="view-navbar">
         {/* CH language toggle (only visible for CH) */}
         {country === "CH" && (
-          <View style={styles.langWrap}>
+          <View style={styles.langWrap} accessibilityLabel="view-navbar-lang-toggle">
             <TouchableOpacity
               onPress={() => setLanguage("de")}
               style={[
@@ -36,6 +36,7 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                   styles.langText,
                   language === "de" && styles.langTextActive,
                 ]}
+                accessibilityLabel="text-lang-de"
               >
                 DE
               </Text>
@@ -54,6 +55,7 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                   styles.langText,
                   language === "fr" && styles.langTextActive,
                 ]}
+                accessibilityLabel="text-lang-fr"
               >
                 FR
               </Text>

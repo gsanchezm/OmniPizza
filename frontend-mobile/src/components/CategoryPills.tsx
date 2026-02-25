@@ -19,10 +19,11 @@ interface CategoryPillsProps {
 export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
   const t = useT();
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false} 
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
+      accessibilityLabel="view-category-pills"
     >
       {CATEGORIES.map((cat) => {
         const isActive = selected === cat.id;
@@ -31,8 +32,10 @@ export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
             key={cat.id}
             onPress={() => onSelect(cat.id)}
             style={[styles.pill, isActive && styles.pillActive]}
+            accessibilityLabel={`btn-category-${cat.id}`}
+            testID={`btn-category-${cat.id}`}
           >
-            <Text style={[styles.text, isActive && styles.textActive]}>
+            <Text style={[styles.text, isActive && styles.textActive]} accessibilityLabel={`text-category-${cat.id}`}>
               {t(cat.labelKey)}
             </Text>
           </TouchableOpacity>

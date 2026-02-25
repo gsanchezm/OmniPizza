@@ -39,13 +39,15 @@ export const BottomNavBar = () => {
 
   return (
     <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
-      <View style={styles.container}>
+      <View style={styles.container} accessibilityLabel="view-bottom-nav" testID="view-bottom-nav">
         {navItems.map((item) => {
           const isActive = route.name === item.name;
           return (
             <TouchableOpacity
               key={item.name}
               style={styles.tab}
+              testID={`nav-${item.name.toLowerCase()}`}
+              accessibilityLabel={`nav-${item.name.toLowerCase()}`}
               onPress={
                 item.onPress ||
                 (() => {
@@ -53,13 +55,13 @@ export const BottomNavBar = () => {
                 })
               }
             >
-              <View>
-                <Text style={{ fontSize: 24, opacity: isActive ? 1 : 0.5 }}>
+              <View accessibilityLabel={`view-nav-icon-${item.name.toLowerCase()}`}>
+                <Text style={{ fontSize: 24, opacity: isActive ? 1 : 0.5 }} accessibilityLabel={`icon-nav-${item.name.toLowerCase()}`}>
                   {item.icon}
                 </Text>
                 {item.badge !== undefined ? (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{item.badge}</Text>
+                  <View style={styles.badge} accessibilityLabel={`view-nav-badge-${item.name.toLowerCase()}`} testID={`view-nav-badge-${item.name.toLowerCase()}`}>
+                    <Text style={styles.badgeText} accessibilityLabel={`text-nav-badge-${item.name.toLowerCase()}`}>{item.badge}</Text>
                   </View>
                 ) : null}
               </View>
@@ -70,6 +72,7 @@ export const BottomNavBar = () => {
                     color: isActive ? Colors.brand.primary : Colors.text.muted,
                   },
                 ]}
+                accessibilityLabel={`text-nav-${item.name.toLowerCase()}`}
               >
                 {item.label}
               </Text>

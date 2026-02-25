@@ -364,7 +364,10 @@ export default function Checkout() {
     return FALLBACK_TAX_RATE_BY_COUNTRY[countryCode] ?? 0;
   }, [countryCode, countryInfo]);
   const taxAmount = useMemo(() => subtotal * taxRate, [subtotal, taxRate]);
-  const totalAmount = useMemo(() => subtotal + taxAmount, [subtotal, taxAmount]);
+  const totalAmount = useMemo(
+    () => subtotal + taxAmount,
+    [subtotal, taxAmount],
+  );
   const taxPercent = useMemo(
     () =>
       (taxRate * 100).toLocaleString(locale || "en-US", {
@@ -448,6 +451,13 @@ export default function Checkout() {
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Left Column: Forms */}
         <div className="lg:col-span-2 space-y-10">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm">
+              {typeof error === "string"
+                ? error
+                : JSON.stringify(error, null, 2)}
+            </div>
+          )}
           {/* Section 1: Delivery Address */}
           <div>
             <div className="flex items-center gap-4 mb-6">
@@ -486,6 +496,7 @@ export default function Checkout() {
                     onChange={(e) =>
                       setForm((p) => ({ ...p, address: e.target.value }))
                     }
+                    minLength={5}
                     required
                   />
                 </div>
@@ -525,6 +536,8 @@ export default function Checkout() {
                             zip_code: e.target.value.replace(/[^0-9]/g, ""),
                           }))
                         }
+                        minLength={5}
+                        maxLength={5}
                         required
                       />
                     </div>
@@ -601,6 +614,7 @@ export default function Checkout() {
                       onChange={(e) =>
                         setForm((p) => ({ ...p, name: e.target.value }))
                       }
+                      minLength={2}
                       required
                     />
                   </div>
@@ -620,7 +634,9 @@ export default function Checkout() {
                           phone: e.target.value.replace(/[^0-9]/g, ""),
                         }))
                       }
-                      pattern="[\d\s\+\-\(\)]{7,20}"
+                      pattern="[\d\s\+\-\(\)]{8,20}"
+                      minLength={8}
+                      maxLength={20}
                       title={tOpt(UI_TEXT.invalidPhone, language)}
                       required
                     />
@@ -775,11 +791,17 @@ export default function Checkout() {
         {/* Right Column: Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-[#121212] rounded-3xl p-8 border border-[#1F1F1F] sticky top-8">
-            <h2 data-testid="order-summary-title" className="text-2xl font-black text-white mb-8">
+            <h2
+              data-testid="order-summary-title"
+              className="text-2xl font-black text-white mb-8"
+            >
               {tOpt(UI_TEXT.orderSummary, language)}
             </h2>
 
-            <div data-testid="order-summary-items" className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div
+              data-testid="order-summary-items"
+              className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
+            >
               {items.map((it) => (
                 <div
                   key={it.id}
@@ -799,10 +821,16 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="flex-1">
-                    <div data-testid={`order-item-name-${it.pizza_id}`} className="text-white font-bold text-sm">
+                    <div
+                      data-testid={`order-item-name-${it.pizza_id}`}
+                      className="text-white font-bold text-sm"
+                    >
                       {it.pizza.name}
                     </div>
-                    <div data-testid={`order-item-details-${it.pizza_id}`} className="text-gray-500 text-xs">
+                    <div
+                      data-testid={`order-item-details-${it.pizza_id}`}
+                      className="text-gray-500 text-xs"
+                    >
                       {it.quantity}x •{" "}
                       {tOpt(
                         SIZE_OPTIONS.find(
@@ -831,7 +859,10 @@ export default function Checkout() {
                       </button>
                     </div>
                   </div>
-                  <div data-testid={`order-item-price-${it.pizza_id}`} className="text-white font-bold text-sm">
+                  <div
+                    data-testid={`order-item-price-${it.pizza_id}`}
+                    className="text-white font-bold text-sm"
+                  >
                     {formatMoney(
                       it.unit_price * it.quantity,
                       it.currency,
@@ -844,23 +875,35 @@ export default function Checkout() {
             </div>
 
             <div className="border-t border-[#1F1F1F] pt-4 space-y-3 mb-8">
-              <div data-testid="order-subtotal" className="flex justify-between text-gray-400 text-sm">
+              <div
+                data-testid="order-subtotal"
+                className="flex justify-between text-gray-400 text-sm"
+              >
                 <span>{tOpt(UI_TEXT.subtotal, language)}</span>
                 <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
               </div>
-              <div data-testid="order-tax" className="flex justify-between text-gray-400 text-sm">
+              <div
+                data-testid="order-tax"
+                className="flex justify-between text-gray-400 text-sm"
+              >
                 <span>
                   {tOpt(UI_TEXT.tax, language)} ({taxPercent}%)
                 </span>
                 <span>{formatMoney(taxAmount, currency, locale, symbol)}</span>
               </div>
-              <div data-testid="order-delivery-fee" className="flex justify-between text-[#FF5722] text-sm font-bold">
+              <div
+                data-testid="order-delivery-fee"
+                className="flex justify-between text-[#FF5722] text-sm font-bold"
+              >
                 <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
                 <span>{tOpt(UI_TEXT.free, language)}</span>
               </div>
             </div>
 
-            <div data-testid="order-total" className="flex justify-between items-end mb-8">
+            <div
+              data-testid="order-total"
+              className="flex justify-between items-end mb-8"
+            >
               <div className="text-xl text-white font-black">
                 {tOpt(UI_TEXT.total, language)}
               </div>

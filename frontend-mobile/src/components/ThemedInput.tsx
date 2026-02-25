@@ -7,23 +7,26 @@ interface ThemedInputProps extends TextInputProps {
   icon?: React.ReactNode;
   rightElement?: React.ReactNode;
   error?: string;
+  testID?: string;
 }
 
-export const ThemedInput = ({ label, icon, rightElement, error, style, ...props }: ThemedInputProps) => {
+export const ThemedInput = ({ label, icon, rightElement, error, testID, style, ...props }: ThemedInputProps) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputContainer, error ? styles.errorBorder : null]}>
+    <View style={styles.container} accessibilityLabel={testID ? `view-${testID}` : "view-themed-input"}>
+      <Text style={styles.label} accessibilityLabel={testID ? `label-${testID}` : "label-themed-input"}>{label}</Text>
+      <View style={[styles.inputContainer, error ? styles.errorBorder : null]} accessibilityLabel={testID ? `container-${testID}` : "container-themed-input"}>
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <TextInput
           style={[styles.input, icon ? { paddingLeft: 40 } : null, rightElement ? { paddingRight: 40 } : null, style]}
           placeholderTextColor={Colors.text.muted}
           selectionColor={Colors.brand.primary}
+          testID={testID}
+          accessibilityLabel={testID}
           {...props}
         />
         {rightElement && <View style={styles.rightContainer}>{rightElement}</View>}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={styles.errorText} accessibilityLabel={testID ? `error-${testID}` : "error-themed-input"}>{error}</Text>}
     </View>
   );
 };
@@ -54,7 +57,7 @@ const styles = StyleSheet.create({
     color: Colors.text.primary,
     fontSize: 16,
     paddingHorizontal: 16,
-    fontFamily: 'System', // Will map to Plus Jakarta Sans if available
+    fontFamily: 'System',
   },
   iconContainer: {
     position: 'absolute',

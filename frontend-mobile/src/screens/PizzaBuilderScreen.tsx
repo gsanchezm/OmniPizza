@@ -122,28 +122,30 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   if (!pizza) return null;
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.screen} accessibilityLabel="screen-pizza-builder" testID="screen-pizza-builder">
       {/* Header */}
-      <View style={styles.header}>
+      <View style={styles.header} accessibilityLabel="view-builder-header">
         <TouchableOpacity
           style={styles.iconBtn}
           onPress={() => navigation.goBack()}
+          testID="btn-close-builder"
+          accessibilityLabel="btn-close-builder"
         >
-          <Text style={{ color: "white", fontSize: 18 }}>✕</Text>
+          <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
+        <Text style={styles.headerTitle} accessibilityLabel="text-builder-title" testID="text-builder-title">
           {tOpt(UI_STRINGS.title, language)}
         </Text>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Text style={{ color: "white", fontSize: 18 }}>ⓘ</Text>
+        <TouchableOpacity style={styles.iconBtn} accessibilityLabel="btn-info-builder">
+          <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-info">ⓘ</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-builder">
         {/* Pizza Image */}
-        <View style={styles.imageContainer}>
+        <View style={styles.imageContainer} accessibilityLabel="view-pizza-image-container">
           {/* Radial Gradient Background approximation with view layers */}
-          <View style={styles.glow} />
+          <View style={styles.glow} accessibilityLabel="view-pizza-glow" />
           <Image
             source={{
               uri:
@@ -151,21 +153,23 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                 "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg",
             }}
             style={styles.pizzaImage}
+            accessibilityLabel="img-builder-pizza"
+            testID="img-builder-pizza"
           />
         </View>
 
-        <View style={styles.cardContent}>
+        <View style={styles.cardContent} accessibilityLabel="view-builder-content">
           {/* Size Selector */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
+          <View style={styles.sectionHeader} accessibilityLabel="view-section-size">
+            <Text style={styles.sectionTitle} accessibilityLabel="text-section-size">
               {tOpt(UI_STRINGS.size, language)}
             </Text>
-            <Text style={styles.badge}>
+            <Text style={styles.badge} accessibilityLabel="text-badge-required" testID="text-badge-required">
               {tOpt({ en: "Required", es: "Requerido" }, language)}
             </Text>
           </View>
 
-          <View style={styles.sizePills}>
+          <View style={styles.sizePills} accessibilityLabel="view-size-pills" testID="view-size-pills">
             {SIZE_OPTIONS.map((opt) => {
               const active = opt.id === size;
               const rawLabelText = String(tOpt(opt.label, language));
@@ -183,6 +187,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                   key={opt.id}
                   onPress={() => setSize(opt.id)}
                   style={[styles.sizePill, active && styles.sizePillActive]}
+                  accessibilityLabel={`btn-size-${opt.id}`}
+                  testID={`btn-size-${opt.id}`}
                 >
                   <Text
                     style={[
@@ -190,6 +196,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                       active && styles.sizeTextActive,
                       hasPrice && { marginBottom: 2 },
                     ]}
+                    accessibilityLabel={`text-size-${opt.id}`}
                   >
                     {mainText}
                   </Text>
@@ -199,6 +206,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         styles.sizeSubText,
                         active && styles.sizeSubTextActive,
                       ]}
+                      accessibilityLabel={`text-size-price-${opt.id}`}
                     >
                       {subText}
                     </Text>
@@ -209,21 +217,21 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           </View>
 
           {/* Toppings Selector */}
-          <View style={[styles.sectionHeader, { marginTop: 30 }]}>
-            <Text style={styles.sectionTitle}>
+          <View style={[styles.sectionHeader, { marginTop: 30 }]} accessibilityLabel="view-section-toppings">
+            <Text style={styles.sectionTitle} accessibilityLabel="text-section-toppings">
               {tOpt(UI_STRINGS.toppings, language)}
             </Text>
-            <Text style={styles.priceHint}>
+            <Text style={styles.priceHint} accessibilityLabel="text-toppings-hint" testID="text-toppings-hint">
               {tOpt(UI_STRINGS.upTo10, language)}
             </Text>
           </View>
 
           {TOPPING_GROUPS.map((group) => (
-            <View key={group.id} style={{ marginBottom: 20 }}>
-              <Text style={styles.groupTitle}>
+            <View key={group.id} style={{ marginBottom: 20 }} accessibilityLabel={`view-topping-group-${group.id}`}>
+              <Text style={styles.groupTitle} accessibilityLabel={`text-topping-group-${group.id}`}>
                 {tOpt(group.label, language)}
               </Text>
-              <View style={styles.grid}>
+              <View style={styles.grid} accessibilityLabel={`view-topping-grid-${group.id}`}>
                 {group.items.map((it) => {
                   const isSelected = toppings.includes(it.id);
                   const disabled = !isSelected && toppings.length >= 10;
@@ -237,6 +245,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         isSelected && styles.toppingCardActive,
                         disabled && { opacity: 0.5 },
                       ]}
+                      accessibilityLabel={`btn-topping-${it.id}`}
+                      testID={`btn-topping-${it.id}`}
                     >
                       <View
                         style={[
@@ -245,6 +255,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                             backgroundColor: "rgba(255, 87, 34, 0.2)",
                           },
                         ]}
+                        accessibilityLabel={`view-topping-icon-${it.id}`}
                       >
                         {(it as any).image ? (
                           <Image
@@ -254,9 +265,10 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                               height: 40,
                               resizeMode: "contain",
                             }}
+                            accessibilityLabel={`img-topping-${it.id}`}
                           />
                         ) : (
-                          <Text style={{ fontSize: 24 }}>🧀</Text>
+                          <Text style={{ fontSize: 24 }} accessibilityLabel={`icon-topping-${it.id}`}>🧀</Text>
                         )}
                       </View>
                       <Text
@@ -264,18 +276,20 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                           styles.toppingName,
                           isSelected && { color: "white" },
                         ]}
+                        accessibilityLabel={`text-topping-${it.id}`}
                       >
                         {tOpt(it.label, language)}
                       </Text>
 
                       {isSelected && (
-                        <View style={styles.checkBadge}>
+                        <View style={styles.checkBadge} accessibilityLabel={`view-check-${it.id}`}>
                           <Text
                             style={{
                               color: "white",
                               fontSize: 10,
                               fontWeight: "bold",
                             }}
+                            accessibilityLabel={`icon-check-${it.id}`}
                           >
                             ✓
                           </Text>
@@ -293,10 +307,10 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       </ScrollView>
 
       {/* Floating Bottom Bar */}
-      <View style={styles.bottomBar}>
-        <View style={styles.barContent}>
-          <View>
-            <Text style={styles.totalLabel}>
+      <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
+        <View style={styles.barContent} accessibilityLabel="view-bar-content">
+          <View accessibilityLabel="view-estimated-total">
+            <Text style={styles.totalLabel} accessibilityLabel="text-estimated-total-label">
               {tOpt(
                 {
                   en: "ESTIMATED TOTAL",
@@ -308,13 +322,13 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                 language,
               )}
             </Text>
-            <Text style={styles.totalValue}>
+            <Text style={styles.totalValue} accessibilityLabel="text-estimated-total-value" testID="text-estimated-total-value">
               {formatMoney(unitPrice, pizza.currency, pizza.currency_symbol)}
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.addToCartBtn} onPress={confirm}>
-            <Text style={styles.addToCartText}>
+          <TouchableOpacity style={styles.addToCartBtn} onPress={confirm} testID="btn-add-to-cart" accessibilityLabel="btn-add-to-cart">
+            <Text style={styles.addToCartText} accessibilityLabel="text-add-to-cart">
               {mode === "edit"
                 ? tOpt(
                     {
@@ -328,7 +342,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                   )
                 : tOpt(UI_STRINGS.confirm, language)}
             </Text>
-            <Text style={{ fontSize: 20 }}>🛒</Text>
+            <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cart">🛒</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -454,7 +468,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   toppingCard: {
-    width: (width - 48 - 12) / 2, // 2 items per row
+    width: (width - 48 - 12) / 2,
     backgroundColor: "#1A1A1A",
     borderRadius: 20,
     padding: 16,
@@ -501,7 +515,6 @@ const styles = StyleSheet.create({
     right: 0,
     height: 110,
     justifyContent: "flex-end",
-    // Background gradient simulated with valid color in RN
     backgroundColor: "#161616",
     borderTopWidth: 1,
     borderTopColor: "#333",

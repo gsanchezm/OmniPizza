@@ -5,25 +5,26 @@ import { Colors } from '../theme/colors';
 
 export const HeroBanner = () => {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityLabel="view-hero-banner" testID="view-hero-banner">
       <ImageBackground
         source={{ uri: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1000' }}
         style={styles.image}
         imageStyle={{ borderRadius: 24 }}
+        accessibilityLabel="img-hero-banner"
       >
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.8)']}
           style={styles.gradient}
         >
-          <View style={styles.content}>
-             <View style={styles.badge}>
-                <Text style={styles.badgeText}>LIMITED OFFER</Text>
+          <View style={styles.content} accessibilityLabel="view-hero-content">
+             <View style={styles.badge} accessibilityLabel="view-hero-badge">
+                <Text style={styles.badgeText} accessibilityLabel="text-hero-badge">LIMITED OFFER</Text>
              </View>
-             <Text style={styles.title}>Buy 1 Get 1 Free</Text>
-             <Text style={styles.subtitle}>Signature Truffle & Mushroom Pizza</Text>
-             
-             <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Claim Now</Text>
+             <Text style={styles.title} accessibilityLabel="text-hero-title" testID="text-hero-title">Buy 1 Get 1 Free</Text>
+             <Text style={styles.subtitle} accessibilityLabel="text-hero-subtitle">Signature Truffle & Mushroom Pizza</Text>
+
+             <TouchableOpacity style={styles.button} accessibilityLabel="btn-hero-claim" testID="btn-hero-claim">
+                <Text style={styles.buttonText} accessibilityLabel="text-hero-claim">Claim Now</Text>
              </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -38,7 +39,6 @@ const styles = StyleSheet.create({
     height: 180,
     marginBottom: 24,
     borderRadius: 24,
-    // Mobile shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,

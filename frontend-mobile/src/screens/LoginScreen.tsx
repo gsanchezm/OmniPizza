@@ -97,14 +97,15 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityLabel="screen-login" testID="screen-login">
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      
+
       {/* Hero Background */}
-      <View style={styles.heroContainer}>
+      <View style={styles.heroContainer} accessibilityLabel="view-hero-container">
         <ImageBackground
           source={{ uri: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop" }}
           style={styles.heroImage}
+          accessibilityLabel="img-hero-background"
         >
           <LinearGradient
             colors={["transparent", "#0F0F0F"]}
@@ -119,28 +120,31 @@ export default function LoginScreen({ navigation }: any) {
       >
         <SafeAreaView style={styles.safeArea}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.formContainer}>
-              
+            <View style={styles.formContainer} accessibilityLabel="view-login-form">
+
               {/* Header */}
-              <View style={styles.header}>
-                <Image 
+              <View style={styles.header} accessibilityLabel="view-login-header">
+                <Image
                   source={{ uri: "https://omnipizza-frontend.onrender.com/omnipizza-logo.png" }}
                   style={styles.logoImage}
                   resizeMode="contain"
+                  accessibilityLabel="img-logo"
+                  testID="img-logo"
                 />
-                <Text style={styles.appName}>OmniPizza</Text>
-                <Text style={styles.welcomeTitle}>Welcome back!</Text>
-                <Text style={styles.subtitle}>Login to order your favorites.</Text>
+                <Text style={styles.appName} accessibilityLabel="text-app-name">OmniPizza</Text>
+                <Text style={styles.welcomeTitle} accessibilityLabel="text-welcome-title" testID="text-welcome-title">Welcome back!</Text>
+                <Text style={styles.subtitle} accessibilityLabel="text-login-subtitle">Login to order your favorites.</Text>
               </View>
 
               {/* Inputs */}
-              <View style={styles.inputs}>
+              <View style={styles.inputs} accessibilityLabel="view-login-inputs">
                 <ThemedInput
                   label="Email Address"
                   value={username}
                   onChangeText={setUsername}
                   placeholder="standard_user"
                   autoCapitalize="none"
+                  testID="input-username"
                 />
                 <ThemedInput
                   label="Password"
@@ -148,56 +152,62 @@ export default function LoginScreen({ navigation }: any) {
                   onChangeText={setPassword}
                   placeholder="••••••••"
                   secureTextEntry
+                  testID="input-password"
                 />
               </View>
 
               {/* Market Selection */}
-              <View style={styles.marketRow}>
+              <View style={styles.marketRow} accessibilityLabel="view-market-selection" testID="view-market-selection">
                 {MARKETS.map((m) => {
                   const isActive = selectedMarket === m.code;
                   return (
                     <TouchableOpacity
                       key={m.code}
                       onPress={() => setSelectedMarket(m.code)}
+                      testID={`btn-market-${m.code}`}
+                      accessibilityLabel={`btn-market-${m.code}`}
                       style={[
                         styles.flagBtn,
                         isActive && styles.flagBtnActive
                       ]}
                     >
-                      <Text style={[styles.flagText, isActive && { opacity: 1 }]}>{m.flag}</Text>
+                      <Text style={[styles.flagText, isActive && { opacity: 1 }]} accessibilityLabel={`text-flag-${m.code}`}>{m.flag}</Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
 
               {/* Error Message */}
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              {error ? <Text testID="text-login-error" accessibilityLabel="text-login-error" style={styles.errorText}>{error}</Text> : null}
 
               {/* Actions */}
-              <View style={styles.actions}>
-                <PrimaryButton 
-                  title={loading ? "Signing In..." : "Sign In"} 
-                  onPress={handleLogin} 
+              <View style={styles.actions} accessibilityLabel="view-login-actions">
+                <PrimaryButton
+                  title={loading ? "Signing In..." : "Sign In"}
+                  onPress={handleLogin}
                   loading={loading}
+                  testID="btn-login"
                 />
               </View>
 
               {/* Quick Login Pills */}
-              <View style={styles.quickLoginSection}>
-                <View style={styles.divider}>
+              <View style={styles.quickLoginSection} accessibilityLabel="view-quick-login">
+                <View style={styles.divider} accessibilityLabel="view-divider">
                   <View style={styles.line} />
-                  <Text style={styles.orText}>QUICK LOGIN</Text>
+                  <Text style={styles.orText} accessibilityLabel="text-quick-login-label" testID="text-quick-login-label">QUICK LOGIN</Text>
                   <View style={styles.line} />
                 </View>
-                
-                <View style={styles.pillsRow}>
+
+                <View style={styles.pillsRow} accessibilityLabel="view-pills-row">
                   {TEST_USERS.map((u) => (
-                    <TouchableOpacity 
-                      key={u.id} 
-                      style={styles.pill} 
+                    <TouchableOpacity
+                      key={u.id}
+                      style={styles.pill}
                       onPress={() => fillUser(u.id)}
+                      testID={`btn-user-${u.id}`}
+                      accessibilityLabel={`btn-user-${u.id}`}
                     >
-                      <Text style={styles.pillText}>{u.label}</Text>
+                      <Text style={styles.pillText} accessibilityLabel={`text-user-label-${u.id}`}>{u.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

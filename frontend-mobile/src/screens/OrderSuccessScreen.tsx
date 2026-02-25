@@ -11,7 +11,6 @@ import {
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
-// import { CustomNavbar } from "../components/CustomNavbar"; // Not using navbar here for full screen effect
 
 const { width } = Dimensions.get("window");
 
@@ -26,99 +25,107 @@ export default function OrderSuccessScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.screen} accessibilityLabel="screen-order-success" testID="screen-order-success">
       {/* Map Background Area */}
-      <View style={styles.mapContainer}>
+      <View style={styles.mapContainer} accessibilityLabel="view-map-container">
         {/* Placeholder for map */}
-        <View style={styles.mapPlaceholder}>
+        <View style={styles.mapPlaceholder} accessibilityLabel="view-map-placeholder">
           <Image
             source={require("../../assets/ui/map_background.png")}
             style={styles.mapImage}
+            accessibilityLabel="img-map-background"
           />
-          <View style={styles.mapOverlay} />
+          <View style={styles.mapOverlay} accessibilityLabel="view-map-overlay" />
         </View>
 
         {/* Header Controls */}
-        <View style={styles.header}>
+        <View style={styles.header} accessibilityLabel="view-success-header">
           <TouchableOpacity
             style={styles.backBtn}
             onPress={() => navigation.navigate("Catalog")}
+            testID="btn-back-catalog"
+            accessibilityLabel="btn-back-catalog"
           >
-            <Text style={{ color: "white", fontSize: 20 }}>←</Text>
+            <Text style={{ color: "white", fontSize: 20 }} accessibilityLabel="icon-back">←</Text>
           </TouchableOpacity>
 
-          <View style={styles.liveBadge}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveText}>{t("liveTracking")}</Text>
+          <View style={styles.liveBadge} accessibilityLabel="view-live-badge" testID="view-live-badge">
+            <View style={styles.liveDot} accessibilityLabel="view-live-dot" />
+            <Text style={styles.liveText} accessibilityLabel="text-live-tracking">{t("liveTracking")}</Text>
           </View>
 
-          <View style={styles.supportBtn}>
-            <Text style={{ fontSize: 20 }}>🎧</Text>
+          <View style={styles.supportBtn} accessibilityLabel="btn-support">
+            <Text style={{ fontSize: 20 }} accessibilityLabel="icon-support">🎧</Text>
           </View>
         </View>
 
         {/* Pulse Animation Placeholder */}
-        <View style={styles.pulseContainer}>
-          <View style={styles.pulseRing} />
-          <View style={styles.pulseCore}>
-            <Text style={{ fontSize: 24 }}>🍕</Text>
+        <View style={styles.pulseContainer} accessibilityLabel="view-pulse-container">
+          <View style={styles.pulseRing} accessibilityLabel="view-pulse-ring" />
+          <View style={styles.pulseCore} accessibilityLabel="view-pulse-core">
+            <Text style={{ fontSize: 24 }} accessibilityLabel="icon-pizza-delivery">🍕</Text>
           </View>
-          <View style={styles.courierTag}>
-            <Text style={styles.courierNameTag}>CARLOS</Text>
+          <View style={styles.courierTag} accessibilityLabel="view-courier-tag">
+            <Text style={styles.courierNameTag} accessibilityLabel="text-courier-tag">CARLOS</Text>
           </View>
         </View>
       </View>
 
       {/* Bottom Sheet Card */}
-      <View style={styles.bottomSheet}>
-        <Text style={styles.statusTitle}>{t("outForDelivery")}</Text>
-        <Text style={styles.statusSub}>{t("expectedArrival")}: 8:45 PM</Text>
+      <View style={styles.bottomSheet} accessibilityLabel="view-bottom-sheet" testID="view-bottom-sheet">
+        <Text style={styles.statusTitle} accessibilityLabel="text-status-title" testID="text-status-title">{t("outForDelivery")}</Text>
+        <Text style={styles.statusSub} accessibilityLabel="text-status-sub">{t("expectedArrival")}: 8:45 PM</Text>
 
-        <View style={styles.timeRow}>
-          <Text style={styles.bigTime}>15-20</Text>
-          <Text style={styles.minLabel}>{t("min")}</Text>
+        <View style={styles.timeRow} accessibilityLabel="view-time-row">
+          <Text style={styles.bigTime} accessibilityLabel="text-time-estimate" testID="text-time-estimate">15-20</Text>
+          <Text style={styles.minLabel} accessibilityLabel="text-min-label">{t("min")}</Text>
         </View>
 
         {/* Courier Card */}
-        <View style={styles.courierCard}>
-          <View style={styles.courierInfo}>
+        <View style={styles.courierCard} accessibilityLabel="view-courier-card" testID="view-courier-card">
+          <View style={styles.courierInfo} accessibilityLabel="view-courier-info">
             <Image
               source={{
                 uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Carlos",
               }}
               style={styles.courierAvatar}
+              accessibilityLabel="img-courier-avatar"
             />
-            <View style={styles.ratingBadge}>
-              <Text style={styles.ratingText}>4.9 ★</Text>
+            <View style={styles.ratingBadge} accessibilityLabel="view-rating-badge">
+              <Text style={styles.ratingText} accessibilityLabel="text-courier-rating">4.9 ★</Text>
             </View>
 
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.courierLabel}>{t("yourCourier")}</Text>
-              <Text style={styles.courierName}>{courier.name}</Text>
-              <Text style={styles.courierVehicle}>{t(courier.vehicle)}</Text>
+            <View style={{ marginLeft: 12 }} accessibilityLabel="view-courier-details">
+              <Text style={styles.courierLabel} accessibilityLabel="text-courier-label">{t("yourCourier")}</Text>
+              <Text style={styles.courierName} accessibilityLabel="text-courier-name" testID="text-courier-name">{courier.name}</Text>
+              <Text style={styles.courierVehicle} accessibilityLabel="text-courier-vehicle">{t(courier.vehicle)}</Text>
             </View>
           </View>
 
-          <View style={styles.actions}>
+          <View style={styles.actions} accessibilityLabel="view-courier-actions">
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: "#333" }]}
+              testID="btn-courier-chat"
+              accessibilityLabel="btn-courier-chat"
             >
-              <Text style={{ fontSize: 20 }}>💬</Text>
+              <Text style={{ fontSize: 20 }} accessibilityLabel="icon-chat">💬</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: "#FF5722" }]}
+              accessibilityLabel="btn-courier-call"
+              testID="btn-courier-call"
             >
-              <Text style={{ fontSize: 20 }}>📞</Text>
+              <Text style={{ fontSize: 20 }} accessibilityLabel="icon-call">📞</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Order Details Hint */}
-        <TouchableOpacity style={styles.detailsBtn}>
-          <Text style={styles.detailsText}>
+        <TouchableOpacity style={styles.detailsBtn} accessibilityLabel="btn-order-details" testID="btn-order-details">
+          <Text style={styles.detailsText} accessibilityLabel="text-order-details">
             {t("orderDetails").toUpperCase()}
           </Text>
-          <Text style={{ color: "#666" }}>^</Text>
+          <Text style={{ color: "#666" }} accessibilityLabel="icon-expand">^</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -128,7 +135,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#0F0F0F" },
   mapContainer: {
-    flex: 1, // Takes up remaining space above the fixed height bottom sheet (well, simplified flex approach)
+    flex: 1,
     position: "relative",
     backgroundColor: "#1a1a1a",
   },

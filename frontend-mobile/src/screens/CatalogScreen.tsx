@@ -48,7 +48,7 @@ export default function CatalogScreen({ navigation }: any) {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} accessibilityLabel="screen-catalog" testID="screen-catalog">
       <StatusBar barStyle="light-content" backgroundColor="#0F0F0F" />
 
       <LocationHeader onProfilePress={() => navigation.navigate("Profile")} />
@@ -56,23 +56,26 @@ export default function CatalogScreen({ navigation }: any) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        accessibilityLabel="scroll-catalog"
       >
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Text style={{ fontSize: 16 }}>🔍</Text>
+        <View style={styles.searchContainer} accessibilityLabel="view-search-container">
+          <View style={styles.searchBar} accessibilityLabel="view-search-bar">
+            <Text style={{ fontSize: 16 }} accessibilityLabel="icon-search">🔍</Text>
             <TextInput
               placeholder={t("searchPlaceholder")}
               placeholderTextColor={Colors.text.muted}
               style={styles.input}
               value={searchQuery}
               onChangeText={setSearchQuery}
+              testID="input-search-pizza"
+              accessibilityLabel="input-search-pizza"
             />
           </View>
         </View>
 
         {/* Categories */}
-        <View style={{ marginBottom: 24 }}>
+        <View style={{ marginBottom: 24 }} accessibilityLabel="view-categories">
           <CategoryPills
             selected={selectedCategory}
             onSelect={setSelectedCategory}
@@ -85,9 +88,9 @@ export default function CatalogScreen({ navigation }: any) {
         )}
 
         {/* List Title */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Classic Selection</Text>
-          <Text style={{ color: Colors.text.muted }}>▼</Text>
+        <View style={styles.sectionHeader} accessibilityLabel="view-section-header" testID="view-section-header">
+          <Text style={styles.sectionTitle} accessibilityLabel="text-section-title" testID="text-section-title">Classic Selection</Text>
+          <Text style={{ color: Colors.text.muted }} accessibilityLabel="icon-dropdown">▼</Text>
         </View>
 
         {/* Product List */}
@@ -96,13 +99,14 @@ export default function CatalogScreen({ navigation }: any) {
             size="large"
             color={Colors.brand.primary}
             style={{ marginTop: 40 }}
+            accessibilityLabel="loader-catalog"
           />
         ) : error ? (
-          <Text style={styles.errorText}>
+          <Text style={styles.errorText} accessibilityLabel="text-catalog-error" testID="text-catalog-error">
             Unable to load menu. Check connection.
           </Text>
         ) : (
-          <View style={styles.list}>
+          <View style={styles.list} accessibilityLabel="view-pizza-list">
             {filteredPizzas.map((pizza) => (
               <MobileProductCard
                 key={pizza.id}
@@ -111,7 +115,7 @@ export default function CatalogScreen({ navigation }: any) {
               />
             ))}
             {filteredPizzas.length === 0 && (
-              <Text style={styles.emptyText}>No pizzas found.</Text>
+              <Text style={styles.emptyText} accessibilityLabel="text-empty-results" testID="text-empty-results">No pizzas found.</Text>
             )}
           </View>
         )}

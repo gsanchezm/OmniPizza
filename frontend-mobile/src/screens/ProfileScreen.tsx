@@ -24,35 +24,38 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.screen} accessibilityLabel="screen-profile" testID="screen-profile">
       <CustomNavbar title={t("profile")} navigation={navigation} />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        accessibilityLabel="scroll-profile"
       >
         {/* Header Title Space */}
-        <View style={styles.headerSpace}>
-          <Text style={styles.subTitle}>
+        <View style={styles.headerSpace} accessibilityLabel="view-profile-header">
+          <Text style={styles.subTitle} accessibilityLabel="text-profile-subtitle">
             {t("managePreferences") || "Manage your premium dining preferences"}
           </Text>
         </View>
 
         {/* Profile Card */}
-        <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
+        <View style={styles.profileCard} accessibilityLabel="view-profile-card" testID="view-profile-card">
+          <View style={styles.avatarContainer} accessibilityLabel="view-avatar-container">
             <Image
               source={{
                 uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Alexander",
               }}
               style={styles.avatar}
+              accessibilityLabel="img-profile-avatar"
+              testID="img-profile-avatar"
             />
-            <View style={styles.editIconBtn}>
-              <Text style={{ color: "white", fontSize: 10 }}>✎</Text>
+            <View style={styles.editIconBtn} accessibilityLabel="btn-edit-avatar">
+              <Text style={{ color: "white", fontSize: 10 }} accessibilityLabel="icon-edit-avatar">✎</Text>
             </View>
           </View>
 
-          <View style={styles.profileInfo}>
+          <View style={styles.profileInfo} accessibilityLabel="view-profile-info">
             <View
               style={{
                 flexDirection: "row",
@@ -60,64 +63,70 @@ export default function ProfileScreen({ navigation }: any) {
                 gap: 8,
                 marginBottom: 4,
               }}
+              accessibilityLabel="view-profile-name-row"
             >
-              <Text style={styles.userName}>
+              <Text style={styles.userName} accessibilityLabel="text-profile-username" testID="text-profile-username">
                 {profile?.fullName || "Alexander Sterling"}
               </Text>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>
+              <View style={styles.badge} accessibilityLabel="view-premium-badge">
+                <Text style={styles.badgeText} accessibilityLabel="text-premium-badge">
                   {t("premiumMember") || "PREMIUM"}
                 </Text>
               </View>
             </View>
-            <Text style={styles.userMeta}>
+            <Text style={styles.userMeta} accessibilityLabel="text-profile-meta">
               {t("joined") || "Joined"} March 2023
             </Text>
           </View>
         </View>
 
         {/* Form Card */}
-        <View style={styles.formCard}>
-          <View style={styles.formHeader}>
-            <Text style={{ fontSize: 18, marginRight: 8 }}>👤</Text>
-            <Text style={styles.formTitle}>
+        <View style={styles.formCard} accessibilityLabel="view-form-card">
+          <View style={styles.formHeader} accessibilityLabel="view-form-header">
+            <Text style={{ fontSize: 18, marginRight: 8 }} accessibilityLabel="icon-personal-info">👤</Text>
+            <Text style={styles.formTitle} accessibilityLabel="text-form-title">
               {t("personalInformation") || "Personal Information"}
             </Text>
           </View>
 
-          <View style={styles.formBody}>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t("fullName")}</Text>
+          <View style={styles.formBody} accessibilityLabel="view-form-body">
+            <View style={styles.fieldGroup} accessibilityLabel="view-field-fullname">
+              <Text style={styles.label} accessibilityLabel="label-profile-fullname">{t("fullName")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.fullName || ""}
                 onChangeText={(v) => setProfile({ fullName: v })}
                 placeholderTextColor="#666"
+                testID="input-profile-fullname"
+                accessibilityLabel="input-profile-fullname"
               />
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t("phone")}</Text>
+            <View style={styles.fieldGroup} accessibilityLabel="view-field-phone">
+              <Text style={styles.label} accessibilityLabel="label-profile-phone">{t("phone")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.phone || ""}
                 onChangeText={(v) => setProfile({ phone: v })}
                 placeholderTextColor="#666"
+                accessibilityLabel="input-profile-phone"
+                testID="input-profile-phone"
               />
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>{t("address")}</Text>
+            <View style={styles.fieldGroup} accessibilityLabel="view-field-address">
+              <Text style={styles.label} accessibilityLabel="label-profile-address">{t("address")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.address || ""}
                 onChangeText={(v) => setProfile({ address: v })}
                 placeholderTextColor="#666"
+                accessibilityLabel="input-profile-address"
               />
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>
+            <View style={styles.fieldGroup} accessibilityLabel="view-field-notes">
+              <Text style={styles.label} accessibilityLabel="label-profile-notes">
                 {t("deliveryNotes") || "Delivery Notes"}
               </Text>
               <TextInput
@@ -129,29 +138,33 @@ export default function ProfileScreen({ navigation }: any) {
                 value={profile?.notes || ""}
                 onChangeText={(v) => setProfile({ notes: v })}
                 placeholderTextColor="#666"
+                accessibilityLabel="input-profile-notes"
+                testID="input-profile-notes"
               />
             </View>
           </View>
 
-          <View style={styles.formFooter}>
+          <View style={styles.formFooter} accessibilityLabel="view-form-footer">
             <TouchableOpacity
               style={styles.btnCancel}
               onPress={() => navigation.goBack()}
+              accessibilityLabel="btn-cancel-profile"
+              testID="btn-cancel-profile"
             >
-              <Text style={styles.btnCancelText}>
+              <Text style={styles.btnCancelText} accessibilityLabel="text-cancel-profile">
                 {t("cancel") || "CANCEL"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btnSave} onPress={handleSave}>
-              <Text style={styles.btnSaveText}>
+            <TouchableOpacity style={styles.btnSave} onPress={handleSave} testID="btn-save-profile" accessibilityLabel="btn-save-profile">
+              <Text style={styles.btnSaveText} accessibilityLabel="text-save-profile">
                 {t("saveChanges") || "SAVE CHANGES"}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.deleteBtn}>
-          <Text style={styles.deleteText}>
+        <TouchableOpacity style={styles.deleteBtn} testID="btn-delete-account" accessibilityLabel="btn-delete-account">
+          <Text style={styles.deleteText} accessibilityLabel="text-delete-account">
             🗑 {t("deleteAccount") || "Delete Account"}
           </Text>
         </TouchableOpacity>

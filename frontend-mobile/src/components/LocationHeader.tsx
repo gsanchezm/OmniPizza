@@ -18,19 +18,22 @@ export const LocationHeader = ({
   const { country, language, setLanguage } = useAppStore();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.left}>
+    <View style={styles.container} accessibilityLabel="view-location-header" testID="view-location-header">
+      <View style={styles.left} accessibilityLabel="view-header-left">
         {country === "CH" && (
-          <View style={styles.langWrap}>
+          <View style={styles.langWrap} accessibilityLabel="view-lang-toggle">
             <TouchableOpacity
               onPress={() => setLanguage("de")}
               style={[styles.langBtn, language === "de" && styles.langBtnActive]}
+              accessibilityLabel="btn-header-lang-de"
+              testID="btn-header-lang-de"
             >
               <Text
                 style={[
                   styles.langText,
                   language === "de" && styles.langTextActive,
                 ]}
+                accessibilityLabel="text-header-lang-de"
               >
                 DE
               </Text>
@@ -39,12 +42,14 @@ export const LocationHeader = ({
             <TouchableOpacity
               onPress={() => setLanguage("fr")}
               style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
+              accessibilityLabel="btn-header-lang-fr"
             >
               <Text
                 style={[
                   styles.langText,
                   language === "fr" && styles.langTextActive,
                 ]}
+                accessibilityLabel="text-header-lang-fr"
               >
                 FR
               </Text>
@@ -63,6 +68,8 @@ export const LocationHeader = ({
             backgroundColor: "rgba(255,255,255,0.1)",
           }}
           resizeMode="contain"
+          accessibilityLabel="img-header-logo"
+          testID="img-header-logo"
         />
         <Text
           style={{
@@ -71,6 +78,7 @@ export const LocationHeader = ({
             color: "white",
             marginLeft: 12,
           }}
+          accessibilityLabel="text-header-brand"
         >
           OMNIPIZZA
         </Text>

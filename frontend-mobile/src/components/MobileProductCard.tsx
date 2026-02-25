@@ -10,26 +10,28 @@ interface MobileProductCardProps {
 
 export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) => {
   return (
-    <View style={styles.card}>
+    <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       {/* Image Section */}
-      <View style={styles.imageContainer}>
+      <View style={styles.imageContainer} accessibilityLabel={`view-img-container-${pizza.id}`}>
         <Image
           source={{ uri: pizza.image }}
           style={styles.image}
           resizeMode="cover"
+          accessibilityLabel={`img-pizza-${pizza.id}`}
+          testID={`img-pizza-${pizza.id}`}
         />
       </View>
 
       {/* Content Section */}
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>{pizza.name}</Text>
-        <Text style={styles.desc} numberOfLines={2}>{pizza.description}</Text>
-        
-        <View style={styles.footer}>
-           <Text style={styles.price}>{pizza.currency_symbol}{pizza.price}</Text> 
-           
-           <TouchableOpacity onPress={() => onPress(pizza)} style={styles.addButton}>
-              <Text style={styles.addIcon}>＋</Text>
+      <View style={styles.content} accessibilityLabel={`view-pizza-content-${pizza.id}`}>
+        <Text style={styles.title} numberOfLines={1} testID={`text-pizza-name-${pizza.id}`} accessibilityLabel={`text-pizza-name-${pizza.id}`}>{pizza.name}</Text>
+        <Text style={styles.desc} numberOfLines={2} accessibilityLabel={`text-pizza-desc-${pizza.id}`}>{pizza.description}</Text>
+
+        <View style={styles.footer} accessibilityLabel={`view-pizza-footer-${pizza.id}`}>
+           <Text style={styles.price} testID={`text-pizza-price-${pizza.id}`} accessibilityLabel={`text-pizza-price-${pizza.id}`}>{pizza.currency_symbol}{pizza.price}</Text>
+
+           <TouchableOpacity onPress={() => onPress(pizza)} style={styles.addButton} testID={`btn-add-pizza-${pizza.id}`} accessibilityLabel={`btn-add-pizza-${pizza.id}`}>
+              <Text style={styles.addIcon} accessibilityLabel={`icon-add-pizza-${pizza.id}`}>＋</Text>
            </TouchableOpacity>
         </View>
       </View>
@@ -98,6 +100,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
-    marginTop: -2, 
+    marginTop: -2,
   },
 });

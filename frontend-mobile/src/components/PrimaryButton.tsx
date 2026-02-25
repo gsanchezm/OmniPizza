@@ -8,14 +8,17 @@ interface PrimaryButtonProps {
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  testID?: string;
 }
 
-export const PrimaryButton = ({ onPress, title, loading, disabled, style }: PrimaryButtonProps) => {
+export const PrimaryButton = ({ onPress, title, loading, disabled, style, testID }: PrimaryButtonProps) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
       disabled={disabled || loading}
+      testID={testID}
+      accessibilityLabel={testID}
       style={[
         styles.container,
         disabled && styles.disabled,
@@ -23,9 +26,9 @@ export const PrimaryButton = ({ onPress, title, loading, disabled, style }: Prim
       ]}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color="#FFFFFF" accessibilityLabel={testID ? `loader-${testID}` : "loader-primary-button"} />
       ) : (
-        <Text style={styles.text}>{title}</Text>
+        <Text style={styles.text} accessibilityLabel={testID ? `text-${testID}` : "text-primary-button"}>{title}</Text>
       )}
     </TouchableOpacity>
   );
