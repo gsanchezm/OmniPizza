@@ -18,6 +18,7 @@ from constants import TEST_USERS, COUNTRY_CONFIG, CountryCode
 from auth import authenticate_user, create_access_token
 from middleware import require_country_header, get_current_user, apply_user_behavior
 from database import db
+from test_api import router as test_api_router
 
 # Prometheus metrics
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
@@ -33,6 +34,9 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
+if settings.environment.lower() == "production" and settings.enable_test_api:
+    raise RuntimeError("ENABLE_TEST_API cannot be true in production.")
+
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +45,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if settings.environment.lower() != "production" and settings.enable_test_api:
+    app.include_router(test_api_router)
 
 # Root endpoint
 @app.get("/")

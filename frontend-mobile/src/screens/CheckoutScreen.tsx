@@ -14,8 +14,10 @@ import { CustomNavbar } from "../components/CustomNavbar";
 import { BottomNavBar } from "../components/BottomNavBar";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
-import { orderService } from "../services/order.service";
 import type { CartItem } from "../store/useAppStore";
+import { placeOrder as placeOrderUseCase } from "../features/checkout/useCases/placeOrder";
+import { validateCheckoutForm } from "../features/checkout/useCases/validateCheckoutForm";
+import type { CheckoutFormState } from "../features/checkout/useCases/buildCheckoutPayload";
 
 const { width } = Dimensions.get("window");
 
@@ -38,7 +40,7 @@ export default function CheckoutScreen({ navigation }: any) {
   const { country, cartItems, clearCart, profile, setProfile, setLastOrder } =
     useAppStore();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CheckoutFormState>({
     name: profile?.fullName || "",
     address: profile?.address || "",
     phone: profile?.phone || "",
@@ -78,56 +80,35 @@ export default function CheckoutScreen({ navigation }: any) {
   const placeOrder = async () => {
     setError("");
 
-    if (!form.address.trim()) {
-      setError(t("streetAndNumber") + " is required.");
+    const validationError = validateCheckoutForm({
+      country,
+      form,
+      paymentMethod,
+      t,
+    });
+    if (validationError) {
+      setError(validationError);
       return;
-    }
-    if (country === "MX" && !form.colonia.trim()) {
-      setError(t("colonia") + " is required.");
-      return;
-    }
-    if (country === "US" && !form.zip_code.trim()) {
-      setError(t("zipCode") + " is required.");
-      return;
-    }
-    if (country === "CH" && !form.plz.trim()) {
-      setError(t("plz") + " is required.");
-      return;
-    }
-    if (country === "JP" && !form.prefectura.trim()) {
-      setError(t("prefecture") + " is required.");
-      return;
-    }
-    if (!form.name.trim()) {
-      setError(t("fullName") + " is required.");
-      return;
-    }
-    if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 7) {
-      setError(t("phone") + " must be at least 7 digits.");
-      return;
-    }
-    if (paymentMethod === "card") {
-      if (!form.card_holder.trim()) {
-        setError(t("cardHolder") + " is required.");
-        return;
-      }
-      if (form.card_number.replace(/\D/g, "").length < 13) {
-        setError(t("cardNumber") + " must be at least 13 digits.");
-        return;
-      }
-      if (form.card_expiry.replace(/\D/g, "").length < 4) {
-        setError(t("cardExpiry") + " is required (MMYY).");
-        return;
-      }
-      if (form.card_cvv.replace(/\D/g, "").length < 3) {
-        setError(t("cvv") + " must be at least 3 digits.");
-        return;
-      }
     }
 
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 1000)); // Simulating
+      const checkoutForm: CheckoutFormState =
+        country === "MX"
+          ? { ...form, propina: String(tipAmount) }
+          : form;
+
+      const result = await placeOrderUseCase({
+        country,
+        cartItems,
+        form: checkoutForm,
+      });
+      setLastOrder(result);
+      setProfile({
+        fullName: form.name,
+        address: form.address,
+        phone: form.phone,
+      });
       clearCart();
       navigation.reset({
         index: 0,

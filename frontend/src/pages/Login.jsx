@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuthStore, useCountryStore } from "../store";
-import { authService } from "../services/auth.service";
 import InputGroup from "../components/InputGroup";
 import PrimaryButton from "../components/PrimaryButton";
 import { useResponsive } from "../hooks/useResponsive";
+import { loginUser } from "../features/auth/useCases/loginUser";
+import { getTestUsers } from "../features/auth/useCases/getTestUsers";
 
 const USER_HINTS = {
   standard_user: "Standard",
@@ -36,8 +37,7 @@ export default function Login() {
   }
 
   useEffect(() => {
-    authService
-      .getTestUsers()
+    getTestUsers()
       .then((res) => setTestUsers(res.data || []))
       .catch(() => setTestUsers([]));
   }, []);
@@ -48,7 +48,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await authService.login(username, password);
+      const res = await loginUser({ username, password });
       const { access_token, username: user, behavior } = res.data;
 
       setCountryCode(selectedMarket);

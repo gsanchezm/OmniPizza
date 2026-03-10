@@ -14,6 +14,7 @@ import { Colors } from "../theme/colors";
 import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 import type { Pizza } from "../types/api";
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
+import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
@@ -69,12 +70,10 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
   React.useEffect(() => {
     if (!initialPizza?.id) return;
-    import("../services/pizza.service").then(({ pizzaService }) => {
-      pizzaService.getPizzas().then((list) => {
-        const found = list.find((p) => p.id === initialPizza.id);
-        if (found) setPizza(found);
-        else navigation.goBack();
-      });
+    getCatalogPizzas().then((list) => {
+      const found = list.find((p) => p.id === initialPizza.id);
+      if (found) setPizza(found);
+      else navigation.goBack();
     });
   }, [country, language, initialPizza?.id, navigation]);
 

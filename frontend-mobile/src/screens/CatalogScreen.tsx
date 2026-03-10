@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
-import { usePizzas } from "../hooks/usePizzas";
+import { useCatalogPizzas } from "../features/catalog/hooks/useCatalogPizzas";
 import { LocationHeader } from "../components/LocationHeader";
 import { BottomNavBar } from "../components/BottomNavBar";
 import { HeroBanner } from "../components/HeroBanner";
@@ -23,7 +23,7 @@ import { useT } from "../i18n";
 export default function CatalogScreen({ navigation }: any) {
   const t = useT();
   const { country, language } = useAppStore();
-  const { pizzas, loading, error } = usePizzas(country, language);
+  const { pizzas, loading, error } = useCatalogPizzas(country, language);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 

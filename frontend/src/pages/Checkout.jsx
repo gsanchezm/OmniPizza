@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResponsive } from "../hooks/useResponsive";
-import { orderService } from "../services/order.service";
 import {
   useCartStore,
   useCountryStore,
   useProfileStore,
   useOrderStore,
 } from "../store";
+import { placeOrder } from "../features/checkout/useCases/placeOrder";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { computeUnitPrice } from "../utils/pizzaPricing";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
@@ -386,31 +386,7 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      const payload = {
-        country_code: countryCode,
-        items: items.map((i) => ({
-          pizza_id: i.pizza_id,
-          quantity: i.quantity,
-          size: i.config?.size || "small",
-          toppings: i.config?.toppings || [],
-        })),
-        name: form.name,
-        address: form.address,
-        phone: form.phone,
-      };
-
-      if (countryCode === "MX") {
-        payload.colonia = form.colonia;
-        if (form.propina) payload.propina = parseFloat(form.propina);
-      } else if (countryCode === "US") {
-        payload.zip_code = form.zip_code;
-      } else if (countryCode === "CH") {
-        payload.plz = form.plz;
-      } else if (countryCode === "JP") {
-        payload.prefectura = form.prefectura;
-      }
-
-      const res = await orderService.checkout(payload);
+      const res = await placeOrder({ countryCode, items, form });
       setLastOrder(res.data);
       clearCart();
       navigate("/order-success", { replace: true });

@@ -14,13 +14,16 @@ import { BottomNavBar } from "../components/BottomNavBar";
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { saveProfile } from "../features/profile/useCases/saveProfile";
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
   const { profile, setProfile } = useAppStore();
 
   const handleSave = () => {
-    Alert.alert(t("profileSaved") || "Profile saved");
+    saveProfile(t("profileSaved") || "Profile saved", (message) =>
+      Alert.alert(message),
+    );
   };
 
   return (

@@ -11,6 +11,7 @@ import {
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { getCourierProfile } from "../features/orderSuccess/useCases/getCourierProfile";
 
 const { width } = Dimensions.get("window");
 
@@ -18,11 +19,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
   const t = useT();
   const { lastOrder } = useAppStore();
 
-  const courier = {
-    name: "Carlos R.",
-    rating: "4.9",
-    vehicle: "driving",
-  };
+  const courier = getCourierProfile();
 
   return (
     <View style={styles.screen} accessibilityLabel="screen-order-success" testID="screen-order-success">

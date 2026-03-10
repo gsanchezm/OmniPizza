@@ -18,7 +18,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ThemedInput } from "../components/ThemedInput";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { Colors } from "../theme/colors";
-import { authService } from "../services/auth.service";
+import { loginUser } from "../features/auth/useCases/loginUser";
+import { selectMarket } from "../features/country/useCases/selectMarket";
 
 const { height } = Dimensions.get("window");
 
@@ -70,9 +71,9 @@ export default function LoginScreen({ navigation }: any) {
       // Small delay for UX
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const data = await authService.login(username.trim(), password);
+      const data = await loginUser({ username: username.trim(), password });
       if (data && data.access_token) {
-        setCountry(selectedMarket);
+        selectMarket(selectedMarket, setCountry);
         setToken(data.access_token);
       } else {
         setError("Invalid credentials.");

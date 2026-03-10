@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import axios, { AxiosError } from 'axios';
 
 const API_URL = process.env.API_BASE_URL ?? 'http://localhost:8000';
-const PASSWORD = 'pizza123';
+const PASSWORD = process.env.TEST_USER_PASSWORD ?? 'pizza123';
 
 /** Helper: login and return access token */
 async function login(username: string): Promise<string> {

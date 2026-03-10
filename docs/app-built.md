@@ -7,11 +7,11 @@ This plan outlines the steps to configure the OmniPizza mobile app (React Native
 The goal is to automatically generate and release the following artifacts on GitHub Releases:
 
 1.  **Android**:
-    *   `app-release.apk` — Universal APK for real devices & emulators
-    *   `app-debug-androidTest.apk` — Instrumented test APK for device farm testing (Espresso/Appium)
+    - `omnipizza-release.apk` — Universal APK for real devices & emulators
+    - `omnipizza-debug-androidTest.apk` — Instrumented test APK for device farm testing (Espresso/Appium)
 2.  **iOS**:
-    *   `OmniPizza-Simulator.zip` — Simulator build for Appium/Simulators (no signing required)
-    *   `OmniPizza.ipa` — Real device build (*Requires Apple Developer Account — future phase*)
+    - `OmniPizza-Simulator.zip` — Simulator build for Appium/Simulators (no signing required)
+    - `OmniPizza.ipa` — Real device build (_Requires Apple Developer Account — future phase_)
 
 ## Prerequisites
 
@@ -27,6 +27,7 @@ The goal is to automatically generate and release the following artifacts on Git
 We use **Expo Prebuild** to generate the native Android and iOS projects on-the-fly in CI. This keeps the repo clean (no committed `android/` or `ios/` directories) while giving full control over native build tooling (Gradle & Xcode).
 
 ### Status
+
 - [x] `android/` and `ios/` added to `.gitignore`
 - [x] `npx expo prebuild` generates native projects correctly
 - [x] `app.json` configured with `com.omnipizza.app` bundle identifier
@@ -38,20 +39,25 @@ We use **Expo Prebuild** to generate the native Android and iOS projects on-the-
 We use Gradle to build both the release APK and the androidTest APK.
 
 ### Release APK
+
 ```bash
 cd android && ./gradlew assembleRelease
 ```
-*   **Output**: `android/app/build/outputs/apk/release/app-release.apk`
+
+- **Output**: `android/app/build/outputs/apk/release/omnipizza-release.apk` (renamed from app-release.apk)
 
 ### Test APK (for device farms)
+
 ```bash
 cd android && ./gradlew assembleAndroidTest
 ```
-*   **Output**: `android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`
-*   This APK is used for running instrumented UI tests on platforms like Sauce Labs, similar to `mda-androidTest-*.apk` in the Sauce Labs releases.
+
+- **Output**: `android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk` (renamed from app-debug-androidTest.apk)
+- This APK is used for running instrumented UI tests on platforms like Sauce Labs, similar to `mda-androidTest-*.apk` in the Sauce Labs releases.
 
 ### Signing
-*   Currently uses the default debug keystore. For production distribution, configure a release keystore via GitHub Secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`).
+
+- Currently uses the default debug keystore. For production distribution, configure a release keystore via GitHub Secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`).
 
 ---
 
@@ -60,6 +66,7 @@ cd android && ./gradlew assembleAndroidTest
 We use `xcodebuild` to generate the `.app` for Simulator.
 
 ### Simulator Build (No signing required)
+
 ```bash
 # Install native dependencies
 cd ios && pod install
@@ -77,14 +84,16 @@ zip -r OmniPizza-Simulator.zip OmniPizza.app
 ```
 
 ### Real Device Build (Future — Requires Apple Developer Account)
-*   Building an `.ipa` requires certificates (`.p12`) + provisioning profiles.
-*   When ready, add signing secrets to GitHub and an `xcodebuild archive` + `xcodebuild -exportArchive` step.
+
+- Building an `.ipa` requires certificates (`.p12`) + provisioning profiles.
+- When ready, add signing secrets to GitHub and an `xcodebuild archive` + `xcodebuild -exportArchive` step.
 
 ---
 
 ## 4. GitHub Actions Workflow
 
 The workflow lives at `.github/workflows/mobile-release.yml` and triggers on:
+
 - **GitHub Release publication** — builds and attaches artifacts to the release
 - **Manual dispatch** (`workflow_dispatch`) — for testing the pipeline without creating a release
 
@@ -93,25 +102,26 @@ The workflow lives at `.github/workflows/mobile-release.yml` and triggers on:
 1.  **Setup**: Checkout code, install pnpm 10, setup Node.js 20, install dependencies.
 2.  **Prebuild**: Run `npx expo prebuild --platform <platform> --clean`.
 3.  **Build Android** (ubuntu-latest):
-    *   Setup JDK 17 (Zulu).
-    *   `./gradlew assembleRelease` — produces `app-release.apk`.
-    *   `./gradlew assembleAndroidTest` — produces `app-debug-androidTest.apk`.
-    *   Upload both as artifacts + attach to GitHub Release.
+    - Setup JDK 17 (Zulu).
+    - `./gradlew assembleRelease` — produces `app-release.apk` (renamed to `omnipizza-release.apk`).
+    - `./gradlew assembleAndroidTest` — produces `app-debug-androidTest.apk` (renamed to `omnipizza-debug-androidTest.apk`).
+    - Upload both as artifacts + attach to GitHub Release.
 4.  **Build iOS** (macos-latest):
-    *   `pod install` for CocoaPods dependencies.
-    *   `xcodebuild` for Simulator build.
-    *   Zip `.app` bundle.
-    *   Upload as artifact + attach to GitHub Release.
+    - `pod install` for CocoaPods dependencies.
+    - `xcodebuild` for Simulator build.
+    - Zip `.app` bundle.
+    - Upload as artifact + attach to GitHub Release.
 
 ### Action Versions
-| Action | Version |
-|--------|---------|
-| `actions/checkout` | v4 |
-| `pnpm/action-setup` | v4 |
-| `actions/setup-node` | v4 |
-| `actions/setup-java` | v4 |
-| `actions/upload-artifact` | v4 |
-| `softprops/action-gh-release` | v2 |
+
+| Action                        | Version |
+| ----------------------------- | ------- |
+| `actions/checkout`            | v4      |
+| `pnpm/action-setup`           | v4      |
+| `actions/setup-node`          | v4      |
+| `actions/setup-java`          | v4      |
+| `actions/upload-artifact`     | v4      |
+| `softprops/action-gh-release` | v2      |
 
 ---
 
@@ -119,12 +129,12 @@ The workflow lives at `.github/workflows/mobile-release.yml` and triggers on:
 
 The final GitHub Release will contain:
 
-| Asset | Platform | Use Case |
-|-------|----------|----------|
-| `app-release.apk` | Android | Install on real devices & emulators |
-| `app-debug-androidTest.apk` | Android | Run instrumented tests on device farms |
-| `OmniPizza-Simulator.zip` | iOS | Run on iOS Simulator / Appium testing |
-| *(Future)* `OmniPizza.ipa` | iOS | Install on real iOS devices |
+| Asset                             | Platform | Use Case                               |
+| --------------------------------- | -------- | -------------------------------------- |
+| `omnipizza-release.apk`           | Android  | Install on real devices & emulators    |
+| `omnipizza-debug-androidTest.apk` | Android  | Run instrumented tests on device farms |
+| `OmniPizza-Simulator.zip`         | iOS      | Run on iOS Simulator / Appium testing  |
+| _(Future)_ `OmniPizza.ipa`        | iOS      | Install on real iOS devices            |
 
 ---
 

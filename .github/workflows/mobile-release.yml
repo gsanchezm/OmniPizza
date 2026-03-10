@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. v1.1.0)'
+        description: "Release version (e.g. v1.1.0)"
         required: true
 
 permissions:
@@ -31,14 +31,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
           cache-dependency-path: frontend-mobile/pnpm-lock.yaml
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -55,13 +55,18 @@ jobs:
       - name: Build Android Test APK
         run: cd android && ./gradlew assembleAndroidTest
 
+      - name: Rename APKs
+        run: |
+          mv android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/omnipizza-release.apk
+          mv android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: OmniPizza-Android
           path: |
-            frontend-mobile/android/app/build/outputs/apk/release/app-release.apk
-            frontend-mobile/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            frontend-mobile/android/app/build/outputs/apk/release/omnipizza-release.apk
+            frontend-mobile/android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk
 
   build-ios:
     name: Build iOS Simulator App
@@ -83,7 +88,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
           cache-dependency-path: frontend-mobile/pnpm-lock.yaml
 
       - name: Install Dependencies

@@ -4,6 +4,7 @@ OmniPizza is a multi-platform, test-friendly food ordering sandbox designed for 
 Users now select market directly on the **login** screen (web + mobile) before entering the app.
 
 ## Live Deployments (Render)
+
 - **Web:** https://omnipizza-frontend.onrender.com
 - **API:** https://omnipizza-backend.onrender.com
 
@@ -81,24 +82,28 @@ Users now select market directly on the **login** screen (web + mobile) before e
 The backend exposes full OpenAPI documentation using **Swagger UI** and **ReDoc**.
 
 ### Swagger UI
+
 Interactive documentation to explore and test endpoints.
 
 - **Render:** https://omnipizza-backend.onrender.com/api/docs
 - **Local:** http://localhost:8000/api/docs
 
 ### ReDoc
+
 Clean, readable API reference.
 
 - **Render:** https://omnipizza-backend.onrender.com/api/redoc
 - **Local:** http://localhost:8000/api/redoc
 
 ### OpenAPI JSON
+
 Raw OpenAPI specification (useful for contract testing tools).
 
 - **Render:** https://omnipizza-backend.onrender.com/api/openapi.json
 - **Local:** http://localhost:8000/api/openapi.json
 
 ### Required Headers (important)
+
 Most endpoints rely on request headers to simulate multi-market behavior:
 
 - `X-Country-Code: MX | US | CH | JP`
@@ -107,28 +112,56 @@ Most endpoints rely on request headers to simulate multi-market behavior:
 
 These headers are automatically sent by the **Web** and **Mobile** clients.
 
+### Test Utility Endpoints (`/api/test/*`)
+
+Atomic state setup endpoints exist for external automation runners (Playwright/Appium/Gatling), but are **guarded** and disabled by default.
+
+- `POST /api/test/reset`
+- `POST /api/test/market`
+- `POST /api/test/cart`
+- `GET /api/test/state`
+
+Safety rules:
+
+- Available only when `ENVIRONMENT != production`
+- Enabled only when `ENABLE_TEST_API=true`
+- Require both:
+  - `Authorization: Bearer <token>`
+  - `X-Test-Token: <TEST_API_TOKEN>`
+
+Example local backend env:
+
+```bash
+ENVIRONMENT=development
+ENABLE_TEST_API=true
+TEST_API_TOKEN=omnipizza-test-token
+```
+
 ---
 
 ## What’s inside
 
 ### Test Users (deterministic behaviors)
-| Username | Password | Behavior |
-|---|---|---|
-| standard_user | pizza123 | Normal flow |
-| locked_out_user | pizza123 | Login fails (deterministic) |
-| problem_user | pizza123 | $0 prices + broken images |
-| performance_glitch_user | pizza123 | API delay (~3s) |
-| error_user | pizza123 | Random checkout error (~50%) |
+
+| Username                | Password | Behavior                     |
+| ----------------------- | -------- | ---------------------------- |
+| standard_user           | pizza123 | Normal flow                  |
+| locked_out_user         | pizza123 | Login fails (deterministic)  |
+| problem_user            | pizza123 | $0 prices + broken images    |
+| performance_glitch_user | pizza123 | API delay (~3s)              |
+| error_user              | pizza123 | Random checkout error (~50%) |
 
 ### Markets (pricing + required fields)
-| Market | Currency | Required fields | Notes |
-|---|---|---|---|
-| MX | MXN | `colonia` | Tip optional (`propina`) |
-| US | USD | `zip_code` | Tax applied |
-| CH | CHF | `plz` | **Language toggle DE/FR** |
-| JP | JPY | `prefectura` | No decimals |
+
+| Market | Currency | Required fields | Notes                     |
+| ------ | -------- | --------------- | ------------------------- |
+| MX     | MXN      | `colonia`       | Tip optional (`propina`)  |
+| US     | USD      | `zip_code`      | Tax applied               |
+| CH     | CHF      | `plz`           | **Language toggle DE/FR** |
+| JP     | JPY      | `prefectura`    | No decimals               |
 
 ### Language behavior
+
 - The app **starts in English** (web + mobile).
 - The selected market at login sets the default UI language:
   - **MX → Spanish (es)**
@@ -138,24 +171,30 @@ These headers are automatically sent by the **Web** and **Mobile** clients.
 - After login, market is no longer changeable from app navigation.
 
 ### Payment (UI simulation)
+
 Checkout supports two selectable payment methods:
+
 - **Credit Card** — Displays a full card form (Cardholder Name, Card Number, Expiry, CVV). Card details are **UI-only** and are **not sent** to the backend.
 - **Cash on Delivery** — Hides the card form; order is placed without card details.
 
 The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` for automation.
 
 ### Profile (Delivery Details)
+
 The **Profile** page stores delivery details (name/address/phone) and **auto-fills Checkout**.
 
 ### Order Success
+
 After checkout, the **Order Success** screen is shown and the last order remains accessible (web persists it via local storage).
 
 ### Mobile UX updates
+
 - Navbar includes a **logout** button.
 - Checkout validates required fields before submit (country-specific + inline errors).
 - Layouts are rotation-ready (portrait/landscape) for iOS and Android.
 
 ### Web visual assets
+
 - Public icons/logos were standardized from `frontend-mobile/assets/icon.png`.
 - Login page uses `frontend/public/login-bg-gradient.png` as the background.
 
@@ -174,6 +213,7 @@ OmniPizza/
 ```
 
 ## Project Documentation
+
 Detailed specifications for the project can be found in `specs/`:
 
 - **[Product Requirements (PRD)](specs/Product_Requirement_Doc.md):** User personas, functional requirements, and chaos behaviors.
@@ -186,6 +226,7 @@ Detailed specifications for the project can be found in `specs/`:
 ## Run locally
 
 ### Backend
+
 ```bash
 cd backend
 python -m venv venv
@@ -197,6 +238,7 @@ python main.py
 - Swagger: http://localhost:8000/api/docs
 
 ### Web
+
 ```bash
 cd frontend
 npm install
@@ -208,6 +250,7 @@ npm run dev
 > `VITE_API_URL=http://localhost:8000 npm run dev`
 
 ### Mobile
+
 ```bash
 cd frontend-mobile
 npm install
@@ -215,6 +258,7 @@ npm run ios   # or npm run android
 ```
 
 > **Configuration:**
+>
 > - Mobile is configured to use the **Render API** (`https://omnipizza-backend.onrender.com`) strictly, with **mock data fallback removed**.
 > - **Real Authentication:** Uses `/api/auth/login` to obtain valid JWT tokens.
 > - **Market selection at login:** user picks market on the login screen (flag selector).
@@ -247,6 +291,7 @@ Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
 ---
 
 ## Automation notes
+
 - `/api/pizzas` requires `X-Country-Code` header for market pricing.
 - Use the test users to validate reliability and chaos behaviors.
 - All interactive elements have `data-testid` attributes for stable selectors.
@@ -256,4 +301,5 @@ Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
 ---
 
 ## License
+
 MIT

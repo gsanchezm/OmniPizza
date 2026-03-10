@@ -5,7 +5,7 @@ import { useResponsive } from "../hooks/useResponsive";
 import { UI_STRINGS } from "../constants/pizza";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 import { useT } from "../i18n";
-import { usePizzas } from "../hooks/usePizzas";
+import { useCatalogPizzas } from "../features/catalog/hooks/useCatalogPizzas";
 import CategoryFilter from "../components/CategoryFilter";
 import CartSidebar from "../components/CartSidebar";
 import ProductCard from "../components/ProductCard";
@@ -53,7 +53,7 @@ export default function Catalog() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { pizzas, loading, error } = usePizzas(countryCode, language);
+  const { pizzas, loading, error } = useCatalogPizzas(countryCode, language);
 
   // --- Handlers ---
   const handleOpenModal = (pizza) => {
@@ -176,4 +176,3 @@ export default function Catalog() {
     </div>
   );
 }
-

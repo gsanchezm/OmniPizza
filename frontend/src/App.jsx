@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore, useCountryStore } from "./store";
-import { useCountryInfo } from "./hooks/useCountryInfo";
+import { useCountryFeatureInfo } from "./features/country/hooks/useCountryFeatureInfo";
 
 import Login from "./pages/Login";
 import Catalog from "./pages/Catalog";
@@ -16,7 +16,7 @@ const App = () => {
   const isAuthenticated = Boolean(token);
   const countryCode = useCountryStore((s) => s.countryCode);
 
-  useCountryInfo(isAuthenticated, countryCode);
+  useCountryFeatureInfo(isAuthenticated, countryCode);
 
   return (
     <BrowserRouter>

@@ -4,6 +4,7 @@ import { useOrderStore } from '../store';
 import { useT } from '../i18n';
 import { formatMoney } from '../utils/money';
 import { useResponsive } from '../hooks/useResponsive';
+import { getCourierProfile } from '../features/orderSuccess/useCases/getCourierProfile';
 
 export default function OrderSuccess() {
   const t = useT();
@@ -11,13 +12,7 @@ export default function OrderSuccess() {
   const { tid } = useResponsive();
   const order = useOrderStore((s) => s.lastOrder);
 
-  // Fake courier data
-  const courier = {
-      name: "Carlos R.",
-      rating: "4.9",
-      vehicle: "driving", // mapped to translation
-      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos"
-  };
+  const courier = getCourierProfile();
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white">

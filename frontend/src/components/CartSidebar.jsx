@@ -99,15 +99,15 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
       <div className="border-t border-[#2A2A2A] pt-4 space-y-3">
          <div className="flex justify-between text-sm text-gray-400">
             <span>{t('subtotal')}</span>
-            <span>{format(subtotal)}</span>
+            <span data-testid="cart-subtotal-value">{format(subtotal)}</span>
          </div>
          <div className="flex justify-between text-sm text-gray-400">
             <span>{t('deliveryFee')}</span>
-            <span>{format(deliveryFee)}</span>
+            <span data-testid="cart-delivery-fee-value">{format(deliveryFee)}</span>
          </div>
          <div className="flex justify-between text-lg font-extrabold text-white pt-2">
             <span>{t('total')}</span>
-            <span>{format(total)}</span>
+            <span data-testid="cart-total-value">{format(total)}</span>
          </div>
          
          <div className="pt-4">

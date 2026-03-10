@@ -11,6 +11,18 @@ class InMemoryDB:
         self.orders: Dict[str, Dict[str, Any]] = {}
         self.sessions: Dict[str, Dict[str, Any]] = {}
 
+    def _ensure_session(self, username: str) -> Dict[str, Any]:
+        session = self.sessions.get(username)
+        if session is None:
+            session = {
+                "username": username,
+                "country_code": CountryCode.MX.value,
+                "cart_items": [],
+                "updated_at": datetime.utcnow(),
+            }
+            self.sessions[username] = session
+        return session
+
     def create_order(self, order_data: Dict[str, Any]) -> str:
         order_id = f"ORDER-{uuid.uuid4().hex[:8].upper()}"
         order_data["order_id"] = order_id
@@ -24,6 +36,24 @@ class InMemoryDB:
 
     def get_user_orders(self, username: str) -> List[Dict[str, Any]]:
         return [order for order in self.orders.values() if order.get("username") == username]
+
+    def set_test_market(self, username: str, country_code: CountryCode) -> Dict[str, Any]:
+        session = self._ensure_session(username)
+        session["country_code"] = country_code.value
+        session["updated_at"] = datetime.utcnow()
+        return session
+
+    def set_test_cart(self, username: str, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+        session = self._ensure_session(username)
+        session["cart_items"] = [item.copy() for item in items]
+        session["updated_at"] = datetime.utcnow()
+        return session
+
+    def reset_test_session(self, username: str) -> None:
+        self.sessions.pop(username, None)
+
+    def get_test_session(self, username: str) -> Dict[str, Any]:
+        return self._ensure_session(username)
 
     # ✅ UPDATED: supports language + translation
     def get_catalog(

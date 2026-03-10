@@ -47,6 +47,20 @@ pnpm test:ui
 API_BASE_URL=http://your-api-host:8000 pnpm test
 ```
 
+### Atomic setup endpoints (external runners only)
+
+Atomic setup orchestration is implemented outside this repository (for example in Playwright/Appium/Gatling projects).  
+This `tests/` package does not call `/api/test/*` endpoints directly.
+
+Backend feature flags for external runners:
+
+```bash
+# backend/.env
+ENVIRONMENT=development
+ENABLE_TEST_API=true
+TEST_API_TOKEN=omnipizza-test-token
+```
+
 ## What is Tested
 
 | Test Suite | Description |

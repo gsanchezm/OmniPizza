@@ -95,3 +95,16 @@ class ErrorResponse(BaseModel):
     error: str
     message: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+# Test Setup Models
+class TestMarketRequest(BaseModel):
+    country_code: CountryCode
+
+class TestCartSetupRequest(BaseModel):
+    items: List[CartItem] = Field(..., min_items=1)
+
+class TestSessionStateResponse(BaseModel):
+    username: str
+    country_code: CountryCode
+    cart_items: List[CartItem]
+    updated_at: datetime

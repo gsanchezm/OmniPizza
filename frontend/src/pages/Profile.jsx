@@ -2,6 +2,7 @@ import React from 'react';
 import { useProfileStore } from '../store';
 import { useT } from '../i18n';
 import { useResponsive } from '../hooks/useResponsive';
+import { saveProfile } from '../features/profile/useCases/saveProfile';
 
 export default function Profile() {
   const t = useT();
@@ -9,8 +10,7 @@ export default function Profile() {
   const { fullName, address, phone, notes, setProfile } = useProfileStore();
 
   const handleSave = () => {
-    // In a real app this would save to backend
-    alert(t('profileSaved'));
+    saveProfile(t('profileSaved'));
   };
 
   return (

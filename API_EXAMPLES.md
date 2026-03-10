@@ -57,24 +57,10 @@ curl http://localhost:8000/api/auth/users
 curl http://localhost:8000/api/countries
 ```
 
-### Get Country Info
+To inspect a single country, filter the list client-side (example with `jq`):
 
 ```bash
-curl http://localhost:8000/api/countries/MX
-```
-
-Response:
-```json
-{
-  "code": "MX",
-  "currency": "MXN",
-  "currency_symbol": "$",
-  "required_fields": ["colonia"],
-  "optional_fields": ["propina"],
-  "tax_rate": 0.0,
-  "languages": ["es"],
-  "decimal_places": 2
-}
+curl -s http://localhost:8000/api/countries | jq '.[] | select(.code=="MX")'
 ```
 
 ## Pizzas
@@ -92,7 +78,7 @@ Response:
 {
   "pizzas": [
     {
-      "id": "1",
+      "id": "p01",
       "name": "Margherita",
       "description": "Tomate, mozzarella, albahaca",
       "price": 227.33,
@@ -119,7 +105,7 @@ Response:
 {
   "pizzas": [
     {
-      "id": "1",
+      "id": "p01",
       "name": "Margherita",
       "price": 1935,
       "currency": "JPY",
@@ -140,8 +126,8 @@ curl -X POST http://localhost:8000/api/checkout \
   -d '{
     "country_code": "MX",
     "items": [
-      {"pizza_id": "1", "quantity": 2},
-      {"pizza_id": "2", "quantity": 1}
+      {"pizza_id": "p01", "quantity": 2},
+      {"pizza_id": "p02", "quantity": 1}
     ],
     "name": "Juan Pérez",
     "address": "Av. Insurgentes 123",
@@ -160,7 +146,7 @@ curl -X POST http://localhost:8000/api/checkout \
   -d '{
     "country_code": "US",
     "items": [
-      {"pizza_id": "1", "quantity": 1}
+      {"pizza_id": "p01", "quantity": 1}
     ],
     "name": "John Doe",
     "address": "123 Main St",
@@ -192,7 +178,7 @@ curl -X POST http://localhost:8000/api/checkout \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "MX",
-    "items": [{"pizza_id": "1", "quantity": 1}],
+    "items": [{"pizza_id": "p01", "quantity": 1}],
     "name": "Test User",
     "address": "Test Address",
     "phone": "1234567890"
@@ -220,6 +206,64 @@ curl http://localhost:8000/api/orders \
 ```bash
 curl http://localhost:8000/api/orders/ORDER-A1B2C3D4 \
   -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Test Utility Endpoints (Non-Production Only)
+
+These endpoints are for external automation setup (Playwright/Appium/Gatling).  
+They are available only when backend env enables them (`ENABLE_TEST_API=true` and non-production).
+
+Common headers for all `/api/test/*` routes:
+
+```bash
+-H "Authorization: Bearer YOUR_TOKEN" \
+-H "X-Test-Token: omnipizza-test-token" \
+-H "Content-Type: application/json"
+```
+
+### Reset Test Session State
+
+```bash
+curl -X POST http://localhost:8000/api/test/reset \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Test-Token: omnipizza-test-token" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+### Set Market for Test Session
+
+```bash
+curl -X POST http://localhost:8000/api/test/market \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Test-Token: omnipizza-test-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "country_code": "US"
+  }'
+```
+
+### Seed Cart for Test Session
+
+```bash
+curl -X POST http://localhost:8000/api/test/cart \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Test-Token: omnipizza-test-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {"pizza_id": "p01", "quantity": 2},
+      {"pizza_id": "p02", "quantity": 1}
+    ]
+  }'
+```
+
+### Read Current Test Session State
+
+```bash
+curl http://localhost:8000/api/test/state \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Test-Token: omnipizza-test-token"
 ```
 
 ## Debug Endpoints
