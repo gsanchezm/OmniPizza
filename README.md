@@ -112,28 +112,24 @@ Most endpoints rely on request headers to simulate multi-market behavior:
 
 These headers are automatically sent by the **Web** and **Mobile** clients.
 
-### Test Utility Endpoints (`/api/test/*`)
+### Session Setup Endpoints
 
-Atomic state setup endpoints exist for external automation runners (Playwright/Appium/Gatling), but are **guarded** and disabled by default.
+Atomic state setup endpoints exist for external automation runners (Playwright/Appium/Gatling).
 
-- `POST /api/test/reset`
-- `POST /api/test/market`
-- `POST /api/test/cart`
-- `GET /api/test/state`
+- `POST /api/store/market`
+- `POST /api/cart`
+- `POST /api/session/reset`
+- `GET /api/session`
 
-Safety rules:
+Access rules:
 
-- Available only when `ENVIRONMENT != production`
-- Enabled only when `ENABLE_TEST_API=true`
 - Require both:
   - `Authorization: Bearer <token>`
   - `X-Test-Token: <TEST_API_TOKEN>`
 
-Example local backend env:
+Example backend env:
 
 ```bash
-ENVIRONMENT=development
-ENABLE_TEST_API=true
 TEST_API_TOKEN=omnipizza-test-token
 ```
 
@@ -204,22 +200,41 @@ After checkout, the **Order Success** screen is shown and the last order remains
 
 ```
 OmniPizza/
-├── backend/          # FastAPI backend (in-memory DB)
-├── frontend/         # React + Vite + Tailwind web app
-├── frontend-mobile/  # React Native / Expo mobile app
-├── tests/            # API integration tests (Vitest + TypeScript)
-├── specs/            # PRD, Design Specs, Tech Stack
-└── docs/             # Project Documentation
+├── backend/                # FastAPI backend + Swagger/OpenAPI
+├── frontend/               # React + Vite web app
+├── frontend-mobile/        # Expo / React Native app
+├── tests/                  # API integration tests (Vitest)
+├── docs/                   # Build/release notes
+├── ordersuccess_ios/       # Product, design, and tech docs
+└── screenshots/            # Reference UI captures
 ```
+
+## Architecture
+
+Both clients are being organized around feature slices instead of only technical folders.
+
+- `frontend/src/features/*`
+- `frontend-mobile/src/features/*`
+
+Current slices include `auth`, `catalog`, `checkout`, `country`, `profile`, and `orderSuccess`.
+
+The pattern used in both web and mobile is:
+
+- repository layer for API access
+- use-case layer for orchestration / payload building / validation
+- UI pages and screens consuming those feature modules
+
+Compatibility wrappers still exist in a few older hook paths so migration can remain incremental.
 
 ## Project Documentation
 
-Detailed specifications for the project can be found in `specs/`:
+Current supporting docs live here:
 
-- **[Product Requirements (PRD)](specs/Product_Requirement_Doc.md):** User personas, functional requirements, and chaos behaviors.
-- **[Design Document](specs/Design_Doc.md):** System architecture, data flow, and "Chaos Middleware" design.
-- **[UI Design System](specs/UI_Design_Doc.md):** "Dark Premium" aesthetic, color palette, typography, and component specs.
-- **[Tech Stack](specs/Tech_Stack_Doc.md):** Technology choices and justification (FastAPI, React, Zustand, etc.).
+- [docs/app-built.md](/Users/gilbertosanchez/Documents/Repos/OmniPizza/docs/app-built.md) — mobile release/build pipeline
+- `ordersuccess_ios/Product_Requirement_Doc.md` — product requirements
+- `ordersuccess_ios/Design_Doc.md` — architecture and UX notes
+- `ordersuccess_ios/UI_Design_Doc.md` — visual system
+- `ordersuccess_ios/Tech_Stack_Doc.md` — stack decisions
 
 ---
 
@@ -229,10 +244,10 @@ Detailed specifications for the project can be found in `specs/`:
 
 ```bash
 cd backend
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python main.py
+python3 main.py
 ```
 
 - Swagger: http://localhost:8000/api/docs
@@ -241,20 +256,20 @@ python main.py
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 > The web client reads `VITE_API_URL` when provided, otherwise defaults to `http://localhost:8000`.
 > On macOS/Linux you can run:
-> `VITE_API_URL=http://localhost:8000 npm run dev`
+> `VITE_API_URL=http://localhost:8000 pnpm dev`
 
 ### Mobile
 
 ```bash
 cd frontend-mobile
-npm install
-npm run ios   # or npm run android
+pnpm install
+pnpm ios      # or pnpm android
 ```
 
 > **Configuration:**
@@ -270,7 +285,9 @@ npm run ios   # or npm run android
 
 ---
 
-## API Tests (Vitest)
+## Testing
+
+### API Tests (Vitest)
 
 The `tests/` directory contains automated API integration tests written in **TypeScript** with **Vitest**.
 
@@ -287,6 +304,26 @@ Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
 **Test suites:** Auth login, Pizza catalog, Checkout validation, Locked-out user, E2E standard flow, Country-specific logic (MX/US/CH/JP), Debug endpoints.
 
 > Legacy Python contract tests (Schemathesis) are also available — see `tests/README.md`.
+
+### Web Component Tests (Cypress)
+
+The web app includes Cypress Component Testing for shared UI components.
+
+```bash
+cd frontend
+pnpm install
+pnpm test:ct
+pnpm test:ct:open
+```
+
+Current component specs live in `frontend/cypress/component/`.
+
+### CI Workflows
+
+- [frontend-component-tests.yml](/Users/gilbertosanchez/Documents/Repos/OmniPizza/.github/workflows/frontend-component-tests.yml)
+  Runs Cypress component tests on pull requests touching `frontend/**`. It is currently non-blocking (`continue-on-error: true`).
+- [mobile-release.yml](/Users/gilbertosanchez/Documents/Repos/OmniPizza/.github/workflows/mobile-release.yml)
+  Builds Android and iOS simulator artifacts through manual dispatch.
 
 ---
 

@@ -1,36 +1,36 @@
-# Mobile App Compilation Plan (Sauce Labs Style)
+# Mobile App Build and Release
 
-This plan outlines the steps to configure the OmniPizza mobile app (React Native/Expo) to generate distributable binaries for Android and iOS, similar to the [Sauce Labs Demo Apps](https://github.com/saucelabs/my-demo-app-android/releases).
+This document describes the current mobile build pipeline for OmniPizza. The mobile app lives in `frontend-mobile/` and is built with Expo prebuild plus native Gradle/Xcode steps in GitHub Actions.
 
-## Objectives
+## Outputs
 
-The goal is to automatically generate and release the following artifacts on GitHub Releases:
+The current workflow produces the following artifacts:
 
 1.  **Android**:
     - `omnipizza-release.apk` — Universal APK for real devices & emulators
     - `omnipizza-debug-androidTest.apk` — Instrumented test APK for device farm testing (Espresso/Appium)
 2.  **iOS**:
     - `OmniPizza-Simulator.zip` — Simulator build for Appium/Simulators (no signing required)
-    - `OmniPizza.ipa` — Real device build (_Requires Apple Developer Account — future phase_)
+    - `OmniPizza.ipa` — Real device build (_future phase_)
 
 ## Prerequisites
 
-1.  **pnpm**: Version 10+ (matches `packageManager` in `package.json`).
-2.  **Node.js**: Version 20+.
-3.  **Repo Structure**: `frontend-mobile` is the root for the mobile app.
-4.  **GitHub Actions**: Enabled in the repository.
+1. `pnpm` 10+
+2. Node.js 20+
+3. `frontend-mobile/` as the mobile app root
+4. GitHub Actions enabled
 
 ---
 
-## 1. Project Configuration (Prebuild)
+## 1. Project Configuration
 
 We use **Expo Prebuild** to generate the native Android and iOS projects on-the-fly in CI. This keeps the repo clean (no committed `android/` or `ios/` directories) while giving full control over native build tooling (Gradle & Xcode).
 
-### Status
+### Current status
 
-- [x] `android/` and `ios/` added to `.gitignore`
-- [x] `npx expo prebuild` generates native projects correctly
-- [x] `app.json` configured with `com.omnipizza.app` bundle identifier
+- `android/` and `ios/` are generated through Expo prebuild in CI
+- native folders are ignored in git
+- `frontend-mobile/app.json` contains bundle/package identifiers used during prebuild
 
 ---
 
@@ -92,25 +92,30 @@ zip -r OmniPizza-Simulator.zip OmniPizza.app
 
 ## 4. GitHub Actions Workflow
 
-The workflow lives at `.github/workflows/mobile-release.yml` and triggers on:
+The workflow lives at `.github/workflows/mobile-release.yml`.
 
-- **GitHub Release publication** — builds and attaches artifacts to the release
-- **Manual dispatch** (`workflow_dispatch`) — for testing the pipeline without creating a release
+Current trigger:
+
+- `workflow_dispatch` with a required `version` input
+
+The workflow builds artifacts first and then creates a GitHub Release for the provided version tag.
 
 ### Pipeline Stages
 
-1.  **Setup**: Checkout code, install pnpm 10, setup Node.js 20, install dependencies.
-2.  **Prebuild**: Run `npx expo prebuild --platform <platform> --clean`.
-3.  **Build Android** (ubuntu-latest):
-    - Setup JDK 17 (Zulu).
-    - `./gradlew assembleRelease` — produces `app-release.apk` (renamed to `omnipizza-release.apk`).
-    - `./gradlew assembleAndroidTest` — produces `app-debug-androidTest.apk` (renamed to `omnipizza-debug-androidTest.apk`).
-    - Upload both as artifacts + attach to GitHub Release.
-4.  **Build iOS** (macos-latest):
-    - `pod install` for CocoaPods dependencies.
-    - `xcodebuild` for Simulator build.
-    - Zip `.app` bundle.
-    - Upload as artifact + attach to GitHub Release.
+1. Setup: checkout, install pnpm, install Node.js 20, install dependencies
+2. Prebuild: `npx expo prebuild --platform <platform> --clean`
+3. Android build on `ubuntu-latest`:
+   - JDK 17
+   - `./gradlew assembleRelease`
+   - `./gradlew assembleAndroidTest`
+   - rename artifacts to `omnipizza-release.apk` and `omnipizza-debug-androidTest.apk`
+4. iOS simulator build on `macos-latest`:
+   - `pod install`
+   - `xcodebuild` simulator build
+   - zip `OmniPizza.app` into `OmniPizza-Simulator.zip`
+5. Release job:
+   - downloads artifacts
+   - creates GitHub Release with uploaded assets
 
 ### Action Versions
 
@@ -140,29 +145,20 @@ The final GitHub Release will contain:
 
 ## 6. Local Build Scripts
 
-Helper scripts in `frontend-mobile/package.json` for local development:
+Available scripts in `frontend-mobile/package.json`:
 
 ```bash
-pnpm run prebuild           # Generate native projects
-pnpm run build:android       # Build Android release APK
-pnpm run build:android:test  # Build Android test APK
-pnpm run build:ios:simulator # Build iOS simulator app
+pnpm prebuild            # Generate native projects
+pnpm build:android       # Build Android release APK
+pnpm build:android:test  # Build Android test APK
+pnpm build:ios:simulator # Build iOS simulator app
 ```
 
 ---
 
-## Completed Steps
+## Notes
 
-- [x] Configure `app.json` with bundle identifiers
-- [x] Add `android/` and `ios/` to `.gitignore`
-- [x] Create `.github/workflows/mobile-release.yml`
-- [x] Add androidTest APK build step
-- [x] Fix pnpm/Node version mismatches in workflow
-- [x] Add local build helper scripts to `package.json`
-
-## Remaining Steps
-
-- [ ] Test the pipeline end-to-end (push a release or use `workflow_dispatch`)
-- [ ] Configure Android release keystore signing (optional, for signed APKs)
-- [ ] Add Apple Developer certificates for `.ipa` builds (requires paid account)
-- [ ] Add XCUITest runner build for iOS test automation (similar to Sauce Labs `XCUITest.zip`)
+- The workflow currently creates releases only from manual dispatch.
+- Android release signing still uses the current Gradle setup; production signing secrets are not documented here yet.
+- Real-device iOS `.ipa` output is not implemented in the workflow.
+- There is no XCUITest runner artifact in the current pipeline.

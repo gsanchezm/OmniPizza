@@ -34,9 +34,6 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
-if settings.environment.lower() == "production" and settings.enable_test_api:
-    raise RuntimeError("ENABLE_TEST_API cannot be true in production.")
-
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
@@ -46,8 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-if settings.environment.lower() != "production" and settings.enable_test_api:
-    app.include_router(test_api_router)
+app.include_router(test_api_router)
 
 # Root endpoint
 @app.get("/")

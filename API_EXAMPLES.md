@@ -208,12 +208,11 @@ curl http://localhost:8000/api/orders/ORDER-A1B2C3D4 \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-## Test Utility Endpoints (Non-Production Only)
+## Session Setup Endpoints
 
-These endpoints are for external automation setup (Playwright/Appium/Gatling).  
-They are available only when backend env enables them (`ENABLE_TEST_API=true` and non-production).
+These endpoints are for external automation setup (Playwright/Appium/Gatling).
 
-Common headers for all `/api/test/*` routes:
+Common headers for setup/session routes:
 
 ```bash
 -H "Authorization: Bearer YOUR_TOKEN" \
@@ -221,20 +220,20 @@ Common headers for all `/api/test/*` routes:
 -H "Content-Type: application/json"
 ```
 
-### Reset Test Session State
+### Reset Session State
 
 ```bash
-curl -X POST http://localhost:8000/api/test/reset \
+curl -X POST http://localhost:8000/api/session/reset \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
-### Set Market for Test Session
+### Set Market for Session
 
 ```bash
-curl -X POST http://localhost:8000/api/test/market \
+curl -X POST http://localhost:8000/api/store/market \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
@@ -243,10 +242,10 @@ curl -X POST http://localhost:8000/api/test/market \
   }'
 ```
 
-### Seed Cart for Test Session
+### Seed Cart for Session
 
 ```bash
-curl -X POST http://localhost:8000/api/test/cart \
+curl -X POST http://localhost:8000/api/cart \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
@@ -258,10 +257,10 @@ curl -X POST http://localhost:8000/api/test/cart \
   }'
 ```
 
-### Read Current Test Session State
+### Read Current Session State
 
 ```bash
-curl http://localhost:8000/api/test/state \
+curl http://localhost:8000/api/session \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "X-Test-Token: omnipizza-test-token"
 ```
