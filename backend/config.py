@@ -4,7 +4,6 @@ class Settings(BaseSettings):
     app_name: str = "OmniPizza QA Platform"
     app_version: str = "1.0.0"
     environment: str = "production"
-    test_api_token: str = "omnipizza-test-token"
     
     # Auth
     secret_key: str = "omnipizza-super-secret-key-for-testing-only"

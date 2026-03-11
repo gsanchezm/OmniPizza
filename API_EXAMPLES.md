@@ -216,7 +216,6 @@ Common headers for setup/session routes:
 
 ```bash
 -H "Authorization: Bearer YOUR_TOKEN" \
--H "X-Test-Token: omnipizza-test-token" \
 -H "Content-Type: application/json"
 ```
 
@@ -225,7 +224,6 @@ Common headers for setup/session routes:
 ```bash
 curl -X POST http://localhost:8000/api/session/reset \
   -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
@@ -235,7 +233,6 @@ curl -X POST http://localhost:8000/api/session/reset \
 ```bash
 curl -X POST http://localhost:8000/api/store/market \
   -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "US"
@@ -247,7 +244,6 @@ curl -X POST http://localhost:8000/api/store/market \
 ```bash
 curl -X POST http://localhost:8000/api/cart \
   -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "X-Test-Token: omnipizza-test-token" \
   -H "Content-Type: application/json" \
   -d '{
     "items": [
@@ -261,8 +257,7 @@ curl -X POST http://localhost:8000/api/cart \
 
 ```bash
 curl http://localhost:8000/api/session \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "X-Test-Token: omnipizza-test-token"
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ## Debug Endpoints

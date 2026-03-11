@@ -51,13 +51,7 @@ API_BASE_URL=http://your-api-host:8000 pnpm test
 
 Atomic setup orchestration is implemented outside this repository (for example in Playwright/Appium/Gatling projects).  
 This `tests/` package does not call the session setup endpoints directly (`/api/store/market`, `/api/cart`, `/api/session`, `/api/session/reset`).
-
-Backend token configuration for external runners:
-
-```bash
-# backend/.env
-TEST_API_TOKEN=omnipizza-test-token
-```
+Those endpoints authenticate with the same bearer token returned by `/api/auth/login`.
 
 ## What is Tested
 

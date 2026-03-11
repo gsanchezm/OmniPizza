@@ -1,7 +1,6 @@
 import logging
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends
 
-from config import settings
 from database import db
 from middleware import get_current_user
 from models import (
@@ -13,14 +12,6 @@ from models import (
 logger = logging.getLogger("omnipizza.test_api")
 
 router = APIRouter()
-
-
-def require_test_api_token(x_test_token: str = Header(None, alias="X-Test-Token")) -> None:
-    if not x_test_token or x_test_token != settings.test_api_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid test API token",
-        )
 
 
 def _session_response(username: str) -> TestSessionStateResponse:
@@ -36,7 +27,6 @@ def _session_response(username: str) -> TestSessionStateResponse:
 @router.post("/api/store/market", response_model=TestSessionStateResponse, tags=["Store"])
 async def set_market(
     request: TestMarketRequest,
-    _: None = Depends(require_test_api_token),
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
@@ -48,7 +38,6 @@ async def set_market(
 @router.post("/api/cart", response_model=TestSessionStateResponse, tags=["Cart"])
 async def seed_cart(
     request: TestCartSetupRequest,
-    _: None = Depends(require_test_api_token),
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
@@ -59,7 +48,6 @@ async def seed_cart(
 
 @router.post("/api/session/reset", response_model=TestSessionStateResponse, tags=["Session"])
 async def reset_state(
-    _: None = Depends(require_test_api_token),
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
@@ -70,7 +58,6 @@ async def reset_state(
 
 @router.get("/api/session", response_model=TestSessionStateResponse, tags=["Session"])
 async def get_state(
-    _: None = Depends(require_test_api_token),
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
