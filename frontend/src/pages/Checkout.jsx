@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResponsive } from "../hooks/useResponsive";
 import {
+  useAuthStore,
   useCartStore,
   useCountryStore,
   useProfileStore,
@@ -11,6 +12,7 @@ import { placeOrder } from "../features/checkout/useCases/placeOrder";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { computeUnitPrice } from "../utils/pizzaPricing";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
+import { cartService } from "../services/cart.service";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 
 const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
@@ -313,10 +315,63 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { tid } = useResponsive();
 
+  const token = useAuthStore((s) => s.token);
   const countryCode = useCountryStore((s) => s.countryCode);
   const countryInfo = useCountryStore((s) => s.countryInfo);
   const language = useCountryStore((s) => s.language);
   const locale = useCountryStore((s) => s.locale);
+
+  // Hydrate cart from backend (enables API-based state injection for E2E tests)
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await cartService.getCart();
+        const backendItems = res.data?.cart_items;
+        if (cancelled || !backendItems?.length) return;
+
+        const hydrated = backendItems.map((item) => {
+          const size = (item.size || "small").toLowerCase();
+          const sizeOption =
+            SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
+
+          const pizza = {
+            id: item.pizza_id,
+            name: item.name,
+            price: item.price,
+            base_price: item.base_price,
+            currency: item.currency,
+            currency_symbol: item.currency_symbol,
+            image: item.image,
+          };
+
+          const pricing = computeUnitPrice(pizza, sizeOption.usd, 0);
+
+          return {
+            id: (globalThis.crypto?.randomUUID?.() || `item_${Date.now()}_${Math.random()}`).toString(),
+            signature: `${item.pizza_id}|${size}|`,
+            pizza_id: item.pizza_id,
+            pizza,
+            quantity: item.quantity,
+            config: { size, toppings: [] },
+            unit_price: pricing.unitPrice,
+            currency: item.currency,
+            currency_symbol: item.currency_symbol,
+          };
+        });
+
+        if (!cancelled) {
+          useCartStore.setState({ items: hydrated });
+        }
+      } catch {
+        // Fall back to current client-side cart on failure
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useRefreshCartPrices(countryCode, language);
 

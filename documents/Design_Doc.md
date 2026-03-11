@@ -30,10 +30,9 @@ graph TD
 
 ### 3.2. Middleware & Chaos Engine
 *   **`require_country_header`**: Intercepts requests to ensure the `X-Country-Code` header is present, enforcing the multi-market context.
-*   **`apply_user_behavior`**: This is the heart of the chaos engine. It inspects the user's `behavior` claim from the JWT and dynamically:
-    *   Injects latency (`time.sleep`) for `performance_glitch_user`.
-    *   Modifies response data (prices = 0) for `problem_user`.
-    *   Injects HTTP 500 errors for `error_user`.
+*   **Chaos Implementations**: Inspects the user's `behavior` claim from the JWT to dynamically inject faults:
+    *   **Middleware (`apply_user_behavior`)**: Injects latency (`time.sleep`) for `performance_glitch_user`.
+    *   **Database (`database.py`)**: Modifies response data (prices = 0) for `problem_user` and injects HTTP 500 errors for `error_user` upon order creation.
 
 ### 3.3. API Structure
 *   **`/api/auth`**: `login`, `users`.
@@ -113,4 +112,5 @@ graph TD
 ### 7.2. Continuous Integration
 *   **API Integration Tests**: TypeScript tests using Vitest validate auth, catalog, checkout flows (all 4 markets), user behaviors, and debug endpoints (`tests/api.test.ts`).
 *   **Contract Tests (Legacy)**: Schemathesis validates API compliance against the OpenAPI spec.
-*   **Mobile CI**: GitHub Actions workflow builds Android APK and iOS IPA, with release asset uploads via `softprops/action-gh-release@v2`.
+*   **Frontend Component Tests**: GitHub Actions workflow runs Cypress component tests on the React web application for every PR modifying the frontend.
+*   **Mobile CI**: GitHub Actions workflow uses Expo prebuild and native build tools (Gradle/xcodebuild) to build Android APKs (Release & androidTest) and an iOS Simulator `.app` zip, with release asset uploads via `softprops/action-gh-release@v2`.

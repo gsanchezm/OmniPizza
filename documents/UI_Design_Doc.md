@@ -100,9 +100,9 @@ Elemento característico para categorías o selección de opciones.
 *   **Texto:** Blanco, 11px, Peso 800.
 
 ## 5. Iconografía
-*   **Librería Web:** `lucide-react`
-*   **Librería Mobile:** `Lucide` (o compatible vector icons).
-*   **Estilo:** Línea (Stroke), generalmente de 1.5px o 2px de grosor.
+*   **Librería Web:** Inline SVGs (personalizados, sin dependencias externas).
+*   **Librería Mobile:** Text/Emoji-based Icons estandarizados (sin librerías de terceros).
+*   **Estilo:** Componentes ligeros con trazo (stroke) generalmente de 1.5px o 2px de grosor para Web.
 *   **Color por defecto:** Coincide con el texto (`#FFFFFF`) o Brand (`#FF5722`) según contexto.
 
 ## 6. Layout y Espaciado

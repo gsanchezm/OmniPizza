@@ -10,7 +10,7 @@ This document outlines the technology decisions made for the OmniPizza platform.
 | **Language** | Python | 3.10+ | Excellent ecosystem for web APIs and testing tools. |
 | **Web Framework** | FastAPI | Latest | High performance (async), automatic OpenAPI (Swagger) generation, intuitive typing with Pydantic. |
 | **Validation** | Pydantic | V2 | Strong data validation, used for request/response schemas. |
-| **Authentication** | PyJWT | Latest | Standard solution for stateless JWT authentication. |
+| **Authentication** | python-jose | Latest | Standard solution for stateless JWT authentication. |
 | **Server** | Uvicorn | Latest | Lightning-fast ASGI server implementation. |
 | **Testing** | Pytest | Latest | Industry standard testing framework for Python. |
 | **Contract Testing**| Schemathesis | Latest | Validates API compliance against the generated OpenAPI schema (legacy). |
@@ -35,6 +35,7 @@ This document outlines the technology decisions made for the OmniPizza platform.
 | **State Management**| Zustand | Minimalistic, hook-based state management (simpler than Redux). |
 | **HTTP Client** | Axios | robust feature set for API requests (interceptors, cancellation). |
 | **Router** | React Router | Standard routing solution for SPAs. |
+| **Testing** | Cypress | Component testing for individual React components. |
 
 ## 4. Frontend Mobile Stack
 
@@ -54,21 +55,22 @@ This document outlines the technology decisions made for the OmniPizza platform.
 | **Orchestration** | Docker Compose | Simplifies running multi-container applications locally (Backend + Frontend). |
 | **Cloud Provider** | Render | Simple PaaS for deploying web services and static sites directly from Git. |
 | **Version Control** | Git | Distributed version control. |
+| **Mobile CI** | GitHub Actions | Builds Android (release/test) APKs and iOS Simulator `.app` builds via Expo Prebuild. |
 
 ## 6. Key Libraries & Tools
 
 ### Backend
-*   **`faker`**: For generating random dummy data if needed.
 *   **`python-multipart`**: Required for form data parsing in FastAPI.
-*   **`prometheus-fastapi-instrumentator`**: Exports metrics for monitoring.
+*   **`prometheus-client`**: Exports metrics for monitoring.
 
 ### Frontend
-*   **`lucide-react`**: Consistent icon set.
-*   **`clsx` / `tailwind-merge`**: Utilities for constructing className strings conditionally.
+*   **`zustand`**: For lightweight, hook-based state management.
+*   **`autoprefixer` / `postcss`**: Required for processing TailwindCSS.
 
 ## 7. Testing Ecosystem
 The project makes heavy use of:
 *   **`data-testid`**: A convention for reliable DOM selection in automated tests.
+*   **Cypress Frontend Component Tests**: Used to reliably test individual UI components of the React web application in isolation.
 *   **Chaos Middleware**: Custom code to inject faults (latency, errors) for testing robustness.
 *   **Vitest API Tests** (`tests/api.test.ts`): TypeScript integration tests covering auth, catalog, checkout (all 4 markets), user behaviors, and debug endpoints.
 *   **Schemathesis** (legacy): Python-based contract tests validating API against OpenAPI spec.

@@ -49,9 +49,18 @@ API_BASE_URL=http://your-api-host:8000 pnpm test
 
 ### Atomic setup endpoints (external runners only)
 
-Atomic setup orchestration is implemented outside this repository (for example in Playwright/Appium/Gatling projects).  
+Atomic setup orchestration is implemented outside this repository (for example in Playwright/Appium/Gatling projects).
 This `tests/` package does not call the session setup endpoints directly (`/api/store/market`, `/api/cart`, `/api/session`, `/api/session/reset`).
 Those endpoints authenticate with the same bearer token returned by `/api/auth/login`.
+
+#### Cart hydration flow
+
+External runners can inject cart state via the API and let the frontend pick it up automatically:
+
+1. `POST /api/cart` — seed cart items (with optional `size`: small/medium/large/family)
+2. Navigate to `/checkout` — the web and mobile apps call `GET /api/cart` on load
+3. `GET /api/cart` returns enriched items (name, price, image, currency) joined with the pizza catalog for the current market
+4. The frontend hydrates its cart store from the response, skipping the manual catalog flow
 
 ## What is Tested
 

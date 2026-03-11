@@ -25,6 +25,8 @@
 - ✅ Endpoints de caos (/api/debug/)
 - ✅ Métricas Prometheus
 - ✅ Documentación OpenAPI automática
+- ✅ Session setup endpoints para E2E automation
+- ✅ GET /api/cart — enriched cart (join con catálogo de pizzas)
 
 ### 2. Frontend (React) ✅
 **Ubicación**: `frontend/`
@@ -44,6 +46,7 @@
 - ✅ Estilos con TailwindCSS
 - ✅ Build con Vite
 - ✅ Nginx para producción
+- ✅ Cart hydration desde backend al cargar Checkout
 
 ### 3. Tests (Schemathesis) ✅
 **Ubicación**: `tests/`
@@ -93,6 +96,7 @@
 ✅ Validaciones dinámicas por país
 ✅ Endpoints de caos para stress testing
 ✅ Métricas Prometheus integradas
+✅ Enriched cart endpoint (GET /api/cart)
 ```
 
 ### Frontend
@@ -103,6 +107,7 @@
 ✅ Estado global persistente en localStorage
 ✅ Manejo de errores robusto
 ✅ Experiencia de usuario fluida
+✅ Cart hydration desde backend (API state injection)
 ```
 
 ### Testing
@@ -175,7 +180,14 @@ omnipizza/
 ├── frontend/            # React Frontend
 │   ├── src/
 │   │   ├── pages/      # Login, Catalog, Checkout
+│   │   ├── services/   # httpClient, cartService, pizzaService
 │   │   ├── components/ # Navbar
+│   │   └── ...
+│   └── ...
+├── frontend-mobile/     # React Native (Expo) Mobile App
+│   ├── src/
+│   │   ├── screens/    # LoginScreen, CatalogScreen, CheckoutScreen
+│   │   ├── services/   # cartService, pizzaService
 │   │   └── ...
 │   └── ...
 ├── tests/               # Contract Tests
@@ -199,6 +211,7 @@ omnipizza/
 - ✅ Selectores estables
 - ✅ Flujos predecibles
 - ✅ API REST bien documentada
+- ✅ Cart hydration — inyectar estado vía POST /api/cart, navegar a /checkout
 
 ### Para Performance Testing
 - ✅ Endpoint de latency spike

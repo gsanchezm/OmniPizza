@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -14,10 +14,12 @@ import { CustomNavbar } from "../components/CustomNavbar";
 import { BottomNavBar } from "../components/BottomNavBar";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
-import type { CartItem } from "../store/useAppStore";
+import type { CartItem, PizzaSize } from "../store/useAppStore";
 import { placeOrder as placeOrderUseCase } from "../features/checkout/useCases/placeOrder";
 import { validateCheckoutForm } from "../features/checkout/useCases/validateCheckoutForm";
 import type { CheckoutFormState } from "../features/checkout/useCases/buildCheckoutPayload";
+import { cartService } from "../services/cart.service";
+import { SIZE_OPTIONS } from "../constants/pizza";
 
 const { width } = Dimensions.get("window");
 
@@ -37,8 +39,64 @@ function money(value: number, currency: string, symbol?: string) {
 
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
-  const { country, cartItems, clearCart, profile, setProfile, setLastOrder } =
+  const { country, cartItems, clearCart, profile, setProfile, setLastOrder, token } =
     useAppStore();
+
+  // Hydrate cart from backend (enables API-based state injection for E2E tests)
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data = await cartService.getCart();
+        const backendItems = data?.cart_items;
+        if (cancelled || !backendItems?.length) return;
+
+        const hydrated: CartItem[] = backendItems.map((item) => {
+          const size = (item.size || "small").toLowerCase() as PizzaSize;
+          const sizeOption =
+            SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
+
+          const pizza = {
+            id: item.pizza_id,
+            name: item.name,
+            description: "",
+            price: item.price,
+            base_price: item.base_price,
+            currency: item.currency,
+            currency_symbol: item.currency_symbol,
+            image: item.image,
+          };
+
+          const rate =
+            pizza.base_price > 0 ? pizza.price / pizza.base_price : 1;
+          const sizeAdd = Math.ceil(sizeOption.usd * rate);
+          const unitPrice = pizza.price + sizeAdd;
+
+          return {
+            id: `item_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            signature: `${item.pizza_id}|${size}|`,
+            pizza_id: item.pizza_id,
+            pizza,
+            quantity: item.quantity,
+            config: { size, toppings: [] as string[] },
+            unit_price: unitPrice,
+            currency: item.currency,
+            currency_symbol: item.currency_symbol,
+          };
+        });
+
+        if (!cancelled) {
+          useAppStore.setState({ cartItems: hydrated });
+        }
+      } catch {
+        // Fall back to current client-side cart on failure
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [form, setForm] = useState<CheckoutFormState>({
     name: profile?.fullName || "",

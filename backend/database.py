@@ -55,6 +55,64 @@ class InMemoryDB:
     def get_test_session(self, username: str) -> Dict[str, Any]:
         return self._ensure_session(username)
 
+    def get_enriched_cart(
+        self,
+        username: str,
+        country_code: CountryCode,
+        behavior: str = "standard",
+        language: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        session = self._ensure_session(username)
+        cart_items = session["cart_items"]
+
+        country_config = COUNTRY_CONFIG[country_code]
+        currency = country_config["currency"]
+        currency_symbol = country_config["currency_symbol"]
+        conversion_rate = CURRENCY_RATES[currency]
+        decimal_places = country_config.get("decimal_places", 2)
+
+        default_lang = {"MX": "es", "US": "en", "CH": "de", "JP": "ja"}
+        cc = country_code.value if hasattr(country_code, "value") else str(country_code)
+        lang = (language or default_lang.get(cc, "en")).lower()
+
+        enriched: List[Dict[str, Any]] = []
+        for item in cart_items:
+            pizza = next((p for p in PIZZA_CATALOG if p["id"] == item["pizza_id"]), None)
+            if not pizza:
+                continue
+
+            name_val = pizza.get("name")
+            if isinstance(name_val, dict):
+                name = name_val.get(lang) or name_val.get("en") or next(iter(name_val.values()))
+            else:
+                name = name_val
+
+            converted_price = pizza["base_price"] * conversion_rate
+
+            if behavior == "problem":
+                price = 0.0
+                image = "https://broken-image-url.com/404.jpg"
+            else:
+                if decimal_places == 0:
+                    price = round(converted_price)
+                else:
+                    price = round(converted_price, decimal_places)
+                image = pizza["image"]
+
+            enriched.append({
+                "pizza_id": item["pizza_id"],
+                "name": name,
+                "size": item.get("size", "small"),
+                "quantity": item["quantity"],
+                "price": price,
+                "base_price": pizza["base_price"],
+                "currency": currency,
+                "currency_symbol": currency_symbol,
+                "image": image,
+            })
+
+        return enriched
+
     # ✅ UPDATED: supports language + translation
     def get_catalog(
         self,

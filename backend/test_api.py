@@ -1,9 +1,12 @@
 import logging
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
+from typing import Optional
 
+from constants import CountryCode
 from database import db
-from middleware import get_current_user
+from middleware import get_current_user, require_country_header
 from models import (
+    CartResponse,
     TestCartSetupRequest,
     TestMarketRequest,
     TestSessionStateResponse,
@@ -44,6 +47,29 @@ async def seed_cart(
     db.set_test_cart(username, [item.dict() for item in request.items])
     logger.info("session_api.seed_cart user=%s item_count=%d", username, len(request.items))
     return _session_response(username)
+
+
+@router.get("/api/cart", response_model=CartResponse, tags=["Cart"])
+async def get_cart(
+    current_user: dict = Depends(get_current_user),
+    country_code: str = Depends(require_country_header),
+    x_language: Optional[str] = Header(None),
+):
+    username = current_user["username"]
+    behavior = current_user.get("behavior", "standard")
+    if hasattr(behavior, "value"):
+        behavior = behavior.value
+
+    cc = CountryCode(country_code)
+    session = db.get_test_session(username)
+    enriched = db.get_enriched_cart(username, cc, behavior, x_language)
+
+    return CartResponse(
+        username=username,
+        country_code=country_code,
+        cart_items=enriched,
+        updated_at=session["updated_at"],
+    )
 
 
 @router.post("/api/session/reset", response_model=TestSessionStateResponse, tags=["Session"])

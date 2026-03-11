@@ -247,11 +247,47 @@ curl -X POST http://localhost:8000/api/cart \
   -H "Content-Type: application/json" \
   -d '{
     "items": [
-      {"pizza_id": "p01", "quantity": 2},
-      {"pizza_id": "p02", "quantity": 1}
+      {"pizza_id": "p01", "quantity": 2, "size": "medium"},
+      {"pizza_id": "p02", "quantity": 1, "size": "large"}
     ]
   }'
 ```
+
+> `size` is optional (defaults to `"small"`). Valid values: `small`, `medium`, `large`, `family`.
+
+### Get Cart (Enriched)
+
+Returns cart items joined with the pizza catalog (name, price, image, currency) for the given market.
+
+```bash
+curl http://localhost:8000/api/cart \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Country-Code: US"
+```
+
+Response:
+```json
+{
+  "username": "standard_user",
+  "country_code": "US",
+  "cart_items": [
+    {
+      "pizza_id": "p02",
+      "name": "Pepperoni",
+      "size": "large",
+      "quantity": 1,
+      "price": 14.99,
+      "base_price": 14.99,
+      "currency": "USD",
+      "currency_symbol": "$",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Pepperoni_pizza.jpg"
+    }
+  ],
+  "updated_at": "2026-03-11T18:18:28.664814"
+}
+```
+
+> Both web and mobile checkout screens automatically call this endpoint on load to hydrate the cart from backend state. This enables E2E test frameworks to inject cart state via `POST /api/cart` then navigate directly to checkout.
 
 ### Read Current Session State
 

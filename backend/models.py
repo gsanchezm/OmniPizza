@@ -39,6 +39,26 @@ class PizzaResponse(BaseModel):
 class CartItem(BaseModel):
     pizza_id: str
     quantity: int = Field(ge=1, le=10)
+    size: str = "small"
+
+
+class EnrichedCartItem(BaseModel):
+    pizza_id: str
+    name: str
+    size: str
+    quantity: int
+    price: float
+    base_price: float
+    currency: str
+    currency_symbol: str
+    image: str
+
+
+class CartResponse(BaseModel):
+    username: str
+    country_code: str
+    cart_items: List[EnrichedCartItem]
+    updated_at: datetime
 
 class Cart(BaseModel):
     items: List[CartItem]

@@ -106,6 +106,33 @@ await page.fill('[data-testid="checkout-name-input"]', 'Test User');
 await page.click('[data-testid="checkout-submit-button"]');
 ```
 
+### Cart State Injection (E2E Automation)
+
+For E2E tests (Playwright, Appium, Gatling), you can inject cart state via the API and have the frontend hydrate it automatically:
+
+```bash
+# 1. Login to get a token
+TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"standard_user","password":"pizza123"}' | jq -r '.access_token')
+
+# 2. Set market
+curl -X POST http://localhost:8000/api/store/market \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"country_code":"US"}'
+
+# 3. Seed cart via API
+curl -X POST http://localhost:8000/api/cart \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"pizza_id":"p01","quantity":2,"size":"medium"}]}'
+
+# 4. Navigate to /checkout — the frontend fetches GET /api/cart and hydrates the cart automatically
+```
+
+Both web and mobile checkout screens call `GET /api/cart` on load and populate the cart store from the backend response.
+
 ### Contract Testing
 
 ```bash

@@ -271,7 +271,8 @@
 
         <h3 style="margin-top: 3rem">Session Setup Routes</h3>
         <pre class="code-window" data-title="backend/session-routes.http"><code><span class="tok-method">POST</span> <span class="tok-path">/api/store/market</span>
-<span class="tok-method">POST</span> <span class="tok-path">/api/cart</span>
+<span class="tok-method">POST</span> <span class="tok-path">/api/cart</span>          <span class="tok-comment"># seed cart items</span>
+<span class="tok-method">GET</span>  <span class="tok-path">/api/cart</span>          <span class="tok-comment"># enriched cart (+ X-Country-Code)</span>
 <span class="tok-method">POST</span> <span class="tok-path">/api/session/reset</span>
 <span class="tok-method">GET</span>  <span class="tok-path">/api/session</span>
 <span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span> <span class="tok-comment">(reuse app token)</span></code></pre>
@@ -331,6 +332,12 @@
           <li class="list-item">
             Atomic state setup belongs in external runners and uses the public
             session routes, not a separate <code>/test</code> namespace.
+          </li>
+          <li class="list-item">
+            <strong>Cart hydration:</strong> Seed cart via
+            <code>POST /api/cart</code>, then navigate to <code>/checkout</code>
+            &mdash; both web and mobile auto-fetch
+            <code>GET /api/cart</code> on load and populate the cart store.
           </li>
           <li class="list-item">
             The mobile release workflow is manual-dispatch based and creates a

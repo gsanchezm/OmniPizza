@@ -97,6 +97,7 @@
 - [x] Resumen de orden
 - [x] Confirmación exitosa
 - [x] data-testid en todos los inputs
+- [x] Cart hydration desde GET /api/cart al cargar (web + mobile)
 
 ### Hooks de Automatización
 
@@ -106,6 +107,22 @@
 - [x] `pizza-card-{id}`, `add-to-cart-{id}`
 - [x] `checkout-name-input`, etc.
 - [x] `country-selector`, `select-country-{code}`
+
+## IV-B. Session Setup & Cart Hydration
+
+### Endpoints de Session
+- [x] `POST /api/store/market` — establecer mercado
+- [x] `POST /api/cart` — inyectar items al carrito (con size opcional)
+- [x] `GET /api/cart` — carrito enriquecido (join con catálogo, precios por mercado)
+- [x] `POST /api/session/reset` — reiniciar sesión
+- [x] `GET /api/session` — leer estado de sesión
+
+### Cart Hydration (API State Injection)
+- [x] GET /api/cart implementado en backend (test_api.py)
+- [x] Enriched response con name, price, image, currency del catálogo
+- [x] Frontend web (Checkout.jsx) llama GET /api/cart al montar
+- [x] Frontend mobile (CheckoutScreen.tsx) llama GET /api/cart al montar
+- [x] Flujo E2E: POST /api/cart → navegar a /checkout → carrito hidratado
 
 ## V. Endpoints de Caos y Performance
 
