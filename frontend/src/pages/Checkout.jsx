@@ -557,7 +557,7 @@ export default function Checkout() {
                         {tOpt(UI_TEXT.zipPlaceholder, language)}
                       </label>
                       <input
-                        data-testid="zip-code-mx"
+                        data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="06600"
                         value={form.zip_code}

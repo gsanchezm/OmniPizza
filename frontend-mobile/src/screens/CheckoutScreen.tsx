@@ -258,8 +258,8 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
               }
-              accessibilityLabel="input-zipcode-mx"
-              testID="input-zipcode-mx"
+              accessibilityLabel="input-zip-code"
+              testID="input-zipcode"
             />
           </View>
         )}
