@@ -54,7 +54,7 @@ COUNTRY_CONFIG = {
         "currency": "MXN",
         "currency_symbol": "$",
         "required_fields": ["colonia"],
-        "optional_fields": ["propina"],
+        "optional_fields": ["propina", "zip_code"],
         "tax_rate": 0.0,
         "languages": ["es"]
     },

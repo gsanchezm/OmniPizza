@@ -246,6 +246,23 @@ export default function CheckoutScreen({ navigation }: any) {
             />
           </View>
         )}
+        {country === "MX" && (
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode-mx">
+            <Text style={styles.cardFieldLabel} accessibilityLabel="label-zipcode-mx">{t("zipCode")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="06600"
+              placeholderTextColor="#555"
+              keyboardType="number-pad"
+              value={form.zip_code}
+              onChangeText={(v) =>
+                setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
+              }
+              accessibilityLabel="input-zipcode-mx"
+              testID="input-zipcode-mx"
+            />
+          </View>
+        )}
         {country === "US" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode">
             <Text style={styles.cardFieldLabel} accessibilityLabel="label-zipcode">{t("zipCode")}</Text>

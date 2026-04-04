@@ -14,6 +14,7 @@ export function buildCheckoutPayload({ countryCode, items, form }) {
 
   if (countryCode === "MX") {
     payload.colonia = form.colonia;
+    if (form.zip_code) payload.zip_code = form.zip_code;
     if (form.propina) payload.propina = parseFloat(form.propina);
   } else if (countryCode === "US") {
     payload.zip_code = form.zip_code;

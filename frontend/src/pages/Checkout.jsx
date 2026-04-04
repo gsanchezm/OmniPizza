@@ -551,6 +551,28 @@ export default function Checkout() {
                     </div>
                   )}
 
+                  {countryCode === "MX" && (
+                    <div>
+                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        {tOpt(UI_TEXT.zipPlaceholder, language)}
+                      </label>
+                      <input
+                        data-testid="zip-code-mx"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="06600"
+                        value={form.zip_code}
+                        onChange={(e) =>
+                          setForm((p) => ({
+                            ...p,
+                            zip_code: e.target.value.replace(/[^0-9]/g, ""),
+                          }))
+                        }
+                        minLength={5}
+                        maxLength={5}
+                      />
+                    </div>
+                  )}
+
                   {countryCode === "US" && (
                     <div>
                       <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">

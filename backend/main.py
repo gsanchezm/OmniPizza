@@ -231,6 +231,8 @@ async def checkout(
     # Add country-specific fields
     if request.country_code == CountryCode.MX:
         order_data["customer_info"]["colonia"] = request.colonia
+        if request.zip_code:
+            order_data["customer_info"]["zip_code"] = request.zip_code
         if request.propina:
             order_data["customer_info"]["propina"] = request.propina
     elif request.country_code == CountryCode.US:
