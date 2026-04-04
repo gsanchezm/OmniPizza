@@ -2,26 +2,26 @@ import axios from "axios";
 import { useAppStore } from "../store/useAppStore";
 import { NativeModules } from "react-native";
 
-// Fallback logic for Detox launch args
+// Fallback logic for Detox launch args (injected via device.launchApp launchArgs)
 let detoxCountryCode: string | null = null;
 try {
-  // Safe accessor for React Native launch arguments
-  if (NativeModules.LaunchArguments) {
-    const args = typeof NativeModules.LaunchArguments.getArguments === 'function' 
-      ? NativeModules.LaunchArguments.getArguments() 
-      : NativeModules.LaunchArguments;
-    if (args && args.detoxCountryCode) {
+  // NativeModules.ExpoLaunchArguments is populated by Detox when the app is
+  // launched with launchArgs: { detoxCountryCode: "MX" }
+  const launchArgs =
+    NativeModules.ExpoLaunchArguments ??
+    NativeModules.LaunchArguments ??
+    null;
+  if (launchArgs) {
+    const args =
+      typeof launchArgs.getArguments === "function"
+        ? launchArgs.getArguments()
+        : launchArgs;
+    if (args?.detoxCountryCode) {
       detoxCountryCode = args.detoxCountryCode;
     }
-  } else {
-    // Para versiones modernas de React Native Utilities
-    const RNLaunchArgs = require('react-native/Libraries/Utilities/LaunchArguments');
-    if (RNLaunchArgs && RNLaunchArgs.LaunchArguments && RNLaunchArgs.LaunchArguments.detoxCountryCode) {
-      detoxCountryCode = RNLaunchArgs.LaunchArguments.detoxCountryCode;
-    }
   }
-} catch (e) {
-  // Silent fallback
+} catch (_) {
+  // Silent fallback — not running under Detox
 }
 
 const API_ORIGIN = "https://omnipizza-backend.onrender.com";
