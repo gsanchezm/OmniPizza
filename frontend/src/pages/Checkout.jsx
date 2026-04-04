@@ -602,7 +602,7 @@ export default function Checkout() {
                         {tOpt(UI_TEXT.plzPlaceholder, language)}
                       </label>
                       <input
-                        data-testid="plz"
+                        data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="8001"
                         value={form.plz}
@@ -620,7 +620,7 @@ export default function Checkout() {
                         {tOpt(UI_TEXT.prefecturaPlaceholder, language)}
                       </label>
                       <input
-                        data-testid="prefectura"
+                        data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder={tOpt(
                           {

@@ -258,7 +258,7 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
               }
-              accessibilityLabel="input-zip-code"
+              accessibilityLabel="input-zipcode"
               testID="input-zipcode"
             />
           </View>
@@ -289,7 +289,8 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.plz}
               onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
-              accessibilityLabel="input-plz"
+              accessibilityLabel="input-zipcode"
+              testID="input-zipcode"
             />
           </View>
         )}
@@ -302,8 +303,8 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.prefectura}
               onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
-              accessibilityLabel="input-prefecture"
-              testID="input-prefecture"
+              accessibilityLabel="input-zipcode"
+              testID="input-zipcode"
             />
           </View>
         )}

@@ -569,3 +569,160 @@ footer {
     gap: 2rem;
   }
 }
+
+/* ── Tablet ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    padding: 1rem 1.25rem;
+  }
+
+  /* Hide text-only nav links; keep the CTA "Get started" button */
+  .nav-links li:not(:last-child) {
+    display: none;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 1.25rem 3rem;
+  }
+
+  .hero h1 {
+    font-size: 2.4rem;
+  }
+
+  .hero p {
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hero-links .btn-primary,
+  .hero-links .btn-secondary {
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+
+  .tech-stack-logos {
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    font-size: 1rem !important;
+  }
+
+  /* Main & sections */
+  main {
+    padding: 0 1.25rem 3rem;
+  }
+
+  section {
+    padding: 2.5rem 0;
+  }
+
+  section h2 {
+    font-size: 1.6rem;
+  }
+
+  section h3 {
+    font-size: 1.1rem;
+  }
+
+  /* Cards */
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Feature splits */
+  .feature-split {
+    margin-bottom: 3rem;
+    gap: 1.5rem;
+  }
+
+  .feature-split h3 {
+    font-size: 1.6rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .feature-split p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Code windows */
+  pre.code-window {
+    padding: 4rem 1rem 1rem;
+    border-radius: 14px;
+    overflow-x: auto;
+  }
+
+  pre.code-window code {
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  /* Footer */
+  footer {
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* ── Small mobile ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+  }
+
+  .logo {
+    font-size: 1.05rem;
+  }
+
+  .hero {
+    padding: 4rem 1rem 2.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.85rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .hero-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 1.5rem;
+  }
+
+  section h2 {
+    font-size: 1.35rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  pre.code-window {
+    padding: 3.5rem 0.875rem 1rem;
+    border-radius: 12px;
+  }
+
+  pre.code-window code {
+    font-size: 0.78rem;
+  }
+
+  .feature-split h3 {
+    font-size: 1.35rem !important;
+  }
+
+  .bg-glow {
+    width: 600px;
+    height: 500px;
+  }
+}
