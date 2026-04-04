@@ -328,6 +328,11 @@ export default function Checkout() {
 
     (async () => {
       try {
+        // Skip if user already has items in the UI cart (normal shopping flow).
+        // Only hydrate when the local cart is empty — e.g. E2E test injected
+        // state via POST /api/cart and then navigated directly to /checkout.
+        if (useCartStore.getState().items.length > 0) return;
+
         const res = await cartService.getCart();
         const backendItems = res.data?.cart_items;
         if (cancelled || !backendItems?.length) return;

@@ -49,6 +49,11 @@ export default function CheckoutScreen({ navigation }: any) {
 
     (async () => {
       try {
+        // Skip if user already has items in the UI cart (normal shopping flow).
+        // Only hydrate when the local cart is empty — e.g. E2E test injected
+        // state via POST /api/cart and then navigated directly to /checkout.
+        if (useAppStore.getState().cartItems.length > 0) return;
+
         const data = await cartService.getCart();
         const backendItems = data?.cart_items;
         if (cancelled || !backendItems?.length) return;
