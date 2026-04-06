@@ -66,19 +66,25 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const cartItemId = route?.params?.cartItemId;
   const initialConfig = route?.params?.initialConfig;
 
+  // Deep link support: pizzaId param used when no full pizza object is passed
+  const deepLinkPizzaId = route?.params?.pizzaId as string | undefined;
+  const targetPizzaId = initialPizza?.id ?? deepLinkPizzaId;
+
   const [pizza, setPizza] = useState<Pizza | undefined>(initialPizza);
 
   React.useEffect(() => {
-    if (!initialPizza?.id) return;
+    if (!targetPizzaId) return;
     getCatalogPizzas().then((list) => {
-      const found = list.find((p) => p.id === initialPizza.id);
+      const found = list.find((p) => String(p.id) === String(targetPizzaId));
       if (found) setPizza(found);
       else navigation.goBack();
     });
-  }, [country, language, initialPizza?.id, navigation]);
+  }, [country, language, targetPizzaId, navigation]);
 
   const [size, setSize] = useState<PizzaSize>(
-    (initialConfig?.size as PizzaSize) || "small",
+    (route?.params?.size as PizzaSize) ||
+      (initialConfig?.size as PizzaSize) ||
+      "small",
   );
   const [toppings, setToppings] = useState<string[]>(
     initialConfig?.toppings || [],

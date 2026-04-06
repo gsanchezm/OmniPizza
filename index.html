@@ -167,6 +167,7 @@
               <li class="list-item">Vitest API tests in <code>tests/</code></li>
               <li class="list-item">Cypress component tests in <code>frontend/cypress/component/</code></li>
               <li class="list-item">External atomic runners: Playwright, Appium, Gatling</li>
+              <li class="list-item">Mobile atomic entry via <code>omnipizza://</code> deep links</li>
             </ul>
           </div>
         </div>
@@ -340,10 +341,62 @@
             <code>GET /api/cart</code> on load and populate the cart store.
           </li>
           <li class="list-item">
+            <strong>Web atomic entry:</strong> Navigate directly to
+            <code>/checkout</code>, <code>/catalog</code>, or any protected route
+            after injecting the auth token into <code>localStorage</code> via
+            <code>page.addInitScript()</code>. Checkout fetches
+            <code>GET /api/cart</code> automatically when the local cart is empty.
+            See <a href="./ATOMIC_WEB_TESTING.md">ATOMIC_WEB_TESTING.md</a>.
+          </li>
+          <li class="list-item">
+            <strong>Mobile atomic entry:</strong> Open any screen directly via
+            <code>omnipizza://</code> deep links after API hydration — no full
+            user journey required. See
+            <a href="./ATOMIC_MOBILE_TESTING.md">ATOMIC_MOBILE_TESTING.md</a>.
+          </li>
+          <li class="list-item">
             The mobile release workflow is manual-dispatch based and creates a
             GitHub Release after building Android and iOS simulator artifacts.
           </li>
         </ul>
+
+        <h3 style="margin-top: 3rem">Web Atomic Entry (Playwright)</h3>
+        <pre class="code-window" data-title="playwright/atomic-checkout.ts"><code><span class="tok-comment">// 1. Login + seed cart via API</span>
+<span class="tok-key">const</span> { access_token: token } = <span class="tok-key">await</span> (
+  <span class="tok-key">await</span> request.post(<span class="tok-val">"/api/auth/login"</span>, { data: { username: <span class="tok-val">"standard_user"</span>, password: <span class="tok-val">"pizza123"</span> } })
+).json();
+<span class="tok-key">await</span> request.post(<span class="tok-val">"/api/cart"</span>, {
+  headers: { Authorization: <span class="tok-val">`Bearer ${token}`</span>, <span class="tok-val">"X-Country-Code"</span>: <span class="tok-val">"MX"</span> },
+  data: { items: [{ pizza_id: <span class="tok-val">"pepperoni"</span>, size: <span class="tok-val">"large"</span>, quantity: 2 }] },
+});
+
+<span class="tok-comment">// 2. Inject token into localStorage before page load</span>
+<span class="tok-key">await</span> page.addInitScript(({ token }) =&gt; {
+  localStorage.setItem(<span class="tok-val">"omnipizza-auth"</span>,
+    JSON.stringify({ state: { token, username: <span class="tok-val">"standard_user"</span>, behavior: null }, version: 0 }));
+  localStorage.setItem(<span class="tok-val">"omnipizza-cart"</span>,
+    JSON.stringify({ state: { items: [] }, version: 0 })); <span class="tok-comment">// empty → API hydration</span>
+}, { token });
+
+<span class="tok-comment">// 3. Navigate directly — Checkout fetches GET /api/cart automatically</span>
+<span class="tok-key">await</span> page.goto(<span class="tok-val">"/checkout"</span>);
+<span class="tok-key">await</span> expect(page.getByTestId(<span class="tok-val">"view-order-summary"</span>)).toBeVisible();</code></pre>
+
+        <h3 style="margin-top: 3rem">Mobile Deep Links</h3>
+        <pre class="code-window" data-title="mobile/deep-links.sh"><code><span class="tok-comment"># Reset session before test suite</span>
+<span class="tok-cmd">xcrun simctl openurl booted</span> <span class="tok-val">"omnipizza://login?resetSession=true"</span>
+
+<span class="tok-comment"># Open Checkout with API-seeded cart (MX market)</span>
+<span class="tok-cmd">adb shell am start -W -a android.intent.action.VIEW</span> \
+  <span class="tok-val">-d "omnipizza://checkout?market=MX&amp;lang=es&amp;hydrateCart=true"</span> \
+  <span class="tok-path">com.omnipizza.app</span>
+
+<span class="tok-comment"># Open Pizza Builder with specific pizza + size</span>
+<span class="tok-cmd">xcrun simctl openurl booted</span> \
+  <span class="tok-val">"omnipizza://pizza-builder?pizzaId=pepperoni&amp;size=family&amp;market=US"</span>
+
+<span class="tok-comment"># Open Order Success with order ID</span>
+<span class="tok-cmd">xcrun simctl openurl booted</span> <span class="tok-val">"omnipizza://order-success?orderId=12345&amp;market=JP"</span></code></pre>
       </section>
 
       <section id="documentation-links">
@@ -351,9 +404,11 @@
         <div class="card-grid">
           <div class="card">
             <h4>Repository Docs</h4>
-            <p>Primary operational docs live in the repository root and `docs/`.</p>
+            <p>Primary operational docs live in the repository root and <code>docs/</code>.</p>
             <ul>
               <li class="list-item"><a href="./README.md">README.md</a></li>
+              <li class="list-item"><a href="./ATOMIC_WEB_TESTING.md">ATOMIC_WEB_TESTING.md</a></li>
+              <li class="list-item"><a href="./ATOMIC_MOBILE_TESTING.md">ATOMIC_MOBILE_TESTING.md</a></li>
               <li class="list-item"><a href="./API_EXAMPLES.md">API_EXAMPLES.md</a></li>
               <li class="list-item"><a href="./docs/app-built.md">docs/app-built.md</a></li>
             </ul>

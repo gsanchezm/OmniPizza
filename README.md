@@ -197,6 +197,23 @@ After checkout, the **Order Success** screen is shown and the last order remains
 - Checkout validates required fields before submit (country-specific + inline errors).
 - Layouts are rotation-ready (portrait/landscape) for iOS and Android.
 
+### Mobile Deep Links (`omnipizza://`)
+
+The app supports deep linking via the `omnipizza://` scheme, enabling external automation frameworks to open any screen directly after seeding state through the API — without executing the full user journey.
+
+| Deep Link | Opens |
+|-----------|-------|
+| `omnipizza://login` | Login screen |
+| `omnipizza://catalog` | Catalog screen |
+| `omnipizza://pizza-builder?pizzaId=<id>&size=<size>` | Pizza Builder with pizza pre-loaded |
+| `omnipizza://checkout?hydrateCart=true` | Checkout, hydrated from API cart |
+| `omnipizza://order-success?orderId=<id>` | Order Success screen |
+| `omnipizza://profile` | Profile screen |
+
+Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (en/es/de/fr/ja), `resetSession=true`.
+
+See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) for the full reference and automation integration guide.
+
 ### Web visual assets
 
 - Public icons/logos were standardized from `frontend-mobile/assets/icon.png`.
@@ -238,6 +255,8 @@ Compatibility wrappers still exist in a few older hook paths so migration can re
 
 Current supporting docs live here:
 
+- [ATOMIC_WEB_TESTING.md](./ATOMIC_WEB_TESTING.md) — web atomic test entry via localStorage injection + API cart hydration (Playwright guide)
+- [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) — mobile deep link support, atomic test entry, external automation guide
 - [docs/app-built.md](/Users/gilbertosanchez/Documents/Repos/OmniPizza/docs/app-built.md) — mobile release/build pipeline
 - `ordersuccess_ios/Product_Requirement_Doc.md` — product requirements
 - `ordersuccess_ios/Design_Doc.md` — architecture and UX notes
@@ -343,6 +362,8 @@ Current component specs live in `frontend/cypress/component/`.
 - Checkout form fields are dynamic per market — ensure automation handles conditional rendering.
 - Phone input uses `type="tel"` with pattern validation (`7-20 digits/spaces/+/-`).
 - **Cart state injection:** Use `POST /api/cart` to seed cart items, then navigate to checkout — the frontend auto-hydrates from `GET /api/cart`. This skips the manual catalog-to-cart UI flow in E2E tests.
+- **Web atomic entry:** Navigate directly to any route (`/checkout`, `/catalog`, `/profile`, `/order-success`) after injecting the auth token into `localStorage` via `page.addInitScript()`. The Checkout page fetches `GET /api/cart` automatically when the local cart is empty. See [ATOMIC_WEB_TESTING.md](./ATOMIC_WEB_TESTING.md).
+- **Mobile atomic entry via deep links:** Use `omnipizza://` deep links to open the mobile app directly on any screen after API hydration. Example: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true`. See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md).
 
 ---
 
