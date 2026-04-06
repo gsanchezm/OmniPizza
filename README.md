@@ -227,7 +227,7 @@ The app supports deep linking via the `omnipizza://` scheme, enabling external a
 | `omnipizza://order-success?orderId=<id>` | Order Success screen |
 | `omnipizza://profile` | Profile screen |
 
-Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (en/es/de/fr/ja), `resetSession=true`.
+Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (en/es/de/fr/ja), `resetSession=true`, `accessToken=<jwt>` (injects auth token, bypasses login UI).
 
 See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) for the full reference and automation integration guide.
 
@@ -380,7 +380,7 @@ Current component specs live in `frontend/cypress/component/`.
 - Phone input uses `type="tel"` with pattern validation (`7-20 digits/spaces/+/-`).
 - **Cart state injection:** Use `POST /api/cart` to seed cart items, then navigate to checkout — the frontend auto-hydrates from `GET /api/cart`. This skips the manual catalog-to-cart UI flow in E2E tests.
 - **Web atomic entry:** Navigate directly to any route (`/checkout`, `/catalog`, `/profile`, `/order-success`) after injecting the auth token into `localStorage` via `page.addInitScript()`. The Checkout page fetches `GET /api/cart` automatically when the local cart is empty. See [ATOMIC_WEB_TESTING.md](./ATOMIC_WEB_TESTING.md).
-- **Mobile atomic entry via deep links:** Use `omnipizza://` deep links to open the mobile app directly on any screen after API hydration. Example: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true`. See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md).
+- **Mobile atomic entry via deep links:** Use `omnipizza://` deep links to open the mobile app directly on any screen after API hydration. Pass `accessToken=<jwt>` to bypass the login UI entirely. Example: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=eyJ...`. See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md).
 
 ---
 

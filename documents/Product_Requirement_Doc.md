@@ -223,7 +223,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * API-integrated login, catalog fetch, pizza builder, cart, checkout, and order-success flows.
 * Checkout is fully API-integrated: `POST /api/checkout` is called and the response is stored as `lastOrder`.
 * Cart hydration from `GET /api/cart` on Checkout mount when local cart is empty (E2E injection support).
-* Deep linking via `omnipizza://` scheme — all 6 screens reachable directly by URL with optional `market`, `lang`, `hydrateCart`, `resetSession`, `pizzaId`, `size`, `orderId` params.
+* Deep linking via `omnipizza://` scheme — all 6 screens reachable directly by URL with optional `accessToken`, `market`, `lang`, `hydrateCart`, `resetSession`, `pizzaId`, `size`, `orderId` params. `accessToken` injects auth at deep link time, bypassing the login screen entirely.
 * Unified `testID` / `accessibilityLabel` naming convention across all screens: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-` prefixes.
 
 ### 11.3 Cross-Platform Known Gaps to Consider in Test Strategy
@@ -307,8 +307,8 @@ Reference: `ATOMIC_WEB_TESTING.md`
 **Mobile (Appium / Detox):**
 1. `POST /api/auth/login` to get token.
 2. `POST /api/cart` to seed items.
-3. Open app via deep link: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true`.
-4. Checkout hydrates from `GET /api/cart` automatically.
+3. Open app via deep link with token injected: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=<jwt>`.
+4. Checkout hydrates from `GET /api/cart` automatically (token already in store).
 5. Assert order summary.
 
 Reference: `ATOMIC_MOBILE_TESTING.md`

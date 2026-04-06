@@ -56,11 +56,11 @@ This document outlines the technology decisions made for the OmniPizza platform.
 | `omnipizza://login` | Login | `resetSession` |
 | `omnipizza://catalog` | Catalog | `market`, `lang` |
 | `omnipizza://pizza-builder` | PizzaBuilder | `pizzaId`, `size`, `market`, `lang` |
-| `omnipizza://checkout` | Checkout | `market`, `lang`, `hydrateCart` |
+| `omnipizza://checkout` | Checkout | `market`, `lang`, `hydrateCart`, `accessToken` |
 | `omnipizza://order-success` | OrderSuccess | `orderId`, `market`, `lang` |
 | `omnipizza://profile` | Profile | `market`, `lang` |
 
-Side-effect params (`market`, `lang`, `hydrateCart`, `resetSession`) are processed by the `useDeepLinkParams` hook in `App.tsx`.
+Side-effect params (`accessToken`, `market`, `lang`, `hydrateCart`, `resetSession`) are processed by the `useDeepLinkParams` hook in `App.tsx`. `accessToken` is applied first so any downstream fetch (e.g. cart hydration) is already authenticated.
 
 ## 5. DevOps & Infrastructure
 
@@ -100,6 +100,6 @@ The project makes heavy use of:
 | Layer | Tool | Pattern |
 | :--- | :--- | :--- |
 | Web E2E | Playwright | `addInitScript` → seed cart via API → `page.goto('/checkout')` |
-| Mobile E2E | Appium / WebdriverIO | Seed cart via API → `deepLink('omnipizza://checkout?hydrateCart=true')` |
+| Mobile E2E | Appium / WebdriverIO | Seed cart via API → `deepLink('omnipizza://checkout?hydrateCart=true&accessToken=<jwt>')` |
 | Mobile E2E | Detox | `device.launchApp({ launchArgs: { detoxCountryCode: 'MX' } })` |
 | API | Vitest / Postman / Gatling | Direct HTTP against `omnipizza-backend.onrender.com` |

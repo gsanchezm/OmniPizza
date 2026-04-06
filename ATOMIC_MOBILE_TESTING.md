@@ -27,6 +27,7 @@ screen route params.
 
 A separate `useDeepLinkParams` hook processes the side-effect params that
 Navigation cannot handle on its own:
+- `accessToken=<jwt>` → `setToken()` — injects auth before any downstream fetch
 - `market` / `lang` → update Zustand store (country + language)
 - `resetSession=true` → `logout()` + navigate to Login
 - `hydrateCart=true` → `clearCart()` so `CheckoutScreen`'s existing hydration runs
@@ -42,7 +43,7 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 |------|------|-----|
 | `frontend-mobile/src/navigation/types.ts` | **Created** | Typed `RootStackParamList` with deep link params for every screen |
 | `frontend-mobile/src/navigation/linking.ts` | **Created** | React Navigation `LinkingOptions` mapping `omnipizza://` routes to screen names |
-| `frontend-mobile/src/hooks/useDeepLinkParams.ts` | **Created** | Hook that handles state side effects from URL params (market, lang, resetSession, hydrateCart) |
+| `frontend-mobile/src/hooks/useDeepLinkParams.ts` | **Created** | Hook that handles state side effects from URL params (accessToken, market, lang, resetSession, hydrateCart) |
 | `frontend-mobile/App.tsx` | **Modified** | Added `linking` prop to `NavigationContainer`, wired `useDeepLinkParams`, exported `navigationRef` |
 | `frontend-mobile/src/screens/PizzaBuilderScreen.tsx` | **Modified** | Handle `pizzaId` and `size` deep link params as fallback when no full `pizza` object is passed |
 
@@ -65,6 +66,7 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 
 | Param | Values | Effect |
 |-------|--------|--------|
+| `accessToken` | JWT string | Sets auth token in store — applied before market/hydrateCart so any downstream fetch is authenticated |
 | `market` | `US` `MX` `CH` `JP` | Sets country in store; auto-updates language |
 | `lang` | `de` `fr` | Sets CH language preference (ignored for other markets) |
 | `resetSession` | `true` | Logs out, clears cart, navigates to Login |
@@ -76,6 +78,7 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | `pizza-builder` | `pizzaId=<id>` | Fetches pizza from catalog by ID |
 | `pizza-builder` | `size=small\|medium\|large\|family` | Pre-selects size |
 | `checkout` | `hydrateCart=true` | Clears local cart so screen fetches from backend |
+| any | `accessToken=<jwt>` | Injects auth token — combine with `hydrateCart=true` to bypass login UI entirely |
 | `order-success` | `orderId=<id>` | Available in route params for test assertions |
 
 ---
@@ -94,6 +97,9 @@ omnipizza://pizza-builder?pizzaId=pepperoni&size=family&market=MX&lang=es
 
 # Open Checkout with API-injected cart (requires POST /api/cart first)
 omnipizza://checkout?market=US&lang=en&hydrateCart=true
+
+# Open Checkout injecting token directly — bypasses login UI entirely
+omnipizza://checkout?market=JP&hydrateCart=true&accessToken=eyJ...
 
 # Open Checkout in Switzerland, French language
 omnipizza://checkout?market=CH&lang=fr&hydrateCart=true
@@ -157,10 +163,9 @@ curl -s -X POST https://omnipizza-backend.onrender.com/api/cart \
   -H "Content-Type: application/json" \
   -d '{"items":[{"pizza_id":"pepperoni","size":"large","quantity":2}]}'
 
-# 2. Set token in app (via Detox launchArgs or Appium capability)
-# 3. Open checkout directly
+# 2. Open checkout directly — pass token in the deep link (no login UI needed)
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "omnipizza://checkout?market=MX&lang=es&hydrateCart=true" \
+  -d "omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=$TOKEN" \
   com.omnipizza.app
 ```
 
@@ -195,6 +200,7 @@ adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://profile?mark
 - [ ] `omnipizza://pizza-builder?pizzaId=pepperoni&size=large` loads pepperoni pizza with Large pre-selected
 - [ ] `omnipizza://pizza-builder?pizzaId=unknown` falls back (goBack → Catalog)
 - [ ] `omnipizza://checkout?hydrateCart=true` with seeded backend cart shows correct items
+- [ ] `omnipizza://checkout?hydrateCart=true&accessToken=<jwt>` hydrates cart without prior login
 - [ ] `omnipizza://checkout?market=MX` shows MX-specific fields (colonia, zip)
 - [ ] `omnipizza://order-success?orderId=12345` opens OrderSuccess screen
 - [ ] `omnipizza://profile?market=CH&lang=fr` opens Profile with French locale
@@ -234,10 +240,23 @@ expected behavior for a full session reset.
 | Deep link while unauthenticated | Screen renders normally; screens that require a token will hit API errors and their own fallback UIs |
 | Cold start timing | `getInitialURL()` is awaited asynchronously; `navigationRef.isReady()` guard prevents navigation before container mounts |
 
-### No auth guard in deep link handler
+### Auth injection via `accessToken`
 
-Screens requiring authentication (Catalog, Checkout, Profile, etc.) are not
-individually guarded by the deep link handler. The screens themselves handle
-auth errors through their existing API calls. Adding a centralized auth guard
-is possible but would require a meaningful architecture change; for a test/demo
-app the current behavior is acceptable.
+External automation frameworks can bypass the login screen entirely by passing
+`accessToken=<jwt>` in the deep link. The hook calls `setToken()` before applying
+`market`, `hydrateCart`, or any other param — so the token is in the Zustand store
+before `CheckoutScreen` mounts and fires `GET /api/cart`.
+
+Obtain the token via `POST /api/auth/login`, then pass it verbatim in the URL:
+
+```bash
+TOKEN=$(curl -s -X POST https://omnipizza-backend.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"standard_user","password":"pizza123"}' | jq -r .access_token)
+
+xcrun simctl openurl booted \
+  "omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=$TOKEN"
+```
+
+Screens that require authentication but receive no `accessToken` param continue to
+handle auth errors through their own existing fallback UIs.
