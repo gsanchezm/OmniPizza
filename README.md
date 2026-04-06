@@ -10,6 +10,23 @@ Users now select market directly on the **login** screen (web + mobile) before e
 
 ---
 
+## Mobile App Releases
+
+Pre-built binaries are published as GitHub Releases via the `Build Mobile Apps` workflow (manual dispatch).
+
+| Platform | Artifact | How to install |
+|----------|----------|---------------|
+| **Android** | `omnipizza-release.apk` | `adb install omnipizza-release.apk` |
+| **Android (test)** | `omnipizza-debug-androidTest.apk` | For instrumented test runners (Appium) |
+| **iOS Simulator** | `OmniPizza-Simulator.zip` → `OmniPizza.app` | `xcrun simctl install booted OmniPizza.app` |
+
+**[→ Download latest release](https://github.com/gsanchezm/OmniPizza/releases/latest)**  
+All releases: https://github.com/gsanchezm/OmniPizza/releases
+
+> The iOS build targets the simulator only (`iphonesimulator` SDK). It cannot be installed on a physical device without a distribution certificate.
+
+---
+
 ## Screenshots
 
 ### Desktop
@@ -157,12 +174,12 @@ If the backend cart is empty or the request fails, the frontend falls back to th
 
 ### Markets (pricing + required fields)
 
-| Market | Currency | Required fields | Notes                     |
-| ------ | -------- | --------------- | ------------------------- |
-| MX     | MXN      | `colonia`       | Tip optional (`propina`)  |
-| US     | USD      | `zip_code`      | Tax applied               |
-| CH     | CHF      | `plz`           | **Language toggle DE/FR** |
-| JP     | JPY      | `prefectura`    | No decimals               |
+| Market | Currency | Required fields | Optional fields | Notes                     |
+| ------ | -------- | --------------- | --------------- | ------------------------- |
+| MX     | MXN      | `colonia`       | `zip_code`, `propina` | Tip optional      |
+| US     | USD      | `zip_code`      | —               | Tax applied               |
+| CH     | CHF      | `plz`           | —               | **Language toggle DE/FR** |
+| JP     | JPY      | `prefectura`    | —               | No decimals               |
 
 ### Language behavior
 
@@ -257,11 +274,11 @@ Current supporting docs live here:
 
 - [ATOMIC_WEB_TESTING.md](./ATOMIC_WEB_TESTING.md) — web atomic test entry via localStorage injection + API cart hydration (Playwright guide)
 - [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) — mobile deep link support, atomic test entry, external automation guide
-- [docs/app-built.md](/Users/gilbertosanchez/Documents/Repos/OmniPizza/docs/app-built.md) — mobile release/build pipeline
-- `ordersuccess_ios/Product_Requirement_Doc.md` — product requirements
-- `ordersuccess_ios/Design_Doc.md` — architecture and UX notes
-- `ordersuccess_ios/UI_Design_Doc.md` — visual system
-- `ordersuccess_ios/Tech_Stack_Doc.md` — stack decisions
+- [documents/Product_Requirement_Doc.md](./documents/Product_Requirement_Doc.md) — full product requirements, API contract map, validation rules, negative flows
+- [documents/Tech_Stack_Doc.md](./documents/Tech_Stack_Doc.md) — technology decisions, deep link config, testing ecosystem
+- [documents/Design_Doc.md](./documents/Design_Doc.md) — architecture and UX notes
+- [documents/UI_Design_Doc.md](./documents/UI_Design_Doc.md) — visual system
+- [docs/app-built.md](./docs/app-built.md) — mobile release/build pipeline
 
 ---
 

@@ -21,6 +21,8 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Login, catalog, pizza builder, cart/checkout, profile, and order-success screens.
 * Market selection at login controls language/currency behavior.
 * Includes mobile-specific builder UX and orientation support.
+* Supports deep linking via the `omnipizza://` URI scheme for atomic screen entry by external test runners.
+* CI/CD builds Android APK and iOS Simulator app via GitHub Actions; artifacts are published as GitHub Releases.
 
 ### 3.3 Backend API (FastAPI)
 * Authentication, countries, pizzas, checkout, orders, and debug endpoints.
@@ -97,6 +99,12 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Clear cart after successful checkout.
 * Clear cart on market change.
 
+### 6.7.1 Cart API (State Injection)
+* `POST /api/cart` — seeds backend cart with items (`pizza_id`, `size`, `quantity`). Requires `Authorization` + `X-Country-Code`.
+* `GET /api/cart` — returns enriched cart joined with catalog (name, price, image, currency). Requires `Authorization` + `X-Country-Code`.
+* Both web and mobile **Checkout screens fetch `GET /api/cart` on mount when the local cart is empty**, hydrating the UI automatically from backend state. This is the primary mechanism for cart state injection in atomic tests.
+* The hydration guard (`items.length > 0`) ensures normal shopping flows are never disrupted.
+
 ### 6.8 Profile
 * Profile captures `fullName`, `address`, `phone`, and `notes`.
 * Profile data is local client state in current baseline (not persisted to backend API).
@@ -107,10 +115,10 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Common required fields: `country_code`, `items`, `name`, `address`, `phone`.
 * `items[].quantity` valid range: `1..10`.
 * Country-specific required fields:
-* `MX`: `colonia` required, `propina` optional.
-* `US`: `zip_code` required, 5 digits.
-* `CH`: `plz` required.
-* `JP`: `prefectura` required.
+  * `MX`: `colonia` required, `zip_code` optional, `propina` optional.
+  * `US`: `zip_code` required, 5 digits.
+  * `CH`: `plz` required.
+  * `JP`: `prefectura` required.
 * Successful response includes `order_id`, `subtotal`, `tax`, `tip`, `total`, `currency`, `currency_symbol`, `items`, `timestamp`.
 
 ### 6.10 Orders and Access Control
@@ -158,9 +166,14 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 | `GET /api/auth/profile` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/countries` | No | none | `200` list | - |
 | `GET /api/pizzas` | Yes | `Authorization`, `X-Country-Code` | `200` | `400`, `401` |
+| `POST /api/cart` | Yes | `Authorization`, `X-Country-Code` | `200` seeded cart | `400`, `401` |
+| `GET /api/cart` | Yes | `Authorization`, `X-Country-Code` | `200` enriched cart | `401` |
+| `POST /api/store/market` | Yes | `Authorization` | `200` | `400`, `401` |
 | `POST /api/checkout` | Yes | `Authorization` | `200` order summary | `400`, `401`, `500` |
 | `GET /api/orders` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/orders/{id}` | Yes | `Authorization` | `200` | `401`, `403`, `404` |
+| `GET /api/session` | Yes | `Authorization` | `200` | `401` |
+| `POST /api/session/reset` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/debug/latency-spike` | No | none | `200` | - |
 | `GET /api/debug/cpu-load` | No | none | `200` | - |
 | `GET /api/debug/metrics` | No | none | `200` text/plain | - |
@@ -207,10 +220,11 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Empty cart checkout state includes start-order CTA.
 
 ### 11.2 Mobile Baseline
-* API-integrated login and catalog fetch.
-* Pizza builder and cart configuration implemented.
-* Checkout screen currently behaves as local/simulated confirmation flow in baseline UX.
-* Mobile has dedicated `testID/accessibilityLabel` helper, currently concentrated on navbar controls.
+* API-integrated login, catalog fetch, pizza builder, cart, checkout, and order-success flows.
+* Checkout is fully API-integrated: `POST /api/checkout` is called and the response is stored as `lastOrder`.
+* Cart hydration from `GET /api/cart` on Checkout mount when local cart is empty (E2E injection support).
+* Deep linking via `omnipizza://` scheme — all 6 screens reachable directly by URL with optional `market`, `lang`, `hydrateCart`, `resetSession`, `pizzaId`, `size`, `orderId` params.
+* Unified `testID` / `accessibilityLabel` naming convention across all screens: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-` prefixes.
 
 ### 11.3 Cross-Platform Known Gaps to Consider in Test Strategy
 * API capability and UI parity are not complete for every flow (especially checkout/order integration on mobile).
@@ -221,9 +235,31 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Existing-token mobile redirect path should be covered by regression tests.
 
 ### 11.4 Current Automation Hooks Baseline
-* Web checkout selectors currently include `start-order-btn`, `zip-code`, `plz`, `prefectura`, `phone`, `payment-card`, `payment-cash`, `card-holder`, `card-number`, `card-expiry`, `card-cvv`.
-* Mobile selectors currently include navbar/language controls via `testID` and accessibility labels: `btn-lang-de`, `btn-lang-fr`, `text-navbar-title`, `btn-navbar-catalog`, `btn-navbar-profile`, `btn-navbar-cart`, `btn-navbar-logout`.
-* For broader automation stability, selectors should be expanded to login/auth errors, catalog cards, profile fields, and checkout submit/error containers.
+
+**Web (`data-testid`)**
+
+| Area | Key Selectors |
+| :--- | :--- |
+| Login | `input-username`, `input-password`, `btn-toggle-password` |
+| Catalog | `input-search-pizza`, `btn-category-{id}`, `card-pizza-{id}`, `btn-clear-filters`, `loader-catalog` |
+| Pizza Customizer | `btn-size-{size}`, `btn-topping-{id}`, `text-estimated-total-value`, `btn-add-to-cart`, `btn-close-builder` |
+| Cart | `view-cart-sidebar`, `view-cart-empty`, `view-cart-item-{id}`, `btn-cart-qty-minus-{id}`, `text-cart-qty-{id}` |
+| Checkout | `input-fullname`, `input-address`, `input-colonia` (MX), `input-zipcode` (US/MX optional), `input-plz` (CH), `input-prefectura` (JP), `input-phone`, `payment-card`, `payment-cash`, `view-order-summary` |
+| Profile | `input-profile-fullname`, `input-profile-phone`, `input-profile-address`, `input-profile-notes`, `btn-delete-account` |
+| Order Success | `text-status-title`, `view-courier-card`, `btn-courier-chat`, `btn-courier-call`, `btn-back-catalog` |
+| Navbar | `btn-logout`, `btn-mobile-menu`, `btn-lang-de`, `btn-lang-fr` |
+
+**Mobile (`testID` / `accessibilityLabel` — unified convention)**
+
+| Prefix | Usage | Examples |
+| :--- | :--- | :--- |
+| `btn-` | Tappable actions | `btn-size-large`, `btn-add-to-cart`, `btn-logout`, `btn-close-builder` |
+| `input-` | Text inputs | `input-username`, `input-password`, `input-address`, `input-zipcode` |
+| `text-` | Display values | `text-status-title`, `text-estimated-total-value`, `text-courier-name` |
+| `view-` | Container elements | `view-cart-sidebar`, `view-courier-card`, `view-order-summary` |
+| `img-` | Images | `img-builder-pizza`, `img-courier-avatar`, `img-map-background` |
+| `card-` | Card components | `card-pizza-{id}` |
+| `screen-` | Root screen wrappers | `screen-checkout`, `screen-pizza-builder`, `screen-order-success` |
 
 ## 12. Non-Functional Requirements
 * **Testability:** Stable selectors for critical actions and error states on both platforms.
@@ -256,6 +292,26 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Latency spike timing windows.
 * CPU-load endpoint availability.
 * Randomized checkout failures for `error_user`.
+
+### 13.7 Atomic Screen Entry Tests (Web + Mobile)
+
+**Web (Playwright):**
+1. `POST /api/auth/login` to get token.
+2. `POST /api/cart` to seed items.
+3. Inject `omnipizza-auth` + empty `omnipizza-cart` into `localStorage` via `page.addInitScript()`.
+4. Navigate directly to `/checkout` — Checkout fetches `GET /api/cart` and hydrates.
+5. Assert order summary reflects API-seeded items.
+
+Reference: `ATOMIC_WEB_TESTING.md`
+
+**Mobile (Appium / Detox):**
+1. `POST /api/auth/login` to get token.
+2. `POST /api/cart` to seed items.
+3. Open app via deep link: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true`.
+4. Checkout hydrates from `GET /api/cart` automatically.
+5. Assert order summary.
+
+Reference: `ATOMIC_MOBILE_TESTING.md`
 
 ## 14. Definition of Done for QA Readiness
 * Core happy paths pass on API and Web.

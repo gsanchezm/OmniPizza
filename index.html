@@ -37,6 +37,7 @@
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#releases">Releases</a></li>
         <li><a href="#documentation">Documentation</a></li>
         <li>
           <a href="#get-started" class="btn-primary">Get started &rarr;</a>
@@ -121,6 +122,60 @@
               class="btn-primary"
               style="display: inline-block"
               >Open API &rarr;</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="releases">
+        <h2>Mobile App Releases</h2>
+        <p>
+          Pre-built binaries are published as
+          <strong>GitHub Releases</strong> via the
+          <code>Build Mobile Apps</code> workflow (manual dispatch on
+          <code>workflow_dispatch</code>).
+        </p>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Android APK</h4>
+            <p>
+              Release APK ready to sideload on any Android device or emulator.
+            </p>
+            <ul>
+              <li class="list-item"><code>omnipizza-release.apk</code> &mdash; install via adb</li>
+              <li class="list-item"><code>omnipizza-debug-androidTest.apk</code> &mdash; for Appium instrumented runs</li>
+            </ul>
+            <pre style="margin-top:0.75rem;font-size:0.78rem;"><code>adb install omnipizza-release.apk</code></pre>
+          </div>
+          <div class="card">
+            <h4>iOS Simulator App</h4>
+            <p>
+              Simulator build (<code>iphonesimulator</code> SDK) zipped as
+              <code>OmniPizza-Simulator.zip</code>.
+            </p>
+            <ul>
+              <li class="list-item">Unzip and install into the running simulator</li>
+              <li class="list-item">Supports <code>omnipizza://</code> deep links</li>
+            </ul>
+            <pre style="margin-top:0.75rem;font-size:0.78rem;"><code>xcrun simctl install booted OmniPizza.app</code></pre>
+          </div>
+          <div class="card">
+            <h4>Download</h4>
+            <p>All release artifacts are attached to GitHub Releases.</p>
+            <a
+              href="https://github.com/gsanchezm/OmniPizza/releases/latest"
+              target="_blank"
+              class="btn-primary"
+              style="display: inline-block; margin-bottom: 0.5rem"
+              >Latest Release &rarr;</a
+            >
+            <br />
+            <a
+              href="https://github.com/gsanchezm/OmniPizza/releases"
+              target="_blank"
+              class="btn-secondary"
+              style="display: inline-block"
+              >All Releases &rarr;</a
             >
           </div>
         </div>
@@ -415,11 +470,12 @@
           </div>
           <div class="card">
             <h4>Product and Design Notes</h4>
-            <p>The historical product/design references currently live under `ordersuccess_ios/`.</p>
+            <p>Product, design, and tech stack references live under <code>documents/</code>.</p>
             <ul>
-              <li class="list-item"><a href="./ordersuccess_ios/Product_Requirement_Doc.md">Product Requirement Doc</a></li>
-              <li class="list-item"><a href="./ordersuccess_ios/Design_Doc.md">Design Doc</a></li>
-              <li class="list-item"><a href="./ordersuccess_ios/Tech_Stack_Doc.md">Tech Stack Doc</a></li>
+              <li class="list-item"><a href="./documents/Product_Requirement_Doc.md">Product Requirement Doc</a></li>
+              <li class="list-item"><a href="./documents/Design_Doc.md">Design Doc</a></li>
+              <li class="list-item"><a href="./documents/Tech_Stack_Doc.md">Tech Stack Doc</a></li>
+              <li class="list-item"><a href="./documents/UI_Design_Doc.md">UI Design Doc</a></li>
             </ul>
           </div>
         </div>
