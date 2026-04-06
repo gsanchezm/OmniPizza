@@ -405,8 +405,9 @@
           </li>
           <li class="list-item">
             <strong>Mobile atomic entry:</strong> Open any screen directly via
-            <code>omnipizza://</code> deep links after API hydration — no full
-            user journey required. See
+            <code>omnipizza://</code> deep links after API hydration. Pass
+            <code>accessToken=&lt;jwt&gt;</code> to inject auth at deep link time
+            and bypass the login screen entirely. See
             <a href="./ATOMIC_MOBILE_TESTING.md">ATOMIC_MOBILE_TESTING.md</a>.
           </li>
           <li class="list-item">
@@ -441,9 +442,9 @@
         <pre class="code-window" data-title="mobile/deep-links.sh"><code><span class="tok-comment"># Reset session before test suite</span>
 <span class="tok-cmd">xcrun simctl openurl booted</span> <span class="tok-val">"omnipizza://login?resetSession=true"</span>
 
-<span class="tok-comment"># Open Checkout with API-seeded cart (MX market)</span>
+<span class="tok-comment"># Open Checkout with API-seeded cart + injected token (no login needed)</span>
 <span class="tok-cmd">adb shell am start -W -a android.intent.action.VIEW</span> \
-  <span class="tok-val">-d "omnipizza://checkout?market=MX&amp;lang=es&amp;hydrateCart=true"</span> \
+  <span class="tok-val">-d "omnipizza://checkout?market=MX&amp;lang=es&amp;hydrateCart=true&amp;accessToken=$TOKEN"</span> \
   <span class="tok-path">com.omnipizza.app</span>
 
 <span class="tok-comment"># Open Pizza Builder with specific pizza + size</span>
