@@ -33,6 +33,7 @@ export type RootStackParamList = {
     market?: string;
     lang?: string;
     hydrateCart?: string;
+    accessToken?: string;
   } | undefined;
   OrderSuccess: {
     orderId?: string;

@@ -48,7 +48,7 @@ function parseParams(url: string): Record<string, string> {
 export function useDeepLinkParams(
   navRef: NavigationContainerRefWithCurrent<RootStackParamList>
 ) {
-  const { setCountry, setLanguage, clearCart } = useAppStore();
+  const { setCountry, setLanguage, clearCart, setToken } = useAppStore();
 
   function applyParams(url: string) {
     const params = parseParams(url);
@@ -63,6 +63,11 @@ export function useDeepLinkParams(
         }
       }, 0);
       return;
+    }
+
+    // accessToken: inject auth before any downstream fetch (e.g. hydrateCart)
+    if (params.accessToken) {
+      setToken(params.accessToken);
     }
 
     // Apply market — setCountry already clears the cart and resets language
