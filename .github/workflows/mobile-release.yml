@@ -6,6 +6,10 @@ on:
       version:
         description: "Release version (e.g. v1.1.0)"
         required: true
+      release_notes:
+        description: "Detailed release notes/description."
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -143,6 +147,7 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           name: OmniPizza ${{ github.event.inputs.version }}
+          body: ${{ github.event.inputs.release_notes }}
           generate_release_notes: true
           files: |
             artifacts/android/**/*.apk
