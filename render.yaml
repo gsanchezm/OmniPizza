@@ -26,7 +26,6 @@ services:
     runtime: static
     buildCommand: >
       cd frontend
-      && npm install -g pnpm
       && pnpm install --frozen-lockfile
       && export VITE_APP_RELEASE=$RENDER_GIT_COMMIT
       && pnpm build
