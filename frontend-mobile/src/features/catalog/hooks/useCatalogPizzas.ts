@@ -30,9 +30,11 @@ export function useCatalogPizzas(
     }
   }, [repo]);
 
+  const token = useAppStore(state => state.token);
+
   useEffect(() => {
     loadPizzas();
-  }, [country, language, loadPizzas]);
+  }, [country, language, token, loadPizzas]);
 
   return {
     pizzas,

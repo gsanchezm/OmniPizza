@@ -101,7 +101,7 @@ export default function CheckoutScreen({ navigation }: any) {
     })();
 
     return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token]); // Re-run hydration if a token is injected late (e.g. via deep link)
 
   const [form, setForm] = useState<CheckoutFormState>({
     name: profile?.fullName || "",
