@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Pizza } from "../../../types/api";
 import { createPizzaRepository } from "../repositories/pizzaRepository";
+import { useAppStore } from "../../../store/useAppStore";
 
 export function useCatalogPizzas(
   country: string,
