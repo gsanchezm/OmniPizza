@@ -41,7 +41,6 @@ export default function App() {
     <NavigationContainer
       ref={navigationRef}
       theme={OmniPizzaTheme}
-      linking={linking}
     >
       <Stack.Navigator
         initialRouteName="Login"

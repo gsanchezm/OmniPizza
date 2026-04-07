@@ -6,10 +6,24 @@ import type { RootStackParamList } from "../navigation/types";
 
 const VALID_MARKETS: CountryCode[] = ["US", "MX", "CH", "JP"];
 
-/**
- * Parses query string from a deep link URL into a plain string record.
- * e.g. "omnipizza://checkout?market=MX&lang=es" → { market: "MX", lang: "es" }
- */
+const ROUTE_MAP: Record<string, keyof RootStackParamList> = {
+  checkout: "Checkout",
+  catalog: "Catalog",
+  "pizza-builder": "PizzaBuilder",
+  "order-success": "OrderSuccess",
+  profile: "Profile",
+  login: "Login",
+};
+
+function extractRouteName(url: string): keyof RootStackParamList | null {
+  try {
+    const routePart = url.replace("omnipizza://", "").split("?")[0];
+    return ROUTE_MAP[routePart] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function parseParams(url: string): Record<string, string> {
   try {
     const queryStart = url.indexOf("?");
@@ -86,6 +100,21 @@ export function useDeepLinkParams(
     // hydrateCart: clear local cart so CheckoutScreen fetches from API on mount
     if (params.hydrateCart === "true") {
       clearCart();
+    }
+
+    // Force explicit navigation
+    const routeName = extractRouteName(url);
+    if (routeName) {
+      const tryNavigate = (retries = 0) => {
+        if (navRef.isReady()) {
+          navRef.navigate(routeName as any, params);
+        } else if (retries < 10) {
+          setTimeout(() => tryNavigate(retries + 1), 50);
+        }
+      };
+      
+      // Small timeout ensures Zustand state flushes before triggering the screen
+      setTimeout(() => tryNavigate(), 50);
     }
   }
 
