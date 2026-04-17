@@ -70,3 +70,6 @@ cypress/videos/
 #docs
 /docs
 CLAUDE.md
+
+# Release notes (kept locally, not tracked)
+/release-notes
