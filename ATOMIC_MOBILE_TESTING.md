@@ -93,7 +93,7 @@ omnipizza://login?resetSession=true
 omnipizza://catalog?market=JP&lang=ja
 
 # Open PizzaBuilder with a specific pizza pre-loaded, family size, MX market
-omnipizza://pizza-builder?pizzaId=pepperoni&size=family&market=MX&lang=es
+omnipizza://pizza-builder?pizzaId=p02&size=family&market=MX&lang=es
 
 # Open Checkout with API-injected cart (requires POST /api/cart first)
 omnipizza://checkout?market=US&lang=en&hydrateCart=true
@@ -161,7 +161,7 @@ curl -s -X POST https://omnipizza-backend.onrender.com/api/cart \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Country-Code: MX" \
   -H "Content-Type: application/json" \
-  -d '{"items":[{"pizza_id":"pepperoni","size":"large","quantity":2}]}'
+  -d '{"items":[{"pizza_id":"p02","size":"large","quantity":2}]}'
 
 # 2. Open checkout directly — pass token in the deep link (no login UI needed)
 adb shell am start -W -a android.intent.action.VIEW \
@@ -177,7 +177,7 @@ adb shell am start -W -a android.intent.action.VIEW \
 ```bash
 xcrun simctl openurl booted omnipizza://login
 xcrun simctl openurl booted omnipizza://catalog?market=JP
-xcrun simctl openurl booted "omnipizza://pizza-builder?pizzaId=pepperoni&size=large&market=US"
+xcrun simctl openurl booted "omnipizza://pizza-builder?pizzaId=p02&size=large&market=US"
 xcrun simctl openurl booted "omnipizza://checkout?market=MX&lang=es&hydrateCart=true"
 xcrun simctl openurl booted "omnipizza://order-success?orderId=abc123&market=US"
 xcrun simctl openurl booted omnipizza://profile?market=CH&lang=fr
@@ -187,7 +187,7 @@ xcrun simctl openurl booted omnipizza://profile?market=CH&lang=fr
 ```bash
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://login" com.omnipizza.app
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://catalog?market=JP" com.omnipizza.app
-adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://pizza-builder?pizzaId=pepperoni&size=large&market=US" com.omnipizza.app
+adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://pizza-builder?pizzaId=p02&size=large&market=US" com.omnipizza.app
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://checkout?market=MX&lang=es&hydrateCart=true" com.omnipizza.app
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://order-success?orderId=abc123&market=US" com.omnipizza.app
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://profile?market=CH&lang=fr" com.omnipizza.app
@@ -197,8 +197,21 @@ adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://profile?mark
 
 - [ ] `omnipizza://login` opens LoginScreen directly
 - [ ] `omnipizza://catalog?market=JP` opens CatalogScreen and displays JPY prices
-- [ ] `omnipizza://pizza-builder?pizzaId=pepperoni&size=large` loads pepperoni pizza with Large pre-selected
+- [ ] `omnipizza://pizza-builder?pizzaId=p02&size=large` loads Pepperoni pizza with Large pre-selected
 - [ ] `omnipizza://pizza-builder?pizzaId=unknown` falls back (goBack → Catalog)
+
+### Valid `pizza_id` values (catalog IDs)
+
+The backend enriches cart items against the catalog. `POST /api/cart` silently accepts any `pizza_id`, but `GET /api/cart` returns `cart_items: []` when the ID is not in the catalog. Always use one of these:
+
+| ID | Pizza | ID | Pizza |
+|----|-------|----|-------|
+| `p01` | Margherita | `p07` | Capricciosa |
+| `p02` | Pepperoni | `p08` | Diavola |
+| `p03` | Hawaiian | `p09` | Prosciutto |
+| `p04` | Four Cheese | `p10` | Quattro Stagioni |
+| `p05` | Veggie | `p11` | Funghi |
+| `p06` | Marinara | `p12` | BBQ Chicken |
 - [ ] `omnipizza://checkout?hydrateCart=true` with seeded backend cart shows correct items
 - [ ] `omnipizza://checkout?hydrateCart=true&accessToken=<jwt>` hydrates cart without prior login
 - [ ] `omnipizza://checkout?market=MX` shows MX-specific fields (colonia, zip)

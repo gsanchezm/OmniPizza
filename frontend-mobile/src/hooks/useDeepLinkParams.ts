@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { Linking } from "react-native";
 import type { NavigationContainerRefWithCurrent } from "@react-navigation/native";
 import { useAppStore, type CountryCode } from "../store/useAppStore";
@@ -62,15 +62,19 @@ function parseParams(url: string): Record<string, string> {
 export function useDeepLinkParams(
   navRef: NavigationContainerRefWithCurrent<RootStackParamList>
 ) {
-  const { setCountry, setLanguage, clearCart, setToken } = useAppStore();
-
   function applyParams(url: string) {
     const params = parseParams(url);
+    // Grab latest store actions imperatively so side-effects fire synchronously
+    // without waiting for React re-render cycles.
+    const store = useAppStore.getState();
+
+    if (__DEV__) {
+      console.log("[useDeepLinkParams] url:", url, "params:", params);
+    }
 
     // resetSession takes priority — clear auth state and go to Login
     if (params.resetSession === "true") {
-      useAppStore.getState().logout();
-      // Use a short delay so navigation is guaranteed ready after cold start
+      store.logout();
       setTimeout(() => {
         if (navRef.isReady()) {
           navRef.reset({ index: 0, routes: [{ name: "Login" }] });
@@ -79,56 +83,45 @@ export function useDeepLinkParams(
       return;
     }
 
-    // accessToken: inject auth before any downstream fetch (e.g. hydrateCart)
+    // 1) accessToken FIRST — must be in the store before any downstream fetch
+    //    (CheckoutScreen hydrates on mount and needs Authorization header).
     if (params.accessToken) {
-      setToken(params.accessToken);
+      store.setToken(params.accessToken);
     }
 
-    // Apply market — setCountry already clears the cart and resets language
+    // 2) market — setCountry clears cart and resets language to market default
     if (params.market) {
       const market = params.market.toUpperCase() as CountryCode;
       if (VALID_MARKETS.includes(market)) {
-        setCountry(market);
+        store.setCountry(market);
       }
     }
 
-    // Apply lang — only has effect when country is CH (store guards this)
+    // 3) lang override — only has effect when country is CH (store guards this)
     if (params.lang === "fr" || params.lang === "de") {
-      setLanguage(params.lang);
+      store.setLanguage(params.lang);
     }
 
-    // hydrateCart: clear local cart so CheckoutScreen fetches from API on mount
+    // 4) hydrateCart — clear local cart so CheckoutScreen fetches from API on mount
     if (params.hydrateCart === "true") {
-      clearCart();
-    }
-
-    // Force explicit navigation
-    const routeName = extractRouteName(url);
-    if (routeName) {
-      const tryNavigate = (retries = 0) => {
-        if (navRef.isReady()) {
-          navRef.navigate(routeName as any, params);
-        } else if (retries < 10) {
-          setTimeout(() => tryNavigate(retries + 1), 50);
-        }
-      };
-      
-      // Small timeout ensures Zustand state flushes before triggering the screen
-      setTimeout(() => tryNavigate(), 50);
+      store.clearCart();
     }
   }
 
-  useEffect(() => {
-    // Cold start: app opened via deep link while not running
+  // useLayoutEffect fires before useEffect in child screens, giving us the
+  // earliest possible window to set the token on cold start.
+  useLayoutEffect(() => {
     Linking.getInitialURL().then((url) => {
       if (url) applyParams(url);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  useEffect(() => {
     // Warm start: deep link received while app is already running
     const subscription = Linking.addEventListener("url", ({ url }) =>
       applyParams(url)
     );
-
     return () => subscription.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

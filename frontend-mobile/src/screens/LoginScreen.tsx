@@ -50,7 +50,12 @@ export default function LoginScreen({ navigation }: any) {
   const setCountry = useAppStore((s) => s.setCountry);
 
   useEffect(() => {
-    if (token) {
+    if (!token) return;
+    const state = navigation.getState?.();
+    const stackLen = state?.routes?.length ?? 1;
+    // Only auto-redirect when Login is the only route on the stack (manual login flow).
+    // If a deep link already pushed another screen on top, don't override it.
+    if (stackLen <= 1) {
       navigation.replace("Catalog");
     }
   }, [token]);
