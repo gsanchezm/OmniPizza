@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
 import { Colors } from '../theme/colors';
+import { getReadableControlProps, getReadableTextProps } from '../utils/qa';
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -17,8 +18,7 @@ export const PrimaryButton = ({ onPress, title, loading, disabled, style, testID
       activeOpacity={0.8}
       onPress={onPress}
       disabled={disabled || loading}
-      testID={testID}
-      accessibilityLabel={testID}
+      {...(testID ? getReadableControlProps(testID, title) : {})}
       style={[
         styles.container,
         disabled && styles.disabled,
@@ -28,7 +28,13 @@ export const PrimaryButton = ({ onPress, title, loading, disabled, style, testID
       {loading ? (
         <ActivityIndicator color="#FFFFFF" accessibilityLabel={testID ? `loader-${testID}` : "loader-primary-button"} />
       ) : (
-        <Text style={styles.text} accessibilityLabel={testID ? `text-${testID}` : "text-primary-button"}>{title}</Text>
+        <Text
+          style={styles.text}
+          {...(testID ? getReadableTextProps(`text-${testID}`, title) : {})}
+          accessibilityLabel={!testID ? "text-primary-button" : undefined}
+        >
+          {title}
+        </Text>
       )}
     </TouchableOpacity>
   );

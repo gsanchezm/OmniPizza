@@ -253,10 +253,11 @@
             <h3>Multi-Market Simulation & Pricing</h3>
             <p>Switch between regions directly from the login screen to validate localization, dynamic pricing, and market-specific flows dynamically.</p>
             <ul>
-              <li class="list-item"><strong>Mexico (MXN):</strong> Tip optional, requires "colonia", Spanish (es)</li>
-              <li class="list-item"><strong>United States (USD):</strong> Tax applied, requires "zip_code", English (en)</li>
-              <li class="list-item"><strong>Switzerland (CHF):</strong> Multi-lingual toggle DE/FR</li>
-              <li class="list-item"><strong>Japan (JPY):</strong> No decimal pricing, requires "prefectura", Japanese (ja)</li>
+              <li class="list-item"><strong>Mexico (MXN):</strong> 16% IVA, requires "colonia", optional <code>propina</code> percentage, Spanish (es)</li>
+              <li class="list-item"><strong>United States (USD):</strong> 8% sales tax, requires "zip_code", optional <code>tip</code> percentage, English (en)</li>
+              <li class="list-item"><strong>Switzerland (CHF):</strong> 8.1% VAT, requires <code>plz</code>, optional <code>trinkgeld</code>, DE/FR toggle</li>
+              <li class="list-item"><strong>Japan (JPY):</strong> 10% consumption tax, requires "prefectura", optional <code>chip</code>, no decimals</li>
+              <li class="list-item"><strong>Tips:</strong> Web and mobile use percentage options <code>0%</code>, <code>5%</code>, <code>10%</code>, <code>15%</code>, with <code>0%</code> selected by default.</li>
             </ul>
           </div>
           <div class="feature-split-image">
@@ -382,6 +383,11 @@
             for stable selectors.
           </li>
           <li class="list-item">
+            On mobile, visible text and text-bearing controls expose readable
+            accessibility values so Appium/XCUITest <code>getText()</code>
+            returns the same text users see on screen.
+          </li>
+          <li class="list-item">
             Checkout form fields are dynamic per market &mdash; ensure
             automation handles conditional rendering.
           </li>
@@ -423,7 +429,7 @@
 ).json();
 <span class="tok-key">await</span> request.post(<span class="tok-val">"/api/cart"</span>, {
   headers: { Authorization: <span class="tok-val">`Bearer ${token}`</span>, <span class="tok-val">"X-Country-Code"</span>: <span class="tok-val">"MX"</span> },
-  data: { items: [{ pizza_id: <span class="tok-val">"pepperoni"</span>, size: <span class="tok-val">"large"</span>, quantity: 2 }] },
+  data: { items: [{ pizza_id: <span class="tok-val">"p02"</span>, size: <span class="tok-val">"large"</span>, quantity: 2 }] },
 });
 
 <span class="tok-comment">// 2. Inject token into localStorage before page load</span>
@@ -436,7 +442,8 @@
 
 <span class="tok-comment">// 3. Navigate directly — Checkout fetches GET /api/cart automatically</span>
 <span class="tok-key">await</span> page.goto(<span class="tok-val">"/checkout"</span>);
-<span class="tok-key">await</span> expect(page.getByTestId(<span class="tok-val">"view-order-summary"</span>)).toBeVisible();</code></pre>
+<span class="tok-key">await</span> expect(page.getByTestId(<span class="tok-val">"order-summary-title"</span>)).toBeVisible();
+<span class="tok-key">await</span> expect(page.getByTestId(<span class="tok-val">"order-tip-0"</span>)).toBeVisible();</code></pre>
 
         <h3 style="margin-top: 3rem">Mobile Deep Links</h3>
         <pre class="code-window" data-title="mobile/deep-links.sh"><code><span class="tok-comment"># Reset session before test suite</span>
@@ -444,12 +451,12 @@
 
 <span class="tok-comment"># Open Checkout with API-seeded cart + injected token (no login needed)</span>
 <span class="tok-cmd">adb shell am start -W -a android.intent.action.VIEW</span> \
-  <span class="tok-val">-d "omnipizza://checkout?market=MX&amp;lang=es&amp;hydrateCart=true&amp;accessToken=$TOKEN"</span> \
+<span class="tok-val">-d "omnipizza://checkout?market=MX&amp;lang=es&amp;hydrateCart=true&amp;accessToken=$TOKEN"</span> \
   <span class="tok-path">com.omnipizza.app</span>
 
 <span class="tok-comment"># Open Pizza Builder with specific pizza + size</span>
 <span class="tok-cmd">xcrun simctl openurl booted</span> \
-  <span class="tok-val">"omnipizza://pizza-builder?pizzaId=pepperoni&amp;size=family&amp;market=US"</span>
+  <span class="tok-val">"omnipizza://pizza-builder?pizzaId=p02&amp;size=family&amp;market=US"</span>
 
 <span class="tok-comment"># Open Order Success with order ID</span>
 <span class="tok-cmd">xcrun simctl openurl booted</span> <span class="tok-val">"omnipizza://order-success?orderId=12345&amp;market=JP"</span></code></pre>

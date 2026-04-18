@@ -20,8 +20,11 @@ import { validateCheckoutForm } from "../features/checkout/useCases/validateChec
 import type { CheckoutFormState } from "../features/checkout/useCases/buildCheckoutPayload";
 import { cartService } from "../services/cart.service";
 import { SIZE_OPTIONS } from "../constants/pizza";
+import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 
 const { width } = Dimensions.get("window");
+const FALLBACK_TIP_PERCENTAGES = [0, 5, 10, 15] as const;
+const DEFAULT_TIP_PERCENTAGE = "0";
 
 function normalizeMoneyAmount(value: number, currency: string) {
   if (!Number.isFinite(value)) return 0;
@@ -39,7 +42,7 @@ function money(value: number, currency: string, symbol?: string) {
 
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
-  const { country, cartItems, clearCart, profile, setProfile, setLastOrder, token } =
+  const { country, countryInfo, cartItems, clearCart, profile, setProfile, setLastOrder, token } =
     useAppStore();
 
   // Hydrate cart from backend (enables API-based state injection for E2E tests)
@@ -119,26 +122,44 @@ export default function CheckoutScreen({ navigation }: any) {
   });
 
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
-  const [tipOption, setTipOption] = useState<"2" | "5" | "10" | null>("5");
+  const [tipOption, setTipOption] = useState<string>(DEFAULT_TIP_PERCENTAGE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const subtotal = useMemo(() => {
-    return cartItems.reduce(
-      (sum: number, item: CartItem) =>
-        sum + Number(item.unit_price) * Number(item.quantity),
-      0,
+    const currentCurrency = cartItems[0]?.currency || "USD";
+    return normalizeMoneyAmount(
+      cartItems.reduce(
+        (sum: number, item: CartItem) =>
+          sum + Number(item.unit_price) * Number(item.quantity),
+        0,
+      ),
+      currentCurrency,
     );
   }, [cartItems]);
 
-  const TAX_RATE = 0.08;
-  const deliveryFee = 2.0;
-  const tipAmount = tipOption === "2" ? 2 : tipOption === "5" ? 5 : tipOption === "10" ? 10 : 0;
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + deliveryFee + tipAmount + tax;
-
   const currency = cartItems[0]?.currency || "USD";
   const currencySymbol = cartItems[0]?.currency_symbol;
+
+  const fallbackTaxRate = country === "MX" ? 0.16 : country === "CH" ? 0.081 : country === "JP" ? 0.1 : 0.08;
+  const taxRate = Number.isFinite(Number(countryInfo?.tax_rate))
+    ? Number(countryInfo?.tax_rate)
+    : fallbackTaxRate;
+  const deliveryFee = Number.isFinite(Number(countryInfo?.delivery_fee))
+    ? Number(countryInfo?.delivery_fee)
+    : country === "MX" ? 35.1 : country === "CH" ? 1.56 : country === "JP" ? 316 : 2.0;
+  const tipPercentages =
+    Array.isArray(countryInfo?.tip_percentages) && countryInfo.tip_percentages.length === 4
+      ? countryInfo.tip_percentages
+      : [...FALLBACK_TIP_PERCENTAGES];
+  useEffect(() => {
+    const hasZeroOption = tipPercentages.some((value) => Number(value) === 0);
+    setTipOption(hasZeroOption ? DEFAULT_TIP_PERCENTAGE : String(tipPercentages[0] ?? 0));
+  }, [country, tipPercentages]);
+  const tipPercentage = Number(tipOption) || 0;
+  const tax = normalizeMoneyAmount(subtotal * taxRate, currency);
+  const tipAmount = normalizeMoneyAmount(subtotal * (tipPercentage / 100), currency);
+  const total = normalizeMoneyAmount(subtotal + deliveryFee + tipAmount + tax, currency);
 
   const placeOrder = async () => {
     setError("");
@@ -157,9 +178,7 @@ export default function CheckoutScreen({ navigation }: any) {
     setLoading(true);
     try {
       const checkoutForm: CheckoutFormState =
-        country === "MX"
-          ? { ...form, propina: String(tipAmount) }
-          : form;
+        { ...form, propina: String(tipPercentage) };
 
       const result = await placeOrderUseCase({
         country,
@@ -199,16 +218,15 @@ export default function CheckoutScreen({ navigation }: any) {
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
           accessibilityLabel="view-empty-cart"
         >
-          <Text style={{ color: "white", marginBottom: 20 }} accessibilityLabel="text-cart-empty">
+          <Text style={{ color: "white", marginBottom: 20 }} {...getReadableTextProps("text-cart-empty", t("cartEmpty"))}>
             {t("cartEmpty")}
           </Text>
           <TouchableOpacity
             style={styles.btnPrimary}
             onPress={() => navigation.navigate("Catalog")}
-            accessibilityLabel="btn-go-to-menu"
-            testID="btn-go-to-menu"
+            {...getReadableControlProps("btn-go-to-menu", t("goToMenu"))}
           >
-            <Text style={styles.btnText} accessibilityLabel="text-go-to-menu">{t("goToMenu")}</Text>
+            <Text style={styles.btnText} {...getReadableTextProps("text-go-to-menu", t("goToMenu"))}>{t("goToMenu")}</Text>
           </TouchableOpacity>
         </View>
         <BottomNavBar />
@@ -223,7 +241,7 @@ export default function CheckoutScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-checkout">
         {/* Delivery Address */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-address">
-          <Text style={styles.sectionTitle} accessibilityLabel="text-section-address">{t("streetAndNumber")}</Text>
+          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-address", t("streetAndNumber"))}>{t("streetAndNumber")}</Text>
         </View>
 
         <TextInput
@@ -239,7 +257,7 @@ export default function CheckoutScreen({ navigation }: any) {
         {/* Country-specific fields */}
         {country === "MX" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-colonia">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-colonia">{t("colonia")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-colonia", t("colonia"))}>{t("colonia")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Polanco"
@@ -253,7 +271,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "MX" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode-mx">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-zipcode-mx">{t("zipCode")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-zipcode-mx", t("zipCode"))}>{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="06600"
@@ -270,7 +288,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "US" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-zipcode">{t("zipCode")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-zipcode", t("zipCode"))}>{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="90210"
@@ -287,7 +305,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "CH" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-plz">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-plz">{t("plz")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-plz", t("plz"))}>{t("plz")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="8001"
@@ -301,7 +319,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "JP" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-prefecture">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-prefecture">{t("prefecture")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-prefecture", t("prefecture"))}>{t("prefecture")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="東京都"
@@ -316,11 +334,11 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Contact Info */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-contact">
-          <Text style={styles.sectionTitle} accessibilityLabel="text-section-contact">{t("contactInfo")}</Text>
+          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-contact", t("contactInfo"))}>{t("contactInfo")}</Text>
         </View>
         <View style={{ gap: 12 }} accessibilityLabel="view-contact-fields">
           <View accessibilityLabel="view-field-fullname">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-fullname">{t("fullName")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-fullname", t("fullName"))}>{t("fullName")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Julian Casablancas"
@@ -332,7 +350,7 @@ export default function CheckoutScreen({ navigation }: any) {
             />
           </View>
           <View accessibilityLabel="view-field-phone">
-            <Text style={styles.cardFieldLabel} accessibilityLabel="label-phone">{t("phone")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-phone", t("phone"))}>{t("phone")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="+52 55 1234 5678"
@@ -350,7 +368,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Payment Method */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-payment">
-          <Text style={styles.sectionTitle} accessibilityLabel="text-section-payment">{t("paymentMethod")}</Text>
+          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-payment", t("paymentMethod"))}>{t("paymentMethod")}</Text>
         </View>
 
         <TouchableOpacity
@@ -359,15 +377,14 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "card" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("card")}
-          testID="btn-payment-card"
-          accessibilityLabel="btn-payment-card"
+          {...getReadableControlProps("btn-payment-card", t("creditCard"))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-card">
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-credit-card">💳</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-card-info">
-            <Text style={styles.paymentLabel} accessibilityLabel="text-payment-card-label">{t("creditCard")}</Text>
-            <Text style={styles.paymentSub} accessibilityLabel="text-payment-card-number">•••• •••• •••• 4242</Text>
+            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-card-label", t("creditCard"))}>{t("creditCard")}</Text>
+            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-card-number", "•••• •••• •••• 4242")}>•••• •••• •••• 4242</Text>
           </View>
           <View
             style={[
@@ -386,15 +403,14 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "cash" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("cash")}
-          testID="btn-payment-cash"
-          accessibilityLabel="btn-payment-cash"
+          {...getReadableControlProps("btn-payment-cash", t("payOnDelivery"))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-cash">
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cash">💵</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-cash-info">
-            <Text style={styles.paymentLabel} accessibilityLabel="text-payment-cash-label">{t("payOnDelivery")}</Text>
-            <Text style={styles.paymentSub} accessibilityLabel="text-payment-cash-desc">{t("cash")}</Text>
+            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-cash-label", t("payOnDelivery"))}>{t("payOnDelivery")}</Text>
+            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-cash-desc", t("cash"))}>{t("cash")}</Text>
           </View>
           <View
             style={[
@@ -410,7 +426,7 @@ export default function CheckoutScreen({ navigation }: any) {
         {paymentMethod === "card" && (
           <View style={styles.cardFields} accessibilityLabel="view-card-fields" testID="view-card-fields">
             <View accessibilityLabel="view-field-card-holder">
-              <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-holder">{t("cardHolder")}</Text>
+              <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-holder", t("cardHolder"))}>{t("cardHolder")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="Julian Casablancas"
@@ -422,7 +438,7 @@ export default function CheckoutScreen({ navigation }: any) {
               />
             </View>
             <View accessibilityLabel="view-field-card-number">
-              <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-number">{t("cardNumber")}</Text>
+              <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-number", t("cardNumber"))}>{t("cardNumber")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="4242 4242 4242 4242"
@@ -441,7 +457,7 @@ export default function CheckoutScreen({ navigation }: any) {
             </View>
             <View style={{ flexDirection: "row", gap: 12 }} accessibilityLabel="view-card-expiry-cvv">
               <View style={{ flex: 1 }} accessibilityLabel="view-field-card-expiry">
-                <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-expiry">{t("cardExpiry")}</Text>
+                <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-expiry", t("cardExpiry"))}>{t("cardExpiry")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="MM/YY"
@@ -460,7 +476,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 />
               </View>
               <View style={{ flex: 1 }} accessibilityLabel="view-field-card-cvv">
-                <Text style={styles.cardFieldLabel} accessibilityLabel="label-card-cvv">{t("cvv")}</Text>
+                <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-cvv", t("cvv"))}>{t("cvv")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="123"
@@ -484,7 +500,12 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Order Summary */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-summary">
-          <Text style={styles.sectionTitle} accessibilityLabel="text-section-summary" testID="text-section-summary">{t("orderSummary")}</Text>
+          <Text
+            style={styles.sectionTitle}
+            {...getReadableTextProps("text-section-summary", t("orderSummary"))}
+          >
+            {t("orderSummary")}
+          </Text>
         </View>
 
         <View style={styles.summaryList} accessibilityLabel="view-summary-list">
@@ -500,19 +521,22 @@ export default function CheckoutScreen({ navigation }: any) {
                 accessibilityLabel={`img-item-${item.id}`}
               />
               <View style={{ flex: 1 }} accessibilityLabel={`view-item-info-${item.id}`}>
-                <Text style={styles.itemTitle} accessibilityLabel={`text-item-title-${item.id}`} testID={`text-item-title-${item.id}`}>
+                <Text
+                  style={styles.itemTitle}
+                  {...getReadableTextProps(`text-item-title-${item.id}`, `${item.quantity}x ${item.pizza.name}`)}
+                >
                   {item.quantity}x {item.pizza.name}
                 </Text>
-                <Text style={styles.itemDetails} accessibilityLabel={`text-item-details-${item.id}`}>{item.config?.size}</Text>
+                <Text style={styles.itemDetails} {...getReadableTextProps(`text-item-details-${item.id}`, String(item.config?.size ?? ""))}>{item.config?.size}</Text>
 
                 <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }} accessibilityLabel={`view-item-actions-${item.id}`}>
                   <TouchableOpacity
                     onPress={() => {
                       /* Edit logic would go here, ideally passing item to builder */
                     }}
-                    accessibilityLabel={`btn-edit-item-${item.id}`}
+                    {...getTestProps(`btn-edit-item-${item.id}`)}
                   >
-                    <Text style={styles.actionLink} accessibilityLabel={`text-edit-item-${item.id}`}>
+                    <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, t("edit").toUpperCase())}>
                       {t("edit").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
@@ -520,16 +544,21 @@ export default function CheckoutScreen({ navigation }: any) {
                     onPress={() =>
                       useAppStore.getState().removeCartItem(item.id)
                     }
-                    accessibilityLabel={`btn-remove-item-${item.id}`}
-                    testID={`btn-remove-item-${item.id}`}
+                    {...getReadableControlProps(`btn-remove-item-${item.id}`, t("remove").toUpperCase())}
                   >
-                    <Text style={[styles.actionLink, { color: "#EF4444" }]} accessibilityLabel={`text-remove-item-${item.id}`}>
+                    <Text style={[styles.actionLink, { color: "#EF4444" }]} {...getReadableTextProps(`text-remove-item-${item.id}`, t("remove").toUpperCase())}>
                       {t("remove").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <Text style={styles.itemPrice} accessibilityLabel={`text-item-price-${item.id}`} testID={`text-item-price-${item.id}`}>
+              <Text
+                style={styles.itemPrice}
+                {...getReadableTextProps(
+                  `text-item-price-${item.id}`,
+                  money(item.unit_price * item.quantity, currency, currencySymbol),
+                )}
+              >
                 {money(item.unit_price * item.quantity, currency, currencySymbol)}
               </Text>
             </View>
@@ -540,100 +569,101 @@ export default function CheckoutScreen({ navigation }: any) {
 
         {/* Totals */}
         <View style={styles.costRow} accessibilityLabel="view-row-subtotal">
-          <Text style={styles.costLabel} accessibilityLabel="text-subtotal-label">{t("subtotal")}</Text>
-          <Text style={styles.costValue} accessibilityLabel="text-subtotal-value" testID="text-subtotal-value">{money(subtotal, currency, currencySymbol)}</Text>
+          <Text style={styles.costLabel} {...getReadableTextProps("text-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
+          <Text
+            style={styles.costValue}
+            {...getReadableTextProps("text-subtotal-value", money(subtotal, currency, currencySymbol))}
+          >
+            {money(subtotal, currency, currencySymbol)}
+          </Text>
         </View>
         <View style={styles.costRow} accessibilityLabel="view-row-delivery">
-          <Text style={styles.costLabel} accessibilityLabel="text-delivery-label">{t("deliveryFee")}</Text>
-          <Text style={styles.costValue} accessibilityLabel="text-delivery-value">{money(deliveryFee, currency, currencySymbol)}</Text>
+          <Text style={styles.costLabel} {...getReadableTextProps("text-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
+          <Text
+            style={styles.costValue}
+            {...getReadableTextProps("text-delivery-value", money(deliveryFee, currency, currencySymbol))}
+          >
+            {money(deliveryFee, currency, currencySymbol)}
+          </Text>
         </View>
 
-        {/* Tip Row */}
         <View
-          style={[styles.costRow, { alignItems: "center", marginVertical: 8 }]}
+          style={styles.tipSection}
           accessibilityLabel="view-row-tip"
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }} accessibilityLabel="view-tip-label">
-            <Text style={styles.costLabel} accessibilityLabel="text-tip-label">{t("tipForDriver")}</Text>
-            <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
+          <View style={styles.tipHeader} accessibilityLabel="view-tip-label">
+            <View style={styles.tipLabelRow}>
+              <Text style={styles.costLabel} {...getReadableTextProps("text-tip-label", t("tipForDriver"))}>{t("tipForDriver")}</Text>
+              <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
+            </View>
+            <Text
+              style={styles.costValue}
+              {...getReadableTextProps("text-tip-value", money(tipAmount, currency, currencySymbol))}
+            >
+              {money(tipAmount, currency, currencySymbol)}
+            </Text>
           </View>
-          <View style={{ flexDirection: "row", gap: 8 }} accessibilityLabel="view-tip-options">
-            <TouchableOpacity
-              style={[
-                styles.tipPill,
-                tipOption === "2" && styles.tipPillActive,
-              ]}
-              onPress={() => setTipOption("2")}
-              accessibilityLabel="btn-tip-2"
-              testID="btn-tip-2"
-            >
-              <Text
-                style={[
-                  styles.tipText,
-                  tipOption === "2" && styles.tipTextActive,
-                ]}
-                accessibilityLabel="text-tip-2"
-              >
-                {money(2, currency, currencySymbol)}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.tipPill,
-                tipOption === "5" && styles.tipPillActive,
-              ]}
-              onPress={() => setTipOption("5")}
-              accessibilityLabel="btn-tip-5"
-            >
-              <Text
-                style={[
-                  styles.tipText,
-                  tipOption === "5" && styles.tipTextActive,
-                ]}
-                accessibilityLabel="text-tip-5"
-              >
-                {money(5, currency, currencySymbol)}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.tipPill,
-                tipOption === "10" && styles.tipPillActive,
-              ]}
-              onPress={() => setTipOption("10")}
-              accessibilityLabel="btn-tip-10"
-              testID="btn-tip-10"
-            >
-              <Text
-                style={[
-                  styles.tipText,
-                  tipOption === "10" && styles.tipTextActive,
-                ]}
-                accessibilityLabel="text-tip-10"
-              >
-                {money(10, currency, currencySymbol)}
-              </Text>
-            </TouchableOpacity>
+          <View style={styles.tipOptions} accessibilityLabel="view-tip-options">
+            {tipPercentages.map((optionValue) => {
+              const optionKey = String(optionValue);
+              const active = tipOption === optionKey;
+              return (
+                <TouchableOpacity
+                  key={`${optionValue}`}
+                  style={[
+                    styles.tipPill,
+                    active && styles.tipPillActive,
+                  ]}
+                  onPress={() => setTipOption(optionKey)}
+                  {...getReadableControlProps(`btn-tip-${optionValue}`, `${optionValue}%`)}
+                >
+                  <Text
+                    style={[
+                      styles.tipText,
+                      active && styles.tipTextActive,
+                    ]}
+                    {...getReadableTextProps(`text-tip-${optionValue}`, `${optionValue}%`)}
+                  >
+                    {optionValue}%
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
         <View style={styles.costRow} accessibilityLabel="view-row-tax">
-          <Text style={styles.costLabel} accessibilityLabel="text-tax-label">
-            {t("tax")} ({(TAX_RATE * 100).toFixed(0)}%)
+          <Text style={styles.costLabel} {...getReadableTextProps("text-tax-label", `${t("tax")} (${(taxRate * 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%)`)}>
+            {t("tax")} ({(taxRate * 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%)
           </Text>
-          <Text style={styles.costValue} accessibilityLabel="text-tax-value" testID="text-tax-value">{money(tax, currency, currencySymbol)}</Text>
+          <Text
+            style={styles.costValue}
+            {...getReadableTextProps("text-tax-value", money(tax, currency, currencySymbol))}
+          >
+            {money(tax, currency, currencySymbol)}
+          </Text>
         </View>
 
         <View style={[styles.costRow, { marginTop: 20 }]} accessibilityLabel="view-row-total">
-          <Text style={styles.totalLabel} accessibilityLabel="text-total-label">{t("totalPrice")}</Text>
-          <Text style={styles.totalValue} accessibilityLabel="text-total-value" testID="text-total-value">{money(total, currency, currencySymbol)}</Text>
+          <Text style={styles.totalLabel} {...getReadableTextProps("text-total-label", t("totalPrice"))}>{t("totalPrice")}</Text>
+          <Text
+            style={styles.totalValue}
+            {...getReadableTextProps("text-total-value", money(total, currency, currencySymbol))}
+          >
+            {money(total, currency, currencySymbol)}
+          </Text>
         </View>
 
-        <Text style={styles.arrival} accessibilityLabel="text-arrival">{t("expectedArrival")}: 25-35 min</Text>
+        <Text style={styles.arrival} {...getReadableTextProps("text-arrival", `${t("expectedArrival")}: 25-35 min`)}>{t("expectedArrival")}: 25-35 min</Text>
 
         {error ? (
           <View style={styles.errorBox} accessibilityLabel="view-checkout-error">
-            <Text style={styles.errorBoxText} accessibilityLabel="text-checkout-error" testID="text-checkout-error">{error}</Text>
+            <Text
+              style={styles.errorBoxText}
+              {...getReadableTextProps("text-checkout-error", error)}
+            >
+              {error}
+            </Text>
           </View>
         ) : null}
 
@@ -641,10 +671,9 @@ export default function CheckoutScreen({ navigation }: any) {
           style={styles.btnPrimary}
           onPress={placeOrder}
           disabled={loading}
-          testID="btn-place-order"
-          accessibilityLabel="btn-place-order"
+          {...getReadableControlProps("btn-place-order", loading ? t("processing") : t("confirmPay"))}
         >
-          <Text style={styles.btnText} accessibilityLabel="text-btn-place-order">
+          <Text style={styles.btnText} {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${t("confirmPay")}  →`)}>
             {loading ? t("processing") : t("confirmPay") + "  →"}
           </Text>
         </TouchableOpacity>
@@ -805,11 +834,36 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
   },
+  tipSection: {
+    marginVertical: 8,
+    paddingVertical: 2,
+    gap: 12,
+  },
+  tipHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+  tipLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flex: 1,
+    paddingRight: 8,
+  },
+  tipOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   tipPill: {
     backgroundColor: "#2A2A2A",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 16,
+    minWidth: 96,
+    alignItems: "center",
   },
   tipPillActive: {
     backgroundColor: "#FF5722",

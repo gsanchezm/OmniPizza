@@ -3,6 +3,35 @@ from constants import PIZZA_CATALOG, COUNTRY_CONFIG, CURRENCY_RATES, CountryCode
 import uuid
 from datetime import datetime
 import random
+import math
+
+SIZE_UPCHARGE_USD = {
+    "small": 0,
+    "medium": 3,
+    "large": 4,
+    "family": 5,
+}
+TOPPING_UPCHARGE_USD = 1
+
+
+def convert_usd_amount(
+    usd_amount: float,
+    conversion_rate: float,
+    decimal_places: int,
+) -> float:
+    converted = usd_amount * conversion_rate
+    if decimal_places == 0:
+        return float(round(converted))
+    return round(converted, decimal_places)
+
+
+def round_currency_amount(
+    amount: float,
+    decimal_places: int,
+) -> float:
+    if decimal_places == 0:
+        return float(round(amount))
+    return round(amount, decimal_places)
 
 class InMemoryDB:
     """In-memory database that resets on each restart"""
@@ -173,40 +202,54 @@ class InMemoryDB:
         self,
         items: List[Dict[str, Any]],
         country_code: CountryCode,
-        tip: float = 0.0
+        tip_percentage: float = 0.0
     ) -> Dict[str, float]:
         country_config = COUNTRY_CONFIG[country_code]
         currency = country_config["currency"]
         conversion_rate = CURRENCY_RATES[currency]
         tax_rate = country_config["tax_rate"]
         decimal_places = country_config.get("decimal_places", 2)
+        delivery_fee = convert_usd_amount(
+            country_config["delivery_fee_usd"],
+            conversion_rate,
+            decimal_places,
+        )
 
         subtotal = 0.0
         for item in items:
             pizza = next((p for p in PIZZA_CATALOG if p["id"] == item["pizza_id"]), None)
             if pizza:
                 converted_price = pizza["base_price"] * conversion_rate
-                subtotal += converted_price * item["quantity"]
+                if decimal_places == 0:
+                    base_price = round(converted_price)
+                else:
+                    base_price = round(converted_price, decimal_places)
 
-        tax = subtotal * tax_rate
-        total = subtotal + tax + tip
+                rate = base_price / pizza["base_price"] if pizza["base_price"] > 0 else 1
+                size_key = str(item.get("size", "small")).lower()
+                size_add = math.ceil(SIZE_UPCHARGE_USD.get(size_key, 0) * rate)
+                topping_unit = math.ceil(TOPPING_UPCHARGE_USD * rate)
+                toppings = item.get("toppings") or []
+                toppings_add = topping_unit * len(toppings)
+                unit_price = base_price + size_add + toppings_add
 
-        if decimal_places == 0:
-            return {
-                "subtotal": round(subtotal),
-                "tax": round(tax),
-                "tip": round(tip),
-                "total": round(total),
-                "currency": currency
-            }
-        else:
-            return {
-                "subtotal": round(subtotal, decimal_places),
-                "tax": round(tax, decimal_places),
-                "tip": round(tip, decimal_places),
-                "total": round(total, decimal_places),
-                "currency": currency
-            }
+                subtotal += unit_price * item["quantity"]
+
+        subtotal = round_currency_amount(subtotal, decimal_places)
+        tax = round_currency_amount(subtotal * tax_rate, decimal_places)
+        tip = round_currency_amount(subtotal * (tip_percentage / 100), decimal_places)
+        total = round_currency_amount(subtotal + delivery_fee + tax + tip, decimal_places)
+
+        return {
+            "subtotal": subtotal,
+            "delivery_fee": round_currency_amount(delivery_fee, decimal_places),
+            "tax_rate": tax_rate,
+            "tip_percentage": round(tip_percentage, 2),
+            "tax": tax,
+            "tip": tip,
+            "total": total,
+            "currency": currency
+        }
 
     def should_trigger_error(self, behavior: str) -> bool:
         if behavior == "error":

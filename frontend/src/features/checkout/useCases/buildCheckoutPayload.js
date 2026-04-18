@@ -1,4 +1,10 @@
 export function buildCheckoutPayload({ countryCode, items, form }) {
+  const tipFieldByCountry = {
+    MX: "propina",
+    US: "tip",
+    CH: "trinkgeld",
+    JP: "chip",
+  };
   const payload = {
     country_code: countryCode,
     items: items.map((i) => ({
@@ -12,10 +18,13 @@ export function buildCheckoutPayload({ countryCode, items, form }) {
     phone: form.phone,
   };
 
+  if (form.propina !== undefined && form.propina !== null && form.propina !== "") {
+    payload[tipFieldByCountry[countryCode]] = parseFloat(form.propina);
+  }
+
   if (countryCode === "MX") {
     payload.colonia = form.colonia;
     if (form.zip_code) payload.zip_code = form.zip_code;
-    if (form.propina) payload.propina = parseFloat(form.propina);
   } else if (countryCode === "US") {
     payload.zip_code = form.zip_code;
   } else if (countryCode === "CH") {

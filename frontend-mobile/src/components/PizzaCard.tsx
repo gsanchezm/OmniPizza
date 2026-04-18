@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 interface PizzaCardProps {
   pizza: Pizza;
@@ -16,10 +17,12 @@ function moneyLine(pizza: Pizza) {
 
 export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
   return (
-    <View style={styles.card}>
+    <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       <Image
         source={{ uri: pizza.image }}
         style={styles.image}
+        accessibilityLabel={`img-pizza-${pizza.id}`}
+        testID={`img-pizza-${pizza.id}`}
         onError={(event: any) => {
           event?.currentTarget?.setNativeProps?.({
             source: [{ uri: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg" }],
@@ -28,15 +31,15 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
       />
 
       <View style={styles.info}>
-        <Text style={styles.name}>{pizza.name}</Text>
-        <Text style={styles.desc} numberOfLines={2}>
+        <Text style={styles.name} {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
+        <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>
           {pizza.description}
         </Text>
-        <Text style={styles.price}>{moneyLine(pizza)}</Text>
+        <Text style={styles.price} {...getReadableTextProps(`text-pizza-price-${pizza.id}`, moneyLine(pizza))}>{moneyLine(pizza)}</Text>
       </View>
 
-      <TouchableOpacity style={styles.addBtn} onPress={() => onAdd(pizza)}>
-        <Text style={styles.addBtnText}>{addLabel}</Text>
+      <TouchableOpacity style={styles.addBtn} onPress={() => onAdd(pizza)} {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, addLabel)}>
+        <Text style={styles.addBtnText} {...getReadableTextProps(`text-add-pizza-${pizza.id}`, addLabel)}>{addLabel}</Text>
       </TouchableOpacity>
     </View>
   );

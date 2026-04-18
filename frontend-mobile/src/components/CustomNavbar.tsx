@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "../store/useAppStore";
-import { getTestProps } from "../utils/qa";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { Colors } from "../theme/colors";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
@@ -29,14 +29,14 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                 styles.langBtn,
                 language === "de" && styles.langBtnActive,
               ]}
-              {...getTestProps("btn-lang-de")}
+              {...getReadableControlProps("btn-lang-de", "DE")}
             >
               <Text
                 style={[
                   styles.langText,
                   language === "de" && styles.langTextActive,
                 ]}
-                accessibilityLabel="text-lang-de"
+                {...getReadableTextProps("text-lang-de", "DE")}
               >
                 DE
               </Text>
@@ -48,14 +48,14 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                 styles.langBtn,
                 language === "fr" && styles.langBtnActive,
               ]}
-              {...getTestProps("btn-lang-fr")}
+              {...getReadableControlProps("btn-lang-fr", "FR")}
             >
               <Text
                 style={[
                   styles.langText,
                   language === "fr" && styles.langTextActive,
                 ]}
-                accessibilityLabel="text-lang-fr"
+                {...getReadableTextProps("text-lang-fr", "FR")}
               >
                 FR
               </Text>
@@ -67,7 +67,7 @@ export const CustomNavbar = ({ title, navigation }: any) => {
         <Text
           style={styles.title}
           numberOfLines={1}
-          {...getTestProps("text-navbar-title")}
+          {...getReadableTextProps("text-navbar-title", String(title ?? ""))}
         >
           {title}
         </Text>

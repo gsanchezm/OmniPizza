@@ -22,6 +22,12 @@ export function buildCheckoutPayload(input: {
   form: CheckoutFormState;
 }): CheckoutPayload {
   const { country, cartItems, form } = input;
+  const tipFieldByCountry: Record<CountryCode, "propina" | "tip" | "trinkgeld" | "chip"> = {
+    MX: "propina",
+    US: "tip",
+    CH: "trinkgeld",
+    JP: "chip",
+  };
   const payload: CheckoutPayload = {
     country_code: country,
     items: cartItems.map((i) => ({
@@ -35,10 +41,13 @@ export function buildCheckoutPayload(input: {
     phone: form.phone.trim(),
   };
 
+  if (form.propina !== undefined && form.propina !== null && form.propina !== "") {
+    payload[tipFieldByCountry[country]] = Number(form.propina);
+  }
+
   if (country === "MX") {
     payload.colonia = form.colonia.trim();
     if (form.zip_code) payload.zip_code = form.zip_code.trim();
-    if (form.propina) payload.propina = Number(form.propina);
   } else if (country === "US") {
     payload.zip_code = form.zip_code.trim();
   } else if (country === "CH") {

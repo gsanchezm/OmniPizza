@@ -63,6 +63,25 @@ To inspect a single country, filter the list client-side (example with `jq`):
 curl -s http://localhost:8000/api/countries | jq '.[] | select(.code=="MX")'
 ```
 
+Response item example:
+
+```json
+{
+  "code": "MX",
+  "currency": "MXN",
+  "currency_symbol": "$",
+  "required_fields": ["colonia"],
+  "optional_fields": ["propina", "zip_code"],
+  "tip_field": "propina",
+  "tip_mode": "percentage",
+  "tip_percentages": [0, 5, 10, 15],
+  "tax_rate": 0.16,
+  "delivery_fee": 35.1,
+  "languages": ["es"],
+  "decimal_places": 2
+}
+```
+
 ## Pizzas
 
 ### Get Catalog (Mexico)
@@ -81,7 +100,7 @@ Response:
       "id": "p01",
       "name": "Margherita",
       "description": "Tomate, mozzarella, albahaca",
-      "price": 227.33,
+      "price": 227.97,
       "currency": "MXN",
       "currency_symbol": "$",
       "image": "https://images.unsplash.com/..."
@@ -107,7 +126,7 @@ Response:
     {
       "id": "p01",
       "name": "Margherita",
-      "price": 1935,
+      "price": 2051,
       "currency": "JPY",
       "currency_symbol": "¥"
     }
@@ -126,18 +145,20 @@ curl -X POST http://localhost:8000/api/checkout \
   -d '{
     "country_code": "MX",
     "items": [
-      {"pizza_id": "p01", "quantity": 2},
-      {"pizza_id": "p02", "quantity": 1}
+      {"pizza_id": "p01", "quantity": 2, "size": "large", "toppings": []},
+      {"pizza_id": "p02", "quantity": 1, "size": "small", "toppings": []}
     ],
     "name": "Juan Pérez",
     "address": "Av. Insurgentes 123",
     "phone": "5512345678",
     "colonia": "Roma Norte",
-    "propina": 50.0
+    "propina": 10
   }'
 ```
 
-### Checkout - USA (con impuestos)
+`propina`, `tip`, `trinkgeld`, and `chip` are **percentage values**, not fixed amounts.
+
+### Checkout - USA (tax + localized delivery fee)
 
 ```bash
 curl -X POST http://localhost:8000/api/checkout \
@@ -160,13 +181,16 @@ Response:
 {
   "order_id": "ORDER-A1B2C3D4",
   "subtotal": 12.99,
+  "delivery_fee": 2.0,
+  "tax_rate": 0.08,
+  "tip_percentage": 0.0,
   "tax": 1.04,
   "tip": 0.0,
-  "total": 14.03,
+  "total": 16.03,
   "currency": "USD",
   "currency_symbol": "$",
   "items": [...],
-  "timestamp": "2024-01-15T10:30:00"
+  "timestamp": "2026-04-18T10:30:00"
 }
 ```
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps } from 'react-native';
 import { Colors } from '../theme/colors';
+import { getReadableTextProps, getTestProps } from '../utils/qa';
 
 interface ThemedInputProps extends TextInputProps {
   label: string;
@@ -13,20 +14,31 @@ interface ThemedInputProps extends TextInputProps {
 export const ThemedInput = ({ label, icon, rightElement, error, testID, style, ...props }: ThemedInputProps) => {
   return (
     <View style={styles.container} accessibilityLabel={testID ? `view-${testID}` : "view-themed-input"}>
-      <Text style={styles.label} accessibilityLabel={testID ? `label-${testID}` : "label-themed-input"}>{label}</Text>
+      <Text
+        style={styles.label}
+        {...getReadableTextProps(testID ? `label-${testID}` : "label-themed-input", label)}
+      >
+        {label}
+      </Text>
       <View style={[styles.inputContainer, error ? styles.errorBorder : null]} accessibilityLabel={testID ? `container-${testID}` : "container-themed-input"}>
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         <TextInput
           style={[styles.input, icon ? { paddingLeft: 40 } : null, rightElement ? { paddingRight: 40 } : null, style]}
           placeholderTextColor={Colors.text.muted}
           selectionColor={Colors.brand.primary}
-          testID={testID}
-          accessibilityLabel={testID}
+          {...(testID ? getTestProps(testID) : {})}
           {...props}
         />
         {rightElement && <View style={styles.rightContainer}>{rightElement}</View>}
       </View>
-      {error && <Text style={styles.errorText} accessibilityLabel={testID ? `error-${testID}` : "error-themed-input"}>{error}</Text>}
+      {error && (
+        <Text
+          style={styles.errorText}
+          {...getReadableTextProps(testID ? `error-${testID}` : "error-themed-input", error)}
+        >
+          {error}
+        </Text>
+      )}
     </View>
   );
 };

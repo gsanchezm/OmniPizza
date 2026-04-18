@@ -20,6 +20,7 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { Colors } from "../theme/colors";
 import { loginUser } from "../features/auth/useCases/loginUser";
 import { selectMarket } from "../features/country/useCases/selectMarket";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 const { height } = Dimensions.get("window");
 
@@ -137,9 +138,9 @@ export default function LoginScreen({ navigation }: any) {
                   accessibilityLabel="img-logo"
                   testID="img-logo"
                 />
-                <Text style={styles.appName} accessibilityLabel="text-app-name">OmniPizza</Text>
-                <Text style={styles.welcomeTitle} accessibilityLabel="text-welcome-title" testID="text-welcome-title">Welcome back!</Text>
-                <Text style={styles.subtitle} accessibilityLabel="text-login-subtitle">Login to order your favorites.</Text>
+                <Text style={styles.appName} {...getReadableTextProps("text-app-name", "OmniPizza")}>OmniPizza</Text>
+                <Text style={styles.welcomeTitle} {...getReadableTextProps("text-welcome-title", "Welcome back!")}>Welcome back!</Text>
+                <Text style={styles.subtitle} {...getReadableTextProps("text-login-subtitle", "Login to order your favorites.")}>Login to order your favorites.</Text>
               </View>
 
               {/* Inputs */}
@@ -170,21 +171,20 @@ export default function LoginScreen({ navigation }: any) {
                     <TouchableOpacity
                       key={m.code}
                       onPress={() => setSelectedMarket(m.code)}
-                      testID={`btn-market-${m.code}`}
-                      accessibilityLabel={`btn-market-${m.code}`}
+                      {...getReadableControlProps(`btn-market-${m.code}`, m.code)}
                       style={[
                         styles.flagBtn,
                         isActive && styles.flagBtnActive
                       ]}
                     >
-                      <Text style={[styles.flagText, isActive && { opacity: 1 }]} accessibilityLabel={`text-flag-${m.code}`}>{m.flag}</Text>
+                      <Text style={[styles.flagText, isActive && { opacity: 1 }]} {...getReadableTextProps(`text-flag-${m.code}`, m.flag)}>{m.flag}</Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
 
               {/* Error Message */}
-              {error ? <Text testID="text-login-error" accessibilityLabel="text-login-error" style={styles.errorText}>{error}</Text> : null}
+              {error ? <Text style={styles.errorText} {...getReadableTextProps("text-login-error", error)}>{error}</Text> : null}
 
               {/* Actions */}
               <View style={styles.actions} accessibilityLabel="view-login-actions">
@@ -200,7 +200,7 @@ export default function LoginScreen({ navigation }: any) {
               <View style={styles.quickLoginSection} accessibilityLabel="view-quick-login">
                 <View style={styles.divider} accessibilityLabel="view-divider">
                   <View style={styles.line} />
-                  <Text style={styles.orText} accessibilityLabel="text-quick-login-label" testID="text-quick-login-label">QUICK LOGIN</Text>
+                  <Text style={styles.orText} {...getReadableTextProps("text-quick-login-label", "QUICK LOGIN")}>QUICK LOGIN</Text>
                   <View style={styles.line} />
                 </View>
 
@@ -210,10 +210,9 @@ export default function LoginScreen({ navigation }: any) {
                       key={u.id}
                       style={styles.pill}
                       onPress={() => fillUser(u.id)}
-                      testID={`btn-user-${u.id}`}
-                      accessibilityLabel={`btn-user-${u.id}`}
+                      {...getReadableControlProps(`btn-user-${u.id}`, u.label)}
                     >
-                      <Text style={styles.pillText} accessibilityLabel={`text-user-label-${u.id}`}>{u.label}</Text>
+                      <Text style={styles.pillText} {...getReadableTextProps(`text-user-label-${u.id}`, u.label)}>{u.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

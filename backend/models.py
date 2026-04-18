@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 from constants import CountryCode
 
@@ -40,6 +40,7 @@ class CartItem(BaseModel):
     pizza_id: str
     quantity: int = Field(ge=1, le=10)
     size: str = "small"
+    toppings: List[str] = Field(default_factory=list)
 
 
 class EnrichedCartItem(BaseModel):
@@ -76,7 +77,10 @@ class CheckoutRequest(BaseModel):
     
     # Country-specific fields
     colonia: Optional[str] = None  # MX
-    propina: Optional[float] = Field(None, ge=0)  # MX
+    propina: Optional[float] = Field(None, ge=0, le=100)  # MX tip percentage
+    tip: Optional[float] = Field(None, ge=0, le=100)  # US tip percentage
+    trinkgeld: Optional[float] = Field(None, ge=0, le=100)  # CH tip percentage
+    chip: Optional[float] = Field(None, ge=0, le=100)  # JP tip percentage
     zip_code: Optional[str] = None  # US
     plz: Optional[str] = None  # CH
     prefectura: Optional[str] = None  # JP
@@ -88,9 +92,21 @@ class CheckoutRequest(BaseModel):
                 raise ValueError('ZIP code debe tener 5 dígitos')
         return v
 
+    def get_tip_percentage(self) -> float:
+        return float(
+            self.propina
+            or self.tip
+            or self.trinkgeld
+            or self.chip
+            or 0.0
+        )
+
 class OrderSummary(BaseModel):
     order_id: str
     subtotal: float
+    delivery_fee: float
+    tax_rate: float
+    tip_percentage: float
     tax: float
     tip: float
     total: float
@@ -106,7 +122,11 @@ class CountryInfo(BaseModel):
     currency_symbol: str
     required_fields: List[str]
     optional_fields: List[str]
+    tip_field: str
+    tip_mode: Literal["percentage"] = "percentage"
+    tip_percentages: List[float]
     tax_rate: float
+    delivery_fee: float
     languages: List[str]
     decimal_places: int = 2
 

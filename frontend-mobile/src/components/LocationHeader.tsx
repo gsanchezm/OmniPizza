@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Colors } from "../theme/colors";
 import { useAppStore } from "../store/useAppStore";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 const MARKETS = {
   US: "United States",
@@ -25,15 +26,14 @@ export const LocationHeader = ({
             <TouchableOpacity
               onPress={() => setLanguage("de")}
               style={[styles.langBtn, language === "de" && styles.langBtnActive]}
-              accessibilityLabel="btn-header-lang-de"
-              testID="btn-header-lang-de"
+              {...getReadableControlProps("btn-header-lang-de", "DE")}
             >
               <Text
                 style={[
                   styles.langText,
                   language === "de" && styles.langTextActive,
                 ]}
-                accessibilityLabel="text-header-lang-de"
+                {...getReadableTextProps("text-header-lang-de", "DE")}
               >
                 DE
               </Text>
@@ -42,14 +42,14 @@ export const LocationHeader = ({
             <TouchableOpacity
               onPress={() => setLanguage("fr")}
               style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
-              accessibilityLabel="btn-header-lang-fr"
+              {...getReadableControlProps("btn-header-lang-fr", "FR")}
             >
               <Text
                 style={[
                   styles.langText,
                   language === "fr" && styles.langTextActive,
                 ]}
-                accessibilityLabel="text-header-lang-fr"
+                {...getReadableTextProps("text-header-lang-fr", "FR")}
               >
                 FR
               </Text>
@@ -78,7 +78,7 @@ export const LocationHeader = ({
             color: "white",
             marginLeft: 12,
           }}
-          accessibilityLabel="text-header-brand"
+          {...getReadableTextProps("text-header-brand", "OMNIPIZZA")}
         >
           OMNIPIZZA
         </Text>

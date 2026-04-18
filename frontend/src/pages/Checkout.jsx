@@ -305,11 +305,32 @@ const UI_TEXT = {
 };
 
 const FALLBACK_TAX_RATE_BY_COUNTRY = {
-  MX: 0,
+  MX: 0.16,
   US: 0.08,
-  CH: 0,
-  JP: 0,
+  CH: 0.081,
+  JP: 0.1,
 };
+
+const FALLBACK_DELIVERY_FEE_BY_COUNTRY = {
+  MX: 35.1,
+  US: 2,
+  CH: 1.56,
+  JP: 316,
+};
+
+const FALLBACK_TIP_OPTIONS_BY_COUNTRY = {
+  MX: [0, 5, 10, 15],
+  US: [0, 5, 10, 15],
+  CH: [0, 5, 10, 15],
+  JP: [0, 5, 10, 15],
+};
+const DEFAULT_TIP_PERCENTAGE = "0";
+
+function roundCurrencyAmount(value, currency) {
+  if (!Number.isFinite(value)) return 0;
+  if (currency === "JPY") return Math.round(value);
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -404,29 +425,62 @@ export default function Checkout() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [tipOption, setTipOption] = useState(DEFAULT_TIP_PERCENTAGE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  const currency = items[0]?.currency || "USD";
+  const symbol = items[0]?.currency_symbol || "$";
+
   const subtotal = useMemo(
     () =>
-      items.reduce(
-        (sum, it) => sum + Number(it.unit_price) * Number(it.quantity),
-        0,
+      roundCurrencyAmount(
+        items.reduce(
+          (sum, it) => sum + Number(it.unit_price) * Number(it.quantity),
+          0,
+        ),
+        currency,
       ),
-    [items],
+    [currency, items],
   );
   const taxRate = useMemo(() => {
     const apiTaxRate = Number(countryInfo?.tax_rate);
     if (Number.isFinite(apiTaxRate)) return apiTaxRate;
     return FALLBACK_TAX_RATE_BY_COUNTRY[countryCode] ?? 0;
   }, [countryCode, countryInfo]);
-  const taxAmount = useMemo(() => subtotal * taxRate, [subtotal, taxRate]);
+  const deliveryFee = useMemo(() => {
+    const apiDeliveryFee = Number(countryInfo?.delivery_fee);
+    if (Number.isFinite(apiDeliveryFee)) return apiDeliveryFee;
+    return FALLBACK_DELIVERY_FEE_BY_COUNTRY[countryCode] ?? 0;
+  }, [countryCode, countryInfo]);
+  const tipOptions = useMemo(() => {
+    const apiTipPercentages = Array.isArray(countryInfo?.tip_percentages)
+      ? countryInfo.tip_percentages
+          .map((value) => Number(value))
+          .filter((value) => Number.isFinite(value) && value >= 0)
+      : [];
+    if (apiTipPercentages.length === 4) return apiTipPercentages;
+    return FALLBACK_TIP_OPTIONS_BY_COUNTRY[countryCode] ?? [0, 5, 10, 15];
+  }, [countryCode, countryInfo]);
+  useEffect(() => {
+    const hasZeroOption = tipOptions.some((value) => Number(value) === 0);
+    setTipOption(hasZeroOption ? DEFAULT_TIP_PERCENTAGE : String(tipOptions[0] ?? 0));
+  }, [countryCode, tipOptions]);
+  const tipPercentage = useMemo(() => Number(tipOption) || 0, [tipOption]);
+  const taxAmount = useMemo(
+    () => roundCurrencyAmount(subtotal * taxRate, currency),
+    [currency, subtotal, taxRate],
+  );
+  const tipAmount = useMemo(
+    () => roundCurrencyAmount(subtotal * (tipPercentage / 100), currency),
+    [currency, subtotal, tipPercentage],
+  );
   const totalAmount = useMemo(
-    () => subtotal + taxAmount,
-    [subtotal, taxAmount],
+    () => roundCurrencyAmount(subtotal + deliveryFee + taxAmount + tipAmount, currency),
+    [currency, deliveryFee, subtotal, taxAmount, tipAmount],
   );
   const taxPercent = useMemo(
     () =>
@@ -437,16 +491,20 @@ export default function Checkout() {
     [locale, taxRate],
   );
 
-  const currency = items[0]?.currency || "USD";
-  const symbol = items[0]?.currency_symbol || "$";
-
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await placeOrder({ countryCode, items, form });
+          const res = await placeOrder({
+        countryCode,
+        items,
+        form: {
+          ...form,
+          propina: String(tipPercentage),
+        },
+      });
       setLastOrder(res.data);
       clearCart();
       navigate("/order-success", { replace: true });
@@ -951,10 +1009,43 @@ export default function Checkout() {
               </div>
               <div
                 data-testid="order-delivery-fee"
-                className="flex justify-between text-[#FF5722] text-sm font-bold"
+                className="flex justify-between text-gray-400 text-sm"
               >
                 <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
-                <span>{tOpt(UI_TEXT.free, language)}</span>
+                <span>{formatMoney(deliveryFee, currency, locale, symbol)}</span>
+              </div>
+
+              <div className="rounded-2xl border border-[#1F1F1F] bg-[#161616] p-4">
+                <div
+                  data-testid="order-tip"
+                  className="flex items-center justify-between gap-4 text-sm"
+                >
+                  <span className="text-gray-400">
+                    {tOpt({ en: "Tip for Driver", es: "Propina para el conductor", de: "Trinkgeld für den Fahrer", fr: "Pourboire pour le chauffeur", ja: "ドライバーへのチップ" }, language)}
+                  </span>
+                  <span className="font-bold text-white">
+                    {formatMoney(tipAmount, currency, locale, symbol)}
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {tipOptions.map((value) => {
+                    const optionKey = String(value);
+                    const active = tipOption === optionKey;
+                    return (
+                      <button
+                        key={`${value}`}
+                        type="button"
+                        data-testid={`order-tip-${value}`}
+                        onClick={() =>
+                          setTipOption(optionKey)
+                        }
+                        className={`min-w-[92px] flex-1 rounded-full px-4 py-2 text-center text-sm font-bold transition-colors sm:flex-none ${active ? "bg-[#FF5722] text-white" : "bg-[#242424] text-gray-300 hover:bg-[#303030]"}`}
+                      >
+                        {value}%
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

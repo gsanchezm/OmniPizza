@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Pizza } from "../types/api";
+import type { CountryInfo } from "../services/country.service";
 
 export type CountryCode = "MX" | "US" | "CH" | "JP";
 export type LanguageCode = "en" | "es" | "de" | "fr" | "ja";
@@ -32,6 +33,7 @@ export interface CartItem {
 export interface LastOrder {
   order_id: string;
   subtotal: number;
+  delivery_fee: number;
   tax: number;
   tip: number;
   total: number;
@@ -44,6 +46,7 @@ interface AppState {
   language: LanguageCode;
   chLanguage: "de" | "fr";
   token: string | null;
+  countryInfo: CountryInfo | null;
 
   profile: ProfileState;
 
@@ -53,6 +56,7 @@ interface AppState {
   setCountry: (c: CountryCode) => void;
   setLanguage: (lang: "de" | "fr") => void; // only CH
   setToken: (t: string | null) => void;
+  setCountryInfo: (info: CountryInfo | null) => void;
   logout: () => void;
 
   setProfile: (patch: Partial<ProfileState>) => void;
@@ -83,6 +87,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   language: "en",      // starts in English
   chLanguage: "de",
   token: null,
+  countryInfo: null,
 
   profile: { fullName: "", address: "", phone: "", notes: "" },
 
@@ -94,7 +99,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       let nextLang: LanguageCode;
       if (country === "CH") nextLang = state.chLanguage; // keep DE/FR preference
       else nextLang = MARKET_LANG[country] ?? "en";
-      return { country, language: nextLang, cartItems: [] };
+      return { country, language: nextLang, cartItems: [], countryInfo: null };
     }),
 
   setLanguage: (lang) =>
@@ -106,11 +111,14 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setToken: (token) => set({ token }),
 
+  setCountryInfo: (countryInfo) => set({ countryInfo }),
+
   logout: () =>
     set({
       token: null,
       cartItems: [],
       lastOrder: null,
+      countryInfo: null,
     }),
 
   setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),

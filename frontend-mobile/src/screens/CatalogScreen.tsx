@@ -19,6 +19,7 @@ import { CategoryPills } from "../components/CategoryPills";
 import { MobileProductCard } from "../components/MobileProductCard";
 import type { Pizza } from "../types/api";
 import { useT } from "../i18n";
+import { getReadableTextProps } from "../utils/qa";
 
 export default function CatalogScreen({ navigation }: any) {
   const t = useT();
@@ -89,7 +90,7 @@ export default function CatalogScreen({ navigation }: any) {
 
         {/* List Title */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-header" testID="view-section-header">
-          <Text style={styles.sectionTitle} accessibilityLabel="text-section-title" testID="text-section-title">Classic Selection</Text>
+          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-title", "Classic Selection")}>Classic Selection</Text>
           <Text style={{ color: Colors.text.muted }} accessibilityLabel="icon-dropdown">▼</Text>
         </View>
 
@@ -102,7 +103,7 @@ export default function CatalogScreen({ navigation }: any) {
             accessibilityLabel="loader-catalog"
           />
         ) : error ? (
-          <Text style={styles.errorText} accessibilityLabel="text-catalog-error" testID="text-catalog-error">
+          <Text style={styles.errorText} {...getReadableTextProps("text-catalog-error", "Unable to load menu. Check connection.")}>
             Unable to load menu. Check connection.
           </Text>
         ) : (
@@ -115,7 +116,7 @@ export default function CatalogScreen({ navigation }: any) {
               />
             ))}
             {filteredPizzas.length === 0 && (
-              <Text style={styles.emptyText} accessibilityLabel="text-empty-results" testID="text-empty-results">No pizzas found.</Text>
+              <Text style={styles.emptyText} {...getReadableTextProps("text-empty-results", "No pizzas found.")}>No pizzas found.</Text>
             )}
           </View>
         )}

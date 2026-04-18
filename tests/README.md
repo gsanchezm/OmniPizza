@@ -68,7 +68,7 @@ External runners can inject cart state via the API and let the frontend pick it 
 | :--- | :--- |
 | `POST /api/auth/login` | Login response structure (token, username, behavior) and invalid credentials |
 | `GET /api/pizzas validation` | Requires `X-Country-Code` header; returns pizza catalog |
-| `POST /api/checkout validation` | Requires authentication |
+| `POST /api/checkout validation` | Requires authentication; returns `delivery_fee`, `tax_rate`, `tip_percentage`, `tax`, `tip`, `total` |
 | `User Behavior: Locked Out` | `locked_out_user` receives 403 |
 | `E2E Flow: Standard User` | Full flow: Login → Get Pizzas → Checkout → Verify Order |
 | `Country Specific Logic` | US requires `zip_code`, CH requires `plz`, JP requires `prefectura`; validates rejection without and acceptance with valid fields |
@@ -79,6 +79,7 @@ External runners can inject cart state via the API and let the frontend pick it 
 - Authentication endpoints
 - Pizza catalog with multi-currency
 - Checkout flow with country validations
+- Percentage-based tips (`propina` / `tip` / `trinkgeld` / `chip`) and localized totals
 - User behavior patterns
 - Debug/chaos endpoints
 - Error responses

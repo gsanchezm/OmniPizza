@@ -87,7 +87,7 @@ Side-effect params (`accessToken`, `market`, `lang`, `hydrateCart`, `resetSessio
 
 The project makes heavy use of:
 
-*   **`data-testid` / `testID` / `accessibilityLabel`**: Unified stable selector convention across web and mobile. Prefixes: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-`, `screen-`.
+*   **`data-testid` / `testID` / `accessibilityLabel`**: Unified stable selector convention across web and mobile. Prefixes: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-`, `screen-`. Mobile text-bearing controls also expose readable accessibility values so Appium/XCUITest `getText()` returns visible text instead of only the identifier.
 *   **Cypress Frontend Component Tests**: Reliably test individual React web components in isolation (`frontend/cypress/component/`).
 *   **Chaos Middleware**: Custom code to inject faults (latency, errors) for testing robustness.
 *   **Vitest API Tests** (`tests/api.test.ts`): TypeScript integration tests covering auth, catalog, checkout (all 4 markets), user behaviors, and debug endpoints.

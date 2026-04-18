@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Colors } from "../theme/colors";
 import { useAppStore } from "../store/useAppStore";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 export const BottomNavBar = () => {
   const navigation = useNavigation<any>();
@@ -46,8 +47,7 @@ export const BottomNavBar = () => {
             <TouchableOpacity
               key={item.name}
               style={styles.tab}
-              testID={`nav-${item.name.toLowerCase()}`}
-              accessibilityLabel={`nav-${item.name.toLowerCase()}`}
+              {...getReadableControlProps(`nav-${item.name.toLowerCase()}`, item.label)}
               onPress={
                 item.onPress ||
                 (() => {
@@ -61,7 +61,7 @@ export const BottomNavBar = () => {
                 </Text>
                 {item.badge !== undefined ? (
                   <View style={styles.badge} accessibilityLabel={`view-nav-badge-${item.name.toLowerCase()}`} testID={`view-nav-badge-${item.name.toLowerCase()}`}>
-                    <Text style={styles.badgeText} accessibilityLabel={`text-nav-badge-${item.name.toLowerCase()}`}>{item.badge}</Text>
+                    <Text style={styles.badgeText} {...getReadableTextProps(`text-nav-badge-${item.name.toLowerCase()}`, String(item.badge))}>{item.badge}</Text>
                   </View>
                 ) : null}
               </View>
@@ -72,7 +72,7 @@ export const BottomNavBar = () => {
                     color: isActive ? Colors.brand.primary : Colors.text.muted,
                   },
                 ]}
-                accessibilityLabel={`text-nav-${item.name.toLowerCase()}`}
+                {...getReadableTextProps(`text-nav-${item.name.toLowerCase()}`, item.label)}
               >
                 {item.label}
               </Text>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../theme/colors';
+import { getReadableControlProps, getReadableTextProps } from '../utils/qa';
 
 interface SocialButtonProps {
   onPress: () => void;
@@ -10,9 +11,14 @@ interface SocialButtonProps {
 
 export const SocialButton = ({ onPress, icon, label }: SocialButtonProps) => {
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={onPress}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.container}
+      onPress={onPress}
+      {...(label ? getReadableControlProps(`btn-social-${label.toLowerCase().replace(/\s+/g, '-')}`, label) : {})}
+    >
       {icon}
-      {label && <Text style={styles.text}>{label}</Text>}
+      {label && <Text style={styles.text} {...getReadableTextProps(`text-social-${label.toLowerCase().replace(/\s+/g, '-')}`, label)}>{label}</Text>}
     </TouchableOpacity>
   );
 };

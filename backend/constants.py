@@ -55,14 +55,20 @@ COUNTRY_CONFIG = {
         "currency_symbol": "$",
         "required_fields": ["colonia"],
         "optional_fields": ["propina", "zip_code"],
-        "tax_rate": 0.0,
+        "tip_field": "propina",
+        "tip_percentages": [0, 5, 10, 15],
+        "delivery_fee_usd": 2.0,
+        "tax_rate": 0.16,
         "languages": ["es"]
     },
     CountryCode.US: {
         "currency": "USD",
         "currency_symbol": "$",
         "required_fields": ["zip_code"],
-        "optional_fields": [],
+        "optional_fields": ["tip"],
+        "tip_field": "tip",
+        "tip_percentages": [0, 5, 10, 15],
+        "delivery_fee_usd": 2.0,
         "tax_rate": 0.08,
         "languages": ["en"],
         "zip_code_pattern": r"^\d{5}$"
@@ -71,16 +77,22 @@ COUNTRY_CONFIG = {
         "currency": "CHF",
         "currency_symbol": "CHF",
         "required_fields": ["plz"],
-        "optional_fields": [],
-        "tax_rate": 0.0,
+        "optional_fields": ["trinkgeld"],
+        "tip_field": "trinkgeld",
+        "tip_percentages": [0, 5, 10, 15],
+        "delivery_fee_usd": 2.0,
+        "tax_rate": 0.081,
         "languages": ["de", "fr"]
     },
     CountryCode.JP: {
         "currency": "JPY",
         "currency_symbol": "¥",
         "required_fields": ["prefectura"],
-        "optional_fields": [],
-        "tax_rate": 0.0,
+        "optional_fields": ["chip"],
+        "tip_field": "chip",
+        "tip_percentages": [0, 5, 10, 15],
+        "delivery_fee_usd": 2.0,
+        "tax_rate": 0.10,
         "languages": ["ja"],
         "decimal_places": 0
     }
@@ -247,10 +259,13 @@ PIZZA_CATALOG = [
 ]
 
 
-# Currency conversion rates (from USD)
+# Currency conversion rates (from USD, 2026 YTD averages as of April 2026).
+# MXN: inferred from Banxico monthly averages published for Jan-Mar 2026.
+# CHF: inferred from SNB official 2026 spot snapshots (Feb-Apr 2026).
+# JPY: inferred from the same SNB official CHF cross-rates (USD/CHF and 100 JPY/CHF).
 CURRENCY_RATES = {
     "USD": 1.0,
-    "MXN": 17.5,
-    "CHF": 0.88,
-    "JPY": 149.0
+    "MXN": 17.55,
+    "CHF": 0.7823,
+    "JPY": 157.89
 }

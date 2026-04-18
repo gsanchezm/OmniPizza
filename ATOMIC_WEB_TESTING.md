@@ -81,7 +81,7 @@ test("checkout renders API-seeded cart for MX", async ({ page, request }) => {
       "X-Country-Code": "MX",
     },
     data: {
-      items: [{ pizza_id: "pepperoni", size: "large", quantity: 2 }],
+      items: [{ pizza_id: "p02", size: "large", quantity: 2 }],
     },
   });
 
@@ -110,8 +110,9 @@ test("checkout renders API-seeded cart for MX", async ({ page, request }) => {
   await page.goto(`${APP_URL}/checkout`);
 
   // 5. Assert — cart hydrated from API
-  await expect(page.getByTestId("view-order-summary")).toBeVisible();
+  await expect(page.getByTestId("order-summary-title")).toBeVisible();
   await expect(page.getByText("pepperoni", { ignoreCase: true })).toBeVisible();
+  await expect(page.getByTestId("order-tip-0")).toBeVisible();
 });
 ```
 
@@ -160,9 +161,12 @@ test("order-success renders after API order", async ({ page, request }) => {
           lastOrder: {
             order_id: "test-abc123",
             subtotal: 320,
+            delivery_fee: 35.1,
+            tax_rate: 0.16,
+            tip_percentage: 0,
             tax: 51.2,
             tip: 0,
-            total: 371.2,
+            total: 406.3,
             currency: "MXN",
             currency_symbol: "$",
           },
@@ -173,7 +177,7 @@ test("order-success renders after API order", async ({ page, request }) => {
   }, { token });
 
   await page.goto(`${APP_URL}/order-success`);
-  await expect(page.getByTestId("text-status-title")).toBeVisible();
+  await expect(page.getByTestId("order-success-title")).toBeVisible();
 });
 ```
 
@@ -253,7 +257,7 @@ curl -s -X POST "$BASE_URL/api/cart" \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Country-Code: MX" \
   -H "Content-Type: application/json" \
-  -d '{"items":[{"pizza_id":"pepperoni","size":"large","quantity":2}]}'
+  -d '{"items":[{"pizza_id":"p02","size":"large","quantity":2}]}'
 
 # 4. Verify cart
 curl -s "$BASE_URL/api/cart" \

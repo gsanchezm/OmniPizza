@@ -18,3 +18,43 @@ export const getTestProps = (id: string) => {
     }
   });
 };
+
+/**
+ * Props for text/value nodes that must remain selectable by test id while still
+ * exposing the visible string to XCUITest/Appium `getText()` on iOS.
+ */
+export const getReadableTextProps = (id: string, readableLabel: string) => {
+  return Platform.select({
+    ios: {
+      testID: id,
+      accessibilityLabel: readableLabel,
+    },
+    android: {
+      accessibilityLabel: id,
+      testID: id,
+    },
+    default: {
+      testID: id,
+    },
+  });
+};
+
+/**
+ * Props for interactive controls that must keep a stable test id while also
+ * exposing a human-readable value to XCUITest/Appium on iOS.
+ */
+export const getReadableControlProps = (id: string, readableLabel: string) => {
+  return Platform.select({
+    ios: {
+      testID: id,
+      accessibilityLabel: readableLabel,
+    },
+    android: {
+      accessibilityLabel: id,
+      testID: id,
+    },
+    default: {
+      testID: id,
+    },
+  });
+};

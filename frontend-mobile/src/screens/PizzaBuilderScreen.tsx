@@ -15,6 +15,7 @@ import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 import type { Pizza } from "../types/api";
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
@@ -138,7 +139,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         >
           <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} accessibilityLabel="text-builder-title" testID="text-builder-title">
+        <Text style={styles.headerTitle} {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
           {tOpt(UI_STRINGS.title, language)}
         </Text>
         <TouchableOpacity style={styles.iconBtn} accessibilityLabel="btn-info-builder">
@@ -166,10 +167,10 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         <View style={styles.cardContent} accessibilityLabel="view-builder-content">
           {/* Size Selector */}
           <View style={styles.sectionHeader} accessibilityLabel="view-section-size">
-            <Text style={styles.sectionTitle} accessibilityLabel="text-section-size">
+            <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
               {tOpt(UI_STRINGS.size, language)}
             </Text>
-            <Text style={styles.badge} accessibilityLabel="text-badge-required" testID="text-badge-required">
+            <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt({ en: "Required", es: "Requerido" }, language)))}>
               {tOpt({ en: "Required", es: "Requerido" }, language)}
             </Text>
           </View>
@@ -192,8 +193,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                   key={opt.id}
                   onPress={() => setSize(opt.id)}
                   style={[styles.sizePill, active && styles.sizePillActive]}
-                  accessibilityLabel={`btn-size-${opt.id}`}
-                  testID={`btn-size-${opt.id}`}
+                  {...getReadableControlProps(`btn-size-${opt.id}`, mainText)}
                 >
                   <Text
                     style={[
@@ -201,7 +201,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                       active && styles.sizeTextActive,
                       hasPrice && { marginBottom: 2 },
                     ]}
-                    accessibilityLabel={`text-size-${opt.id}`}
+                    {...getReadableTextProps(`text-size-${opt.id}`, mainText)}
                   >
                     {mainText}
                   </Text>
@@ -211,7 +211,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         styles.sizeSubText,
                         active && styles.sizeSubTextActive,
                       ]}
-                      accessibilityLabel={`text-size-price-${opt.id}`}
+                      {...getReadableTextProps(`text-size-price-${opt.id}`, subText)}
                     >
                       {subText}
                     </Text>
@@ -223,17 +223,17 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {/* Toppings Selector */}
           <View style={[styles.sectionHeader, { marginTop: 30 }]} accessibilityLabel="view-section-toppings">
-            <Text style={styles.sectionTitle} accessibilityLabel="text-section-toppings">
+            <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
               {tOpt(UI_STRINGS.toppings, language)}
             </Text>
-            <Text style={styles.priceHint} accessibilityLabel="text-toppings-hint" testID="text-toppings-hint">
+            <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", String(tOpt(UI_STRINGS.upTo10, language)))}>
               {tOpt(UI_STRINGS.upTo10, language)}
             </Text>
           </View>
 
           {TOPPING_GROUPS.map((group) => (
             <View key={group.id} style={{ marginBottom: 20 }} accessibilityLabel={`view-topping-group-${group.id}`}>
-              <Text style={styles.groupTitle} accessibilityLabel={`text-topping-group-${group.id}`}>
+              <Text style={styles.groupTitle} {...getReadableTextProps(`text-topping-group-${group.id}`, tOpt(group.label, language))}>
                 {tOpt(group.label, language)}
               </Text>
               <View style={styles.grid} accessibilityLabel={`view-topping-grid-${group.id}`}>
@@ -250,8 +250,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         isSelected && styles.toppingCardActive,
                         disabled && { opacity: 0.5 },
                       ]}
-                      accessibilityLabel={`btn-topping-${it.id}`}
-                      testID={`btn-topping-${it.id}`}
+                      {...getReadableControlProps(`btn-topping-${it.id}`, tOpt(it.label, language))}
                     >
                       <View
                         style={[
@@ -281,7 +280,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                           styles.toppingName,
                           isSelected && { color: "white" },
                         ]}
-                        accessibilityLabel={`text-topping-${it.id}`}
+                        {...getReadableTextProps(`text-topping-${it.id}`, tOpt(it.label, language))}
                       >
                         {tOpt(it.label, language)}
                       </Text>
@@ -315,7 +314,16 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
         <View style={styles.barContent} accessibilityLabel="view-bar-content">
           <View accessibilityLabel="view-estimated-total">
-            <Text style={styles.totalLabel} accessibilityLabel="text-estimated-total-label">
+            <Text style={styles.totalLabel} {...getReadableTextProps("text-estimated-total-label", tOpt(
+                {
+                  en: "ESTIMATED TOTAL",
+                  es: "TOTAL ESTIMADO",
+                  de: "GESAMTSUMME",
+                  fr: "TOTAL ESTIMÉ",
+                  ja: "推定合計",
+                },
+                language,
+              ))}>
               {tOpt(
                 {
                   en: "ESTIMATED TOTAL",
@@ -327,13 +335,48 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                 language,
               )}
             </Text>
-            <Text style={styles.totalValue} accessibilityLabel="text-estimated-total-value" testID="text-estimated-total-value">
+            <Text style={styles.totalValue} {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>
               {formatMoney(unitPrice, pizza.currency, pizza.currency_symbol)}
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.addToCartBtn} onPress={confirm} testID="btn-add-to-cart" accessibilityLabel="btn-add-to-cart">
-            <Text style={styles.addToCartText} accessibilityLabel="text-add-to-cart">
+          <TouchableOpacity
+            style={styles.addToCartBtn}
+            onPress={confirm}
+            {...getReadableControlProps(
+              "btn-add-to-cart",
+              mode === "edit"
+                ? tOpt(
+                    {
+                      en: "Update",
+                      es: "Actualizar",
+                      de: "Aktualisieren",
+                      fr: "Mettre à jour",
+                      ja: "更新",
+                    },
+                    language,
+                  )
+                : tOpt(UI_STRINGS.confirm, language),
+            )}
+          >
+            <Text
+              style={styles.addToCartText}
+              {...getReadableTextProps(
+                "text-add-to-cart",
+                mode === "edit"
+                  ? tOpt(
+                      {
+                        en: "Update",
+                        es: "Actualizar",
+                        de: "Aktualisieren",
+                        fr: "Mettre à jour",
+                        ja: "更新",
+                      },
+                      language,
+                    )
+                  : tOpt(UI_STRINGS.confirm, language),
+              )}
+            >
               {mode === "edit"
                 ? tOpt(
                     {

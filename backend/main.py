@@ -14,10 +14,10 @@ from models import (
     PizzaResponse, CheckoutRequest, OrderSummary,
     CountryInfo, ErrorResponse
 )
-from constants import TEST_USERS, COUNTRY_CONFIG, CountryCode
+from constants import TEST_USERS, COUNTRY_CONFIG, CURRENCY_RATES, CountryCode
 from auth import authenticate_user, create_access_token
 from middleware import require_country_header, get_current_user, apply_user_behavior
-from database import db
+from database import db, convert_usd_amount
 from test_api import router as test_api_router
 
 # Prometheus metrics
@@ -126,15 +126,25 @@ async def get_countries():
     """Get list of supported countries with their configurations"""
     countries = []
     for code, config in COUNTRY_CONFIG.items():
+        decimal_places = config.get("decimal_places", 2)
+
         countries.append(CountryInfo(
             code=code.value,
             currency=config["currency"],
             currency_symbol=config["currency_symbol"],
             required_fields=config["required_fields"],
             optional_fields=config["optional_fields"],
+            tip_field=config["tip_field"],
+            tip_mode="percentage",
+            tip_percentages=config["tip_percentages"],
             tax_rate=config["tax_rate"],
+            delivery_fee=convert_usd_amount(
+                config["delivery_fee_usd"],
+                CURRENCY_RATES[config["currency"]],
+                decimal_places,
+            ),
             languages=config["languages"],
-            decimal_places=config.get("decimal_places", 2)
+            decimal_places=decimal_places
         ))
     return countries
 
@@ -184,10 +194,16 @@ async def checkout(
     Process checkout and create order
     
     Validates country-specific required fields:
-    - MX: colonia (required), propina (optional)
+    - MX: colonia (required)
     - US: zip_code (required, 5 digits)
     - CH: plz (required)
     - JP: prefectura (required)
+
+    Market tip fields carry a percentage value:
+    - MX: propina
+    - US: tip
+    - CH: trinkgeld
+    - JP: chip
     """
     # Check if error_user should trigger error
     if db.should_trigger_error(current_user["behavior"]):
@@ -208,11 +224,11 @@ async def checkout(
             )
     
     # Calculate totals
-    tip = request.propina if request.propina else 0.0
+    tip_percentage = request.get_tip_percentage()
     totals = db.calculate_order_total(
         [item.dict() for item in request.items],
         request.country_code,
-        tip
+        tip_percentage
     )
     
     # Create order
@@ -233,14 +249,20 @@ async def checkout(
         order_data["customer_info"]["colonia"] = request.colonia
         if request.zip_code:
             order_data["customer_info"]["zip_code"] = request.zip_code
-        if request.propina:
+        if request.propina is not None:
             order_data["customer_info"]["propina"] = request.propina
     elif request.country_code == CountryCode.US:
         order_data["customer_info"]["zip_code"] = request.zip_code
+        if request.tip is not None:
+            order_data["customer_info"]["tip"] = request.tip
     elif request.country_code == CountryCode.CH:
         order_data["customer_info"]["plz"] = request.plz
+        if request.trinkgeld is not None:
+            order_data["customer_info"]["trinkgeld"] = request.trinkgeld
     elif request.country_code == CountryCode.JP:
         order_data["customer_info"]["prefectura"] = request.prefectura
+        if request.chip is not None:
+            order_data["customer_info"]["chip"] = request.chip
     
     order_id = db.create_order(order_data)
     order = db.get_order(order_id)
@@ -248,6 +270,9 @@ async def checkout(
     return OrderSummary(
         order_id=order["order_id"],
         subtotal=order["subtotal"],
+        delivery_fee=order["delivery_fee"],
+        tax_rate=order["tax_rate"],
+        tip_percentage=order["tip_percentage"],
         tax=order["tax"],
         tip=order["tip"],
         total=order["total"],

@@ -28,6 +28,9 @@ export interface CheckoutPayload {
   phone: string;
   colonia?: string;
   propina?: number;
+  tip?: number;
+  trinkgeld?: number;
+  chip?: number;
   zip_code?: string;
   plz?: string;
   prefectura?: string;
@@ -36,6 +39,9 @@ export interface CheckoutPayload {
 export interface OrderResult {
   order_id: string;
   subtotal: number;
+  delivery_fee: number;
+  tax_rate: number;
+  tip_percentage: number;
   tax: number;
   tip: number;
   total: number;

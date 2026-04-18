@@ -37,13 +37,15 @@ Users select market on the **login** screen (web + mobile) before entering the a
 | performance_glitch_user | pizza123 | API delay (~3s) |
 | error_user | pizza123 | Random checkout error (~50%) |
 
-### 2) Markets (currency + required fields)
-| Market | Currency | Required fields | Notes |
-|---|---|---|---|
-| MX | MXN | `colonia` | Tip optional (`propina`) |
-| US | USD | `zip_code` | Tax applied |
-| CH | CHF | `plz` | Language toggle **DE/FR** |
-| JP | JPY | `prefectura` | No decimals |
+### 2) Markets (currency + checkout rules)
+| Market | Currency | Required fields | Optional fields | Tax | Notes |
+|---|---|---|---|---|---|
+| MX | MXN | `colonia` | `zip_code`, `propina` | `16%` | Tip percentages via `propina` |
+| US | USD | `zip_code` | `tip` | `8%` | Tip percentages via `tip` |
+| CH | CHF | `plz` | `trinkgeld` | `8.1%` | Language toggle **DE/FR** |
+| JP | JPY | `prefectura` | `chip` | `10%` | No decimals |
+
+Checkout uses localized `delivery_fee` from `/api/countries` plus tip percentages `0/5/10/15`, with `0%` selected by default in web and mobile.
 
 ### 3) Language behavior
 - **Web + Mobile start in English.**

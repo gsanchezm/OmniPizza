@@ -146,7 +146,7 @@ The pattern for each atomic test:
 
 3. Assert
    await expect(element(by.id("screen-checkout"))).toBeVisible();
-   await expect(element(by.id("view-order-summary"))).toBeVisible();
+   await expect(element(by.id("text-section-summary"))).toBeVisible();
 ```
 
 ### Flow example — Checkout atomic test (MX market)
@@ -155,7 +155,7 @@ The pattern for each atomic test:
 # 1. Login and seed state
 TOKEN=$(curl -s -X POST https://omnipizza-backend.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"demo_mx","password":"demo123"}' | jq -r .access_token)
+  -d '{"username":"standard_user","password":"pizza123"}' | jq -r .access_token)
 
 curl -s -X POST https://omnipizza-backend.onrender.com/api/cart \
   -H "Authorization: Bearer $TOKEN" \
@@ -215,6 +215,8 @@ The backend enriches cart items against the catalog. `POST /api/cart` silently a
 - [ ] `omnipizza://checkout?hydrateCart=true` with seeded backend cart shows correct items
 - [ ] `omnipizza://checkout?hydrateCart=true&accessToken=<jwt>` hydrates cart without prior login
 - [ ] `omnipizza://checkout?market=MX` shows MX-specific fields (colonia, zip)
+- [ ] Tip buttons expose `btn-tip-0`, `btn-tip-5`, `btn-tip-10`, `btn-tip-15`
+- [ ] Summary values expose readable text for Appium/XCUITest (`text-subtotal-value`, `text-tax-value`, `text-total-value`)
 - [ ] `omnipizza://order-success?orderId=12345` opens OrderSuccess screen
 - [ ] `omnipizza://profile?market=CH&lang=fr` opens Profile with French locale
 - [ ] `omnipizza://login?resetSession=true` clears session and lands on Login

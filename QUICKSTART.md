@@ -55,55 +55,58 @@ Usa cualquiera de estos usuarios con password `pizza123`:
 
 | País | Campo Requerido | Formato | Impuesto |
 |------|----------------|---------|----------|
-| MX   | colonia        | texto   | 0%       |
+| MX   | colonia        | texto   | 16%      |
 | US   | zip_code       | 5 dígitos | 8%     |
-| CH   | plz            | texto   | 0%       |
-| JP   | prefectura     | texto   | 0%       |
+| CH   | plz            | texto   | 8.1%     |
+| JP   | prefectura     | texto   | 10%      |
+
+Las propinas ahora son porcentuales por mercado:
+
+- MX: `propina`
+- US: `tip`
+- CH: `trinkgeld`
+- JP: `chip`
+- Opciones visuales en web y móvil: `0%`, `5%`, `10%`, `15%`
+- Default seleccionado: `0%`
 
 ## Para Test Automation
 
 ### Selectores Disponibles
 
-Todos los elementos tienen `data-testid`:
+Selectores representativos actuales:
 
 ```javascript
-// Login
-'username-input'
-'password-input'
-'login-button'
-'select-user-standard_user'
+// Web login
+'input-username'
+'input-password'
+'btn-login'
+'btn-user-standard_user'
 
-// Catalog
-'pizza-card-1'
-'pizza-name-1'
-'pizza-price-1'
-'add-to-cart-1'
+// Web checkout
+'order-tip-0'
+'order-tip-5'
+'order-tip-10'
+'order-tip-15'
+'order-total'
 
-// Checkout
-'checkout-name-input'
-'checkout-address-input'
-'checkout-phone-input'
-'checkout-colonia-input' // MX
-'checkout-zipcode-input' // US
-'checkout-plz-input'     // CH
-'checkout-prefectura-input' // JP
-'checkout-submit-button'
+// Mobile checkout
+'screen-checkout'
+'btn-tip-0'
+'btn-tip-5'
+'btn-tip-10'
+'btn-tip-15'
+'text-subtotal-value'
+'text-tax-value'
+'text-total-value'
 ```
 
 ### Ejemplo con Playwright
 
 ```javascript
-// Login
-await page.fill('[data-testid="username-input"]', 'standard_user');
-await page.fill('[data-testid="password-input"]', 'pizza123');
-await page.click('[data-testid="login-button"]');
-
-// Agregar pizza
-await page.click('[data-testid="add-to-cart-1"]');
-
-// Checkout
-await page.fill('[data-testid="checkout-name-input"]', 'Test User');
-await page.click('[data-testid="checkout-submit-button"]');
+await page.fill('[data-testid="input-username"]', 'standard_user');
+await page.fill('[data-testid="input-password"]', 'pizza123');
+await page.click('[data-testid="btn-login"]');
+await page.click('[data-testid="order-tip-0"]');
 ```
 
 ### Cart State Injection (E2E Automation)

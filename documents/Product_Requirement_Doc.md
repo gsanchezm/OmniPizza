@@ -70,7 +70,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Market change clears cart (Web and Mobile store behavior).
 
 ### 6.4 Country and Localization APIs
-* `GET /api/countries` returns country configuration (`currency`, `currency_symbol`, required/optional fields, tax rate, languages, decimal precision).
+* `GET /api/countries` returns country configuration (`currency`, `currency_symbol`, required/optional fields, `tip_field`, `tip_mode`, `tip_percentages`, `tax_rate`, `delivery_fee`, `languages`, `decimal_places`).
 * `GET /api/pizzas` requires `Authorization: Bearer <token>`.
 * `GET /api/pizzas` requires `X-Country-Code` header.
 * `GET /api/pizzas` supports optional `X-Language` header (defaults to `en`).
@@ -79,7 +79,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 ### 6.5 Catalog and Product Data
 * Display pizza cards with image, name, description, and localized price.
 * Currency conversion baseline:
-* `USD=1.0`, `MXN=17.5`, `CHF=0.88`, `JPY=149.0`.
+* `USD=1.0`, `MXN=17.55`, `CHF=0.7823`, `JPY=157.89`.
 * Rounding behavior: JPY uses zero decimals; other currencies use two decimals.
 * `problem_user` data mutation: all catalog prices become `0.0` and image URL points to a broken source (to test image fallback handling).
 
@@ -89,7 +89,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Toppings selection capped at 10 options.
 * Unit price = base localized pizza price + localized size add-on + localized topping add-on.
 * Editing a cart item can merge with another item if resulting config signature matches.
-* Customization is primarily a client-side/cart concept; backend checkout currently uses `pizza_id` + `quantity` as canonical billing inputs.
+* Backend checkout pricing now incorporates `pizza_id`, `quantity`, `size`, and topping count from the payload to keep canonical billing aligned with the UI.
 
 ### 6.7 Cart Management
 * Add configured items to cart.
@@ -115,11 +115,13 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Common required fields: `country_code`, `items`, `name`, `address`, `phone`.
 * `items[].quantity` valid range: `1..10`.
 * Country-specific required fields:
-  * `MX`: `colonia` required, `zip_code` optional, `propina` optional.
-  * `US`: `zip_code` required, 5 digits.
-  * `CH`: `plz` required.
-  * `JP`: `prefectura` required.
-* Successful response includes `order_id`, `subtotal`, `tax`, `tip`, `total`, `currency`, `currency_symbol`, `items`, `timestamp`.
+  * `MX`: `colonia` required, `zip_code` optional, `propina` optional percentage.
+  * `US`: `zip_code` required (5 digits), `tip` optional percentage.
+  * `CH`: `plz` required, `trinkgeld` optional percentage.
+  * `JP`: `prefectura` required, `chip` optional percentage.
+* Successful response includes `order_id`, `subtotal`, `delivery_fee`, `tax_rate`, `tip_percentage`, `tax`, `tip`, `total`, `currency`, `currency_symbol`, `items`, `timestamp`.
+* Checkout summary uses real market taxes: `MX=16%`, `US=8%`, `CH=8.1%`, `JP=10%`.
+* Web and mobile present tip options as percentages `0/5/10/15`, with `0%` selected by default.
 
 ### 6.10 Orders and Access Control
 * `GET /api/orders` returns orders of authenticated user only.
@@ -151,7 +153,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * `phone`: min 8, max 20 (server-side length validation).
 * Web phone input includes client regex pattern: allowed chars are digits, spaces, `+`, `-`, parentheses.
 * US `zip_code` must be 5 numeric digits.
-* MX `propina` minimum: 0 when provided.
+* `propina` / `tip` / `trinkgeld` / `chip` must be percentages in the range `0..100` when provided.
 
 ### 7.3 Header Validation
 * Missing `X-Country-Code` on `/api/pizzas` must return `400`.
@@ -225,13 +227,11 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Cart hydration from `GET /api/cart` on Checkout mount when local cart is empty (E2E injection support).
 * Deep linking via `omnipizza://` scheme — all 6 screens reachable directly by URL with optional `accessToken`, `market`, `lang`, `hydrateCart`, `resetSession`, `pizzaId`, `size`, `orderId` params. `accessToken` injects auth at deep link time, bypassing the login screen entirely.
 * Unified `testID` / `accessibilityLabel` naming convention across all screens: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-` prefixes.
+* Visible text nodes and text-bearing controls expose readable accessibility values so Appium/XCUITest can extract the same text users see on screen.
 
 ### 11.3 Cross-Platform Known Gaps to Consider in Test Strategy
-* API capability and UI parity are not complete for every flow (especially checkout/order integration on mobile).
-* `data-testid` coverage is partial and strongest in checkout/navbar paths.
 * Profile is client-side only in current baseline (no backend profile update endpoint).
-* Web checkout currently needs standardized visible rendering for backend error state.
-* Web checkout summary values shown before submit are display-level values and can diverge from backend canonical totals.
+* Non-textual icons/images/containers should still be targeted by stable ids, not by `getText()`.
 * Existing-token mobile redirect path should be covered by regression tests.
 
 ### 11.4 Current Automation Hooks Baseline
@@ -244,9 +244,9 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 | Catalog | `input-search-pizza`, `btn-category-{id}`, `card-pizza-{id}`, `btn-clear-filters`, `loader-catalog` |
 | Pizza Customizer | `btn-size-{size}`, `btn-topping-{id}`, `text-estimated-total-value`, `btn-add-to-cart`, `btn-close-builder` |
 | Cart | `view-cart-sidebar`, `view-cart-empty`, `view-cart-item-{id}`, `btn-cart-qty-minus-{id}`, `text-cart-qty-{id}` |
-| Checkout | `input-fullname`, `input-address`, `input-colonia` (MX), `input-zipcode` (US/MX optional), `input-plz` (CH), `input-prefectura` (JP), `input-phone`, `payment-card`, `payment-cash`, `view-order-summary` |
+| Checkout | `address`, `full-name`, `phone`, `colonia` (MX), `zip-code` (US/MX), `payment-card`, `payment-cash`, `order-summary-title`, `order-tip-0`, `order-total` |
 | Profile | `input-profile-fullname`, `input-profile-phone`, `input-profile-address`, `input-profile-notes`, `btn-delete-account` |
-| Order Success | `text-status-title`, `view-courier-card`, `btn-courier-chat`, `btn-courier-call`, `btn-back-catalog` |
+| Order Success | `order-success-title`, `courier-info`, `courier-chat`, `courier-call`, `back-to-catalog` |
 | Navbar | `btn-logout`, `btn-mobile-menu`, `btn-lang-de`, `btn-lang-fr` |
 
 **Mobile (`testID` / `accessibilityLabel` — unified convention)**
@@ -256,7 +256,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 | `btn-` | Tappable actions | `btn-size-large`, `btn-add-to-cart`, `btn-logout`, `btn-close-builder` |
 | `input-` | Text inputs | `input-username`, `input-password`, `input-address`, `input-zipcode` |
 | `text-` | Display values | `text-status-title`, `text-estimated-total-value`, `text-courier-name` |
-| `view-` | Container elements | `view-cart-sidebar`, `view-courier-card`, `view-order-summary` |
+| `view-` | Container elements | `view-summary-list`, `view-courier-card`, `view-item-row-{id}` |
 | `img-` | Images | `img-builder-pizza`, `img-courier-avatar`, `img-map-background` |
 | `card-` | Card components | `card-pizza-{id}` |
 | `screen-` | Root screen wrappers | `screen-checkout`, `screen-pizza-builder`, `screen-order-success` |

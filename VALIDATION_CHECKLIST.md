@@ -45,26 +45,30 @@
 #### 🇲🇽 México (MX)
 - [x] Moneda: $ MXN
 - [x] Campo requerido: `colonia`
-- [x] Campo opcional: `propina`
-- [x] Impuestos: 0%
+- [x] Campos opcionales: `zip_code`, `propina`
+- [x] `propina` porcentual opcional (`0..100`)
+- [x] Impuestos: 16%
 
 #### 🇺🇸 USA (US)
 - [x] Moneda: $ USD
 - [x] Campo requerido: `zip_code` (5 dígitos)
+- [x] Campo opcional: `tip`
 - [x] Validación de formato ZIP
 - [x] Impuestos: 8% (Sales Tax)
 
 #### 🇨🇭 Suiza (CH)
 - [x] Moneda: CHF
 - [x] Campo requerido: `plz`
-- [x] Impuestos: 0%
+- [x] Campo opcional: `trinkgeld`
+- [x] Impuestos: 8.1%
 - [x] Soporte multi-idioma (de, fr)
 
 #### 🇯🇵 Japón (JP)
 - [x] Moneda: ¥ JPY
 - [x] Sin decimales en precios
 - [x] Campo requerido: `prefectura`
-- [x] Impuestos: 0%
+- [x] Campo opcional: `chip`
+- [x] Impuestos: 10%
 
 ## IV. Requisitos de las Pantallas
 

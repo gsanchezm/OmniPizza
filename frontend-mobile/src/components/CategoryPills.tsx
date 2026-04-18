@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../theme/colors';
 import { useT } from '../i18n';
+import { getReadableControlProps, getReadableTextProps } from '../utils/qa';
 
 const CATEGORIES = [
   { id: 'all', labelKey: 'allPizza' },
@@ -32,10 +33,12 @@ export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
             key={cat.id}
             onPress={() => onSelect(cat.id)}
             style={[styles.pill, isActive && styles.pillActive]}
-            accessibilityLabel={`btn-category-${cat.id}`}
-            testID={`btn-category-${cat.id}`}
+            {...getReadableControlProps(`btn-category-${cat.id}`, t(cat.labelKey))}
           >
-            <Text style={[styles.text, isActive && styles.textActive]} accessibilityLabel={`text-category-${cat.id}`}>
+            <Text
+              style={[styles.text, isActive && styles.textActive]}
+              {...getReadableTextProps(`text-category-${cat.id}`, t(cat.labelKey))}
+            >
               {t(cat.labelKey)}
             </Text>
           </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   NavigationContainer,
   DarkTheme,
@@ -16,6 +16,8 @@ import PizzaBuilderScreen from "./src/screens/PizzaBuilderScreen";
 import linking from "./src/navigation/linking";
 import { useDeepLinkParams } from "./src/hooks/useDeepLinkParams";
 import type { RootStackParamList } from "./src/navigation/types";
+import { useAppStore } from "./src/store/useAppStore";
+import { countryService } from "./src/services/country.service";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +38,29 @@ const OmniPizzaTheme = {
 
 export default function App() {
   useDeepLinkParams(navigationRef);
+  const country = useAppStore((state) => state.country);
+  const setCountryInfo = useAppStore((state) => state.setCountryInfo);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const countries = await countryService.getCountries();
+        if (cancelled) return;
+        const match = countries.find((item) => item.code === country) ?? null;
+        setCountryInfo(match);
+      } catch {
+        if (!cancelled) {
+          setCountryInfo(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [country, setCountryInfo]);
 
   return (
     <NavigationContainer

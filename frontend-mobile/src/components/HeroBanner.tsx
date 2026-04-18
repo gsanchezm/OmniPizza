@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ImageBackground, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
+import { getReadableControlProps, getReadableTextProps } from '../utils/qa';
 
 export const HeroBanner = () => {
   return (
@@ -18,13 +19,13 @@ export const HeroBanner = () => {
         >
           <View style={styles.content} accessibilityLabel="view-hero-content">
              <View style={styles.badge} accessibilityLabel="view-hero-badge">
-                <Text style={styles.badgeText} accessibilityLabel="text-hero-badge">LIMITED OFFER</Text>
+                <Text style={styles.badgeText} {...getReadableTextProps("text-hero-badge", "LIMITED OFFER")}>LIMITED OFFER</Text>
              </View>
-             <Text style={styles.title} accessibilityLabel="text-hero-title" testID="text-hero-title">Buy 1 Get 1 Free</Text>
-             <Text style={styles.subtitle} accessibilityLabel="text-hero-subtitle">Signature Truffle & Mushroom Pizza</Text>
+             <Text style={styles.title} {...getReadableTextProps("text-hero-title", "Buy 1 Get 1 Free")}>Buy 1 Get 1 Free</Text>
+             <Text style={styles.subtitle} {...getReadableTextProps("text-hero-subtitle", "Signature Truffle & Mushroom Pizza")}>Signature Truffle & Mushroom Pizza</Text>
 
-             <TouchableOpacity style={styles.button} accessibilityLabel="btn-hero-claim" testID="btn-hero-claim">
-                <Text style={styles.buttonText} accessibilityLabel="text-hero-claim">Claim Now</Text>
+             <TouchableOpacity style={styles.button} {...getReadableControlProps("btn-hero-claim", "Claim Now")}>
+                <Text style={styles.buttonText} {...getReadableTextProps("text-hero-claim", "Claim Now")}>Claim Now</Text>
              </TouchableOpacity>
           </View>
         </LinearGradient>

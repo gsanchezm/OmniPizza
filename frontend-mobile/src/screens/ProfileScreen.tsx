@@ -15,6 +15,7 @@ import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
@@ -37,7 +38,7 @@ export default function ProfileScreen({ navigation }: any) {
       >
         {/* Header Title Space */}
         <View style={styles.headerSpace} accessibilityLabel="view-profile-header">
-          <Text style={styles.subTitle} accessibilityLabel="text-profile-subtitle">
+          <Text style={styles.subTitle} {...getReadableTextProps("text-profile-subtitle", t("managePreferences") || "Manage your premium dining preferences")}>
             {t("managePreferences") || "Manage your premium dining preferences"}
           </Text>
         </View>
@@ -68,16 +69,16 @@ export default function ProfileScreen({ navigation }: any) {
               }}
               accessibilityLabel="view-profile-name-row"
             >
-              <Text style={styles.userName} accessibilityLabel="text-profile-username" testID="text-profile-username">
+              <Text style={styles.userName} {...getReadableTextProps("text-profile-username", profile?.fullName || "Alexander Sterling")}>
                 {profile?.fullName || "Alexander Sterling"}
               </Text>
               <View style={styles.badge} accessibilityLabel="view-premium-badge">
-                <Text style={styles.badgeText} accessibilityLabel="text-premium-badge">
+                <Text style={styles.badgeText} {...getReadableTextProps("text-premium-badge", t("premiumMember") || "PREMIUM")}>
                   {t("premiumMember") || "PREMIUM"}
                 </Text>
               </View>
             </View>
-            <Text style={styles.userMeta} accessibilityLabel="text-profile-meta">
+            <Text style={styles.userMeta} {...getReadableTextProps("text-profile-meta", `${t("joined") || "Joined"} March 2023`)}>
               {t("joined") || "Joined"} March 2023
             </Text>
           </View>
@@ -87,14 +88,14 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.formCard} accessibilityLabel="view-form-card">
           <View style={styles.formHeader} accessibilityLabel="view-form-header">
             <Text style={{ fontSize: 18, marginRight: 8 }} accessibilityLabel="icon-personal-info">👤</Text>
-            <Text style={styles.formTitle} accessibilityLabel="text-form-title">
+            <Text style={styles.formTitle} {...getReadableTextProps("text-form-title", t("personalInformation") || "Personal Information")}>
               {t("personalInformation") || "Personal Information"}
             </Text>
           </View>
 
           <View style={styles.formBody} accessibilityLabel="view-form-body">
             <View style={styles.fieldGroup} accessibilityLabel="view-field-fullname">
-              <Text style={styles.label} accessibilityLabel="label-profile-fullname">{t("fullName")}</Text>
+              <Text style={styles.label} {...getReadableTextProps("label-profile-fullname", t("fullName"))}>{t("fullName")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.fullName || ""}
@@ -106,7 +107,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-phone">
-              <Text style={styles.label} accessibilityLabel="label-profile-phone">{t("phone")}</Text>
+              <Text style={styles.label} {...getReadableTextProps("label-profile-phone", t("phone"))}>{t("phone")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.phone || ""}
@@ -118,7 +119,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-address">
-              <Text style={styles.label} accessibilityLabel="label-profile-address">{t("address")}</Text>
+              <Text style={styles.label} {...getReadableTextProps("label-profile-address", t("address"))}>{t("address")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.address || ""}
@@ -129,7 +130,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-notes">
-              <Text style={styles.label} accessibilityLabel="label-profile-notes">
+              <Text style={styles.label} {...getReadableTextProps("label-profile-notes", t("deliveryNotes") || "Delivery Notes")}>
                 {t("deliveryNotes") || "Delivery Notes"}
               </Text>
               <TextInput
@@ -151,23 +152,22 @@ export default function ProfileScreen({ navigation }: any) {
             <TouchableOpacity
               style={styles.btnCancel}
               onPress={() => navigation.goBack()}
-              accessibilityLabel="btn-cancel-profile"
-              testID="btn-cancel-profile"
+              {...getReadableControlProps("btn-cancel-profile", t("cancel") || "CANCEL")}
             >
-              <Text style={styles.btnCancelText} accessibilityLabel="text-cancel-profile">
+              <Text style={styles.btnCancelText} {...getReadableTextProps("text-cancel-profile", t("cancel") || "CANCEL")}>
                 {t("cancel") || "CANCEL"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btnSave} onPress={handleSave} testID="btn-save-profile" accessibilityLabel="btn-save-profile">
-              <Text style={styles.btnSaveText} accessibilityLabel="text-save-profile">
+            <TouchableOpacity style={styles.btnSave} onPress={handleSave} {...getReadableControlProps("btn-save-profile", t("saveChanges") || "SAVE CHANGES")}>
+              <Text style={styles.btnSaveText} {...getReadableTextProps("text-save-profile", t("saveChanges") || "SAVE CHANGES")}>
                 {t("saveChanges") || "SAVE CHANGES"}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.deleteBtn} testID="btn-delete-account" accessibilityLabel="btn-delete-account">
-          <Text style={styles.deleteText} accessibilityLabel="text-delete-account">
+        <TouchableOpacity style={styles.deleteBtn} {...getReadableControlProps("btn-delete-account", t("deleteAccount") || "Delete Account")}>
+          <Text style={styles.deleteText} {...getReadableTextProps("text-delete-account", `🗑 ${t("deleteAccount") || "Delete Account"}`)}>
             🗑 {t("deleteAccount") || "Delete Account"}
           </Text>
         </TouchableOpacity>

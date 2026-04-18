@@ -172,14 +172,20 @@ If the backend cart is empty or the request fails, the frontend falls back to th
 | performance_glitch_user | pizza123 | API delay (~3s)              |
 | error_user              | pizza123 | Random checkout error (~50%) |
 
-### Markets (pricing + required fields)
+### Markets (pricing + checkout rules)
 
-| Market | Currency | Required fields | Optional fields | Notes                     |
-| ------ | -------- | --------------- | --------------- | ------------------------- |
-| MX     | MXN      | `colonia`       | `zip_code`, `propina` | Tip optional      |
-| US     | USD      | `zip_code`      | —               | Tax applied               |
-| CH     | CHF      | `plz`           | —               | **Language toggle DE/FR** |
-| JP     | JPY      | `prefectura`    | —               | No decimals               |
+| Market | Currency | Required fields | Optional fields | Tax | Tip field |
+| ------ | -------- | --------------- | --------------- | --- | --------- |
+| MX     | MXN      | `colonia`       | `zip_code`, `propina` | `16%` IVA | `propina` percentage |
+| US     | USD      | `zip_code`      | `tip`           | `8%` sales tax | `tip` percentage |
+| CH     | CHF      | `plz`           | `trinkgeld`     | `8.1%` VAT | `trinkgeld` percentage |
+| JP     | JPY      | `prefectura`    | `chip`          | `10%` consumption tax | `chip` percentage |
+
+Checkout in both web and mobile uses:
+
+- Localized `delivery_fee` from `GET /api/countries`
+- Tip percentages `0%`, `5%`, `10%`, `15%`
+- `0%` selected visually by default on all markets
 
 ### Language behavior
 
@@ -200,6 +206,12 @@ Checkout supports two selectable payment methods:
 
 The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` for automation.
 
+### Checkout totals
+
+- The summary shown before submit follows the same formula as the backend:
+  `total = subtotal + delivery_fee + tax + tip`
+- `POST /api/checkout` returns canonical `delivery_fee`, `tax_rate`, `tip_percentage`, `tax`, `tip`, and `total`.
+
 ### Profile (Delivery Details)
 
 The **Profile** page stores delivery details (name/address/phone) and **auto-fills Checkout**.
@@ -213,6 +225,7 @@ After checkout, the **Order Success** screen is shown and the last order remains
 - Navbar includes a **logout** button.
 - Checkout validates required fields before submit (country-specific + inline errors).
 - Layouts are rotation-ready (portrait/landscape) for iOS and Android.
+- Visible mobile text nodes and text-bearing controls expose readable values for Appium/XCUITest `getText()` while preserving stable `testID`s.
 
 ### Mobile Deep Links (`omnipizza://`)
 

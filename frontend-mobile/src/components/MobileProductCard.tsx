@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -24,13 +25,17 @@ export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) =>
 
       {/* Content Section */}
       <View style={styles.content} accessibilityLabel={`view-pizza-content-${pizza.id}`}>
-        <Text style={styles.title} numberOfLines={1} testID={`text-pizza-name-${pizza.id}`} accessibilityLabel={`text-pizza-name-${pizza.id}`}>{pizza.name}</Text>
-        <Text style={styles.desc} numberOfLines={2} accessibilityLabel={`text-pizza-desc-${pizza.id}`}>{pizza.description}</Text>
+        <Text style={styles.title} numberOfLines={1} {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
+        <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>{pizza.description}</Text>
 
         <View style={styles.footer} accessibilityLabel={`view-pizza-footer-${pizza.id}`}>
-           <Text style={styles.price} testID={`text-pizza-price-${pizza.id}`} accessibilityLabel={`text-pizza-price-${pizza.id}`}>{pizza.currency_symbol}{pizza.price}</Text>
+           <Text style={styles.price} {...getReadableTextProps(`text-pizza-price-${pizza.id}`, `${pizza.currency_symbol}${pizza.price}`)}>{pizza.currency_symbol}{pizza.price}</Text>
 
-           <TouchableOpacity onPress={() => onPress(pizza)} style={styles.addButton} testID={`btn-add-pizza-${pizza.id}`} accessibilityLabel={`btn-add-pizza-${pizza.id}`}>
+           <TouchableOpacity
+             onPress={() => onPress(pizza)}
+             style={styles.addButton}
+             {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, `Add ${pizza.name}`)}
+           >
               <Text style={styles.addIcon} accessibilityLabel={`icon-add-pizza-${pizza.id}`}>＋</Text>
            </TouchableOpacity>
         </View>

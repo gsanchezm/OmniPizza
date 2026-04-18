@@ -12,6 +12,7 @@ import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { getCourierProfile } from "../features/orderSuccess/useCases/getCourierProfile";
+import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 const { width } = Dimensions.get("window");
 
@@ -48,7 +49,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
 
           <View style={styles.liveBadge} accessibilityLabel="view-live-badge" testID="view-live-badge">
             <View style={styles.liveDot} accessibilityLabel="view-live-dot" />
-            <Text style={styles.liveText} accessibilityLabel="text-live-tracking">{t("liveTracking")}</Text>
+            <Text style={styles.liveText} {...getReadableTextProps("text-live-tracking", t("liveTracking"))}>{t("liveTracking")}</Text>
           </View>
 
           <View style={styles.supportBtn} accessibilityLabel="btn-support">
@@ -63,19 +64,19 @@ export default function OrderSuccessScreen({ navigation }: any) {
             <Text style={{ fontSize: 24 }} accessibilityLabel="icon-pizza-delivery">🍕</Text>
           </View>
           <View style={styles.courierTag} accessibilityLabel="view-courier-tag">
-            <Text style={styles.courierNameTag} accessibilityLabel="text-courier-tag">CARLOS</Text>
+            <Text style={styles.courierNameTag} {...getReadableTextProps("text-courier-tag", "CARLOS")}>CARLOS</Text>
           </View>
         </View>
       </View>
 
       {/* Bottom Sheet Card */}
       <View style={styles.bottomSheet} accessibilityLabel="view-bottom-sheet" testID="view-bottom-sheet">
-        <Text style={styles.statusTitle} accessibilityLabel="text-status-title" testID="text-status-title">{t("outForDelivery")}</Text>
-        <Text style={styles.statusSub} accessibilityLabel="text-status-sub">{t("expectedArrival")}: 8:45 PM</Text>
+        <Text style={styles.statusTitle} {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
+        <Text style={styles.statusSub} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
 
         <View style={styles.timeRow} accessibilityLabel="view-time-row">
-          <Text style={styles.bigTime} accessibilityLabel="text-time-estimate" testID="text-time-estimate">15-20</Text>
-          <Text style={styles.minLabel} accessibilityLabel="text-min-label">{t("min")}</Text>
+          <Text style={styles.bigTime} {...getReadableTextProps("text-time-estimate", "15-20")}>15-20</Text>
+          <Text style={styles.minLabel} {...getReadableTextProps("text-min-label", t("min"))}>{t("min")}</Text>
         </View>
 
         {/* Courier Card */}
@@ -89,13 +90,13 @@ export default function OrderSuccessScreen({ navigation }: any) {
               accessibilityLabel="img-courier-avatar"
             />
             <View style={styles.ratingBadge} accessibilityLabel="view-rating-badge">
-              <Text style={styles.ratingText} accessibilityLabel="text-courier-rating">4.9 ★</Text>
+              <Text style={styles.ratingText} {...getReadableTextProps("text-courier-rating", "4.9 ★")}>4.9 ★</Text>
             </View>
 
             <View style={{ marginLeft: 12 }} accessibilityLabel="view-courier-details">
-              <Text style={styles.courierLabel} accessibilityLabel="text-courier-label">{t("yourCourier")}</Text>
-              <Text style={styles.courierName} accessibilityLabel="text-courier-name" testID="text-courier-name">{courier.name}</Text>
-              <Text style={styles.courierVehicle} accessibilityLabel="text-courier-vehicle">{t(courier.vehicle)}</Text>
+              <Text style={styles.courierLabel} {...getReadableTextProps("text-courier-label", t("yourCourier"))}>{t("yourCourier")}</Text>
+              <Text style={styles.courierName} {...getReadableTextProps("text-courier-name", courier.name)}>{courier.name}</Text>
+              <Text style={styles.courierVehicle} {...getReadableTextProps("text-courier-vehicle", t(courier.vehicle))}>{t(courier.vehicle)}</Text>
             </View>
           </View>
 
@@ -118,8 +119,8 @@ export default function OrderSuccessScreen({ navigation }: any) {
         </View>
 
         {/* Order Details Hint */}
-        <TouchableOpacity style={styles.detailsBtn} accessibilityLabel="btn-order-details" testID="btn-order-details">
-          <Text style={styles.detailsText} accessibilityLabel="text-order-details">
+        <TouchableOpacity style={styles.detailsBtn} {...getReadableControlProps("btn-order-details", t("orderDetails").toUpperCase())}>
+          <Text style={styles.detailsText} {...getReadableTextProps("text-order-details", t("orderDetails").toUpperCase())}>
             {t("orderDetails").toUpperCase()}
           </Text>
           <Text style={{ color: "#666" }} accessibilityLabel="icon-expand">^</Text>
