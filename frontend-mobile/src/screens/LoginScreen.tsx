@@ -62,12 +62,8 @@ export default function LoginScreen({ navigation }: any) {
   }, [token]);
 
   const handleLogin = async () => {
-    if (!username.trim()) {
-      setError("Username is required.");
-      return;
-    }
-    if (!password.trim()) {
-      setError("Password is required.");
+    if (!username.trim() || !password.trim()) {
+      setError("Invalid credentials");
       return;
     }
 
@@ -82,16 +78,14 @@ export default function LoginScreen({ navigation }: any) {
         selectMarket(selectedMarket, setCountry);
         setToken(data.access_token);
       } else {
-        setError("Invalid credentials.");
+        setError("Invalid credentials");
       }
     } catch (e: any) {
-      const detail = e.response?.data?.detail;
-      if (typeof detail === "string") {
-        setError(detail);
-      } else if (Array.isArray(detail)) {
-        setError(detail.map((d: any) => d.msg || String(d)).join(", "));
+      const status = e?.response?.status;
+      if (status === 429 || e?.response?.data?.users_limit) {
+        setError("Too many users");
       } else {
-        setError(e.message || "Login failed");
+        setError("Invalid credentials");
       }
     } finally {
       setLoading(false);

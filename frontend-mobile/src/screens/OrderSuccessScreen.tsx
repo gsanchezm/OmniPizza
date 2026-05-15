@@ -71,32 +71,38 @@ export default function OrderSuccessScreen({ navigation }: any) {
 
       {/* Bottom Sheet Card */}
       <View style={styles.bottomSheet} accessibilityLabel="view-bottom-sheet" testID="view-bottom-sheet">
-        <Text style={styles.statusTitle} {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
-        <Text style={styles.statusSub} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
+        <View style={styles.statusRow} accessibilityLabel="view-status-row">
+          <View style={styles.statusTextCol} accessibilityLabel="view-status-text">
+            <Text style={styles.statusTitle} {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
+            <Text style={styles.statusSub} numberOfLines={1} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
+          </View>
 
-        <View style={styles.timeRow} accessibilityLabel="view-time-row">
-          <Text style={styles.bigTime} {...getReadableTextProps("text-time-estimate", "15-20")}>15-20</Text>
-          <Text style={styles.minLabel} {...getReadableTextProps("text-min-label", t("min"))}>{t("min")}</Text>
+          <View style={styles.timeRow} accessibilityLabel="view-time-row">
+            <Text style={styles.bigTime} {...getReadableTextProps("text-time-estimate", "15-20")}>15-20</Text>
+            <Text style={styles.minLabel} {...getReadableTextProps("text-min-label", t("min"))}>{t("min")}</Text>
+          </View>
         </View>
 
         {/* Courier Card */}
         <View style={styles.courierCard} accessibilityLabel="view-courier-card" testID="view-courier-card">
           <View style={styles.courierInfo} accessibilityLabel="view-courier-info">
-            <Image
-              source={{
-                uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Carlos",
-              }}
-              style={styles.courierAvatar}
-              accessibilityLabel="img-courier-avatar"
-            />
-            <View style={styles.ratingBadge} accessibilityLabel="view-rating-badge">
-              <Text style={styles.ratingText} {...getReadableTextProps("text-courier-rating", "4.9 ★")}>4.9 ★</Text>
+            <View style={styles.avatarWrap} accessibilityLabel="view-avatar-wrap">
+              <Image
+                source={{
+                  uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Carlos",
+                }}
+                style={styles.courierAvatar}
+                accessibilityLabel="img-courier-avatar"
+              />
+              <View style={styles.ratingBadge} accessibilityLabel="view-rating-badge">
+                <Text style={styles.ratingText} {...getReadableTextProps("text-courier-rating", "4.9 ★")}>4.9 ★</Text>
+              </View>
             </View>
 
-            <View style={{ marginLeft: 12 }} accessibilityLabel="view-courier-details">
-              <Text style={styles.courierLabel} {...getReadableTextProps("text-courier-label", t("yourCourier"))}>{t("yourCourier")}</Text>
-              <Text style={styles.courierName} {...getReadableTextProps("text-courier-name", courier.name)}>{courier.name}</Text>
-              <Text style={styles.courierVehicle} {...getReadableTextProps("text-courier-vehicle", t(courier.vehicle))}>{t(courier.vehicle)}</Text>
+            <View style={styles.courierDetails} accessibilityLabel="view-courier-details">
+              <Text style={styles.courierLabel} numberOfLines={1} {...getReadableTextProps("text-courier-label", t("yourCourier"))}>{t("yourCourier")}</Text>
+              <Text style={styles.courierName} numberOfLines={1} {...getReadableTextProps("text-courier-name", courier.name)}>{courier.name}</Text>
+              <Text style={styles.courierVehicle} numberOfLines={1} {...getReadableTextProps("text-courier-vehicle", t(courier.vehicle))}>{t(courier.vehicle)}</Text>
             </View>
           </View>
 
@@ -106,14 +112,14 @@ export default function OrderSuccessScreen({ navigation }: any) {
               testID="btn-courier-chat"
               accessibilityLabel="btn-courier-chat"
             >
-              <Text style={{ fontSize: 20 }} accessibilityLabel="icon-chat">💬</Text>
+              <Text style={{ fontSize: 18 }} accessibilityLabel="icon-chat">💬</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: "#FF5722" }]}
               accessibilityLabel="btn-courier-call"
               testID="btn-courier-call"
             >
-              <Text style={{ fontSize: 20 }} accessibilityLabel="icon-call">📞</Text>
+              <Text style={{ fontSize: 18 }} accessibilityLabel="icon-call">📞</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -248,33 +254,42 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#333",
   },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+    gap: 12,
+  },
+  statusTextCol: {
+    flex: 1,
+    minWidth: 0,
+  },
   statusTitle: {
     color: "white",
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "800",
     marginBottom: 4,
   },
   statusSub: {
     color: "#888",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   timeRow: {
     flexDirection: "row",
     alignItems: "baseline",
-    justifyContent: "flex-end",
-    marginTop: -40,
-    marginBottom: 30,
+    flexShrink: 0,
   },
   bigTime: {
-    fontSize: 56,
+    fontSize: 38,
     fontWeight: "900",
     color: "#FF5722",
     fontStyle: "italic",
-    letterSpacing: -2,
+    letterSpacing: -1,
   },
   minLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "800",
     color: "#FF5722",
     marginLeft: 4,
@@ -287,10 +302,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   courierInfo: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
+    minWidth: 0,
+  },
+  avatarWrap: {
+    position: "relative",
+    marginRight: 12,
+  },
+  courierDetails: {
+    flex: 1,
+    minWidth: 0,
   },
   courierAvatar: {
     width: 50,
@@ -333,12 +359,13 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    gap: 10,
+    gap: 8,
+    flexShrink: 0,
   },
   actionBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },

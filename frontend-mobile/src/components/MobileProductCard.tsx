@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+
+const FALLBACK_PIZZA_IMAGE =
+  "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -10,16 +13,21 @@ interface MobileProductCardProps {
 }
 
 export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) => {
+  const [imageUri, setImageUri] = useState<string | undefined>(pizza.image);
+
   return (
     <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       {/* Image Section */}
       <View style={styles.imageContainer} accessibilityLabel={`view-img-container-${pizza.id}`}>
         <Image
-          source={{ uri: pizza.image }}
+          source={{ uri: imageUri || FALLBACK_PIZZA_IMAGE }}
           style={styles.image}
           resizeMode="cover"
           accessibilityLabel={`img-pizza-${pizza.id}`}
           testID={`img-pizza-${pizza.id}`}
+          onError={() => {
+            if (imageUri !== FALLBACK_PIZZA_IMAGE) setImageUri(FALLBACK_PIZZA_IMAGE);
+          }}
         />
       </View>
 

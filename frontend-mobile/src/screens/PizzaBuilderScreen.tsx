@@ -264,11 +264,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         {(it as any).image ? (
                           <Image
                             source={(it as any).image}
-                            style={{
-                              width: 40,
-                              height: 40,
-                              resizeMode: "contain",
-                            }}
+                            style={styles.toppingIconImage}
+                            resizeMode="cover"
                             accessibilityLabel={`img-topping-${it.id}`}
                           />
                         ) : (
@@ -537,6 +534,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
+    overflow: "hidden",
+  },
+  toppingIconImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   toppingName: {
     color: "#888",
