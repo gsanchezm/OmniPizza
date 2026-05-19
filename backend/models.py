@@ -74,6 +74,7 @@ class CheckoutRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     address: str = Field(..., min_length=5, max_length=200)
     phone: str = Field(..., min_length=8, max_length=20)
+    payment_method: Optional[Literal["card", "cash"]] = "card"
     
     # Country-specific fields
     colonia: Optional[str] = None  # MX

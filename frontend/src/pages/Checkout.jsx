@@ -503,6 +503,7 @@ export default function Checkout() {
         form: {
           ...form,
           propina: String(tipPercentage),
+          payment_method: paymentMethod,
         },
       });
       setLastOrder(res.data);
@@ -570,7 +571,7 @@ export default function Checkout() {
             >
               <div className="grid gap-6">
                 <div>
-                  <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                  <label data-testid="label-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                     {tOpt(UI_TEXT.streetPlaceholder, language)}
                   </label>
                   <input
@@ -598,7 +599,7 @@ export default function Checkout() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {countryCode === "MX" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-colonia" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.coloniaPlaceholder, language)}
                       </label>
                       <input
@@ -616,7 +617,7 @@ export default function Checkout() {
 
                   {countryCode === "MX" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.zipPlaceholder, language)}
                       </label>
                       <input
@@ -638,7 +639,7 @@ export default function Checkout() {
 
                   {countryCode === "US" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.zipPlaceholder, language)}
                       </label>
                       <input
@@ -661,7 +662,7 @@ export default function Checkout() {
 
                   {countryCode === "CH" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.plzPlaceholder, language)}
                       </label>
                       <input
@@ -679,7 +680,7 @@ export default function Checkout() {
 
                   {countryCode === "JP" && (
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-prefectura" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.prefecturaPlaceholder, language)}
                       </label>
                       <input
@@ -719,7 +720,7 @@ export default function Checkout() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label data-testid="label-full-name" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                       {tOpt(UI_TEXT.fullName, language)}
                     </label>
                     <input
@@ -735,7 +736,7 @@ export default function Checkout() {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label data-testid="label-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                       {tOpt(UI_TEXT.phone, language)}
                     </label>
                     <input
@@ -818,7 +819,7 @@ export default function Checkout() {
                 {paymentMethod === "card" && (
                   <div className="grid gap-6 mt-6">
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-card-holder" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.cardHolder, language)}
                       </label>
                       <input
@@ -836,7 +837,7 @@ export default function Checkout() {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label data-testid="label-card-number" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.cardNumber, language)}
                       </label>
                       <input
@@ -856,7 +857,7 @@ export default function Checkout() {
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                           {tOpt(UI_TEXT.cardExpiry, language)}
                         </label>
                         <input
@@ -878,7 +879,7 @@ export default function Checkout() {
                         />
                       </div>
                       <div>
-                        <label className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                           {tOpt(UI_TEXT.cardCvv, language)}
                         </label>
                         <input

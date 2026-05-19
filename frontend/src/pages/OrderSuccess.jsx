@@ -23,6 +23,7 @@ export default function OrderSuccess() {
                <img 
                  src="/images/ui/map_background.png" 
                  alt="Map"
+                 data-testid="img-map"
                  className="w-full h-full object-cover opacity-80"
                  onError={(e) => {
                      e.target.onerror = null;
@@ -43,7 +44,7 @@ export default function OrderSuccess() {
            </div>
            
            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-[#1A1A1A] border border-[#333] px-6 py-2 rounded-full shadow-xl">
-               <span className="text-[#FF5722] font-black tracking-widest text-xs uppercase animate-pulse">● {t('liveTracking')}</span>
+               <span data-testid="live-tracking-status" className="text-[#FF5722] font-black tracking-widest text-xs uppercase animate-pulse">● {t('liveTracking')}</span>
            </div>
 
            <button
@@ -64,15 +65,15 @@ export default function OrderSuccess() {
                        <h1 data-testid={tid("order-success-title")} className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
                            {t('outForDelivery')}
                        </h1>
-                       <p className="text-gray-500 font-medium">
+                        <p data-testid="expected-arrival" className="text-gray-500 font-medium">
                            {t('expectedArrival')}: 8:45 PM
                        </p>
                    </div>
                    <div className="mt-4 md:mt-0 text-right">
-                       <div className="text-5xl md:text-6xl font-black text-[#FF5722] italic tracking-tighter">
+                       <div data-testid="delivery-time-min" className="text-5xl md:text-6xl font-black text-[#FF5722] italic tracking-tighter">
                            15-20
                        </div>
-                       <div className="text-gray-500 font-black tracking-widest text-sm uppercase mr-1">
+                       <div data-testid="delivery-time-label" className="text-gray-500 font-black tracking-widest text-sm uppercase mr-1">
                            {t('min')}
                        </div>
                    </div>
@@ -83,25 +84,25 @@ export default function OrderSuccess() {
                    <div className="flex items-center gap-4">
                        <div className="relative">
                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#2A2A2A] border border-[#333]">
-                               <img src={courier.image} alt={courier.name} className="w-full h-full object-cover" />
+                               <img data-testid="img-courier" src={courier.image} alt={courier.name} className="w-full h-full object-cover" />
                            </div>
-                           <div className="absolute -bottom-2 -right-2 bg-[#FF5722] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-[#1F1F1F] flex items-center gap-0.5">
+                           <div data-testid="courier-rating" className="absolute -bottom-2 -right-2 bg-[#FF5722] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-[#1F1F1F] flex items-center gap-0.5">
                                <span>★</span> {courier.rating}
                            </div>
                        </div>
                        <div>
-                           <div className="text-xs text-gray-500 font-bold tracking-wider uppercase mb-0.5">{t('yourCourier')}</div>
-                           <div className="text-white font-bold text-lg">{courier.name}</div>
-                           <div className="text-gray-400 text-xs">{t(courier.vehicle)}</div>
+                           <div data-testid="courier-role-label" className="text-xs text-gray-500 font-bold tracking-wider uppercase mb-0.5">{t('yourCourier')}</div>
+                           <div data-testid="courier-name" className="text-white font-bold text-lg">{courier.name}</div>
+                           <div data-testid="courier-vehicle" className="text-gray-400 text-xs">{t(courier.vehicle)}</div>
                        </div>
                    </div>
                    
                    <div className="flex gap-3">
-                       <button data-testid={tid("courier-chat")} className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
-                           <img src="/images/ui/icon_chat.png" alt="Chat" className="w-5 h-5 object-contain" />
+                        <button data-testid={tid("courier-chat")} className="w-10 h-10 md:w-12 md:h-12 bg-[#2A2A2A] rounded-full flex items-center justify-center hover:bg-[#333] transition-colors">
+                           <svg data-testid="icon-chat" className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                        </button>
-                       <button data-testid="courier-call" className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">
-                           <img src="/images/ui/icon_phone.png" alt="Call" className="w-5 h-5 object-contain invert brightness-0" />
+                       <button data-testid={tid("courier-call")} className="w-10 h-10 md:w-12 md:h-12 bg-[#FF5722] rounded-full flex items-center justify-center hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20">
+                           <svg data-testid="icon-phone" className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                        </button>
                    </div>
                </div>
@@ -109,8 +110,8 @@ export default function OrderSuccess() {
                {/* Order Details Accordion (Simplified) */}
                {order && (
                    <div className="mt-8 border-t border-[#2A2A2A] pt-6">
-                       <div className="flex justify-between items-center mb-4">
-                           <h3 className="text-gray-500 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
+                        <div className="flex justify-between items-center mb-4">
+                           <h3 data-testid="order-details-label" className="text-gray-500 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
                            <span data-testid="order-id" className="text-white font-mono text-sm">#{order.order_id}</span>
                        </div>
                        <div className="flex justify-between items-center">

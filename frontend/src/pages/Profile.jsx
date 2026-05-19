@@ -71,7 +71,7 @@ export default function Profile() {
         <div className="p-6 sm:p-8 space-y-6">
            <div className="grid sm:grid-cols-2 gap-6">
              <div>
-               <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+               <label data-testid="label-profile-fullname" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('fullName')}
                </label>
                <input
@@ -82,7 +82,7 @@ export default function Profile() {
                />
              </div>
              <div>
-               <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+               <label data-testid="label-profile-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('phone') || "Phone Number"}
                </label>
                <input
@@ -95,7 +95,7 @@ export default function Profile() {
            </div>
 
            <div>
-             <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+             <label data-testid="label-profile-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('address') || "Delivery Address"}
              </label>
              <input
@@ -107,7 +107,7 @@ export default function Profile() {
            </div>
 
            <div>
-             <label className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+             <label data-testid="label-profile-notes" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('deliveryNotes') || "Delivery Notes"}
              </label>
              <textarea

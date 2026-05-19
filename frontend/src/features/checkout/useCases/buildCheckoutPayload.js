@@ -16,6 +16,7 @@ export function buildCheckoutPayload({ countryCode, items, form }) {
     name: form.name,
     address: form.address,
     phone: form.phone,
+    payment_method: form.payment_method,
   };
 
   if (form.propina !== undefined && form.propina !== null && form.propina !== "") {

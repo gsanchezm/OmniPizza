@@ -44,6 +44,12 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e && e.preventDefault();
+    
+    if (!username.trim() || !password.trim()) {
+      setError("Invalid credentials");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
