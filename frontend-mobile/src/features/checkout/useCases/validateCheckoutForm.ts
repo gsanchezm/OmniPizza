@@ -11,12 +11,13 @@ export function validateCheckoutForm(input: {
 
   if (!form.address.trim()) return `${t("streetAndNumber")} is required.`;
   if (country === "MX" && !form.colonia.trim()) return `${t("colonia")} is required.`;
-  if (country === "US" && !form.zip_code.trim()) return `${t("zipCode")} is required.`;
+  if (country === "MX" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return `${t("zipCode")} is required and must be 5 digits.`;
+  if (country === "US" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return `${t("zipCode")} is required and must be 5 digits.`;
   if (country === "CH" && !form.plz.trim()) return `${t("plz")} is required.`;
   if (country === "JP" && !form.prefectura.trim()) return `${t("prefecture")} is required.`;
   if (!form.name.trim()) return `${t("fullName")} is required.`;
-  if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 7) {
-    return `${t("phone")} must be at least 7 digits.`;
+  if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 8) {
+    return `${t("phone")} must be at least 8 digits.`;
   }
 
   if (paymentMethod === "card") {

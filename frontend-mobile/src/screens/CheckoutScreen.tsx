@@ -284,6 +284,7 @@ export default function CheckoutScreen({ navigation }: any) {
               }
               accessibilityLabel="input-zipcode"
               testID="input-zipcode"
+              maxLength={5}
             />
           </View>
         )}
@@ -301,6 +302,7 @@ export default function CheckoutScreen({ navigation }: any) {
               }
               accessibilityLabel="input-zipcode"
               testID="input-zipcode"
+              maxLength={5}
             />
           </View>
         )}
@@ -363,6 +365,7 @@ export default function CheckoutScreen({ navigation }: any) {
               }
               testID="input-phone"
               accessibilityLabel="input-phone"
+              maxLength={20}
             />
           </View>
         </View>

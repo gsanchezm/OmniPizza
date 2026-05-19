@@ -852,6 +852,7 @@ export default function Checkout() {
                           }))
                         }
                         maxLength={19}
+                        minLength={13}
                         required
                       />
                     </div>
@@ -875,6 +876,7 @@ export default function Checkout() {
                             }))
                           }
                           maxLength={5}
+                          minLength={4}
                           required
                         />
                       </div>
@@ -894,6 +896,7 @@ export default function Checkout() {
                             }))
                           }
                           maxLength={4}
+                          minLength={3}
                           required
                         />
                       </div>

@@ -88,7 +88,7 @@ class CheckoutRequest(BaseModel):
     
     @validator('zip_code')
     def validate_zip_code(cls, v, values):
-        if values.get('country_code') == CountryCode.US and v:
+        if values.get('country_code') in (CountryCode.US, CountryCode.MX) and v:
             if not v.isdigit() or len(v) != 5:
                 raise ValueError('ZIP code debe tener 5 dígitos')
         return v
