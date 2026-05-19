@@ -34,6 +34,7 @@ export interface CheckoutPayload {
   zip_code?: string;
   plz?: string;
   prefectura?: string;
+  payment_method?: "card" | "cash";
 }
 
 export interface OrderResult {

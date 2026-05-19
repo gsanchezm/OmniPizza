@@ -119,6 +119,7 @@ export default function CheckoutScreen({ navigation }: any) {
     card_number: "",
     card_expiry: "",
     card_cvv: "",
+    payment_method: "card",
   });
 
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
@@ -178,7 +179,7 @@ export default function CheckoutScreen({ navigation }: any) {
     setLoading(true);
     try {
       const checkoutForm: CheckoutFormState =
-        { ...form, propina: String(tipPercentage) };
+        { ...form, propina: String(tipPercentage), payment_method: paymentMethod };
 
       const result = await placeOrderUseCase({
         country,

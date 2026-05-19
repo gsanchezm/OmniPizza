@@ -14,6 +14,7 @@ export interface CheckoutFormState {
   card_number: string;
   card_expiry: string;
   card_cvv: string;
+  payment_method: "card" | "cash";
 }
 
 export function buildCheckoutPayload(input: {
@@ -22,12 +23,12 @@ export function buildCheckoutPayload(input: {
   form: CheckoutFormState;
 }): CheckoutPayload {
   const { country, cartItems, form } = input;
-  const tipFieldByCountry: Record<CountryCode, "propina" | "tip" | "trinkgeld" | "chip"> = {
+  const tipFieldByCountry = {
     MX: "propina",
     US: "tip",
     CH: "trinkgeld",
     JP: "chip",
-  };
+  } as const;
   const payload: CheckoutPayload = {
     country_code: country,
     items: cartItems.map((i) => ({
@@ -39,6 +40,7 @@ export function buildCheckoutPayload(input: {
     name: form.name.trim(),
     address: form.address.trim(),
     phone: form.phone.trim(),
+    payment_method: form.payment_method,
   };
 
   if (form.propina !== undefined && form.propina !== null && form.propina !== "") {
