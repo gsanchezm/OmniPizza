@@ -48,16 +48,20 @@
 - ✅ Nginx para producción
 - ✅ Cart hydration desde backend al cargar Checkout
 
-### 3. Tests (Schemathesis) ✅
+### 3. Tests ✅
 **Ubicación**: `tests/`
 
-**Tests implementados**:
-- ✅ Contract tests basados en OpenAPI
-- ✅ Validación de schema automática
-- ✅ Tests de flujo completo por usuario
-- ✅ Validaciones específicas por país
-- ✅ Tests de endpoints de caos
-- ✅ Cobertura de casos de error
+**Stack principal: Vitest (TypeScript)**
+- ✅ Tests de integración API en `tests/api.test.ts`
+- ✅ Auth, catálogo, checkout (todos los mercados MX/US/CH/JP), behaviors de usuario, debug
+- ✅ Ejecutar con `pnpm test` desde `tests/`
+
+**Stack legacy: Schemathesis (Python)**
+- ✅ Contract tests basados en OpenAPI en `tests/test_contract.py`
+- ✅ Ejecutar con `pytest test_contract.py -v`
+
+**Mobile**:
+- ✅ Configuración Detox en `frontend-mobile/.detoxrc.js` + experimentos en `frontend-mobile/e2e/`
 
 ### 4. Infraestructura ✅
 **Archivos de configuración**:
@@ -76,14 +80,11 @@
 
 ## 📊 Estadísticas del Proyecto
 
-- **Líneas de código**: ~1,936 (Python + JavaScript/React)
-- **Archivos creados**: 28
-- **Commits**: 6
-- **Endpoints API**: 15+
-- **Países soportados**: 4
-- **Usuarios de prueba**: 5
-- **Componentes React**: 4
-- **Tests implementados**: 10+
+- **Plataformas**: 3 deployables (Backend FastAPI, Web React/Vite, Mobile Expo/RN) + suite de tests
+- **Endpoints API**: 15+ (`/api/auth`, `/api/countries`, `/api/pizzas`, `/api/checkout`, `/api/orders`, `/api/debug`, `/api/store/market`, `/api/cart`, `/api/session*`)
+- **Países soportados**: 4 (MX/US/CH/JP)
+- **Usuarios de prueba**: 5 (standard, locked_out, problem, performance_glitch, error)
+- **Pantallas mobile**: 6 (Login, Catalog, PizzaBuilder, Checkout, OrderSuccess, Profile)
 
 ## 🎯 Características Destacadas
 
@@ -136,8 +137,11 @@ docker-compose up -d
 # Backend
 cd backend && python main.py
 
-# Frontend
-cd frontend && npm run dev
+# Frontend Web
+cd frontend && pnpm install && pnpm dev
+
+# Frontend Mobile (Expo)
+cd frontend-mobile && pnpm install && pnpm ios   # or pnpm android
 ```
 
 ## 🌐 URLs Disponibles
@@ -162,10 +166,10 @@ Después de iniciar:
 
 | País | Código | Moneda | Campo Requerido | Impuestos |
 |------|--------|--------|----------------|-----------|
-| México | MX | $ MXN | colonia | 0% |
-| USA | US | $ USD | zip_code | 8% |
-| Suiza | CH | CHF | plz | 0% |
-| Japón | JP | ¥ JPY | prefectura | 0% |
+| México | MX | $ MXN | colonia | 16% (IVA) |
+| USA | US | $ USD | zip_code | 8% (Sales Tax) |
+| Suiza | CH | CHF | plz | 8.1% (VAT) |
+| Japón | JP | ¥ JPY | prefectura | 10% (Consumption Tax) |
 
 ## 📂 Estructura del Proyecto
 
@@ -179,19 +183,24 @@ omnipizza/
 │   └── ...
 ├── frontend/            # React Frontend
 │   ├── src/
-│   │   ├── pages/      # Login, Catalog, Checkout
+│   │   ├── pages/      # Login, Catalog, Checkout, Profile, OrderSuccess
+│   │   ├── features/   # auth, catalog, checkout, country, profile, orderSuccess (slices)
 │   │   ├── services/   # httpClient, cartService, pizzaService
-│   │   ├── components/ # Navbar
+│   │   ├── components/ # Navbar, etc.
 │   │   └── ...
 │   └── ...
 ├── frontend-mobile/     # React Native (Expo) Mobile App
 │   ├── src/
-│   │   ├── screens/    # LoginScreen, CatalogScreen, CheckoutScreen
+│   │   ├── screens/    # Login, Catalog, PizzaBuilder, Checkout, OrderSuccess, Profile
+│   │   ├── features/   # mirrors web slice layout
+│   │   ├── navigation/ # linking.ts (omnipizza:// deep links), types.ts
+│   │   ├── hooks/      # useDeepLinkParams.ts
 │   │   ├── services/   # cartService, pizzaService
 │   │   └── ...
 │   └── ...
-├── tests/               # Contract Tests
-│   └── test_contract.py
+├── tests/               # API integration tests
+│   ├── api.test.ts     # Vitest (primary)
+│   └── test_contract.py # Schemathesis (legacy)
 ├── docker-compose.yml   # ⭐ Orquestación local
 ├── render.yaml         # ⭐ Despliegue en Render
 ├── setup.sh            # Script de setup

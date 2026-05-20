@@ -105,12 +105,21 @@
 
 ### Hooks de Automatización
 
-#### Web (data-testid)
-- [x] `username-input`, `password-input`
-- [x] `login-button`, `logout-button`
-- [x] `pizza-card-{id}`, `add-to-cart-{id}`
-- [x] `checkout-name-input`, etc.
-- [x] `country-selector`, `select-country-{code}`
+#### Web (data-testid) — convención actual: prefijos `btn-`, `input-`, `text-`, `card-`
+
+- [x] `input-username`, `input-password`, `btn-login`
+- [x] `btn-logout`
+- [x] `card-pizza-{id}`, `btn-add-to-cart`
+- [x] `full-name`, `address`, `phone`, `colonia` (MX), `zip-code` (US/MX), `plz` (CH)
+- [x] `payment-card`, `payment-cash`
+- [x] `order-summary-title`, `order-tip-0` / `5` / `10` / `15`, `order-total`
+
+#### Mobile (testID / accessibilityLabel) — same naming convention
+
+- [x] `screen-checkout`, `screen-catalog`, `screen-pizza-builder`, `screen-order-success`
+- [x] `input-username`, `input-password`, `btn-login`
+- [x] `btn-tip-0` / `5` / `10` / `15`, `text-subtotal-value`, `text-tax-value`, `text-total-value`
+- [x] `btn-payment-card`, `btn-payment-cash`
 
 ## IV-B. Session Setup & Cart Hydration
 
@@ -172,9 +181,10 @@
 
 ### 4. Tests
 - [x] Carpeta `tests/` creada
-- [x] Contract Tests con Schemathesis
+- [x] **Vitest API tests (TypeScript)** — `tests/api.test.ts` (primary)
+- [x] Contract Tests con Schemathesis — `tests/test_contract.py` (legacy)
 - [x] Tests de validación de schema
-- [x] Tests de flujo completo
+- [x] Tests de flujo completo por mercado (MX/US/CH/JP)
 - [x] Tests de comportamientos de usuario
 - [x] Tests de endpoints de caos
 - [x] `tests/README.md` con documentación
@@ -198,8 +208,7 @@
 
 ### Git
 - [x] Repositorio inicializado
-- [x] 7 commits con mensajes descriptivos
-- [x] Conventional Commits format
+- [x] Commits siguen Conventional Commits format
 - [x] .gitignore configurado
 
 ### Seguridad
@@ -229,7 +238,8 @@
 - [ ] Probar CPU load endpoint
 
 ### Tests Automatizados
-- [ ] Ejecutar `pytest tests/test_contract.py -v`
+- [ ] Ejecutar `pnpm test` en `tests/` (Vitest, primary)
+- [ ] Ejecutar `pytest tests/test_contract.py -v` (Schemathesis, legacy)
 - [ ] Verificar todos los tests pasan
 - [ ] Validar cobertura de endpoints
 

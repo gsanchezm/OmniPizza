@@ -53,7 +53,7 @@ graph TD
 
 ### 4.2. Key Modules
 *   **Market Selector:** A critical component that sets the global context (Currency, Language, Validation Rules) before the user enters the main app flow.
-*   **Dynamic Checkout:** A form component that renders different input fields based on the active `countryCode` (MX: colonia, US: zip_code, CH: plz, JP: prefectura). Includes a payment method toggle (Credit Card / Cash) that conditionally shows/hides credit card input fields (Cardholder, Card Number, Expiry, CVV). Phone input includes `type="tel"` validation.
+*   **Dynamic Checkout:** A form component that renders different input fields based on the active `countryCode` (MX: colonia, US: zip_code, CH: plz, JP: prefectura). Includes a payment method toggle (Credit Card / Cash) that conditionally shows/hides credit card input fields (Cardholder, Card Number, Expiry, CVV). Only the selected `payment_method` (`"card" | "cash"`) is sent to the backend — never the card details. Phone input includes `type="tel"` validation.
 *   **Testability:** A strict convention of applying `data-testid` attributes to all interactive elements (buttons, inputs, cards) to support Selenium/Cypress selectors.
 
 ## 5. Mobile Design (React Native)

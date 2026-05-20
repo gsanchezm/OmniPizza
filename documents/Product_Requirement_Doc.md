@@ -113,6 +113,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 ### 6.9 Checkout and Ordering (API Canonical)
 * `POST /api/checkout` requires JWT.
 * Common required fields: `country_code`, `items`, `name`, `address`, `phone`.
+* Common optional fields: `payment_method` (`"card"` default | `"cash"`).
 * `items[].quantity` valid range: `1..10`.
 * Country-specific required fields:
   * `MX`: `colonia` required, `zip_code` optional, `propina` optional percentage.
@@ -154,6 +155,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Web phone input includes client regex pattern: allowed chars are digits, spaces, `+`, `-`, parentheses.
 * US `zip_code` must be 5 numeric digits.
 * `propina` / `tip` / `trinkgeld` / `chip` must be percentages in the range `0..100` when provided.
+* `payment_method`: optional enum (`"card"` | `"cash"`); defaults to `"card"`.
 
 ### 7.3 Header Validation
 * Missing `X-Country-Code` on `/api/pizzas` must return `400`.
@@ -218,7 +220,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 ### 11.1 Web Baseline
 * Full API-integrated checkout flow.
 * Country/language behavior and cart repricing implemented.
-* Payment section is UI-only; card fields are not sent to backend.
+* Payment section sends only `payment_method` (`"card" | "cash"`) to the backend — card holder/number/expiry/CVV remain UI-only and are never transmitted.
 * Empty cart checkout state includes start-order CTA.
 
 ### 11.2 Mobile Baseline

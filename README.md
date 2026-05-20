@@ -204,7 +204,9 @@ Checkout supports two selectable payment methods:
 - **Credit Card** — Displays a full card form (Cardholder Name, Card Number, Expiry, CVV). Card details are **UI-only** and are **not sent** to the backend.
 - **Cash on Delivery** — Hides the card form; order is placed without card details.
 
-The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` for automation.
+Only the selected method (`payment_method: "card" | "cash"`) is sent to `POST /api/checkout` — never the card details themselves.
+
+The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` on web, and `accessibilityLabel`/`testID` `btn-payment-card` and `btn-payment-cash` on mobile.
 
 ### Checkout totals
 
@@ -240,7 +242,7 @@ The app supports deep linking via the `omnipizza://` scheme, enabling external a
 | `omnipizza://order-success?orderId=<id>` | Order Success screen |
 | `omnipizza://profile` | Profile screen |
 
-Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (en/es/de/fr/ja), `resetSession=true`, `accessToken=<jwt>` (injects auth token, bypasses login UI).
+Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (`de` or `fr`, applies only when market is CH; other markets derive language from the market), `resetSession=true`, `accessToken=<jwt>` (injects auth token, bypasses login UI).
 
 See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) for the full reference and automation integration guide.
 
@@ -258,9 +260,9 @@ OmniPizza/
 ├── backend/                # FastAPI backend + Swagger/OpenAPI
 ├── frontend/               # React + Vite web app
 ├── frontend-mobile/        # Expo / React Native app
-├── tests/                  # API integration tests (Vitest)
+├── tests/                  # API integration tests (Vitest) + legacy Schemathesis
 ├── docs/                   # Build/release notes
-├── ordersuccess_ios/       # Product, design, and tech docs
+├── documents/              # Product, design, and tech docs
 └── screenshots/            # Reference UI captures
 ```
 
@@ -377,9 +379,9 @@ Current component specs live in `frontend/cypress/component/`.
 
 ### CI Workflows
 
-- [frontend-component-tests.yml](/Users/gilbertosanchez/Documents/Repos/OmniPizza/.github/workflows/frontend-component-tests.yml)
+- [frontend-component-tests.yml](./.github/workflows/frontend-component-tests.yml)
   Runs Cypress component tests on pull requests touching `frontend/**`. It is currently non-blocking (`continue-on-error: true`).
-- [mobile-release.yml](/Users/gilbertosanchez/Documents/Repos/OmniPizza/.github/workflows/mobile-release.yml)
+- [mobile-release.yml](./.github/workflows/mobile-release.yml)
   Builds Android and iOS simulator artifacts through manual dispatch.
 
 ---
@@ -393,7 +395,7 @@ Current component specs live in `frontend/cypress/component/`.
 - Phone input uses `type="tel"` with pattern validation (`7-20 digits/spaces/+/-`).
 - **Cart state injection:** Use `POST /api/cart` to seed cart items, then navigate to checkout — the frontend auto-hydrates from `GET /api/cart`. This skips the manual catalog-to-cart UI flow in E2E tests.
 - **Web atomic entry:** Navigate directly to any route (`/checkout`, `/catalog`, `/profile`, `/order-success`) after injecting the auth token into `localStorage` via `page.addInitScript()`. The Checkout page fetches `GET /api/cart` automatically when the local cart is empty. See [ATOMIC_WEB_TESTING.md](./ATOMIC_WEB_TESTING.md).
-- **Mobile atomic entry via deep links:** Use `omnipizza://` deep links to open the mobile app directly on any screen after API hydration. Pass `accessToken=<jwt>` to bypass the login UI entirely. Example: `omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=eyJ...`. See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md).
+- **Mobile atomic entry via deep links:** Use `omnipizza://` deep links to open the mobile app directly on any screen after API hydration. Pass `accessToken=<jwt>` to bypass the login UI entirely. Example: `omnipizza://checkout?market=MX&hydrateCart=true&accessToken=eyJ...` (setting `market=MX` auto-selects Spanish; explicit `lang` only applies for `market=CH` with `de` or `fr`). See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md).
 
 ---
 

@@ -152,11 +152,14 @@ curl -X POST http://localhost:8000/api/checkout \
     "address": "Av. Insurgentes 123",
     "phone": "5512345678",
     "colonia": "Roma Norte",
-    "propina": 10
+    "propina": 10,
+    "payment_method": "card"
   }'
 ```
 
 `propina`, `tip`, `trinkgeld`, and `chip` are **percentage values**, not fixed amounts.
+
+`payment_method` is optional and accepts `"card"` (default) or `"cash"`. Card details from the UI are never sent — only the method.
 
 ### Checkout - USA (tax + localized delivery fee)
 

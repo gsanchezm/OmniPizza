@@ -20,10 +20,15 @@ source venv/bin/activate
 pip install -r requirements.txt
 python main.py
 
-# Terminal 2 - Frontend
+# Terminal 2 - Frontend (Web)
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
+
+# Terminal 3 - Mobile (optional)
+cd frontend-mobile
+pnpm install
+pnpm ios     # or pnpm android
 ```
 
 ### URLs
@@ -136,7 +141,19 @@ curl -X POST http://localhost:8000/api/cart \
 
 Both web and mobile checkout screens call `GET /api/cart` on load and populate the cart store from the backend response.
 
-### Contract Testing
+### API Integration Tests (Vitest — primary)
+
+```bash
+cd tests
+pnpm install
+pnpm test                # run all
+pnpm test:watch          # watch mode
+pnpm test:ui             # interactive UI
+```
+
+Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
+
+### Contract Testing (Schemathesis — legacy)
 
 ```bash
 cd tests
@@ -160,9 +177,9 @@ pip install -r requirements.txt --force-reinstall
 
 ```bash
 # Limpiar cache y reinstalar
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+pnpm dev
 ```
 
 ### Docker Compose issues

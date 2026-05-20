@@ -103,18 +103,29 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 
 Todos los PRs deben incluir tests:
 
-### Backend Tests
+### API Integration Tests (Vitest)
 
 ```bash
 cd tests
+pnpm install
+pnpm test
+```
+
+### Contract Tests (Schemathesis, legacy)
+
+```bash
+cd tests
+pip install -r requirements.txt
 pytest test_contract.py -v
 ```
 
-### Frontend Tests (si aplica)
+### Frontend Component Tests (Cypress)
 
 ```bash
 cd frontend
-npm test
+pnpm install
+pnpm test:ct          # headless
+pnpm test:ct:open     # interactive runner
 ```
 
 ## Documentación
