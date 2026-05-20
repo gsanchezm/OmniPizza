@@ -417,6 +417,13 @@
             <a href="./ATOMIC_MOBILE_TESTING.md">ATOMIC_MOBILE_TESTING.md</a>.
           </li>
           <li class="list-item">
+            <strong>Atomic order-success:</strong> Pass <code>?orderId=&lt;id&gt;</code>
+            on web (<code>/order-success?orderId=...</code>) or in the mobile deep link
+            (<code>omnipizza://order-success?orderId=...&amp;accessToken=...</code>).
+            The client calls <code>GET /api/orders/{id}</code> and hydrates
+            <code>lastOrder</code> from the backend — no checkout-UI walkthrough needed.
+          </li>
+          <li class="list-item">
             The mobile release workflow is manual-dispatch based and creates a
             GitHub Release after building Android and iOS simulator artifacts.
           </li>
@@ -458,8 +465,9 @@
 <span class="tok-cmd">xcrun simctl openurl booted</span> \
   <span class="tok-val">"omnipizza://pizza-builder?pizzaId=p02&amp;size=family&amp;market=US"</span>
 
-<span class="tok-comment"># Open Order Success with order ID</span>
-<span class="tok-cmd">xcrun simctl openurl booted</span> <span class="tok-val">"omnipizza://order-success?orderId=12345&amp;market=JP"</span></code></pre>
+<span class="tok-comment"># Open Order Success — fetches GET /api/orders/{id} and hydrates lastOrder</span>
+<span class="tok-cmd">xcrun simctl openurl booted</span> \
+  <span class="tok-val">"omnipizza://order-success?orderId=ORDER-ABC123&amp;accessToken=$TOKEN&amp;market=JP"</span></code></pre>
       </section>
 
       <section id="documentation-links">

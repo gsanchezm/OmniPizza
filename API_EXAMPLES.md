@@ -230,10 +230,34 @@ curl http://localhost:8000/api/orders \
 
 ### Get Specific Order
 
+Returns the same `OrderSummary` shape as `POST /api/checkout` — clients can use this
+endpoint to rehydrate `lastOrder` from a known `order_id` (e.g. an atomic test that
+opens `/order-success?orderId=...`).
+
 ```bash
 curl http://localhost:8000/api/orders/ORDER-A1B2C3D4 \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+Response (200):
+```json
+{
+  "order_id": "ORDER-A1B2C3D4",
+  "subtotal": 12.99,
+  "delivery_fee": 2.0,
+  "tax_rate": 0.08,
+  "tip_percentage": 0.0,
+  "tax": 1.04,
+  "tip": 0.0,
+  "total": 16.03,
+  "currency": "USD",
+  "currency_symbol": "$",
+  "items": [...],
+  "timestamp": "2026-04-18T10:30:00"
+}
+```
+
+Errors: `404` if the order does not exist; `403` if it belongs to a different user.
 
 ## Session Setup Endpoints
 

@@ -6,4 +6,8 @@ export const orderService = {
     const response = await apiClient.post<OrderResult>("/api/checkout", payload);
     return response.data;
   },
+  async getOrder(orderId: string): Promise<OrderResult> {
+    const response = await apiClient.get<OrderResult>(`/api/orders/${orderId}`);
+    return response.data;
+  },
 };

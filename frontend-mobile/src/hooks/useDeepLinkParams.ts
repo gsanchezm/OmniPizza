@@ -3,6 +3,7 @@ import { Linking } from "react-native";
 import type { NavigationContainerRefWithCurrent } from "@react-navigation/native";
 import { useAppStore, type CountryCode } from "../store/useAppStore";
 import type { RootStackParamList } from "../navigation/types";
+import { orderService } from "../services/order.service";
 
 const VALID_MARKETS: CountryCode[] = ["US", "MX", "CH", "JP"];
 
@@ -55,6 +56,7 @@ function parseParams(url: string): Record<string, string> {
  *   lang=de|fr          → setLanguage (CH only; guard is inside store)
  *   resetSession=true   → logout + navigate to Login
  *   hydrateCart=true    → clearCart so CheckoutScreen hydration runs on mount
+ *   orderId=<id>        → GET /api/orders/{id} → setLastOrder (atomic order-success)
  *
  * React Navigation's linking config handles URL → screen routing automatically.
  * This hook only handles the state side effects that Navigation cannot do on its own.
@@ -105,6 +107,24 @@ export function useDeepLinkParams(
     // 4) hydrateCart — clear local cart so CheckoutScreen fetches from API on mount
     if (params.hydrateCart === "true") {
       store.clearCart();
+    }
+
+    // 5) orderId — fire-and-forget fetch to hydrate lastOrder for atomic
+    //    order-success entry. Navigation enroutes independently via linking
+    //    config; OrderSuccessScreen renders whether or not this resolves.
+    //    Token must already be in the store (step 1) for the apiClient to
+    //    attach the Authorization header.
+    if (params.orderId) {
+      orderService
+        .getOrder(params.orderId)
+        .then((order) => {
+          useAppStore.getState().setLastOrder(order);
+        })
+        .catch((err) => {
+          if (__DEV__) {
+            console.warn("[useDeepLinkParams] orderId fetch failed:", err);
+          }
+        });
     }
   }
 

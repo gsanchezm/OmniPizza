@@ -1,16 +1,29 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrderStore } from '../store';
 import { useT } from '../i18n';
 import { formatMoney } from '../utils/money';
 import { useResponsive } from '../hooks/useResponsive';
 import { getCourierProfile } from '../features/orderSuccess/useCases/getCourierProfile';
+import { orderService } from '../services/order.service';
 
 export default function OrderSuccess() {
   const t = useT();
   const navigate = useNavigate();
   const { tid } = useResponsive();
   const order = useOrderStore((s) => s.lastOrder);
+  const setLastOrder = useOrderStore((s) => s.setLastOrder);
+  const [searchParams] = useSearchParams();
+  const orderIdParam = searchParams.get('orderId');
+
+  // Atomic entry: ?orderId=... hydrates lastOrder from backend so tests can
+  // jump straight to /order-success without going through the checkout UI.
+  useEffect(() => {
+    if (!orderIdParam || order?.order_id === orderIdParam) return;
+    orderService.getOrder(orderIdParam)
+      .then(({ data }) => setLastOrder(data))
+      .catch(() => { /* render falls back to courier-only view */ });
+  }, [orderIdParam, order?.order_id, setLastOrder]);
 
   const courier = getCourierProfile();
 

@@ -129,7 +129,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * `GET /api/orders/{order_id}` returns:
 * `404` if order ID does not exist.
 * `403` if order exists but belongs to another user.
-* `200` for owner.
+* `200` for owner — response shape is canonical `OrderSummary` (identical to `POST /api/checkout`), so clients can rehydrate `lastOrder` from any known order ID.
 
 ### 6.11 Order Success UX
 * After successful checkout, user sees order-success/tracking UI.

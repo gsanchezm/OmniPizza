@@ -288,28 +288,43 @@ async def get_orders(current_user: dict = Depends(get_current_user)):
     orders = db.get_user_orders(current_user["username"])
     return {"orders": orders}
 
-@app.get("/api/orders/{order_id}", tags=["Orders"])
+@app.get("/api/orders/{order_id}", response_model=OrderSummary, tags=["Orders"])
 async def get_order(
     order_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get specific order details"""
+    """Get specific order details — returns the same OrderSummary shape as /api/checkout
+    so clients can hydrate order state from a single canonical contract."""
     order = db.get_order(order_id)
-    
+
     if not order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Order {order_id} not found"
         )
-    
-    # Verify order belongs to current user
+
     if order["username"] != current_user["username"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied"
         )
-    
-    return order
+
+    country_config = COUNTRY_CONFIG[CountryCode(order["country_code"])]
+
+    return OrderSummary(
+        order_id=order["order_id"],
+        subtotal=order["subtotal"],
+        delivery_fee=order["delivery_fee"],
+        tax_rate=order["tax_rate"],
+        tip_percentage=order["tip_percentage"],
+        tax=order["tax"],
+        tip=order["tip"],
+        total=order["total"],
+        currency=order["currency"],
+        currency_symbol=country_config["currency_symbol"],
+        items=order["items"],
+        timestamp=order["timestamp"]
+    )
 
 # ==================== DEBUG/CHAOS ENDPOINTS ====================
 

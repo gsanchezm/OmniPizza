@@ -59,7 +59,7 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | `omnipizza://catalog` | CatalogScreen | Requires valid token in store |
 | `omnipizza://pizza-builder` | PizzaBuilderScreen | Requires `pizzaId` param |
 | `omnipizza://checkout` | CheckoutScreen | Use `hydrateCart=true` for API-injected carts |
-| `omnipizza://order-success` | OrderSuccessScreen | Pass `orderId` for test assertions |
+| `omnipizza://order-success` | OrderSuccessScreen | Pass `orderId` to hydrate `lastOrder` from backend |
 | `omnipizza://profile` | ProfileScreen | Requires valid token in store |
 
 ### Universal query params (any route)
@@ -79,7 +79,7 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | `pizza-builder` | `size=small\|medium\|large\|family` | Pre-selects size |
 | `checkout` | `hydrateCart=true` | Clears local cart so screen fetches from backend |
 | any | `accessToken=<jwt>` | Injects auth token — combine with `hydrateCart=true` to bypass login UI entirely |
-| `order-success` | `orderId=<id>` | Available in route params for test assertions |
+| `order-success` | `orderId=<id>` | Fires `GET /api/orders/{id}` and populates `lastOrder` in the Zustand store (fire-and-forget; requires `accessToken` in the same URL or already in the store) |
 
 ---
 
@@ -104,8 +104,8 @@ omnipizza://checkout?market=JP&hydrateCart=true&accessToken=eyJ...
 # Open Checkout in Switzerland, French language
 omnipizza://checkout?market=CH&lang=fr&hydrateCart=true
 
-# Open OrderSuccess with order ID for assertion
-omnipizza://order-success?orderId=12345&market=JP&lang=ja
+# Open OrderSuccess and hydrate lastOrder from backend (atomic, no checkout UI)
+omnipizza://order-success?orderId=ORDER-ABC123&accessToken=eyJ...&market=JP&lang=ja
 
 # Open Profile in US market
 omnipizza://profile?market=US&lang=en
@@ -217,7 +217,7 @@ The backend enriches cart items against the catalog. `POST /api/cart` silently a
 - [ ] `omnipizza://checkout?market=MX` shows MX-specific fields (colonia, zip)
 - [ ] Tip buttons expose `btn-tip-0`, `btn-tip-5`, `btn-tip-10`, `btn-tip-15`
 - [ ] Summary values expose readable text for Appium/XCUITest (`text-subtotal-value`, `text-tax-value`, `text-total-value`)
-- [ ] `omnipizza://order-success?orderId=12345` opens OrderSuccess screen
+- [ ] `omnipizza://order-success?orderId=<real-id>&accessToken=<jwt>` opens OrderSuccess and `lastOrder` becomes populated (visible via the order-details block / store inspector)
 - [ ] `omnipizza://profile?market=CH&lang=fr` opens Profile with French locale
 - [ ] `omnipizza://login?resetSession=true` clears session and lands on Login
 - [ ] Warm start (app already open): deep link switches screen correctly

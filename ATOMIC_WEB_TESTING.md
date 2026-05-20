@@ -140,15 +140,57 @@ test("profile page loads directly", async ({ page, request }) => {
 
 ### Order Success atomic test
 
+Two variants — pick the one that fits your suite:
+
+**Variant A — `?orderId=` URL param (recommended; no localStorage shape coupling):**
+
 ```javascript
-test("order-success renders after API order", async ({ page, request }) => {
+test("order-success hydrates lastOrder via ?orderId=", async ({ page, request }) => {
+  // 1. Login + place a real order so we have a real order_id
   const { access_token: token } = await (
     await request.post(`${BASE_URL}/api/auth/login`, {
       data: { username: "standard_user", password: "pizza123" },
     })
   ).json();
 
-  // Seed a completed order in localStorage so OrderSuccess has data
+  const checkout = await request.post(`${BASE_URL}/api/checkout`, {
+    headers: { Authorization: `Bearer ${token}`, "X-Country-Code": "MX" },
+    data: {
+      country_code: "MX",
+      items: [{ pizza_id: "p02", size: "large", quantity: 1 }],
+      name: "QA", address: "Av. Test 1", phone: "5500000000",
+      colonia: "Roma Norte",
+    },
+  });
+  const { order_id } = await checkout.json();
+
+  // 2. Inject only the auth token; OrderSuccess will call GET /api/orders/{id}
+  await page.addInitScript(({ token }) => {
+    localStorage.setItem(
+      "omnipizza-auth",
+      JSON.stringify({ state: { token, username: "standard_user", behavior: null }, version: 0 })
+    );
+  }, { token });
+
+  // 3. Open order-success with the orderId param
+  await page.goto(`${APP_URL}/order-success?orderId=${order_id}`);
+
+  // 4. Assert — order block (gated by `lastOrder`) becomes visible
+  await expect(page.getByTestId("order-id")).toContainText(order_id);
+  await expect(page.getByTestId("order-total")).toBeVisible();
+});
+```
+
+**Variant B — `localStorage` seed (offline / no live backend):**
+
+```javascript
+test("order-success renders from localStorage seed", async ({ page, request }) => {
+  const { access_token: token } = await (
+    await request.post(`${BASE_URL}/api/auth/login`, {
+      data: { username: "standard_user", password: "pizza123" },
+    })
+  ).json();
+
   await page.addInitScript(({ token }) => {
     localStorage.setItem(
       "omnipizza-auth",
@@ -160,15 +202,9 @@ test("order-success renders after API order", async ({ page, request }) => {
         state: {
           lastOrder: {
             order_id: "test-abc123",
-            subtotal: 320,
-            delivery_fee: 35.1,
-            tax_rate: 0.16,
-            tip_percentage: 0,
-            tax: 51.2,
-            tip: 0,
-            total: 406.3,
-            currency: "MXN",
-            currency_symbol: "$",
+            subtotal: 320, delivery_fee: 35.1, tax_rate: 0.16, tip_percentage: 0,
+            tax: 51.2, tip: 0, total: 406.3,
+            currency: "MXN", currency_symbol: "$",
           },
         },
         version: 0,
@@ -291,12 +327,16 @@ curl -s "$BASE_URL/api/cart" \
 
 ## Technical Notes
 
-### Why no special URL params?
+### Why mostly no special URL params?
 
 The web app stores market and language in Zustand (persisted to `localStorage`). Because
 React Router is already URL-based, direct navigation (`/checkout`) works out of the box —
 no custom linking config is needed. State is injected via `localStorage` before page load,
 not via URL params.
+
+**Exception:** `/order-success?orderId=<id>` is read by the page and calls
+`GET /api/orders/{id}` to populate `lastOrder` in the Zustand store. This avoids
+hardcoding the order shape into test fixtures — the backend is the source of truth.
 
 ### Cart hydration guard
 
