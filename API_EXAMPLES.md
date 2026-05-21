@@ -306,6 +306,8 @@ curl -X POST http://localhost:8000/api/cart \
 
 > `size` is optional (defaults to `"small"`). Valid values: `small`, `medium`, `large`, `family`.
 
+> **The cart is per-user, not per-market.** `POST /api/cart` does **not** read `X-Country-Code` and does **not** change the session's market — use `POST /api/store/market` (above) to switch markets. `GET /api/cart` does require `X-Country-Code` because it enriches items with market-specific pricing/currency.
+
 ### Get Cart (Enriched)
 
 Returns cart items joined with the pizza catalog (name, price, image, currency) for the given market.

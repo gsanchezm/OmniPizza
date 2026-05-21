@@ -27,7 +27,18 @@ def _session_response(username: str) -> TestSessionStateResponse:
     )
 
 
-@router.post("/api/store/market", response_model=TestSessionStateResponse, tags=["Store"])
+@router.post(
+    "/api/store/market",
+    response_model=TestSessionStateResponse,
+    tags=["Store"],
+    summary="Set the user's active market (atomic test setup)",
+    description=(
+        "Sets `country_code` on the per-user test session. The session is "
+        "**per-user, not per-(user, market)** — switching markets here does NOT "
+        "clear or partition the cart. To replace the cart, call `POST /api/cart` "
+        "or `POST /api/session/reset` separately."
+    ),
+)
 async def set_market(
     request: TestMarketRequest,
     current_user: dict = Depends(get_current_user),
@@ -38,7 +49,20 @@ async def set_market(
     return _session_response(username)
 
 
-@router.post("/api/cart", response_model=TestSessionStateResponse, tags=["Cart"])
+@router.post(
+    "/api/cart",
+    response_model=TestSessionStateResponse,
+    tags=["Cart"],
+    summary="Seed the user's cart (atomic test setup)",
+    description=(
+        "Replaces the per-user cart with the supplied items. "
+        "**The cart is per-user, not per-market** — this endpoint does not read "
+        "the `X-Country-Code` header and does not change the session's market. "
+        "Use `POST /api/store/market` to set the market, and `GET /api/cart` "
+        "(which does require `X-Country-Code`) to read the cart enriched with "
+        "market-specific pricing/currency."
+    ),
+)
 async def seed_cart(
     request: TestCartSetupRequest,
     current_user: dict = Depends(get_current_user),

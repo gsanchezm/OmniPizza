@@ -75,14 +75,19 @@ test("checkout renders API-seeded cart for MX", async ({ page, request }) => {
   const { access_token: token } = await loginRes.json();
 
   // 2. Seed cart
+  //    Note: POST /api/cart is per-user and does NOT read X-Country-Code.
+  //    Use POST /api/store/market (below) to set the market for the session.
   await request.post(`${BASE_URL}/api/cart`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "X-Country-Code": "MX",
-    },
+    headers: { Authorization: `Bearer ${token}` },
     data: {
       items: [{ pizza_id: "p02", size: "large", quantity: 2 }],
     },
+  });
+
+  // 2b. Set market for the session
+  await request.post(`${BASE_URL}/api/store/market`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { country_code: "MX" },
   });
 
   // 3. Inject auth + market into localStorage before page load
