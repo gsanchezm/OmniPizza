@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -15,16 +15,27 @@ import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
+import { loadProfile } from "../features/profile/useCases/loadProfile";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
   const { profile, setProfile } = useAppStore();
 
-  const handleSave = () => {
-    saveProfile(t("profileSaved") || "Profile saved", (message) =>
-      Alert.alert(message),
-    );
+  useEffect(() => {
+    loadProfile().catch(() => {
+      /* no profile yet or offline — local state stays */
+    });
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await saveProfile(t("profileSaved") || "Profile saved", (message) =>
+        Alert.alert(message),
+      );
+    } catch (err: any) {
+      Alert.alert(err?.response?.data?.detail || "Failed to save profile");
+    }
   };
 
   return (

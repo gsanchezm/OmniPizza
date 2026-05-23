@@ -36,15 +36,8 @@ export default function CatalogScreen({ navigation }: any) {
     const matchSearch = p.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    let matchCat = true;
-    if (selectedCategory === "veggie")
-      matchCat =
-        p.name.toLowerCase().includes("veggie") ||
-        p.description.toLowerCase().includes("vegetab");
-    if (selectedCategory === "meat")
-      matchCat =
-        p.name.toLowerCase().includes("meat") ||
-        p.name.toLowerCase().includes("pepperoni");
+    const matchCat =
+      selectedCategory === "all" || p.category === selectedCategory;
     return matchSearch && matchCat;
   });
 

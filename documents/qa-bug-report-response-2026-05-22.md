@@ -3,7 +3,7 @@
 Thanks for the detailed report. We verified every item against the live code in `main` (commit `9deed6d`). Below is the per-item triage, what we shipped in this change, and what the test suite needs to adjust.
 
 > TL;DR
-> - **Shipped fixes:** `screen-*` wrappers on every page, `category` field on `/api/pizzas`, new `GET`/`PATCH /api/users/me/profile` endpoints wired into the web Profile screen.
+> - **Shipped fixes (web + mobile):** `screen-*` wrappers on every web page, `category` field on `/api/pizzas` with web + mobile catalog filters now reading from it, new `GET`/`PATCH /api/users/me/profile` endpoints wired into the web AND mobile Profile screens.
 > - **Test-side adjustments needed:** correct the `mobile-logout-btn` claim, drop the slug assumption on pizza ids, stop expecting a `/customizer` deep-link route, accept that proper-name pizzas are not translated.
 
 ---
@@ -116,12 +116,9 @@ For test data: **use the `id` (p01..p12) as the cross-market join key.** Name st
 - `frontend/src/pages/Catalog.jsx` — heuristic name-keyword filter replaced by `pizza.category` lookup.
 - `frontend/src/features/profile/repositories/profileRepository.js` (new), `useCases/loadProfile.js` (new), `useCases/saveProfile.js` (rewired to call `PATCH`).
 - `frontend/src/pages/Profile.jsx` — hydrates via `GET` on mount, save now persists through the backend.
-- `frontend-mobile/src/types/api.ts` — `Pizza.category: string` added so the TS type matches the new API shape.
+- `frontend-mobile/src/types/api.ts` — `Pizza.category?: string` added (optional because cart-hydrated pizza objects in `CheckoutScreen` do not carry it; the catalog response always does).
+- `frontend-mobile/src/screens/CatalogScreen.tsx` — heuristic name-keyword filter replaced by `pizza.category` lookup.
+- `frontend-mobile/src/features/profile/repositories/profileRepository.ts` (new), `useCases/loadProfile.ts` (new), `useCases/saveProfile.ts` (rewired to call `PATCH`).
+- `frontend-mobile/src/screens/ProfileScreen.tsx` — hydrates via `GET` on mount; save now persists through the backend and surfaces server errors via `Alert`.
 
-## Mobile parity — follow-up
-
-This change shipped against the web (where the report was focused). Mobile parity items still open:
-
-- `frontend-mobile/src/screens/CatalogScreen.tsx` — currently has no `category` filter wired; the data field is now available, but the mobile CategoryPills component does not yet filter by it.
-- `frontend-mobile` has no Profile screen calling `GET`/`PATCH /api/users/me/profile`. The mobile profile feature was not in this change's scope.
-- Mobile `screen-*` testIDs were not added — file a request if mobile automation needs them.
+> Mobile note: the existing `screen-catalog` and `screen-profile` testIDs on the mobile screens are already in place (set as `testID` + `accessibilityLabel` on the root SafeAreaView/View). No new mobile testIDs were added in this change.

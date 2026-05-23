@@ -1,24 +1,15 @@
 import { createProfileRepository } from "../repositories/profileRepository";
 import { useAppStore } from "../../../store/useAppStore";
 
-export async function saveProfile(
-  message: string,
-  notify: (msg: string) => void,
+export async function loadProfile(
   repository = createProfileRepository(),
 ) {
-  const { profile } = useAppStore.getState();
-  const { data } = await repository.patch({
-    full_name: profile.fullName,
-    phone: profile.phone,
-    address: profile.address,
-    notes: profile.notes,
-  });
+  const { data } = await repository.get();
   useAppStore.getState().setProfile({
     fullName: data.full_name ?? "",
     phone: data.phone ?? "",
     address: data.address ?? "",
     notes: data.notes ?? "",
   });
-  notify(message);
   return data;
 }

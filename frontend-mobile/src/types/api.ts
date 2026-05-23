@@ -7,7 +7,9 @@ export interface Pizza {
   base_price: number;
   currency: string;
   currency_symbol: string;
-  category: string;
+  // Optional: present on `/api/pizzas` responses; absent when a Pizza is
+  // reconstructed from `EnrichedCartItem` (see CheckoutScreen hydration).
+  category?: string;
 }
 
 export interface PizzasResponse {
