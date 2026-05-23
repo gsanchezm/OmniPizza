@@ -74,7 +74,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-white grid grid-cols-1 lg:grid-cols-2">
+    <div data-testid="screen-login" className="min-h-screen bg-[#0F0F0F] text-white grid grid-cols-1 lg:grid-cols-2">
       {/* Left Panel - Hero Image */}
       <div className="hidden lg:block relative h-full w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10"></div>

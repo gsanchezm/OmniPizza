@@ -28,7 +28,7 @@ export default function OrderSuccess() {
   const courier = getCourierProfile();
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-white">
+    <div data-testid="screen-order-success" className="min-h-screen bg-[#0F0F0F] text-white">
        {/* Map Section - Static Image */}
        <div className="relative h-64 md:h-80 w-full overflow-hidden">
            <div className="absolute inset-0 bg-gray-800">

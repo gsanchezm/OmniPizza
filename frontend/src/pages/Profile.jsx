@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useProfileStore } from '../store';
 import { useT } from '../i18n';
 import { useResponsive } from '../hooks/useResponsive';
 import { saveProfile } from '../features/profile/useCases/saveProfile';
+import { loadProfile } from '../features/profile/useCases/loadProfile';
 
 export default function Profile() {
   const t = useT();
   const { tid } = useResponsive();
   const { fullName, address, phone, notes, setProfile } = useProfileStore();
 
+  useEffect(() => {
+    loadProfile().catch(() => { /* no profile yet — local state stays */ });
+  }, []);
+
   const handleSave = () => {
-    saveProfile(t('profileSaved'));
+    saveProfile(t('profileSaved')).catch((err) => {
+      window.alert(err?.response?.data?.detail || 'Failed to save profile');
+    });
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div data-testid="screen-profile" className="mx-auto max-w-4xl px-4 py-10">
       {/* Page Header */}
       <h1 className="text-4xl font-black text-white font-sans mb-2">
         {t('profile')}

@@ -19,6 +19,24 @@ class UserProfile(BaseModel):
     behavior: str
     description: str
 
+
+class UserProfileDetails(BaseModel):
+    """Editable profile stored per-user. Resets when the in-memory DB resets."""
+    username: str
+    premium: bool = True
+    full_name: Optional[str] = ""
+    phone: Optional[str] = ""
+    address: Optional[str] = ""
+    notes: Optional[str] = ""
+
+
+class UserProfileUpdate(BaseModel):
+    """PATCH body — every field optional, server merges into stored profile."""
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
+
 # Pizza Models
 class Pizza(BaseModel):
     id: str
@@ -29,6 +47,7 @@ class Pizza(BaseModel):
     currency: str
     currency_symbol: str
     image: str
+    category: str
     
 class PizzaResponse(BaseModel):
     pizzas: List[Pizza]

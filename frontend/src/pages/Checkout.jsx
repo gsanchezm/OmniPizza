@@ -518,7 +518,7 @@ export default function Checkout() {
 
   if (!items.length) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div data-testid="screen-checkout" className="mx-auto max-w-6xl px-4 py-10">
         <div className="lux-card p-6 rounded-2xl text-text-muted font-semibold flex flex-col items-center gap-6 py-16">
           <span className="text-lg">{tOpt(UI_TEXT.cartEmpty, language)}</span>
           <button
@@ -535,7 +535,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div data-testid="screen-checkout" className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="text-4xl font-black text-white font-sans mb-8">
         {tOpt(UI_TEXT.checkout, language)}
       </h1>

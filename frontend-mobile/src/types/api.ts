@@ -7,6 +7,7 @@ export interface Pizza {
   base_price: number;
   currency: string;
   currency_symbol: string;
+  category: string;
 }
 
 export interface PizzasResponse {

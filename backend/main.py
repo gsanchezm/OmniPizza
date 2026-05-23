@@ -11,6 +11,7 @@ from starlette.responses import Response
 from config import settings
 from models import (
     LoginRequest, LoginResponse, UserProfile,
+    UserProfileDetails, UserProfileUpdate,
     PizzaResponse, CheckoutRequest, OrderSummary,
     CountryInfo, ErrorResponse
 )
@@ -118,6 +119,34 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
         behavior=current_user["behavior"],
         description=current_user["description"]
     )
+
+
+@app.get(
+    "/api/users/me/profile",
+    response_model=UserProfileDetails,
+    tags=["User Profile"],
+    summary="Get the editable profile for the authenticated user",
+)
+async def get_user_profile(current_user: dict = Depends(get_current_user)):
+    profile = db.get_user_profile(current_user["username"])
+    return UserProfileDetails(**profile)
+
+
+@app.patch(
+    "/api/users/me/profile",
+    response_model=UserProfileDetails,
+    tags=["User Profile"],
+    summary="Update the editable profile for the authenticated user",
+)
+async def patch_user_profile(
+    patch: UserProfileUpdate,
+    current_user: dict = Depends(get_current_user),
+):
+    updated = db.update_user_profile(
+        current_user["username"],
+        patch.dict(exclude_unset=True),
+    )
+    return UserProfileDetails(**updated)
 
 # ==================== COUNTRY ENDPOINTS ====================
 

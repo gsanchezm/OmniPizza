@@ -99,10 +99,15 @@ COUNTRY_CONFIG = {
 }
 
 # Pizza catalog (base prices in USD, will be converted)
+# Category taxonomy matches the frontend CategoryFilter buttons:
+#   popular | veggie | meat | sides
+# The catalog has no sides today; category is what /api/pizzas exposes so
+# clients filter from data, not from name-keyword heuristics.
 PIZZA_CATALOG = [
   {
     "id": "p01",
     "base_price": 12.99,
+    "category": "popular",
     "image": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Margherita_pizza.jpg",
     "name": {"en":"Margherita","es":"Margarita","de":"Margherita","fr":"Margherita","ja":"マルゲリータ"},
     "description": {
@@ -116,6 +121,7 @@ PIZZA_CATALOG = [
   {
     "id": "p02",
     "base_price": 14.99,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Pepperoni_pizza.jpg",
     "name": {"en":"Pepperoni","es":"Pepperoni","de":"Pepperoni","fr":"Pepperoni","ja":"ペパロニ"},
     "description": {
@@ -129,6 +135,7 @@ PIZZA_CATALOG = [
   {
     "id": "p03",
     "base_price": 13.99,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Hawaiian_pizza.jpg",
     "name": {"en":"Hawaiian","es":"Hawaiana","de":"Hawaii","fr":"Hawaïenne","ja":"ハワイアン"},
     "description": {
@@ -142,6 +149,7 @@ PIZZA_CATALOG = [
   {
     "id": "p04",
     "base_price": 15.49,
+    "category": "popular",
     "image": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Four_cheese_pizza.jpg",
     "name": {"en":"Four Cheese","es":"Cuatro Quesos","de":"Vier Käse","fr":"Quatre Fromages","ja":"クアトロ・フォルマッジ"},
     "description": {
@@ -155,6 +163,7 @@ PIZZA_CATALOG = [
   {
     "id": "p05",
     "base_price": 13.49,
+    "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vegetarian_Pizza.jpg",
     "name": {"en":"Veggie","es":"Vegetariana","de":"Vegetarisch","fr":"Végétarienne","ja":"ベジタリアン"},
     "description": {
@@ -168,6 +177,7 @@ PIZZA_CATALOG = [
   {
     "id": "p06",
     "base_price": 12.49,
+    "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/1/11/Pizza_marinara.jpg",
     "name": {"en":"Marinara","es":"Marinara","de":"Marinara","fr":"Marinara","ja":"マリナーラ"},
     "description": {
@@ -181,6 +191,7 @@ PIZZA_CATALOG = [
   {
     "id": "p07",
     "base_price": 16.49,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Pizza_capricciosa.jpg",
     "name": {"en":"Capricciosa","es":"Caprichosa","de":"Capricciosa","fr":"Capricciosa","ja":"カプリチョーザ"},
     "description": {
@@ -194,6 +205,7 @@ PIZZA_CATALOG = [
   {
     "id": "p08",
     "base_price": 15.99,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Pizza_Diavolo.jpg",
     "name": {"en":"Diavola","es":"Diavola","de":"Diavolo","fr":"Diavola","ja":"ディアボラ"},
     "description": {
@@ -207,6 +219,7 @@ PIZZA_CATALOG = [
   {
     "id": "p09",
     "base_price": 16.99,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/Pizza_Prosciutto.jpg",
     "name": {"en":"Prosciutto","es":"Prosciutto","de":"Prosciutto","fr":"Prosciutto","ja":"プロシュート"},
     "description": {
@@ -220,6 +233,7 @@ PIZZA_CATALOG = [
   {
     "id": "p10",
     "base_price": 16.49,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/3/39/Pizza_quattro_stagioni.jpg",
     "name": {"en":"Quattro Stagioni","es":"Cuatro Estaciones","de":"Vier Jahreszeiten","fr":"Quatre Saisons","ja":"クアトロ・スタジオーニ"},
     "description": {
@@ -233,6 +247,7 @@ PIZZA_CATALOG = [
   {
     "id": "p11",
     "base_price": 14.49,
+    "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Pizzahalter_auf_Pizza_Funghi.JPG",
     "name": {"en":"Funghi","es":"Funghi","de":"Funghi","fr":"Funghi","ja":"フンギ"},
     "description": {
@@ -246,6 +261,7 @@ PIZZA_CATALOG = [
   {
     "id": "p12",
     "base_price": 15.99,
+    "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/6/60/BBQ_CHICKEN_PIZZA.jpg",
     "name": {"en":"BBQ Chicken","es":"Pollo BBQ","de":"BBQ Hähnchen","fr":"Poulet BBQ","ja":"BBQチキン"},
     "description": {

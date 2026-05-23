@@ -81,12 +81,8 @@ export default function Catalog() {
     if (!pizzas) return [];
     return pizzas.filter(p => {
        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-       // Simulate category filtering based on keywords in name/desc/id since API doesn't return category
-       let matchesCategory = true;
-       if (selectedCategory === 'veggie') matchesCategory = p.name.toLowerCase().includes('veggie') || p.description.toLowerCase().includes('vegetab');
-       if (selectedCategory === 'meat') matchesCategory = p.name.toLowerCase().includes('meat') || p.name.toLowerCase().includes('pepperoni');
-       // 'popular' could just show all or random subset
-       
+       const matchesCategory =
+         selectedCategory === 'all' || p.category === selectedCategory;
        return matchesSearch && matchesCategory;
     });
   }, [pizzas, searchQuery, selectedCategory]);
@@ -97,7 +93,7 @@ export default function Catalog() {
   if (error) return <div data-testid="catalog-error" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-red-500">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12">
+    <div data-testid="screen-catalog" className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12">
        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
           
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

@@ -39,6 +39,32 @@ class InMemoryDB:
     def __init__(self):
         self.orders: Dict[str, Dict[str, Any]] = {}
         self.sessions: Dict[str, Dict[str, Any]] = {}
+        self.user_profiles: Dict[str, Dict[str, Any]] = {}
+
+    def _ensure_user_profile(self, username: str) -> Dict[str, Any]:
+        profile = self.user_profiles.get(username)
+        if profile is None:
+            profile = {
+                "username": username,
+                "premium": True,
+                "full_name": "",
+                "phone": "",
+                "address": "",
+                "notes": "",
+            }
+            self.user_profiles[username] = profile
+        return profile
+
+    def get_user_profile(self, username: str) -> Dict[str, Any]:
+        return self._ensure_user_profile(username)
+
+    def update_user_profile(self, username: str, patch: Dict[str, Any]) -> Dict[str, Any]:
+        profile = self._ensure_user_profile(username)
+        for key, value in patch.items():
+            if value is None:
+                continue
+            profile[key] = value
+        return profile
 
     def _ensure_session(self, username: str) -> Dict[str, Any]:
         session = self.sessions.get(username)
