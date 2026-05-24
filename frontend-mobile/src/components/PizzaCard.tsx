@@ -25,7 +25,7 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
         testID={`img-pizza-${pizza.id}`}
         onError={(event: any) => {
           event?.currentTarget?.setNativeProps?.({
-            source: [{ uri: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg" }],
+            source: [{ uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg" }],
           });
         }}
       />

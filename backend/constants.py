@@ -108,7 +108,7 @@ PIZZA_CATALOG = [
     "id": "p01",
     "base_price": 12.99,
     "category": "popular",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Margherita_pizza.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Margherita_pizza.jpg/500px-Margherita_pizza.jpg",
     "name": {"en":"Margherita","es":"Margarita","de":"Margherita","fr":"Margherita","ja":"マルゲリータ"},
     "description": {
       "en":"Tomato, mozzarella, basil",
@@ -122,7 +122,7 @@ PIZZA_CATALOG = [
     "id": "p02",
     "base_price": 14.99,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Pepperoni_pizza.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Pepperoni_pizza.jpg/500px-Pepperoni_pizza.jpg",
     "name": {"en":"Pepperoni","es":"Pepperoni","de":"Pepperoni","fr":"Pepperoni","ja":"ペパロニ"},
     "description": {
       "en":"Pepperoni, mozzarella, tomato sauce",
@@ -136,7 +136,7 @@ PIZZA_CATALOG = [
     "id": "p03",
     "base_price": 13.99,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Hawaiian_pizza.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Hawaiian_pizza.jpg/500px-Hawaiian_pizza.jpg",
     "name": {"en":"Hawaiian","es":"Hawaiana","de":"Hawaii","fr":"Hawaïenne","ja":"ハワイアン"},
     "description": {
       "en":"Ham, pineapple, mozzarella",
@@ -150,7 +150,7 @@ PIZZA_CATALOG = [
     "id": "p04",
     "base_price": 15.49,
     "category": "popular",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Four_cheese_pizza.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Four_cheese_pizza.jpg/500px-Four_cheese_pizza.jpg",
     "name": {"en":"Four Cheese","es":"Cuatro Quesos","de":"Vier Käse","fr":"Quatre Fromages","ja":"クアトロ・フォルマッジ"},
     "description": {
       "en":"Mozzarella, parmesan, gorgonzola, provolone",
@@ -164,7 +164,7 @@ PIZZA_CATALOG = [
     "id": "p05",
     "base_price": 13.49,
     "category": "veggie",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vegetarian_Pizza.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/500px-Vegetarian_Pizza.jpg",
     "name": {"en":"Veggie","es":"Vegetariana","de":"Vegetarisch","fr":"Végétarienne","ja":"ベジタリアン"},
     "description": {
       "en":"Mushrooms, peppers, olives, onion",
@@ -178,7 +178,7 @@ PIZZA_CATALOG = [
     "id": "p06",
     "base_price": 12.49,
     "category": "veggie",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/1/11/Pizza_marinara.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Pizza_marinara.jpg/500px-Pizza_marinara.jpg",
     "name": {"en":"Marinara","es":"Marinara","de":"Marinara","fr":"Marinara","ja":"マリナーラ"},
     "description": {
       "en":"Tomato, garlic, oregano",
@@ -192,7 +192,7 @@ PIZZA_CATALOG = [
     "id": "p07",
     "base_price": 16.49,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Pizza_capricciosa.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pizza_capricciosa.jpg/500px-Pizza_capricciosa.jpg",
     "name": {"en":"Capricciosa","es":"Caprichosa","de":"Capricciosa","fr":"Capricciosa","ja":"カプリチョーザ"},
     "description": {
       "en":"Ham, mushrooms, artichoke, olives",
@@ -206,7 +206,7 @@ PIZZA_CATALOG = [
     "id": "p08",
     "base_price": 15.99,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Pizza_Diavolo.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pizza_Diavolo.jpg/500px-Pizza_Diavolo.jpg",
     "name": {"en":"Diavola","es":"Diavola","de":"Diavolo","fr":"Diavola","ja":"ディアボラ"},
     "description": {
       "en":"Spicy salami, chili, mozzarella",
@@ -220,7 +220,7 @@ PIZZA_CATALOG = [
     "id": "p09",
     "base_price": 16.99,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/Pizza_Prosciutto.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Pizza_Prosciutto.jpg/500px-Pizza_Prosciutto.jpg",
     "name": {"en":"Prosciutto","es":"Prosciutto","de":"Prosciutto","fr":"Prosciutto","ja":"プロシュート"},
     "description": {
       "en":"Prosciutto, arugula, parmesan",
@@ -234,7 +234,7 @@ PIZZA_CATALOG = [
     "id": "p10",
     "base_price": 16.49,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/3/39/Pizza_quattro_stagioni.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Pizza_quattro_stagioni.jpg/500px-Pizza_quattro_stagioni.jpg",
     "name": {"en":"Quattro Stagioni","es":"Cuatro Estaciones","de":"Vier Jahreszeiten","fr":"Quatre Saisons","ja":"クアトロ・スタジオーニ"},
     "description": {
       "en":"Artichoke, olives, ham, mushrooms",
@@ -248,7 +248,7 @@ PIZZA_CATALOG = [
     "id": "p11",
     "base_price": 14.49,
     "category": "veggie",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Pizzahalter_auf_Pizza_Funghi.JPG",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Pizzahalter_auf_Pizza_Funghi.JPG/500px-Pizzahalter_auf_Pizza_Funghi.JPG",
     "name": {"en":"Funghi","es":"Funghi","de":"Funghi","fr":"Funghi","ja":"フンギ"},
     "description": {
       "en":"Mushrooms, mozzarella, oregano",
@@ -262,7 +262,7 @@ PIZZA_CATALOG = [
     "id": "p12",
     "base_price": 15.99,
     "category": "meat",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/6/60/BBQ_CHICKEN_PIZZA.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/BBQ_CHICKEN_PIZZA.jpg/500px-BBQ_CHICKEN_PIZZA.jpg",
     "name": {"en":"BBQ Chicken","es":"Pollo BBQ","de":"BBQ Hähnchen","fr":"Poulet BBQ","ja":"BBQチキン"},
     "description": {
       "en":"Chicken, BBQ sauce, onion, cilantro",

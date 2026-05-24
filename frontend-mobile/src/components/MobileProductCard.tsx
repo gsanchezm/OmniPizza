@@ -5,7 +5,7 @@ import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 const FALLBACK_PIZZA_IMAGE =
-  "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg";
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg";
 
 interface MobileProductCardProps {
   pizza: Pizza;

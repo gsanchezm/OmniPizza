@@ -141,11 +141,13 @@ export default function PizzaCustomizerModal({
                  {/* Radial Gradient Background */}
                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#2A2A2A] to-[#121212]"></div>
                  
-                 <img 
-                   src={pizza.image || "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg"} 
+                 <img
+                   src={pizza.image || "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg"}
                    alt={pizzaName}
+                   loading="lazy"
+                   decoding="async"
                    onError={(e) => {
-                     e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg";
+                     e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg";
                    }}
                    className="w-56 h-56 object-cover drop-shadow-2xl transform hover:scale-105 transition-transform duration-500"
                  />

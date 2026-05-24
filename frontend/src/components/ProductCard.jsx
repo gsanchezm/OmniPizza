@@ -24,7 +24,9 @@ export default function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
                src={pizza.image}
                alt={pizza.name}
                className="w-full h-full object-cover"
-               onError={(e) => {e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg'}}
+               loading="lazy"
+               decoding="async"
+               onError={(e) => {e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg'}}
              />
           </div>
        </div>

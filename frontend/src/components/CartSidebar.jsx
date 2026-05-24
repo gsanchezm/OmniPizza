@@ -61,11 +61,13 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
         {cartItems.map((item) => (
           <div key={item.id} data-testid={`cart-item-${item.pizza_id}`} className="flex gap-4 items-start group">
             <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0F0F0F] shrink-0 border border-[#2A2A2A]">
-               <img 
-                 src={item.pizza.image} 
-                 alt={item.pizza.name} 
+               <img
+                 src={item.pizza.image}
+                 alt={item.pizza.name}
                  className="w-full h-full object-cover"
-                 onError={(e) => {e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Pizza_on_stone.jpg'}}
+                 loading="lazy"
+                 decoding="async"
+                 onError={(e) => {e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg'}}
                />
             </div>
             <div className="flex-1 min-w-0">
