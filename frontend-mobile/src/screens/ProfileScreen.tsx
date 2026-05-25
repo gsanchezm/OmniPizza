@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
   const { profile, setProfile } = useAppStore();
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadProfile().catch(() => {
@@ -29,12 +30,16 @@ export default function ProfileScreen({ navigation }: any) {
   }, []);
 
   const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
     try {
       await saveProfile(t("profileSaved") || "Profile saved", (message) =>
         Alert.alert(message),
       );
     } catch (err: any) {
       Alert.alert(err?.response?.data?.detail || "Failed to save profile");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -169,9 +174,14 @@ export default function ProfileScreen({ navigation }: any) {
                 {t("cancel") || "CANCEL"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btnSave} onPress={handleSave} {...getReadableControlProps("btn-save-profile", t("saveChanges") || "SAVE CHANGES")}>
-              <Text style={styles.btnSaveText} {...getReadableTextProps("text-save-profile", t("saveChanges") || "SAVE CHANGES")}>
-                {t("saveChanges") || "SAVE CHANGES"}
+            <TouchableOpacity
+              style={[styles.btnSave, saving && styles.btnSaveDisabled]}
+              onPress={handleSave}
+              disabled={saving}
+              {...getReadableControlProps("btn-save-profile", saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES"))}
+            >
+              <Text style={styles.btnSaveText} {...getReadableTextProps("text-save-profile", saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES"))}>
+                {saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -333,6 +343,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#FF5722",
     alignItems: "center",
+  },
+  btnSaveDisabled: {
+    opacity: 0.6,
   },
   btnSaveText: {
     color: "white",

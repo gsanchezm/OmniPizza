@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProfileStore } from '../store';
 import { useT } from '../i18n';
 import { useResponsive } from '../hooks/useResponsive';
@@ -9,15 +9,22 @@ export default function Profile() {
   const t = useT();
   const { tid } = useResponsive();
   const { fullName, address, phone, notes, setProfile } = useProfileStore();
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadProfile().catch(() => { /* no profile yet — local state stays */ });
   }, []);
 
-  const handleSave = () => {
-    saveProfile(t('profileSaved')).catch((err) => {
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await saveProfile(t('profileSaved'));
+    } catch (err) {
       window.alert(err?.response?.data?.detail || 'Failed to save profile');
-    });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -140,10 +147,24 @@ export default function Profile() {
              <button
                data-testid={tid("profile-save-btn")}
                onClick={handleSave}
-               className="flex-1 sm:flex-none py-3 px-6 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20"
+               disabled={saving}
+               aria-busy={saving}
+               className="flex-1 sm:flex-none py-3 px-6 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#E64A19] transition-colors shadow-lg shadow-[#FF5722]/20 disabled:opacity-60 disabled:cursor-not-allowed"
              >
-               {t('saveChanges') || "SAVE CHANGES"}
+               {saving
+                 ? (t('saving') || "SAVING…")
+                 : (t('saveChanges') || "SAVE CHANGES")}
              </button>
+             {saving && (
+               <span
+                 data-testid={tid("profile-saving-indicator")}
+                 className="sr-only"
+                 role="status"
+                 aria-live="polite"
+               >
+                 {t('saving') || "SAVING…"}
+               </span>
+             )}
            </div>
         </div>
       </div>
