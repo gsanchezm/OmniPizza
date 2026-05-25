@@ -333,7 +333,7 @@ Response:
       "base_price": 14.99,
       "currency": "USD",
       "currency_symbol": "$",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Pepperoni_pizza.jpg"
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Pepperoni_pizza.jpg/500px-Pepperoni_pizza.jpg"
     }
   ],
   "updated_at": "2026-03-11T18:18:28.664814"
