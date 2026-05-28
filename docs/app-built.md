@@ -96,13 +96,13 @@ The workflow lives at `.github/workflows/mobile-release.yml`.
 
 Current trigger:
 
-- `workflow_dispatch` with a required `version` input
+- `workflow_dispatch` with a required `version` input (e.g. `v1.0.5`) and an optional `release_notes` input (markdown body for the release)
 
-The workflow builds artifacts first and then creates a GitHub Release for the provided version tag.
+The workflow builds artifacts first and then creates a GitHub Release for the provided version tag, using `release_notes` as the body plus auto-generated commit notes (`generate_release_notes`).
 
 ### Pipeline Stages
 
-1. Setup: checkout, install pnpm, install Node.js 20, install dependencies
+1. Setup: checkout, install pnpm, install Node.js 22, install dependencies
 2. Prebuild: `npx expo prebuild --platform <platform> --clean`
 3. Android build on `ubuntu-latest`:
    - JDK 17
@@ -115,17 +115,18 @@ The workflow builds artifacts first and then creates a GitHub Release for the pr
    - zip `OmniPizza.app` into `OmniPizza-Simulator.zip`
 5. Release job:
    - downloads artifacts
-   - creates GitHub Release with uploaded assets
+   - creates GitHub Release (body from `release_notes` + auto-generated notes) with uploaded assets
 
 ### Action Versions
 
 | Action                        | Version |
 | ----------------------------- | ------- |
-| `actions/checkout`            | v4      |
+| `actions/checkout`            | v6      |
 | `pnpm/action-setup`           | v4      |
-| `actions/setup-node`          | v4      |
-| `actions/setup-java`          | v4      |
-| `actions/upload-artifact`     | v4      |
+| `actions/setup-node`          | v6      |
+| `actions/setup-java`          | v5      |
+| `actions/upload-artifact`     | v7      |
+| `actions/download-artifact`   | v7      |
 | `softprops/action-gh-release` | v2      |
 
 ---
@@ -162,3 +163,4 @@ pnpm build:ios:simulator # Build iOS simulator app
 - Android release signing still uses the current Gradle setup; production signing secrets are not documented here yet.
 - Real-device iOS `.ipa` output is not implemented in the workflow.
 - There is no XCUITest runner artifact in the current pipeline.
+- `omnipizza-debug-androidTest.apk` is currently a minimal stub (~7 KB): the Expo-prebuilt `android/` project has no Detox/instrumented-test wiring, so it contains no real instrumented tests. Appium drives the release APK directly.
