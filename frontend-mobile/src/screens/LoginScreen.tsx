@@ -134,13 +134,13 @@ export default function LoginScreen({ navigation }: any) {
                 />
                 <Text style={styles.appName} {...getReadableTextProps("text-app-name", "OmniPizza")}>OmniPizza</Text>
                 <Text style={styles.welcomeTitle} {...getReadableTextProps("text-welcome-title", "Welcome back!")}>Welcome back!</Text>
-                <Text style={styles.subtitle} {...getReadableTextProps("text-login-subtitle", "Login to order your favorites.")}>Login to order your favorites.</Text>
+                <Text style={styles.subtitle} {...getReadableTextProps("text-login-subtitle", "Please enter your details.")}>Please enter your details.</Text>
               </View>
 
               {/* Inputs */}
               <View style={styles.inputs} accessibilityLabel="view-login-inputs">
                 <ThemedInput
-                  label="Email Address"
+                  label="Username"
                   value={username}
                   onChangeText={setUsername}
                   placeholder="standard_user"

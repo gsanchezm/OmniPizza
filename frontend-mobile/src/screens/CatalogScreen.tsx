@@ -14,7 +14,6 @@ import { Colors } from "../theme/colors";
 import { useCatalogPizzas } from "../features/catalog/hooks/useCatalogPizzas";
 import { LocationHeader } from "../components/LocationHeader";
 import { BottomNavBar } from "../components/BottomNavBar";
-import { HeroBanner } from "../components/HeroBanner";
 import { CategoryPills } from "../components/CategoryPills";
 import { MobileProductCard } from "../components/MobileProductCard";
 import type { Pizza } from "../types/api";
@@ -76,17 +75,6 @@ export default function CatalogScreen({ navigation }: any) {
           />
         </View>
 
-        {/* Hero Banner (only on 'all' or 'popular') */}
-        {(selectedCategory === "all" || selectedCategory === "popular") && (
-          <HeroBanner />
-        )}
-
-        {/* List Title */}
-        <View style={styles.sectionHeader} accessibilityLabel="view-section-header" testID="view-section-header">
-          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-title", "Classic Selection")}>Classic Selection</Text>
-          <Text style={{ color: Colors.text.muted }} accessibilityLabel="icon-dropdown">▼</Text>
-        </View>
-
         {/* Product List */}
         {loading ? (
           <ActivityIndicator
@@ -109,7 +97,7 @@ export default function CatalogScreen({ navigation }: any) {
               />
             ))}
             {filteredPizzas.length === 0 && (
-              <Text style={styles.emptyText} {...getReadableTextProps("text-empty-results", "No pizzas found.")}>No pizzas found.</Text>
+              <Text style={styles.emptyText} {...getReadableTextProps("text-empty-results", "No pizzas found matching your criteria.")}>No pizzas found matching your criteria.</Text>
             )}
           </View>
         )}

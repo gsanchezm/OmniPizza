@@ -78,9 +78,9 @@ export const LocationHeader = ({
             color: "white",
             marginLeft: 12,
           }}
-          {...getReadableTextProps("text-header-brand", "OMNIPIZZA")}
+          {...getReadableTextProps("text-header-brand", "OmniPizza")}
         >
-          OMNIPIZZA
+          OmniPizza
         </Text>
       </View>
 

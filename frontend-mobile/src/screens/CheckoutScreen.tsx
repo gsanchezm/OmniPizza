@@ -40,9 +40,31 @@ function money(value: number, currency: string, symbol?: string) {
   return `${safeSymbol}${amount.toFixed(2)}`;
 }
 
+// Checkout copy kept in exact parity with the web checkout
+// (frontend/src/pages/Checkout.jsx UI_TEXT), which is the source of truth.
+// Web checkout uses these inline strings rather than the shared locale keys,
+// so we mirror them here to stay identical without rippling into other screens.
+const tOpt = (obj: Record<string, string>, lang: string) =>
+  obj?.[lang] || obj?.en || "";
+const UI_TEXT: Record<string, Record<string, string>> = {
+  deliveryAddress: { en: "DELIVERY ADDRESS", es: "DIRECCIÓN DE ENTREGA", de: "LIEFERADRESSE", fr: "ADRESSE DE LIVRAISON", ja: "配送先住所" },
+  fullName: { en: "Full Name", es: "Nombre completo", de: "Vollständiger Name", fr: "Nom complet", ja: "氏名" },
+  phone: { en: "Phone Number", es: "Teléfono", de: "Telefonnummer", fr: "Numéro de téléphone", ja: "電話番号" },
+  cash: { en: "Cash", es: "Efectivo", de: "Barzahlung", fr: "Espèces", ja: "現金" },
+  cashDesc: { en: "Pay on Delivery", es: "Pagar al recibir", de: "Zahlung bei Lieferung", fr: "Payer à la livraison", ja: "代金引換" },
+  creditCardDesc: { en: "VISA, Mastercard, AMEX", es: "VISA, Mastercard, AMEX", de: "VISA, Mastercard, AMEX", fr: "VISA, Mastercard, AMEX", ja: "VISA, Mastercard, AMEX" },
+  orderSummary: { en: "Your Order", es: "Tu pedido", de: "Deine Bestellung", fr: "Votre commande", ja: "ご注文" },
+  total: { en: "Total", es: "Total", de: "Gesamt", fr: "Total", ja: "合計" },
+  placeOrder: { en: "Place Order", es: "Realizar Pedido", de: "Bestellung aufgeben", fr: "Passer la commande", ja: "注文する" },
+  edit: { en: "Edit", es: "Editar", de: "Bearbeiten", fr: "Modifier", ja: "編集" },
+  remove: { en: "Remove", es: "Eliminar", de: "Entfernen", fr: "Supprimer", ja: "削除" },
+  cartEmpty: { en: "Your cart is empty", es: "Carrito vacío", de: "Warenkorb leer", fr: "Panier vide", ja: "カートは空です" },
+  startOrder: { en: "Start Your Order", es: "Comienza tu Pedido", de: "Bestellung starten", fr: "Commencer votre commande", ja: "注文を始める" },
+};
+
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
-  const { country, countryInfo, cartItems, clearCart, profile, setProfile, setLastOrder, token } =
+  const { country, countryInfo, cartItems, clearCart, profile, setProfile, setLastOrder, token, language } =
     useAppStore();
 
   // Hydrate cart from backend (enables API-based state injection for E2E tests)
@@ -219,15 +241,15 @@ export default function CheckoutScreen({ navigation }: any) {
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
           accessibilityLabel="view-empty-cart"
         >
-          <Text style={{ color: "white", marginBottom: 20 }} {...getReadableTextProps("text-cart-empty", t("cartEmpty"))}>
-            {t("cartEmpty")}
+          <Text style={{ color: "white", marginBottom: 20 }} {...getReadableTextProps("text-cart-empty", tOpt(UI_TEXT.cartEmpty, language))}>
+            {tOpt(UI_TEXT.cartEmpty, language)}
           </Text>
           <TouchableOpacity
             style={styles.btnPrimary}
             onPress={() => navigation.navigate("Catalog")}
-            {...getReadableControlProps("btn-go-to-menu", t("goToMenu"))}
+            {...getReadableControlProps("btn-go-to-menu", tOpt(UI_TEXT.startOrder, language))}
           >
-            <Text style={styles.btnText} {...getReadableTextProps("text-go-to-menu", t("goToMenu"))}>{t("goToMenu")}</Text>
+            <Text style={styles.btnText} {...getReadableTextProps("text-go-to-menu", tOpt(UI_TEXT.startOrder, language))}>{tOpt(UI_TEXT.startOrder, language)}</Text>
           </TouchableOpacity>
         </View>
         <BottomNavBar />
@@ -242,7 +264,7 @@ export default function CheckoutScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-checkout">
         {/* Delivery Address */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-address">
-          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-address", t("streetAndNumber"))}>{t("streetAndNumber")}</Text>
+          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-address", tOpt(UI_TEXT.deliveryAddress, language))}>{tOpt(UI_TEXT.deliveryAddress, language)}</Text>
         </View>
 
         <TextInput
@@ -341,7 +363,7 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
         <View style={{ gap: 12 }} accessibilityLabel="view-contact-fields">
           <View accessibilityLabel="view-field-fullname">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-fullname", t("fullName"))}>{t("fullName")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-fullname", tOpt(UI_TEXT.fullName, language))}>{tOpt(UI_TEXT.fullName, language)}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Julian Casablancas"
@@ -353,7 +375,7 @@ export default function CheckoutScreen({ navigation }: any) {
             />
           </View>
           <View accessibilityLabel="view-field-phone">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-phone", t("phone"))}>{t("phone")}</Text>
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-phone", tOpt(UI_TEXT.phone, language))}>{tOpt(UI_TEXT.phone, language)}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="+52 55 1234 5678"
@@ -388,7 +410,7 @@ export default function CheckoutScreen({ navigation }: any) {
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-card-info">
             <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-card-label", t("creditCard"))}>{t("creditCard")}</Text>
-            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-card-number", "•••• •••• •••• 4242")}>•••• •••• •••• 4242</Text>
+            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-card-number", tOpt(UI_TEXT.creditCardDesc, language))}>{tOpt(UI_TEXT.creditCardDesc, language)}</Text>
           </View>
           <View
             style={[
@@ -407,14 +429,14 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "cash" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("cash")}
-          {...getReadableControlProps("btn-payment-cash", t("payOnDelivery"))}
+          {...getReadableControlProps("btn-payment-cash", tOpt(UI_TEXT.cash, language))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-cash">
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cash">💵</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-cash-info">
-            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-cash-label", t("payOnDelivery"))}>{t("payOnDelivery")}</Text>
-            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-cash-desc", t("cash"))}>{t("cash")}</Text>
+            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-cash-label", tOpt(UI_TEXT.cash, language))}>{tOpt(UI_TEXT.cash, language)}</Text>
+            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-cash-desc", tOpt(UI_TEXT.cashDesc, language))}>{tOpt(UI_TEXT.cashDesc, language)}</Text>
           </View>
           <View
             style={[
@@ -506,9 +528,9 @@ export default function CheckoutScreen({ navigation }: any) {
         <View style={styles.sectionHeader} accessibilityLabel="view-section-summary">
           <Text
             style={styles.sectionTitle}
-            {...getReadableTextProps("text-section-summary", t("orderSummary"))}
+            {...getReadableTextProps("text-section-summary", tOpt(UI_TEXT.orderSummary, language))}
           >
-            {t("orderSummary")}
+            {tOpt(UI_TEXT.orderSummary, language)}
           </Text>
         </View>
 
@@ -540,18 +562,18 @@ export default function CheckoutScreen({ navigation }: any) {
                     }}
                     {...getTestProps(`btn-edit-item-${item.id}`)}
                   >
-                    <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, t("edit").toUpperCase())}>
-                      {t("edit").toUpperCase()}
+                    <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, tOpt(UI_TEXT.edit, language).toUpperCase())}>
+                      {tOpt(UI_TEXT.edit, language).toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() =>
                       useAppStore.getState().removeCartItem(item.id)
                     }
-                    {...getReadableControlProps(`btn-remove-item-${item.id}`, t("remove").toUpperCase())}
+                    {...getReadableControlProps(`btn-remove-item-${item.id}`, tOpt(UI_TEXT.remove, language).toUpperCase())}
                   >
-                    <Text style={[styles.actionLink, { color: "#EF4444" }]} {...getReadableTextProps(`text-remove-item-${item.id}`, t("remove").toUpperCase())}>
-                      {t("remove").toUpperCase()}
+                    <Text style={[styles.actionLink, { color: "#EF4444" }]} {...getReadableTextProps(`text-remove-item-${item.id}`, tOpt(UI_TEXT.remove, language).toUpperCase())}>
+                      {tOpt(UI_TEXT.remove, language).toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -649,7 +671,7 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
 
         <View style={[styles.costRow, { marginTop: 20 }]} accessibilityLabel="view-row-total">
-          <Text style={styles.totalLabel} {...getReadableTextProps("text-total-label", t("totalPrice"))}>{t("totalPrice")}</Text>
+          <Text style={styles.totalLabel} {...getReadableTextProps("text-total-label", tOpt(UI_TEXT.total, language))}>{tOpt(UI_TEXT.total, language)}</Text>
           <Text
             style={styles.totalValue}
             {...getReadableTextProps("text-total-value", money(total, currency, currencySymbol))}
@@ -657,8 +679,6 @@ export default function CheckoutScreen({ navigation }: any) {
             {money(total, currency, currencySymbol)}
           </Text>
         </View>
-
-        <Text style={styles.arrival} {...getReadableTextProps("text-arrival", `${t("expectedArrival")}: 25-35 min`)}>{t("expectedArrival")}: 25-35 min</Text>
 
         {error ? (
           <View style={styles.errorBox} accessibilityLabel="view-checkout-error">
@@ -675,10 +695,10 @@ export default function CheckoutScreen({ navigation }: any) {
           style={styles.btnPrimary}
           onPress={placeOrder}
           disabled={loading}
-          {...getReadableControlProps("btn-place-order", loading ? t("processing") : t("confirmPay"))}
+          {...getReadableControlProps("btn-place-order", loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language))}
         >
-          <Text style={styles.btnText} {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${t("confirmPay")}  →`)}>
-            {loading ? t("processing") : t("confirmPay") + "  →"}
+          <Text style={styles.btnText} {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${tOpt(UI_TEXT.placeOrder, language)}  →`)}>
+            {loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language) + "  →"}
           </Text>
         </TouchableOpacity>
       </ScrollView>

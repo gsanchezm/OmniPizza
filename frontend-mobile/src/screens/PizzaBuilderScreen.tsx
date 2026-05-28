@@ -127,6 +127,13 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
   if (!pizza) return null;
 
+  // Mirror the web customizer: show the per-topping price ("+$1 each").
+  const toppingHint = `+${formatMoney(usdToLocalCeil(1, pizza), pizza.currency, pizza.currency_symbol)} ${tOpt(UI_STRINGS.each, language)}`;
+  const confirmLabel =
+    mode === "edit"
+      ? tOpt(UI_STRINGS.update, language)
+      : tOpt(UI_STRINGS.confirm, language);
+
   return (
     <View style={styles.screen} accessibilityLabel="screen-pizza-builder" testID="screen-pizza-builder">
       {/* Header */}
@@ -152,12 +159,12 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         <View style={styles.imageContainer} accessibilityLabel="view-pizza-image-container">
           {/* Radial Gradient Background approximation with view layers */}
           <View style={styles.glow} accessibilityLabel="view-pizza-glow" />
+          {/* Branded fallback shows through when the remote image fails to load. */}
+          <View style={styles.pizzaImageFallback} accessibilityLabel="img-builder-pizza-fallback">
+            <Text style={styles.pizzaImageFallbackEmoji}>🍕</Text>
+          </View>
           <Image
-            source={{
-              uri:
-                pizza.image ||
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg",
-            }}
+            source={{ uri: pizza.image }}
             style={styles.pizzaImage}
             accessibilityLabel="img-builder-pizza"
             testID="img-builder-pizza"
@@ -170,8 +177,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
             <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
               {tOpt(UI_STRINGS.size, language)}
             </Text>
-            <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt({ en: "Required", es: "Requerido" }, language)))}>
-              {tOpt({ en: "Required", es: "Requerido" }, language)}
+            <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt(UI_STRINGS.required, language)))}>
+              {tOpt(UI_STRINGS.required, language)}
             </Text>
           </View>
 
@@ -226,8 +233,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
             <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
               {tOpt(UI_STRINGS.toppings, language)}
             </Text>
-            <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", String(tOpt(UI_STRINGS.upTo10, language)))}>
-              {tOpt(UI_STRINGS.upTo10, language)}
+            <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", toppingHint)}>
+              {toppingHint}
             </Text>
           </View>
 
@@ -311,26 +318,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
         <View style={styles.barContent} accessibilityLabel="view-bar-content">
           <View accessibilityLabel="view-estimated-total">
-            <Text style={styles.totalLabel} {...getReadableTextProps("text-estimated-total-label", tOpt(
-                {
-                  en: "ESTIMATED TOTAL",
-                  es: "TOTAL ESTIMADO",
-                  de: "GESAMTSUMME",
-                  fr: "TOTAL ESTIMÉ",
-                  ja: "推定合計",
-                },
-                language,
-              ))}>
-              {tOpt(
-                {
-                  en: "ESTIMATED TOTAL",
-                  es: "TOTAL ESTIMADO",
-                  de: "GESAMTSUMME",
-                  fr: "TOTAL ESTIMÉ",
-                  ja: "推定合計",
-                },
-                language,
-              )}
+            <Text style={styles.totalLabel} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
+              {tOpt(UI_STRINGS.estimatedTotal, language)}
             </Text>
             <Text style={styles.totalValue} {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>
               {formatMoney(unitPrice, pizza.currency, pizza.currency_symbol)}
@@ -340,52 +329,13 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           <TouchableOpacity
             style={styles.addToCartBtn}
             onPress={confirm}
-            {...getReadableControlProps(
-              "btn-add-to-cart",
-              mode === "edit"
-                ? tOpt(
-                    {
-                      en: "Update",
-                      es: "Actualizar",
-                      de: "Aktualisieren",
-                      fr: "Mettre à jour",
-                      ja: "更新",
-                    },
-                    language,
-                  )
-                : tOpt(UI_STRINGS.confirm, language),
-            )}
+            {...getReadableControlProps("btn-add-to-cart", confirmLabel)}
           >
             <Text
               style={styles.addToCartText}
-              {...getReadableTextProps(
-                "text-add-to-cart",
-                mode === "edit"
-                  ? tOpt(
-                      {
-                        en: "Update",
-                        es: "Actualizar",
-                        de: "Aktualisieren",
-                        fr: "Mettre à jour",
-                        ja: "更新",
-                      },
-                      language,
-                    )
-                  : tOpt(UI_STRINGS.confirm, language),
-              )}
+              {...getReadableTextProps("text-add-to-cart", confirmLabel)}
             >
-              {mode === "edit"
-                ? tOpt(
-                    {
-                      en: "Update",
-                      es: "Actualizar",
-                      de: "Aktualisieren",
-                      fr: "Mettre à jour",
-                      ja: "更新",
-                    },
-                    language,
-                  )
-                : tOpt(UI_STRINGS.confirm, language)}
+              {confirmLabel}
             </Text>
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cart">🛒</Text>
           </TouchableOpacity>
@@ -443,6 +393,14 @@ const styles = StyleSheet.create({
     width: 260,
     height: 260,
     resizeMode: "contain",
+  },
+  pizzaImageFallback: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pizzaImageFallbackEmoji: {
+    fontSize: 120,
   },
   cardContent: {
     width: "100%",
@@ -586,6 +544,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 1,
     marginBottom: 4,
+    textTransform: "uppercase",
   },
   totalValue: {
     color: "white",

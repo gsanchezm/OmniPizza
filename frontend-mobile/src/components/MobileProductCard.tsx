@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
-
-const FALLBACK_PIZZA_IMAGE =
-  "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -13,21 +10,20 @@ interface MobileProductCardProps {
 }
 
 export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) => {
-  const [imageUri, setImageUri] = useState<string | undefined>(pizza.image);
-
   return (
     <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
-      {/* Image Section */}
+      {/* Image Section: the placeholder sits behind the remote image, so a
+          failed/empty load reveals a branded tile instead of a black box. */}
       <View style={styles.imageContainer} accessibilityLabel={`view-img-container-${pizza.id}`}>
+        <View style={styles.imagePlaceholder} accessibilityLabel={`view-img-fallback-${pizza.id}`}>
+          <Text style={styles.imagePlaceholderEmoji}>🍕</Text>
+        </View>
         <Image
-          source={{ uri: imageUri || FALLBACK_PIZZA_IMAGE }}
-          style={styles.image}
+          source={{ uri: pizza.image }}
+          style={[styles.image, StyleSheet.absoluteFill]}
           resizeMode="cover"
           accessibilityLabel={`img-pizza-${pizza.id}`}
           testID={`img-pizza-${pizza.id}`}
-          onError={() => {
-            if (imageUri !== FALLBACK_PIZZA_IMAGE) setImageUri(FALLBACK_PIZZA_IMAGE);
-          }}
         />
       </View>
 
@@ -68,6 +64,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: Colors.surface.base,
+  },
+  imagePlaceholder: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#2A1A12",
+  },
+  imagePlaceholderEmoji: {
+    fontSize: 40,
   },
   image: {
     width: "100%",

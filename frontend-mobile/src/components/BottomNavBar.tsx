@@ -9,11 +9,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Colors } from "../theme/colors";
 import { useAppStore } from "../store/useAppStore";
+import { useT } from "../i18n";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
 export const BottomNavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
+  const t = useT();
   const { logout, cartItems } = useAppStore();
   const cartCount = cartItems.reduce(
     (sum, item) => sum + Number(item.quantity || 0),
@@ -27,15 +29,15 @@ export const BottomNavBar = () => {
   };
 
   const navItems = [
-    { name: "Catalog", label: "Catalog", icon: "🍕" },
+    { name: "Catalog", label: t("catalog"), icon: "🍕" },
     {
       name: "Checkout",
-      label: "Checkout",
+      label: t("checkout"),
       icon: "🛒",
       badge: cartCount > 0 ? cartBadge : undefined,
     },
-    { name: "Profile", label: "Profile", icon: "👤" },
-    { name: "Logout", label: "Logout", icon: "🚪", onPress: handleLogout },
+    { name: "Profile", label: t("profile"), icon: "👤" },
+    { name: "Logout", label: t("logout"), icon: "🚪", onPress: handleLogout },
   ];
 
   return (
