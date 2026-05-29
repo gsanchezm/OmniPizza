@@ -1,6 +1,6 @@
 {
   "name": "frontend-mobile",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "index.ts",
   "scripts": {
     "start": "EXPO_OFFLINE=1 expo start",
