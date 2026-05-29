@@ -3,7 +3,7 @@
     "name": "OmniPizza",
     "slug": "omnipizza",
     "scheme": "omnipizza",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "default",
 
     "icon": "./assets/icon.png",
