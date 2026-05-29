@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { remoteImageSource } from "../utils/image";
 
 interface PizzaCardProps {
   pizza: Pizza;
@@ -19,13 +20,13 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
   return (
     <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       <Image
-        source={{ uri: pizza.image }}
+        source={remoteImageSource(pizza.image)}
         style={styles.image}
         accessibilityLabel={`img-pizza-${pizza.id}`}
         testID={`img-pizza-${pizza.id}`}
         onError={(event: any) => {
           event?.currentTarget?.setNativeProps?.({
-            source: [{ uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg" }],
+            source: [remoteImageSource("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Pizza_on_stone.jpg/500px-Pizza_on_stone.jpg")],
           });
         }}
       />

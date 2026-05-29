@@ -16,6 +16,7 @@ import type { Pizza } from "../types/api";
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { remoteImageSource } from "../utils/image";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
@@ -164,7 +165,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
             <Text style={styles.pizzaImageFallbackEmoji}>🍕</Text>
           </View>
           <Image
-            source={{ uri: pizza.image }}
+            source={remoteImageSource(pizza.image)}
             style={styles.pizzaImage}
             accessibilityLabel="img-builder-pizza"
             testID="img-builder-pizza"

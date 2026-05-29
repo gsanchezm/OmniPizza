@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { remoteImageSource } from "../utils/image";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -19,7 +20,7 @@ export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) =>
           <Text style={styles.imagePlaceholderEmoji}>🍕</Text>
         </View>
         <Image
-          source={{ uri: pizza.image }}
+          source={remoteImageSource(pizza.image)}
           style={[styles.image, StyleSheet.absoluteFill]}
           resizeMode="cover"
           accessibilityLabel={`img-pizza-${pizza.id}`}

@@ -21,6 +21,7 @@ import type { CheckoutFormState } from "../features/checkout/useCases/buildCheck
 import { cartService } from "../services/cart.service";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
+import { remoteImageSource } from "../utils/image";
 
 const { width } = Dimensions.get("window");
 const FALLBACK_TIP_PERCENTAGES = [0, 5, 10, 15] as const;
@@ -538,11 +539,10 @@ export default function CheckoutScreen({ navigation }: any) {
           {cartItems.map((item) => (
             <View key={item.id} style={styles.itemRow} accessibilityLabel={`view-item-row-${item.id}`} testID={`view-item-row-${item.id}`}>
               <Image
-                source={{
-                  uri:
-                    item.pizza.image ||
+                source={remoteImageSource(
+                  item.pizza.image ||
                     "https://omnipizza.onrender.com/static/images/pizza-1.png",
-                }}
+                )}
                 style={styles.itemImage}
                 accessibilityLabel={`img-item-${item.id}`}
               />
