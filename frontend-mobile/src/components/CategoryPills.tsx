@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../theme/colors';
 import { useT } from '../i18n';
-import { getReadableControlProps, getReadableTextProps } from '../utils/qa';
+import { getReadableControlProps, getReadableTextProps, getTestProps } from '../utils/qa';
 
 const CATEGORIES = [
   { id: 'all', labelKey: 'allPizza' },
@@ -24,7 +24,7 @@ export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
-      accessibilityLabel="view-category-pills"
+      {...getTestProps("view-category-pills")}
     >
       {CATEGORIES.map((cat) => {
         const isActive = selected === cat.id;
