@@ -383,3 +383,62 @@ describe('Debug Endpoints', () => {
     expect(res.headers['content-type']).toContain('text/plain');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Atomic profile setup — deterministic seed + reset
+// The editable profile is per-user mutable state shared across sessions, so a
+// save by any session leaks into the next render. These endpoints let tests
+// pin a reproducible baseline (seed) or clear it (reset) before a snapshot.
+// ---------------------------------------------------------------------------
+describe('Atomic Profile Setup', () => {
+  const PROFILE_PATH = `${API_URL}/api/users/me/profile`;
+
+  it('POST /api/profile seeds a deterministic baseline; omitted fields revert to default', async () => {
+    const token = await login('standard_user');
+    const headers = authHeaders(token, 'US');
+
+    // Pollute the profile the way another session would.
+    await axios.patch(
+      PROFILE_PATH,
+      { full_name: '田中 健太', address: '1-2-3 Shibuya' },
+      { headers },
+    );
+
+    // Seed a frozen baseline — note we do NOT send `address`.
+    const seeded = await axios.post(
+      `${API_URL}/api/profile`,
+      { full_name: 'QA Baseline', phone: '+1 555 0100' },
+      { headers },
+    );
+    expect(seeded.status).toBe(200);
+    expect(seeded.data.full_name).toBe('QA Baseline');
+    expect(seeded.data.phone).toBe('+1 555 0100');
+    // Omitted field reverted to default, not the leaked Shibuya address.
+    expect(seeded.data.address).toBe('');
+
+    // GET reflects the same deterministic value.
+    const got = await axios.get(PROFILE_PATH, { headers });
+    expect(got.data.full_name).toBe('QA Baseline');
+    expect(got.data.address).toBe('');
+  });
+
+  it('POST /api/session/reset clears the profile back to the empty default', async () => {
+    const token = await login('standard_user');
+    const headers = authHeaders(token, 'US');
+
+    await axios.post(
+      `${API_URL}/api/profile`,
+      { full_name: 'Will Be Cleared', notes: 'temp' },
+      { headers },
+    );
+
+    const reset = await axios.post(`${API_URL}/api/session/reset`, {}, { headers });
+    expect(reset.status).toBe(200);
+
+    const got = await axios.get(PROFILE_PATH, { headers });
+    expect(got.data.full_name).toBe('');
+    expect(got.data.phone).toBe('');
+    expect(got.data.address).toBe('');
+    expect(got.data.notes).toBe('');
+  });
+});

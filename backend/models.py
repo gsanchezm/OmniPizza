@@ -172,3 +172,15 @@ class TestSessionStateResponse(BaseModel):
     country_code: CountryCode
     cart_items: List[CartItem]
     updated_at: datetime
+
+class TestProfileSeedRequest(BaseModel):
+    """Atomic test setup — replace the per-user editable profile with a
+    deterministic baseline (default values overlaid with the fields below).
+    Omitted fields revert to their default, so the render is reproducible
+    regardless of what any prior session saved. Use for visual-regression
+    baselines; pair with `POST /api/session/reset` to clear back to default."""
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
+    premium: Optional[bool] = None

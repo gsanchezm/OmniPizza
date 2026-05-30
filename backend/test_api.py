@@ -9,7 +9,9 @@ from models import (
     CartResponse,
     TestCartSetupRequest,
     TestMarketRequest,
+    TestProfileSeedRequest,
     TestSessionStateResponse,
+    UserProfileDetails,
 )
 
 logger = logging.getLogger("omnipizza.test_api")
@@ -96,12 +98,48 @@ async def get_cart(
     )
 
 
-@router.post("/api/session/reset", response_model=TestSessionStateResponse, tags=["Session"])
+@router.post(
+    "/api/profile",
+    response_model=UserProfileDetails,
+    tags=["Profile"],
+    summary="Seed the user's editable profile (atomic test setup)",
+    description=(
+        "Replaces the per-user editable profile with a deterministic baseline "
+        "(default values overlaid with the supplied fields). The profile is "
+        "per-user mutable state, so any prior save by any session would "
+        "otherwise leak into the next render — seed here to pin a reproducible "
+        "value before a visual-regression snapshot. Market-independent: this "
+        "endpoint does not read `X-Country-Code`. Use `POST /api/session/reset` "
+        "to clear the profile back to the empty default."
+    ),
+)
+async def seed_profile(
+    request: TestProfileSeedRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    username = current_user["username"]
+    profile = db.seed_user_profile(username, request.dict(exclude_unset=True))
+    logger.info("session_api.seed_profile user=%s", username)
+    return UserProfileDetails(**profile)
+
+
+@router.post(
+    "/api/session/reset",
+    response_model=TestSessionStateResponse,
+    tags=["Session"],
+    summary="Reset the user's session AND profile to a clean slate",
+    description=(
+        "Clears the per-user session (market + cart) and resets the editable "
+        "profile to the deterministic empty default. Use to undo any leaked "
+        "state before a test."
+    ),
+)
 async def reset_state(
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
     db.reset_test_session(username)
+    db.reset_user_profile(username)
     logger.info("session_api.reset_state user=%s", username)
     return _session_response(username)
 

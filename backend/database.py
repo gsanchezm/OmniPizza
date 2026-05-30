@@ -66,6 +66,27 @@ class InMemoryDB:
             profile[key] = value
         return profile
 
+    def reset_user_profile(self, username: str) -> Dict[str, Any]:
+        """Reset the user's editable profile to the deterministic default.
+
+        The profile is per-user mutable state shared across sessions, so any
+        save by any session leaks into the next render. Resetting back to the
+        default empty profile gives tests a reproducible pre-edit baseline."""
+        self.user_profiles.pop(username, None)
+        return self._ensure_user_profile(username)
+
+    def seed_user_profile(self, username: str, fields: Dict[str, Any]) -> Dict[str, Any]:
+        """Replace the profile with a deterministic baseline: default values
+        overlaid with `fields`. Unspecified fields revert to default, so the
+        result depends only on this call, not on prior saves."""
+        self.user_profiles.pop(username, None)
+        profile = self._ensure_user_profile(username)
+        for key, value in fields.items():
+            if value is None:
+                continue
+            profile[key] = value
+        return profile
+
     def _ensure_session(self, username: str) -> Dict[str, Any]:
         session = self.sessions.get(username)
         if session is None:
