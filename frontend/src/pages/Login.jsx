@@ -15,13 +15,21 @@ const USER_HINTS = {
   error_user: "Error",
 };
 
+// Render Quick Login from a stable client-side list so the panel has a
+// deterministic height from first paint. The async /api/auth/users fetch then
+// just confirms the same fixed set (identical usernames + order). Without this
+// the panel collapsed to a shorter "Loading…" state on slow/failed fetches and,
+// because the login is vertically centered, that height change shifted the
+// whole form — breaking visual regression on the responsive viewport.
+const TEST_USER_FALLBACK = Object.keys(USER_HINTS).map((username) => ({ username }));
+
 export default function Login() {
   const [username, setUsername] = useState("standard_user");
   const [password, setPassword] = useState("pizza123");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [testUsers, setTestUsers] = useState([]);
+  const [testUsers, setTestUsers] = useState(TEST_USER_FALLBACK);
 
   const navigate = useNavigate();
   const { tid } = useResponsive();
@@ -38,8 +46,12 @@ export default function Login() {
 
   useEffect(() => {
     getTestUsers()
-      .then((res) => setTestUsers(res.data || []))
-      .catch(() => setTestUsers([]));
+      .then((res) => {
+        if (Array.isArray(res.data) && res.data.length) setTestUsers(res.data);
+      })
+      .catch(() => {
+        /* keep the static fallback so the panel never collapses to "Loading…" */
+      });
   }, []);
 
   const handleLogin = async (e) => {
@@ -208,7 +220,7 @@ export default function Login() {
                </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap content-center justify-center gap-2 min-h-[80px]">
               {testUsers.length > 0 ? testUsers.map(u => (
                  <button
                    key={u.username}
