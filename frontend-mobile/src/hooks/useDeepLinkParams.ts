@@ -99,9 +99,11 @@ export function useDeepLinkParams(
       }
     }
 
-    // 3) lang override — only has effect when country is CH (store guards this)
-    if (params.lang === "fr" || params.lang === "de") {
-      store.setLanguage(params.lang);
+    // 3) lang override — only has effect when country is CH (store guards this).
+    //    `language` is the contract alias for `lang` (customizer deep-links).
+    const langParam = params.lang ?? params.language;
+    if (langParam === "fr" || langParam === "de") {
+      store.setLanguage(langParam);
     }
 
     // 4) hydrateCart — clear local cart so CheckoutScreen fetches from API on mount

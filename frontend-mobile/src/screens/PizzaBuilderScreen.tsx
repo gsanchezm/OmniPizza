@@ -68,19 +68,29 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const cartItemId = route?.params?.cartItemId;
   const initialConfig = route?.params?.initialConfig;
 
-  // Deep link support: pizzaId param used when no full pizza object is passed
-  const deepLinkPizzaId = route?.params?.pizzaId as string | undefined;
+  // Deep link support: pizzaId param used when no full pizza object is passed.
+  // `item` is the contract alias for `pizzaId` (omnipizza://customizer?item=...).
+  const deepLinkPizzaId = (route?.params?.pizzaId ?? route?.params?.item) as
+    | string
+    | undefined;
   const targetPizzaId = initialPizza?.id ?? deepLinkPizzaId;
 
   const [pizza, setPizza] = useState<Pizza | undefined>(initialPizza);
 
   React.useEffect(() => {
     if (!targetPizzaId) return;
-    getCatalogPizzas().then((list) => {
-      const found = list.find((p) => String(p.id) === String(targetPizzaId));
-      if (found) setPizza(found);
-      else navigation.goBack();
-    });
+    getCatalogPizzas()
+      .then((list) => {
+        const found = list.find((p) => String(p.id) === String(targetPizzaId));
+        if (found) setPizza(found);
+        // Not found → leave the customizer empty (per contract: render empty,
+        // not an error, and don't navigate away).
+      })
+      .catch(() => {
+        // Catalog fetch failed (e.g. an atomic deep-link that hasn't seeded a
+        // token yet). Keep the screen mounted as an empty customizer instead of
+        // hanging on a null render — the container must stay reachable.
+      });
   }, [country, language, targetPizzaId, navigation]);
 
   const [size, setSize] = useState<PizzaSize>(
@@ -126,7 +136,30 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
     navigation.goBack();
   };
 
-  if (!pizza) return null;
+  // Until a pizza resolves (deep-link item still loading, not found, or the
+  // catalog fetch failed) keep ~screen-pizza-builder mounted as an empty
+  // customizer so atomic entry never lands on a blank/missing screen.
+  if (!pizza) {
+    return (
+      <View style={styles.screen} accessibilityLabel="screen-pizza-builder" testID="screen-pizza-builder">
+        <View style={styles.header} accessibilityLabel="view-builder-header">
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => navigation.goBack()}
+            testID="btn-close-builder"
+            accessibilityLabel="btn-close-builder"
+          >
+            <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
+            {tOpt(UI_STRINGS.title, language)}
+          </Text>
+          <View style={styles.iconBtn} />
+        </View>
+        <View style={styles.scrollContent} accessibilityLabel="view-builder-empty" testID="view-builder-empty" />
+      </View>
+    );
+  }
 
   // Mirror the web customizer: show the per-topping price ("+$1 each").
   const toppingHint = `+${formatMoney(usdToLocalCeil(1, pizza), pizza.currency, pizza.currency_symbol)} ${tOpt(UI_STRINGS.each, language)}`;
