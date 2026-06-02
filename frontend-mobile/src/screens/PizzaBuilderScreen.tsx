@@ -15,7 +15,7 @@ import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
 import type { Pizza } from "../types/api";
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
-import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
@@ -155,7 +155,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-builder">
+      <ScrollView contentContainerStyle={styles.scrollContent} {...getTestProps("scroll-builder")}>
         {/* Pizza Image */}
         <View style={styles.imageContainer} accessibilityLabel="view-pizza-image-container">
           {/* Radial Gradient Background approximation with view layers */}

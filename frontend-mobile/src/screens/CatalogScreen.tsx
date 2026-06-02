@@ -18,7 +18,7 @@ import { CategoryPills } from "../components/CategoryPills";
 import { MobileProductCard } from "../components/MobileProductCard";
 import type { Pizza } from "../types/api";
 import { useT } from "../i18n";
-import { getReadableTextProps } from "../utils/qa";
+import { getReadableTextProps, getTestProps } from "../utils/qa";
 
 export default function CatalogScreen({ navigation }: any) {
   const t = useT();
@@ -49,7 +49,7 @@ export default function CatalogScreen({ navigation }: any) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        accessibilityLabel="scroll-catalog"
+        {...getTestProps("scroll-catalog")}
       >
         {/* Search Bar */}
         <View style={styles.searchContainer} accessibilityLabel="view-search-container">

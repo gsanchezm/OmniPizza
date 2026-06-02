@@ -262,7 +262,7 @@ export default function CheckoutScreen({ navigation }: any) {
     <View style={styles.container} accessibilityLabel="screen-checkout" testID="screen-checkout">
       <CustomNavbar title={t("checkout")} navigation={navigation} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} accessibilityLabel="scroll-checkout">
+      <ScrollView contentContainerStyle={styles.scrollContent} {...getTestProps("scroll-checkout")}>
         {/* Delivery Address */}
         <View style={styles.sectionHeader} accessibilityLabel="view-section-address">
           <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-address", tOpt(UI_TEXT.deliveryAddress, language))}>{tOpt(UI_TEXT.deliveryAddress, language)}</Text>

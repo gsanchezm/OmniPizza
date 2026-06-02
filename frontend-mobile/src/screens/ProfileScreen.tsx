@@ -16,7 +16,7 @@ import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
 import { loadProfile } from "../features/profile/useCases/loadProfile";
-import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
@@ -50,7 +50,7 @@ export default function ProfileScreen({ navigation }: any) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        accessibilityLabel="scroll-profile"
+        {...getTestProps("scroll-profile")}
       >
         {/* Header Title Space */}
         <View style={styles.headerSpace} accessibilityLabel="view-profile-header">
