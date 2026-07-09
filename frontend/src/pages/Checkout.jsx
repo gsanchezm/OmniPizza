@@ -432,6 +432,10 @@ export default function Checkout() {
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  // Automation-demo widgets: pre-order confirmation modal + tip tooltip.
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [tipTipOpen, setTipTipOpen] = useState(false);
+
   const currency = items[0]?.currency || "USD";
   const symbol = items[0]?.currency_symbol || "$";
 
@@ -1024,8 +1028,34 @@ export default function Checkout() {
                   data-testid="order-tip"
                   className="flex items-center justify-between gap-4 text-sm"
                 >
-                  <span className="text-gray-400">
+                  <span className="text-gray-400 flex items-center gap-1.5">
                     {tOpt({ en: "Tip for Driver", es: "Propina para el conductor", de: "Trinkgeld für den Fahrer", fr: "Pourboire pour le chauffeur", ja: "ドライバーへのチップ" }, language)}
+                    <span className="relative inline-flex">
+                      <button
+                        type="button"
+                        data-testid="tip-info"
+                        aria-describedby="tip-tooltip"
+                        aria-label="Tip information"
+                        onMouseEnter={() => setTipTipOpen(true)}
+                        onMouseLeave={() => setTipTipOpen(false)}
+                        onFocus={() => setTipTipOpen(true)}
+                        onBlur={() => setTipTipOpen(false)}
+                        onClick={() => setTipTipOpen((v) => !v)}
+                        className="text-gray-500 hover:text-white transition-colors"
+                      >
+                        ℹ️
+                      </button>
+                      {tipTipOpen && (
+                        <span
+                          id="tip-tooltip"
+                          data-testid="tip-tooltip"
+                          role="tooltip"
+                          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-lg bg-[#0A0A0A] border border-[#333] px-3 py-2 text-xs text-gray-200 shadow-xl"
+                        >
+                          {tOpt({ en: "100% of your tip goes directly to your driver.", es: "El 100% de tu propina va directo al conductor.", de: "100% deines Trinkgelds gehen direkt an den Fahrer.", fr: "100% de votre pourboire va directement au chauffeur.", ja: "チップは100%ドライバーに渡ります。" }, language)}
+                        </span>
+                      )}
+                    </span>
                   </span>
                   <span className="font-bold text-white">
                     {formatMoney(tipAmount, currency, locale, symbol)}
@@ -1067,9 +1097,7 @@ export default function Checkout() {
 
             <button
               data-testid={tid("place-order-btn")}
-              onClick={() =>
-                document.getElementById("checkout-form").requestSubmit()
-              }
+              onClick={() => setConfirmOpen(true)}
               disabled={loading}
               className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
             >
@@ -1097,6 +1125,50 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {confirmOpen && (
+        <div
+          data-testid="confirm-order-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-order-title"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmOpen(false); }}
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-[#161616] border border-[#2A2A2A] p-6 shadow-2xl">
+            <h3 id="confirm-order-title" className="text-xl font-black text-white mb-2">
+              {tOpt({ en: "Confirm your order", es: "Confirma tu pedido", de: "Bestellung bestätigen", fr: "Confirmer la commande", ja: "注文の確認" }, language)}
+            </h3>
+            <p className="text-gray-400 text-sm mb-5">
+              {tOpt({ en: "Total to pay", es: "Total a pagar", de: "Zu zahlender Betrag", fr: "Montant à payer", ja: "お支払い金額" }, language)}:{" "}
+              <span data-testid="confirm-order-total" className="text-[#FF5722] font-black">
+                {formatMoney(totalAmount, currency, locale, symbol)}
+              </span>
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                data-testid="confirm-order-cancel"
+                onClick={() => setConfirmOpen(false)}
+                className="flex-1 py-3 rounded-xl border border-[#333] text-white font-bold hover:bg-[#222] transition-colors"
+              >
+                {tOpt({ en: "Cancel", es: "Cancelar", de: "Abbrechen", fr: "Annuler", ja: "キャンセル" }, language)}
+              </button>
+              <button
+                type="button"
+                data-testid="confirm-order-yes"
+                onClick={() => {
+                  setConfirmOpen(false);
+                  document.getElementById("checkout-form").requestSubmit();
+                }}
+                className="flex-1 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#E64A19] transition-colors"
+              >
+                {tOpt({ en: "Place Order", es: "Realizar Pedido", de: "Bestellung aufgeben", fr: "Passer la commande", ja: "注文する" }, language)}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <PizzaCustomizerModal
         open={editOpen}

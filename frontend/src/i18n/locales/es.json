@@ -87,5 +87,6 @@
   "confirmPay": "Confirmar y Pagar",
   "goToMenu": "Ir al Menú",
   "colonia": "Colonia",
-  "zipCode": "Código Postal"
+  "zipCode": "Código Postal",
+  "addedToCart": "Agregado al carrito"
 }

@@ -87,5 +87,6 @@
   "confirmPay": "確認して支払う",
   "goToMenu": "メニューへ",
   "colonia": "地区",
-  "zipCode": "郵便番号"
+  "zipCode": "郵便番号",
+  "addedToCart": "カートに追加しました"
 }

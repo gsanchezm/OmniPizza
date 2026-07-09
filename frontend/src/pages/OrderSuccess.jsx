@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrderStore } from '../store';
 import { useT } from '../i18n';
@@ -15,6 +15,7 @@ export default function OrderSuccess() {
   const setLastOrder = useOrderStore((s) => s.setLastOrder);
   const [searchParams] = useSearchParams();
   const orderIdParam = searchParams.get('orderId');
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Atomic entry: ?orderId=... hydrates lastOrder from backend so tests can
   // jump straight to /order-success without going through the checkout UI.
@@ -120,7 +121,7 @@ export default function OrderSuccess() {
                    </div>
                </div>
                
-               {/* Order Details Accordion (Simplified) */}
+               {/* Order Details Accordion */}
                {order && (
                    <div className="mt-8 border-t border-[#2A2A2A] pt-6">
                         <div className="flex justify-between items-center mb-4">
@@ -129,10 +130,43 @@ export default function OrderSuccess() {
                        </div>
                        <div className="flex justify-between items-center">
                            <span data-testid="order-total" className="text-[#FF5722] font-black text-xl">{formatMoney(order.total)}</span>
-                           <button data-testid="view-order-details" className="text-gray-400 text-xs font-bold hover:text-white underline decoration-gray-600 underline-offset-4">
+                           <button
+                               type="button"
+                               data-testid="order-details-toggle"
+                               aria-expanded={detailsOpen}
+                               aria-controls="order-details-panel"
+                               onClick={() => setDetailsOpen((v) => !v)}
+                               className="text-gray-400 text-xs font-bold hover:text-white underline decoration-gray-600 underline-offset-4 flex items-center gap-1.5"
+                           >
                                {t('viewOrderDetails')}
+                               <span className={`transition-transform ${detailsOpen ? 'rotate-180' : ''}`} aria-hidden="true">▾</span>
                            </button>
                        </div>
+
+                       {detailsOpen && (
+                           <div id="order-details-panel" data-testid="order-details-panel" className="mt-4 rounded-xl bg-[#161616] border border-[#2A2A2A] divide-y divide-[#2A2A2A]">
+                               {Array.isArray(order.items) && order.items.length > 0 ? (
+                                   order.items.map((it, idx) => (
+                                       <div key={it.id || it.pizza_id || idx} data-testid={`order-detail-item-${idx}`} className="flex justify-between items-center px-4 py-3">
+                                           <span className="text-gray-300 text-sm font-medium">
+                                               {(it.quantity || 1)}× {it.pizza?.name || it.name || t('pizza') || 'Pizza'}
+                                           </span>
+                                           <span className="text-white text-sm font-semibold">
+                                               {formatMoney((it.unit_price ?? it.price ?? 0) * (it.quantity || 1))}
+                                           </span>
+                                       </div>
+                                   ))
+                               ) : (
+                                   <div className="px-4 py-3 text-gray-400 text-sm" data-testid="order-detail-empty">
+                                       {t('orderDetails')} · #{order.order_id}
+                                   </div>
+                               )}
+                               <div className="flex justify-between items-center px-4 py-3">
+                                   <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">{t('total') || 'Total'}</span>
+                                   <span data-testid="order-details-total" className="text-[#FF5722] font-black">{formatMoney(order.total)}</span>
+                               </div>
+                           </div>
+                       )}
                    </div>
                )}
 

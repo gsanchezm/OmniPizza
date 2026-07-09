@@ -93,5 +93,7 @@
   "cardExpiry": "Fecha de Expiración",
   "cvv": "CVV",
   "plz": "Código Postal",
-  "prefecture": "Prefectura"
+  "prefecture": "Prefectura",
+  "addedToCart": "Agregado al carrito",
+  "tipTooltip": "El 100% de tu propina es para el repartidor."
 }

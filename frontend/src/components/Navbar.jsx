@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
 import { useT } from "../i18n";
+import MarketDropdown from "./MarketDropdown";
 
 const linkBase =
   "px-3 py-2 rounded-xl font-extrabold transition border border-transparent";
@@ -110,6 +111,7 @@ export default function Navbar() {
 
           {/* Desktop controls */}
           <div className="hidden md:flex items-center gap-2">
+            <MarketDropdown />
             {isCH && (
               <div className="flex items-center rounded-xl border border-border overflow-hidden">
                 <button

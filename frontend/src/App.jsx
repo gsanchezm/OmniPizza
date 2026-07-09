@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import Toast from "./components/Toast";
 
 const App = () => {
   const token = useAuthStore((s) => s.token);
@@ -43,6 +44,9 @@ const App = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
+
+        {/* Global transient notifications */}
+        <Toast />
       </div>
     </BrowserRouter>
   );

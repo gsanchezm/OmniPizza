@@ -93,5 +93,7 @@
   "cardExpiry": "Expiry Date",
   "cvv": "CVV",
   "plz": "PLZ / Postal Code",
-  "prefecture": "Prefecture"
+  "prefecture": "Prefecture",
+  "addedToCart": "Added to cart",
+  "tipTooltip": "100% of your tip goes to the driver."
 }

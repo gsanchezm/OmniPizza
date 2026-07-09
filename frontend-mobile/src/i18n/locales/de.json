@@ -93,5 +93,7 @@
   "cardExpiry": "Ablaufdatum",
   "cvv": "CVV",
   "plz": "PLZ",
-  "prefecture": "Präfektur"
+  "prefecture": "Präfektur",
+  "addedToCart": "Zum Warenkorb hinzugefügt",
+  "tipTooltip": "100 % deines Trinkgelds gehen an den Fahrer."
 }

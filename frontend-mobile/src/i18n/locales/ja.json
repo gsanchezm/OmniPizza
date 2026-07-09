@@ -93,5 +93,7 @@
   "cardExpiry": "有効期限",
   "cvv": "CVV",
   "plz": "郵便番号",
-  "prefecture": "都道府県"
+  "prefecture": "都道府県",
+  "addedToCart": "カートに追加しました",
+  "tipTooltip": "チップは100%ドライバーに渡ります。"
 }

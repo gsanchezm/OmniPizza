@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -19,8 +19,20 @@ const { width } = Dimensions.get("window");
 export default function OrderSuccessScreen({ navigation }: any) {
   const t = useT();
   const { lastOrder } = useAppStore();
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const courier = getCourierProfile();
+
+  const fmtMoney = (value: number) => {
+    const currency = lastOrder?.currency;
+    const symbol =
+      lastOrder?.currency_symbol ?? (currency === "JPY" ? "¥" : "$");
+    const amount =
+      currency === "JPY"
+        ? Math.round(value)
+        : Math.round((value + Number.EPSILON) * 100) / 100;
+    return currency === "JPY" ? `${symbol}${amount}` : `${symbol}${amount.toFixed(2)}`;
+  };
 
   return (
     <View style={styles.screen} accessibilityLabel="screen-order-success" testID="screen-order-success">
@@ -124,13 +136,54 @@ export default function OrderSuccessScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Order Details Hint */}
-        <TouchableOpacity style={styles.detailsBtn} {...getReadableControlProps("btn-order-details", t("orderDetails").toUpperCase())}>
+        {/* Order Details accordion */}
+        <TouchableOpacity
+          style={styles.detailsBtn}
+          onPress={() => setDetailsOpen((v) => !v)}
+          {...getReadableControlProps("btn-order-details", t("orderDetails").toUpperCase())}
+        >
           <Text style={styles.detailsText} {...getReadableTextProps("text-order-details", t("orderDetails").toUpperCase())}>
             {t("orderDetails").toUpperCase()}
           </Text>
-          <Text style={{ color: "#666" }} accessibilityLabel="icon-expand">^</Text>
+          <Text style={{ color: "#666" }} accessibilityLabel="icon-expand">
+            {detailsOpen ? "⌄" : "^"}
+          </Text>
         </TouchableOpacity>
+
+        {detailsOpen && (
+          <View style={styles.detailsPanel} accessibilityLabel="view-order-details-panel" testID="view-order-details-panel">
+            {lastOrder ? (
+              <>
+                <View style={styles.detailsRow} accessibilityLabel="view-details-order-id">
+                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-order-id-label", t("orderId"))}>{t("orderId")}</Text>
+                  <Text style={styles.detailsRowValue} numberOfLines={1} {...getReadableTextProps("text-details-order-id-value", String(lastOrder.order_id))}>{lastOrder.order_id}</Text>
+                </View>
+                <View style={styles.detailsRow} accessibilityLabel="view-details-subtotal">
+                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
+                  <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-subtotal-value", fmtMoney(lastOrder.subtotal))}>{fmtMoney(lastOrder.subtotal)}</Text>
+                </View>
+                <View style={styles.detailsRow} accessibilityLabel="view-details-delivery">
+                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
+                  <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-delivery-value", fmtMoney(lastOrder.delivery_fee))}>{fmtMoney(lastOrder.delivery_fee)}</Text>
+                </View>
+                <View style={styles.detailsRow} accessibilityLabel="view-details-tax">
+                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-tax-label", t("tax"))}>{t("tax")}</Text>
+                  <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-tax-value", fmtMoney(lastOrder.tax))}>{fmtMoney(lastOrder.tax)}</Text>
+                </View>
+                <View style={styles.detailsRow} accessibilityLabel="view-details-tip">
+                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-tip-label", t("tip"))}>{t("tip")}</Text>
+                  <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-tip-value", fmtMoney(lastOrder.tip))}>{fmtMoney(lastOrder.tip)}</Text>
+                </View>
+                <View style={[styles.detailsRow, styles.detailsRowTotal]} accessibilityLabel="view-details-total">
+                  <Text style={styles.detailsTotalLabel} {...getReadableTextProps("text-details-total-label", t("total"))}>{t("total")}</Text>
+                  <Text style={styles.detailsTotalValue} {...getReadableTextProps("text-details-total-value", fmtMoney(lastOrder.total))}>{fmtMoney(lastOrder.total)}</Text>
+                </View>
+              </>
+            ) : (
+              <Text style={styles.detailsEmpty} {...getReadableTextProps("text-details-empty", t("noOrderFound"))}>{t("noOrderFound")}</Text>
+            )}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -382,5 +435,56 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 12,
     letterSpacing: 1,
+  },
+  detailsPanel: {
+    marginTop: 16,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#2A2A2A",
+    padding: 16,
+    gap: 10,
+  },
+  detailsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+  detailsRowLabel: {
+    color: "#888",
+    fontSize: 14,
+    flexShrink: 1,
+    marginRight: 8,
+  },
+  detailsRowValue: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+    flexShrink: 0,
+    textAlign: "right",
+  },
+  detailsRowTotal: {
+    marginTop: 6,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#2A2A2A",
+  },
+  detailsTotalLabel: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  detailsTotalValue: {
+    color: "#FF5722",
+    fontSize: 16,
+    fontWeight: "900",
+    flexShrink: 0,
+    textAlign: "right",
+  },
+  detailsEmpty: {
+    color: "#888",
+    fontSize: 14,
+    textAlign: "center",
   },
 });

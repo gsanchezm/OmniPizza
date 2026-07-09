@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
+import { View } from "react-native";
 import {
   NavigationContainer,
   DarkTheme,
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Toast } from "./src/components/Toast";
 
 import LoginScreen from "./src/screens/LoginScreen";
 import CatalogScreen from "./src/screens/CatalogScreen";
@@ -63,22 +65,25 @@ export default function App() {
   }, [country, setCountryInfo]);
 
   return (
-    <NavigationContainer
-      ref={navigationRef}
-      theme={OmniPizzaTheme}
-      linking={linking}
-    >
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{ headerShown: false }}
+    <View style={{ flex: 1 }}>
+      <NavigationContainer
+        ref={navigationRef}
+        theme={OmniPizzaTheme}
+        linking={linking}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Catalog" component={CatalogScreen} />
-        <Stack.Screen name="Checkout" component={CheckoutScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} />
-        <Stack.Screen name="PizzaBuilder" component={PizzaBuilderScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Catalog" component={CatalogScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} />
+          <Stack.Screen name="PizzaBuilder" component={PizzaBuilderScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast />
+    </View>
   );
 }

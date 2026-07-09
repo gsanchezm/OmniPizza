@@ -9,6 +9,7 @@ import { useCatalogPizzas } from "../features/catalog/hooks/useCatalogPizzas";
 import CategoryFilter from "../components/CategoryFilter";
 import CartSidebar from "../components/CartSidebar";
 import ProductCard from "../components/ProductCard";
+import { useToastStore } from "../components/toastStore";
 
 const MARKET_OPTIONS = [
   { code: "US", label: "US - English", flag: "🇺🇸" },
@@ -67,8 +68,9 @@ export default function Catalog() {
   };
 
   const handleConfirm = (config) => {
-    if (!selectedPizza) return; 
+    if (!selectedPizza) return;
     addConfiguredItem(selectedPizza, config);
+    useToastStore.getState().show(t("addedToCart") || "Added to cart");
     handleCloseModal();
   };
 

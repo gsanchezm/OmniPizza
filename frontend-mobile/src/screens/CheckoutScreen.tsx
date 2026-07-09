@@ -8,6 +8,8 @@ import {
   ScrollView,
   Image,
   Dimensions,
+  Modal,
+  Pressable,
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { CustomNavbar } from "../components/CustomNavbar";
@@ -149,6 +151,8 @@ export default function CheckoutScreen({ navigation }: any) {
   const [tipOption, setTipOption] = useState<string>(DEFAULT_TIP_PERCENTAGE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showTipTooltip, setShowTipTooltip] = useState(false);
 
   const subtotal = useMemo(() => {
     const currentCurrency = cartItems[0]?.currency || "USD";
@@ -232,6 +236,11 @@ export default function CheckoutScreen({ navigation }: any) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const confirmAndPlaceOrder = () => {
+    setShowConfirm(false);
+    placeOrder();
   };
 
   if (!cartItems.length) {
@@ -620,7 +629,20 @@ export default function CheckoutScreen({ navigation }: any) {
           <View style={styles.tipHeader} accessibilityLabel="view-tip-label">
             <View style={styles.tipLabelRow}>
               <Text style={styles.costLabel} {...getReadableTextProps("text-tip-label", t("tipForDriver"))}>{t("tipForDriver")}</Text>
-              <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
+              <Pressable
+                onPress={() => setShowTipTooltip((v) => !v)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                {...getReadableControlProps("btn-tip-info", t("tipTooltip"))}
+              >
+                <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
+              </Pressable>
+              {showTipTooltip && (
+                <View style={styles.tipTooltip} accessibilityLabel="view-tip-tooltip" testID="view-tip-tooltip">
+                  <Text style={styles.tipTooltipText} {...getReadableTextProps("text-tip-tooltip", t("tipTooltip"))}>
+                    {t("tipTooltip")}
+                  </Text>
+                </View>
+              )}
             </View>
             <Text
               style={styles.costValue}
@@ -695,7 +717,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
         <TouchableOpacity
           style={styles.btnPrimary}
-          onPress={placeOrder}
+          onPress={() => setShowConfirm(true)}
           disabled={loading}
           {...getReadableControlProps("btn-place-order", loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language))}
         >
@@ -704,6 +726,66 @@ export default function CheckoutScreen({ navigation }: any) {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Pre-order confirmation modal */}
+      <Modal
+        visible={showConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowConfirm(false)}
+        {...getTestProps("modal-confirm-order")}
+      >
+        <Pressable
+          style={styles.confirmScrim}
+          onPress={() => setShowConfirm(false)}
+          accessibilityLabel="btn-confirm-order-scrim"
+        >
+          <Pressable style={styles.confirmCard} accessibilityLabel="view-confirm-order-card">
+            <Text
+              style={styles.confirmTitle}
+              {...getReadableTextProps("text-confirm-order-title", tOpt(UI_TEXT.placeOrder, language))}
+            >
+              {tOpt(UI_TEXT.placeOrder, language)}
+            </Text>
+            <Text
+              style={styles.confirmSubtitle}
+              {...getReadableTextProps("text-confirm-order-summary", tOpt(UI_TEXT.total, language))}
+            >
+              {tOpt(UI_TEXT.total, language)}
+            </Text>
+            <Text
+              style={styles.confirmTotal}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              {...getReadableTextProps("text-confirm-order-total", money(total, currency, currencySymbol))}
+            >
+              {money(total, currency, currencySymbol)}
+            </Text>
+
+            <View style={styles.confirmActions} accessibilityLabel="view-confirm-order-actions">
+              <TouchableOpacity
+                style={[styles.confirmBtn, styles.confirmBtnCancel]}
+                onPress={() => setShowConfirm(false)}
+                {...getReadableControlProps("btn-confirm-order-cancel", t("cancel"))}
+              >
+                <Text style={styles.confirmBtnCancelText} {...getReadableTextProps("text-confirm-order-cancel", t("cancel"))}>
+                  {t("cancel")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmBtn, styles.confirmBtnYes]}
+                onPress={confirmAndPlaceOrder}
+                {...getReadableControlProps("btn-confirm-order-yes", t("confirmPay"))}
+              >
+                <Text style={styles.confirmBtnYesText} {...getReadableTextProps("text-confirm-order-yes", t("confirmPay"))}>
+                  {t("confirmPay")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       <BottomNavBar />
     </View>
   );
@@ -986,5 +1068,96 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
+  },
+  confirmScrim: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  confirmCard: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#2A2A2A",
+    padding: 24,
+    alignItems: "center",
+  },
+  confirmTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  confirmSubtitle: {
+    color: "#888",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  confirmTotal: {
+    color: "#FF5722",
+    fontSize: 34,
+    fontWeight: "900",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  confirmActions: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  confirmBtn: {
+    flex: 1,
+    borderRadius: 20,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmBtnCancel: {
+    backgroundColor: "#2A2A2A",
+  },
+  confirmBtnCancelText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  confirmBtnYes: {
+    backgroundColor: "#FF5722",
+  },
+  confirmBtnYesText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  tipTooltip: {
+    position: "absolute",
+    top: 26,
+    left: 0,
+    maxWidth: 260,
+    backgroundColor: "#2A2A2A",
+    borderWidth: 1,
+    borderColor: "#3A3A3A",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    zIndex: 20,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  tipTooltipText: {
+    color: "#E5E5E5",
+    fontSize: 12,
+    fontWeight: "600",
+    lineHeight: 16,
   },
 });

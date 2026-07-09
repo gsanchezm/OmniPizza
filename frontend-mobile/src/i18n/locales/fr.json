@@ -93,5 +93,7 @@
   "cardExpiry": "Date d'expiration",
   "cvv": "CVV",
   "plz": "Code Postal",
-  "prefecture": "Préfecture"
+  "prefecture": "Préfecture",
+  "addedToCart": "Ajouté au panier",
+  "tipTooltip": "100 % de votre pourboire revient au livreur."
 }

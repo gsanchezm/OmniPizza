@@ -17,6 +17,8 @@ import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { useT } from "../i18n";
+import { useToastStore } from "../components/toastStore";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
@@ -62,6 +64,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
   const { country, language, addConfiguredItem, updateCartItem } =
     useAppStore();
+  const t = useT();
 
   const mode = route?.params?.mode || "add";
   const initialPizza = route?.params?.pizza as Pizza | undefined;
@@ -133,6 +136,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       return;
     }
     addConfiguredItem(pizza, config, finalUnitPrice);
+    useToastStore.getState().show(t("addedToCart"));
     navigation.goBack();
   };
 
