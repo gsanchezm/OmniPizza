@@ -20,12 +20,16 @@ const App = () => {
 
   useCountryFeatureInfo(isAuthenticated, countryCode);
 
-  // Full RTL: Arabic renders the document right-to-left. Native browser RTL
-  // then mirrors flex/text layout across the whole app. Reset to ltr otherwise.
+  // Full RTL: an authenticated Arabic session renders the document right-to-left
+  // (native browser RTL then mirrors the whole app). The login / unauthenticated
+  // view is always English + LTR — the app "starts in English" and the market
+  // (and thus the language) is only chosen at login, so a previous SA session must
+  // not leave the login screen reversed after logout.
   useEffect(() => {
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-    document.documentElement.lang = language || "en";
-  }, [language]);
+    const rtl = isAuthenticated && language === "ar";
+    document.documentElement.dir = rtl ? "rtl" : "ltr";
+    document.documentElement.lang = isAuthenticated ? language || "en" : "en";
+  }, [language, isAuthenticated]);
 
   return (
     <BrowserRouter>

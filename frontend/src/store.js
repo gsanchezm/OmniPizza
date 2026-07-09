@@ -50,6 +50,12 @@ export const useAuthStore = create(
         try {
           useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "" });
         } catch { /* profile store not ready — nothing to clear */ }
+        // Return to the neutral English/LTR state the app starts in, so a previous
+        // Arabic (SA) session doesn't leave the login screen reversed / in the wrong
+        // language. The market's language is re-applied on the next login.
+        try {
+          useCountryStore.setState({ language: "en", locale: "en-US" });
+        } catch { /* country store not ready */ }
       },
     }),
     { name: "omnipizza-auth" }
