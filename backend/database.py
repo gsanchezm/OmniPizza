@@ -147,7 +147,7 @@ class InMemoryDB:
         conversion_rate = CURRENCY_RATES[currency]
         decimal_places = country_config.get("decimal_places", 2)
 
-        default_lang = {"MX": "es", "US": "en", "CH": "de", "JP": "ja"}
+        default_lang = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}
         cc = country_code.value if hasattr(country_code, "value") else str(country_code)
         lang = (language or default_lang.get(cc, "en")).lower()
 
@@ -202,7 +202,7 @@ class InMemoryDB:
         conversion_rate = CURRENCY_RATES[currency]
         decimal_places = country_config.get("decimal_places", 2)
 
-        default_lang_by_country = {"MX": "es", "US": "en", "CH": "de", "JP": "ja"}
+        default_lang_by_country = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}
         cc = country_code.value if hasattr(country_code, "value") else str(country_code)
         lang = (language or default_lang_by_country.get(cc, "en")).lower()
 

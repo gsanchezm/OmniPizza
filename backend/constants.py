@@ -13,6 +13,7 @@ class CountryCode(str, Enum):
     US = "US"
     CH = "CH"
     JP = "JP"
+    SA = "SA"
 
 # Predefined test users
 TEST_USERS = {
@@ -95,6 +96,17 @@ COUNTRY_CONFIG = {
         "tax_rate": 0.10,
         "languages": ["ja"],
         "decimal_places": 0
+    },
+    CountryCode.SA: {
+        "currency": "SAR",
+        "currency_symbol": "ر.س",
+        "required_fields": ["district"],
+        "optional_fields": ["baksheesh"],
+        "tip_field": "baksheesh",
+        "tip_percentages": [0, 5, 10, 15],
+        "delivery_fee_usd": 2.0,
+        "tax_rate": 0.15,
+        "languages": ["ar"]
     }
 }
 
@@ -283,5 +295,6 @@ CURRENCY_RATES = {
     "USD": 1.0,
     "MXN": 17.55,
     "CHF": 0.7823,
-    "JPY": 157.89
+    "JPY": 157.89,
+    "SAR": 3.75
 }

@@ -9,19 +9,20 @@ security = HTTPBearer()
 
 def require_country_header(x_country_code: Optional[str] = Header(None)) -> str:
     """Middleware to require X-Country-Code header"""
+    valid_values = ", ".join(c.value for c in CountryCode)
     if not x_country_code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="X-Country-Code header is required. Valid values: MX, US, CH, JP"
+            detail=f"X-Country-Code header is required. Valid values: {valid_values}"
         )
-    
+
     try:
         country = CountryCode(x_country_code.upper())
         return country.value
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid country code: {x_country_code}. Valid values: MX, US, CH, JP"
+            detail=f"Invalid country code: {x_country_code}. Valid values: {valid_values}"
         )
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:

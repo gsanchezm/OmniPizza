@@ -233,12 +233,14 @@ async def checkout(
     - US: zip_code (required, 5 digits)
     - CH: plz (required)
     - JP: prefectura (required)
+    - SA: district (required)
 
     Market tip fields carry a percentage value:
     - MX: propina
     - US: tip
     - CH: trinkgeld
     - JP: chip
+    - SA: baksheesh
     """
     # Check if error_user should trigger error
     if db.should_trigger_error(current_user["behavior"]):
@@ -298,7 +300,11 @@ async def checkout(
         order_data["customer_info"]["prefectura"] = request.prefectura
         if request.chip is not None:
             order_data["customer_info"]["chip"] = request.chip
-    
+    elif request.country_code == CountryCode.SA:
+        order_data["customer_info"]["district"] = request.district
+        if request.baksheesh is not None:
+            order_data["customer_info"]["baksheesh"] = request.baksheesh
+
     order_id = db.create_order(order_data)
     order = db.get_order(order_id)
     

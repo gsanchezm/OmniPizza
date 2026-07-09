@@ -101,10 +101,12 @@ class CheckoutRequest(BaseModel):
     tip: Optional[float] = Field(None, ge=0, le=100)  # US tip percentage
     trinkgeld: Optional[float] = Field(None, ge=0, le=100)  # CH tip percentage
     chip: Optional[float] = Field(None, ge=0, le=100)  # JP tip percentage
+    baksheesh: Optional[float] = Field(None, ge=0, le=100)  # SA tip percentage
     zip_code: Optional[str] = None  # US
     plz: Optional[str] = None  # CH
     prefectura: Optional[str] = None  # JP
-    
+    district: Optional[str] = None  # SA
+
     @validator('zip_code')
     def validate_zip_code(cls, v, values):
         if values.get('country_code') in (CountryCode.US, CountryCode.MX) and v:
@@ -118,6 +120,7 @@ class CheckoutRequest(BaseModel):
             or self.tip
             or self.trinkgeld
             or self.chip
+            or self.baksheesh
             or 0.0
         )
 

@@ -386,6 +386,58 @@ describe('Country Specific Logic', () => {
 
     expect(res.status).toBe(200);
   });
+
+  it('should reject SA checkout without district', async () => {
+    const saRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'SA'),
+    });
+    const saPizzaId = saRes.data.pizzas[0].id;
+
+    try {
+      await axios.post(
+        `${API_URL}/api/checkout`,
+        {
+          country_code: 'SA',
+          items: [{ pizza_id: saPizzaId, quantity: 1 }],
+          name: 'Test User',
+          address: 'King Fahd Road 100',
+          phone: '+966512345678',
+          // Missing district
+        },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(400);
+    }
+  });
+
+  it('should accept SA checkout with district and price in SAR', async () => {
+    const saRes = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'SA'),
+    });
+    expect(saRes.data.currency).toBe('SAR');
+    const saPizzaId = saRes.data.pizzas[0].id;
+
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'SA',
+        items: [{ pizza_id: saPizzaId, quantity: 1 }],
+        name: 'Test User',
+        address: 'King Fahd Road 100',
+        phone: '+966512345678',
+        district: 'Al Olaya',
+        baksheesh: 10,
+      },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.data.currency).toBe('SAR');
+    expect(res.data.tip_percentage).toBe(10);
+  });
 });
 
 // ---------------------------------------------------------------------------
