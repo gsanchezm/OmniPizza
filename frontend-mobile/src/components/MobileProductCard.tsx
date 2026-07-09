@@ -4,6 +4,7 @@ import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { useRTL } from "../hooks/useRTL";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -11,8 +12,9 @@ interface MobileProductCardProps {
 }
 
 export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) => {
+  const { textAlign, row } = useRTL();
   return (
-    <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
+    <View style={[styles.card, { flexDirection: row }]} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       {/* Image Section: the placeholder sits behind the remote image, so a
           failed/empty load reveals a branded tile instead of a black box. */}
       <View style={styles.imageContainer} accessibilityLabel={`view-img-container-${pizza.id}`}>
@@ -30,10 +32,10 @@ export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) =>
 
       {/* Content Section */}
       <View style={styles.content} accessibilityLabel={`view-pizza-content-${pizza.id}`}>
-        <Text style={styles.title} numberOfLines={1} {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
-        <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>{pizza.description}</Text>
+        <Text style={[styles.title, { textAlign }]} numberOfLines={1} {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
+        <Text style={[styles.desc, { textAlign }]} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>{pizza.description}</Text>
 
-        <View style={styles.footer} accessibilityLabel={`view-pizza-footer-${pizza.id}`}>
+        <View style={[styles.footer, { flexDirection: row }]} accessibilityLabel={`view-pizza-footer-${pizza.id}`}>
            <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-price-${pizza.id}`, `${pizza.currency_symbol}${pizza.price}`)}>{pizza.currency_symbol}{pizza.price}</Text>
 
            <TouchableOpacity

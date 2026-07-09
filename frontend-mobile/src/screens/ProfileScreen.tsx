@@ -14,12 +14,14 @@ import { BottomNavBar } from "../components/BottomNavBar";
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { useRTL } from "../hooks/useRTL";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
 import { loadProfile } from "../features/profile/useCases/loadProfile";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
+  const { textAlign } = useRTL();
   const { profile, setProfile } = useAppStore();
   const [saving, setSaving] = useState(false);
 
@@ -54,7 +56,7 @@ export default function ProfileScreen({ navigation }: any) {
       >
         {/* Header Title Space */}
         <View style={styles.headerSpace} accessibilityLabel="view-profile-header">
-          <Text style={styles.subTitle} {...getReadableTextProps("text-profile-subtitle", t("managePreferences") || "Manage your premium dining preferences")}>
+          <Text style={[styles.subTitle, { textAlign }]} {...getReadableTextProps("text-profile-subtitle", t("managePreferences") || "Manage your premium dining preferences")}>
             {t("managePreferences") || "Manage your premium dining preferences"}
           </Text>
         </View>
@@ -85,7 +87,7 @@ export default function ProfileScreen({ navigation }: any) {
               }}
               accessibilityLabel="view-profile-name-row"
             >
-              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-profile-username", profile?.fullName || "Alexander Sterling")}>
+              <Text style={[styles.userName, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-profile-username", profile?.fullName || "Alexander Sterling")}>
                 {profile?.fullName || "Alexander Sterling"}
               </Text>
               <View style={styles.badge} accessibilityLabel="view-premium-badge">
@@ -94,7 +96,7 @@ export default function ProfileScreen({ navigation }: any) {
                 </Text>
               </View>
             </View>
-            <Text style={styles.userMeta} {...getReadableTextProps("text-profile-meta", `${t("joined") || "Joined"} March 2023`)}>
+            <Text style={[styles.userMeta, { textAlign }]} {...getReadableTextProps("text-profile-meta", `${t("joined") || "Joined"} March 2023`)}>
               {t("joined") || "Joined"} March 2023
             </Text>
           </View>
@@ -104,14 +106,14 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.formCard} accessibilityLabel="view-form-card">
           <View style={styles.formHeader} accessibilityLabel="view-form-header">
             <Text style={{ fontSize: 18, marginRight: 8 }} accessibilityLabel="icon-personal-info">👤</Text>
-            <Text style={styles.formTitle} {...getReadableTextProps("text-form-title", t("personalInformation") || "Personal Information")}>
+            <Text style={[styles.formTitle, { textAlign }]} {...getReadableTextProps("text-form-title", t("personalInformation") || "Personal Information")}>
               {t("personalInformation") || "Personal Information"}
             </Text>
           </View>
 
           <View style={styles.formBody} accessibilityLabel="view-form-body">
             <View style={styles.fieldGroup} accessibilityLabel="view-field-fullname">
-              <Text style={styles.label} {...getReadableTextProps("label-profile-fullname", t("fullName"))}>{t("fullName")}</Text>
+              <Text style={[styles.label, { textAlign }]} {...getReadableTextProps("label-profile-fullname", t("fullName"))}>{t("fullName")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.fullName || ""}
@@ -123,7 +125,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-phone">
-              <Text style={styles.label} {...getReadableTextProps("label-profile-phone", t("phone"))}>{t("phone")}</Text>
+              <Text style={[styles.label, { textAlign }]} {...getReadableTextProps("label-profile-phone", t("phone"))}>{t("phone")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.phone || ""}
@@ -135,7 +137,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-address">
-              <Text style={styles.label} {...getReadableTextProps("label-profile-address", t("address"))}>{t("address")}</Text>
+              <Text style={[styles.label, { textAlign }]} {...getReadableTextProps("label-profile-address", t("address"))}>{t("address")}</Text>
               <TextInput
                 style={styles.input}
                 value={profile?.address || ""}
@@ -146,7 +148,7 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
 
             <View style={styles.fieldGroup} accessibilityLabel="view-field-notes">
-              <Text style={styles.label} {...getReadableTextProps("label-profile-notes", t("deliveryNotes") || "Delivery Notes")}>
+              <Text style={[styles.label, { textAlign }]} {...getReadableTextProps("label-profile-notes", t("deliveryNotes") || "Delivery Notes")}>
                 {t("deliveryNotes") || "Delivery Notes"}
               </Text>
               <TextInput

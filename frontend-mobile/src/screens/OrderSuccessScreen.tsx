@@ -11,6 +11,7 @@ import {
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { useRTL } from "../hooks/useRTL";
 import { getCourierProfile } from "../features/orderSuccess/useCases/getCourierProfile";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 
@@ -18,6 +19,7 @@ const { width } = Dimensions.get("window");
 
 export default function OrderSuccessScreen({ navigation }: any) {
   const t = useT();
+  const { textAlign } = useRTL();
   const { lastOrder } = useAppStore();
   const [detailsOpen, setDetailsOpen] = useState(false);
 
@@ -85,8 +87,8 @@ export default function OrderSuccessScreen({ navigation }: any) {
       <View style={styles.bottomSheet} accessibilityLabel="view-bottom-sheet" testID="view-bottom-sheet">
         <View style={styles.statusRow} accessibilityLabel="view-status-row">
           <View style={styles.statusTextCol} accessibilityLabel="view-status-text">
-            <Text style={styles.statusTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
-            <Text style={styles.statusSub} numberOfLines={1} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
+            <Text style={[styles.statusTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
+            <Text style={[styles.statusSub, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
           </View>
 
           <View style={styles.timeRow} accessibilityLabel="view-time-row">
@@ -112,9 +114,9 @@ export default function OrderSuccessScreen({ navigation }: any) {
             </View>
 
             <View style={styles.courierDetails} accessibilityLabel="view-courier-details">
-              <Text style={styles.courierLabel} numberOfLines={1} {...getReadableTextProps("text-courier-label", t("yourCourier"))}>{t("yourCourier")}</Text>
-              <Text style={styles.courierName} numberOfLines={1} {...getReadableTextProps("text-courier-name", courier.name)}>{courier.name}</Text>
-              <Text style={styles.courierVehicle} numberOfLines={1} {...getReadableTextProps("text-courier-vehicle", t(courier.vehicle))}>{t(courier.vehicle)}</Text>
+              <Text style={[styles.courierLabel, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-courier-label", t("yourCourier"))}>{t("yourCourier")}</Text>
+              <Text style={[styles.courierName, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-courier-name", courier.name)}>{courier.name}</Text>
+              <Text style={[styles.courierVehicle, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-courier-vehicle", t(courier.vehicle))}>{t(courier.vehicle)}</Text>
             </View>
           </View>
 
@@ -155,27 +157,27 @@ export default function OrderSuccessScreen({ navigation }: any) {
             {lastOrder ? (
               <>
                 <View style={styles.detailsRow} accessibilityLabel="view-details-order-id">
-                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-order-id-label", t("orderId"))}>{t("orderId")}</Text>
+                  <Text style={[styles.detailsRowLabel, { textAlign }]} {...getReadableTextProps("text-details-order-id-label", t("orderId"))}>{t("orderId")}</Text>
                   <Text style={styles.detailsRowValue} numberOfLines={1} {...getReadableTextProps("text-details-order-id-value", String(lastOrder.order_id))}>{lastOrder.order_id}</Text>
                 </View>
                 <View style={styles.detailsRow} accessibilityLabel="view-details-subtotal">
-                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
+                  <Text style={[styles.detailsRowLabel, { textAlign }]} {...getReadableTextProps("text-details-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
                   <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-subtotal-value", fmtMoney(lastOrder.subtotal))}>{fmtMoney(lastOrder.subtotal)}</Text>
                 </View>
                 <View style={styles.detailsRow} accessibilityLabel="view-details-delivery">
-                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
+                  <Text style={[styles.detailsRowLabel, { textAlign }]} {...getReadableTextProps("text-details-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
                   <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-delivery-value", fmtMoney(lastOrder.delivery_fee))}>{fmtMoney(lastOrder.delivery_fee)}</Text>
                 </View>
                 <View style={styles.detailsRow} accessibilityLabel="view-details-tax">
-                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-tax-label", t("tax"))}>{t("tax")}</Text>
+                  <Text style={[styles.detailsRowLabel, { textAlign }]} {...getReadableTextProps("text-details-tax-label", t("tax"))}>{t("tax")}</Text>
                   <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-tax-value", fmtMoney(lastOrder.tax))}>{fmtMoney(lastOrder.tax)}</Text>
                 </View>
                 <View style={styles.detailsRow} accessibilityLabel="view-details-tip">
-                  <Text style={styles.detailsRowLabel} {...getReadableTextProps("text-details-tip-label", t("tip"))}>{t("tip")}</Text>
+                  <Text style={[styles.detailsRowLabel, { textAlign }]} {...getReadableTextProps("text-details-tip-label", t("tip"))}>{t("tip")}</Text>
                   <Text style={styles.detailsRowValue} {...getReadableTextProps("text-details-tip-value", fmtMoney(lastOrder.tip))}>{fmtMoney(lastOrder.tip)}</Text>
                 </View>
                 <View style={[styles.detailsRow, styles.detailsRowTotal]} accessibilityLabel="view-details-total">
-                  <Text style={styles.detailsTotalLabel} {...getReadableTextProps("text-details-total-label", t("total"))}>{t("total")}</Text>
+                  <Text style={[styles.detailsTotalLabel, { textAlign }]} {...getReadableTextProps("text-details-total-label", t("total"))}>{t("total")}</Text>
                   <Text style={styles.detailsTotalValue} {...getReadableTextProps("text-details-total-value", fmtMoney(lastOrder.total))}>{fmtMoney(lastOrder.total)}</Text>
                 </View>
               </>

@@ -4,6 +4,7 @@ import { Colors } from "../theme/colors";
 import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { useRTL } from "../hooks/useRTL";
 
 interface PizzaCardProps {
   pizza: Pizza;
@@ -17,8 +18,9 @@ function moneyLine(pizza: Pizza) {
 }
 
 export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
+  const { textAlign, row } = useRTL();
   return (
-    <View style={styles.card} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
+    <View style={[styles.card, { flexDirection: row }]} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
       <Image
         source={remoteImageSource(pizza.image)}
         style={styles.image}
@@ -32,8 +34,8 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
       />
 
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
-        <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>
+        <Text style={[styles.name, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
+        <Text style={[styles.desc, { textAlign }]} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>
           {pizza.description}
         </Text>
         <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-price-${pizza.id}`, moneyLine(pizza))}>{moneyLine(pizza)}</Text>

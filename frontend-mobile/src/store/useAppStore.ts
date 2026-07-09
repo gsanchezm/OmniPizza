@@ -120,6 +120,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       cartItems: [],
       lastOrder: null,
       countryInfo: null,
+      // Return to the neutral English/LTR state the app starts in, so a previous
+      // Arabic (SA) session doesn't leave the login screen reversed / in Arabic.
+      // The market's language is re-applied on the next login.
+      language: "en",
     }),
 
   setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),

@@ -307,7 +307,8 @@ resource-id on Android).
 > `btn-place-order` now opens the confirm modal; a test that clicked it and asserted
 > success immediately must now also tap `btn-confirm-order-yes`.
 
-> **RTL note:** selecting the Arabic (SA) market calls `I18nManager.forceRTL(true)` and
-> reloads the app (an I18nManager constraint). In Expo/dev this uses `DevSettings.reload()`;
-> in a release build RTL applies on the next app launch. Deep-linking `market=SA` is not
-> supported (it would fight the reload); select SA manually in-app.
+> **RTL note:** selecting the Arabic (SA) market flips the UI to right-to-left
+> **reactively, with no app reload** — native RTL is disabled (`I18nManager.allowRTL(false)`)
+> and layout mirrors from state via the `useRTL()` hook. This keeps the ephemeral session
+> intact (no reload wipe) and never interrupts an automation run. `market=SA` therefore
+> works via deep link too. Logging out resets the language back to English/LTR.

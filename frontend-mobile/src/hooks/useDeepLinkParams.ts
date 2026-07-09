@@ -5,7 +5,7 @@ import { useAppStore, type CountryCode } from "../store/useAppStore";
 import type { RootStackParamList } from "../navigation/types";
 import { orderService } from "../services/order.service";
 
-const VALID_MARKETS: CountryCode[] = ["US", "MX", "CH", "JP"];
+const VALID_MARKETS: CountryCode[] = ["US", "MX", "CH", "JP", "SA"];
 
 const ROUTE_MAP: Record<string, keyof RootStackParamList> = {
   checkout: "Checkout",
@@ -52,7 +52,7 @@ function parseParams(url: string): Record<string, string> {
  * Processes deep link query params and applies side effects to app state.
  *
  * Handled params:
- *   market=US|MX|CH|JP  → setCountry (also resets language to market default)
+ *   market=US|MX|CH|JP|SA → setCountry (also resets language to market default)
  *   lang=de|fr          → setLanguage (CH only; guard is inside store)
  *   resetSession=true   → logout + navigate to Login
  *   hydrateCart=true    → clearCart so CheckoutScreen hydration runs on mount

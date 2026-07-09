@@ -18,6 +18,7 @@ import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas"
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
 import { useT } from "../i18n";
+import { useRTL } from "../hooks/useRTL";
 import { useToastStore } from "../components/toastStore";
 
 const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
@@ -65,6 +66,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const { country, language, addConfiguredItem, updateCartItem } =
     useAppStore();
   const t = useT();
+  const { textAlign } = useRTL();
 
   const mode = route?.params?.mode || "add";
   const initialPizza = route?.params?.pizza as Pizza | undefined;
@@ -212,7 +214,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         <View style={styles.cardContent} accessibilityLabel="view-builder-content">
           {/* Size Selector */}
           <View style={styles.sectionHeader} accessibilityLabel="view-section-size">
-            <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
+            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
               {tOpt(UI_STRINGS.size, language)}
             </Text>
             <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt(UI_STRINGS.required, language)))}>
@@ -270,7 +272,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {/* Toppings Selector */}
           <View style={[styles.sectionHeader, { marginTop: 30 }]} accessibilityLabel="view-section-toppings">
-            <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
+            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
               {tOpt(UI_STRINGS.toppings, language)}
             </Text>
             <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", toppingHint)}>
@@ -280,7 +282,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {TOPPING_GROUPS.map((group) => (
             <View key={group.id} style={{ marginBottom: 20 }} accessibilityLabel={`view-topping-group-${group.id}`}>
-              <Text style={styles.groupTitle} {...getReadableTextProps(`text-topping-group-${group.id}`, tOpt(group.label, language))}>
+              <Text style={[styles.groupTitle, { textAlign }]} {...getReadableTextProps(`text-topping-group-${group.id}`, tOpt(group.label, language))}>
                 {tOpt(group.label, language)}
               </Text>
               <View style={styles.grid} accessibilityLabel={`view-topping-grid-${group.id}`}>
@@ -360,7 +362,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
         <View style={styles.barContent} accessibilityLabel="view-bar-content">
           <View accessibilityLabel="view-estimated-total" style={{ flexShrink: 1, marginRight: 12 }}>
-            <Text style={styles.totalLabel} numberOfLines={1} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
+            <Text style={[styles.totalLabel, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
               {tOpt(UI_STRINGS.estimatedTotal, language)}
             </Text>
             <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>

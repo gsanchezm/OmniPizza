@@ -11,16 +11,18 @@ import { useAppStore } from "../store/useAppStore";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { Colors } from "../theme/colors";
 import { MarketDropdown } from "./MarketDropdown";
+import { useRTL } from "../hooks/useRTL";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
   const { width } = useWindowDimensions();
   const compact = width < 390;
 
   const { country, language, setLanguage } = useAppStore();
+  const { row } = useRTL();
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <View style={[styles.container, compact && styles.containerCompact]} accessibilityLabel="view-navbar" testID="view-navbar">
+      <View style={[styles.container, compact && styles.containerCompact, { flexDirection: row }]} accessibilityLabel="view-navbar" testID="view-navbar">
         {/* CH language toggle (only visible for CH) */}
         {country === "CH" && (
           <View style={styles.langWrap} accessibilityLabel="view-navbar-lang-toggle">

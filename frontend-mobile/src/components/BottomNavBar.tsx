@@ -11,11 +11,13 @@ import { Colors } from "../theme/colors";
 import { useAppStore } from "../store/useAppStore";
 import { useT } from "../i18n";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { useRTL } from "../hooks/useRTL";
 
 export const BottomNavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const t = useT();
+  const { row } = useRTL();
   const { logout, cartItems } = useAppStore();
   const cartCount = cartItems.reduce(
     (sum, item) => sum + Number(item.quantity || 0),
@@ -42,7 +44,7 @@ export const BottomNavBar = () => {
 
   return (
     <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
-      <View style={styles.container} accessibilityLabel="view-bottom-nav" testID="view-bottom-nav">
+      <View style={[styles.container, { flexDirection: row }]} accessibilityLabel="view-bottom-nav" testID="view-bottom-nav">
         {navItems.map((item) => {
           const isActive = route.name === item.name;
           return (

@@ -16,6 +16,7 @@ import { CustomNavbar } from "../components/CustomNavbar";
 import { BottomNavBar } from "../components/BottomNavBar";
 import { Colors } from "../theme/colors";
 import { useT } from "../i18n";
+import { useRTL } from "../hooks/useRTL";
 import type { CartItem, PizzaSize } from "../store/useAppStore";
 import { placeOrder as placeOrderUseCase } from "../features/checkout/useCases/placeOrder";
 import { validateCheckoutForm } from "../features/checkout/useCases/validateCheckoutForm";
@@ -67,6 +68,7 @@ const UI_TEXT: Record<string, Record<string, string>> = {
 
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
+  const { textAlign, row } = useRTL();
   const { country, countryInfo, cartItems, clearCart, profile, setProfile, setLastOrder, token, language } =
     useAppStore();
 
@@ -274,8 +276,8 @@ export default function CheckoutScreen({ navigation }: any) {
 
       <ScrollView contentContainerStyle={styles.scrollContent} {...getTestProps("scroll-checkout")}>
         {/* Delivery Address */}
-        <View style={styles.sectionHeader} accessibilityLabel="view-section-address">
-          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-address", tOpt(UI_TEXT.deliveryAddress, language))}>{tOpt(UI_TEXT.deliveryAddress, language)}</Text>
+        <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-address">
+          <Text style={[styles.sectionTitle, { textAlign }]} {...getReadableTextProps("text-section-address", tOpt(UI_TEXT.deliveryAddress, language))}>{tOpt(UI_TEXT.deliveryAddress, language)}</Text>
         </View>
 
         <TextInput
@@ -291,7 +293,7 @@ export default function CheckoutScreen({ navigation }: any) {
         {/* Country-specific fields */}
         {country === "MX" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-colonia">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-colonia", t("colonia"))}>{t("colonia")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-colonia", t("colonia"))}>{t("colonia")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Polanco"
@@ -305,7 +307,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "MX" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode-mx">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-zipcode-mx", t("zipCode"))}>{t("zipCode")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-zipcode-mx", t("zipCode"))}>{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="06600"
@@ -323,7 +325,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "US" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-zipcode">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-zipcode", t("zipCode"))}>{t("zipCode")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-zipcode", t("zipCode"))}>{t("zipCode")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="90210"
@@ -341,7 +343,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "CH" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-plz">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-plz", t("plz"))}>{t("plz")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-plz", t("plz"))}>{t("plz")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="8001"
@@ -355,7 +357,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "JP" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-prefecture">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-prefecture", t("prefecture"))}>{t("prefecture")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-prefecture", t("prefecture"))}>{t("prefecture")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="東京都"
@@ -369,7 +371,7 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
         {country === "SA" && (
           <View style={{ marginTop: 12 }} accessibilityLabel="view-field-district">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-district", t("district"))}>{t("district")}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-district", t("district"))}>{t("district")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="العليا"
@@ -383,12 +385,12 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
 
         {/* Contact Info */}
-        <View style={styles.sectionHeader} accessibilityLabel="view-section-contact">
-          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-contact", t("contactInfo"))}>{t("contactInfo")}</Text>
+        <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-contact">
+          <Text style={[styles.sectionTitle, { textAlign }]} {...getReadableTextProps("text-section-contact", t("contactInfo"))}>{t("contactInfo")}</Text>
         </View>
         <View style={{ gap: 12 }} accessibilityLabel="view-contact-fields">
           <View accessibilityLabel="view-field-fullname">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-fullname", tOpt(UI_TEXT.fullName, language))}>{tOpt(UI_TEXT.fullName, language)}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-fullname", tOpt(UI_TEXT.fullName, language))}>{tOpt(UI_TEXT.fullName, language)}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Julian Casablancas"
@@ -400,7 +402,7 @@ export default function CheckoutScreen({ navigation }: any) {
             />
           </View>
           <View accessibilityLabel="view-field-phone">
-            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-phone", tOpt(UI_TEXT.phone, language))}>{tOpt(UI_TEXT.phone, language)}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-phone", tOpt(UI_TEXT.phone, language))}>{tOpt(UI_TEXT.phone, language)}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="+52 55 1234 5678"
@@ -418,8 +420,8 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
 
         {/* Payment Method */}
-        <View style={styles.sectionHeader} accessibilityLabel="view-section-payment">
-          <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-payment", t("paymentMethod"))}>{t("paymentMethod")}</Text>
+        <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-payment">
+          <Text style={[styles.sectionTitle, { textAlign }]} {...getReadableTextProps("text-section-payment", t("paymentMethod"))}>{t("paymentMethod")}</Text>
         </View>
 
         <TouchableOpacity
@@ -434,8 +436,8 @@ export default function CheckoutScreen({ navigation }: any) {
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-credit-card">💳</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-card-info">
-            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-card-label", t("creditCard"))}>{t("creditCard")}</Text>
-            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-card-number", tOpt(UI_TEXT.creditCardDesc, language))}>{tOpt(UI_TEXT.creditCardDesc, language)}</Text>
+            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-card-label", t("creditCard"))}>{t("creditCard")}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-card-number", tOpt(UI_TEXT.creditCardDesc, language))}>{tOpt(UI_TEXT.creditCardDesc, language)}</Text>
           </View>
           <View
             style={[
@@ -460,8 +462,8 @@ export default function CheckoutScreen({ navigation }: any) {
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cash">💵</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-cash-info">
-            <Text style={styles.paymentLabel} {...getReadableTextProps("text-payment-cash-label", tOpt(UI_TEXT.cash, language))}>{tOpt(UI_TEXT.cash, language)}</Text>
-            <Text style={styles.paymentSub} {...getReadableTextProps("text-payment-cash-desc", tOpt(UI_TEXT.cashDesc, language))}>{tOpt(UI_TEXT.cashDesc, language)}</Text>
+            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-cash-label", tOpt(UI_TEXT.cash, language))}>{tOpt(UI_TEXT.cash, language)}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-cash-desc", tOpt(UI_TEXT.cashDesc, language))}>{tOpt(UI_TEXT.cashDesc, language)}</Text>
           </View>
           <View
             style={[
@@ -477,7 +479,7 @@ export default function CheckoutScreen({ navigation }: any) {
         {paymentMethod === "card" && (
           <View style={styles.cardFields} accessibilityLabel="view-card-fields" testID="view-card-fields">
             <View accessibilityLabel="view-field-card-holder">
-              <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-holder", t("cardHolder"))}>{t("cardHolder")}</Text>
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-holder", t("cardHolder"))}>{t("cardHolder")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="Julian Casablancas"
@@ -489,7 +491,7 @@ export default function CheckoutScreen({ navigation }: any) {
               />
             </View>
             <View accessibilityLabel="view-field-card-number">
-              <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-number", t("cardNumber"))}>{t("cardNumber")}</Text>
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-number", t("cardNumber"))}>{t("cardNumber")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="4242 4242 4242 4242"
@@ -508,7 +510,7 @@ export default function CheckoutScreen({ navigation }: any) {
             </View>
             <View style={{ flexDirection: "row", gap: 12 }} accessibilityLabel="view-card-expiry-cvv">
               <View style={{ flex: 1 }} accessibilityLabel="view-field-card-expiry">
-                <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-expiry", t("cardExpiry"))}>{t("cardExpiry")}</Text>
+                <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-expiry", t("cardExpiry"))}>{t("cardExpiry")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="MM/YY"
@@ -527,7 +529,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 />
               </View>
               <View style={{ flex: 1 }} accessibilityLabel="view-field-card-cvv">
-                <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-card-cvv", t("cvv"))}>{t("cvv")}</Text>
+                <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-cvv", t("cvv"))}>{t("cvv")}</Text>
                 <TextInput
                   style={styles.cardInput}
                   placeholder="123"
@@ -550,9 +552,9 @@ export default function CheckoutScreen({ navigation }: any) {
         )}
 
         {/* Order Summary */}
-        <View style={styles.sectionHeader} accessibilityLabel="view-section-summary">
+        <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-summary">
           <Text
-            style={styles.sectionTitle}
+            style={[styles.sectionTitle, { textAlign }]}
             {...getReadableTextProps("text-section-summary", tOpt(UI_TEXT.orderSummary, language))}
           >
             {tOpt(UI_TEXT.orderSummary, language)}
@@ -572,12 +574,12 @@ export default function CheckoutScreen({ navigation }: any) {
               />
               <View style={{ flex: 1 }} accessibilityLabel={`view-item-info-${item.id}`}>
                 <Text
-                  style={styles.itemTitle}
+                  style={[styles.itemTitle, { textAlign }]}
                   {...getReadableTextProps(`text-item-title-${item.id}`, `${item.quantity}x ${item.pizza.name}`)}
                 >
                   {item.quantity}x {item.pizza.name}
                 </Text>
-                <Text style={styles.itemDetails} {...getReadableTextProps(`text-item-details-${item.id}`, String(item.config?.size ?? ""))}>{item.config?.size}</Text>
+                <Text style={[styles.itemDetails, { textAlign }]} {...getReadableTextProps(`text-item-details-${item.id}`, String(item.config?.size ?? ""))}>{item.config?.size}</Text>
 
                 <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }} accessibilityLabel={`view-item-actions-${item.id}`}>
                   <TouchableOpacity
@@ -618,8 +620,8 @@ export default function CheckoutScreen({ navigation }: any) {
         <View style={styles.divider} accessibilityLabel="view-divider" />
 
         {/* Totals */}
-        <View style={styles.costRow} accessibilityLabel="view-row-subtotal">
-          <Text style={styles.costLabel} {...getReadableTextProps("text-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
+        <View style={[styles.costRow, { flexDirection: row }]} accessibilityLabel="view-row-subtotal">
+          <Text style={[styles.costLabel, { textAlign }]} {...getReadableTextProps("text-subtotal-label", t("subtotal"))}>{t("subtotal")}</Text>
           <Text
             style={styles.costValue}
             {...getReadableTextProps("text-subtotal-value", money(subtotal, currency, currencySymbol))}
@@ -627,8 +629,8 @@ export default function CheckoutScreen({ navigation }: any) {
             {money(subtotal, currency, currencySymbol)}
           </Text>
         </View>
-        <View style={styles.costRow} accessibilityLabel="view-row-delivery">
-          <Text style={styles.costLabel} {...getReadableTextProps("text-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
+        <View style={[styles.costRow, { flexDirection: row }]} accessibilityLabel="view-row-delivery">
+          <Text style={[styles.costLabel, { textAlign }]} {...getReadableTextProps("text-delivery-label", t("deliveryFee"))}>{t("deliveryFee")}</Text>
           <Text
             style={styles.costValue}
             {...getReadableTextProps("text-delivery-value", money(deliveryFee, currency, currencySymbol))}
@@ -643,7 +645,7 @@ export default function CheckoutScreen({ navigation }: any) {
         >
           <View style={styles.tipHeader} accessibilityLabel="view-tip-label">
             <View style={styles.tipLabelRow}>
-              <Text style={styles.costLabel} {...getReadableTextProps("text-tip-label", t("tipForDriver"))}>{t("tipForDriver")}</Text>
+              <Text style={[styles.costLabel, { textAlign }]} {...getReadableTextProps("text-tip-label", t("tipForDriver"))}>{t("tipForDriver")}</Text>
               <Pressable
                 onPress={() => setShowTipTooltip((v) => !v)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -695,8 +697,8 @@ export default function CheckoutScreen({ navigation }: any) {
           </View>
         </View>
 
-        <View style={styles.costRow} accessibilityLabel="view-row-tax">
-          <Text style={styles.costLabel} {...getReadableTextProps("text-tax-label", `${t("tax")} (${(taxRate * 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%)`)}>
+        <View style={[styles.costRow, { flexDirection: row }]} accessibilityLabel="view-row-tax">
+          <Text style={[styles.costLabel, { textAlign }]} {...getReadableTextProps("text-tax-label", `${t("tax")} (${(taxRate * 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%)`)}>
             {t("tax")} ({(taxRate * 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}%)
           </Text>
           <Text
@@ -707,8 +709,8 @@ export default function CheckoutScreen({ navigation }: any) {
           </Text>
         </View>
 
-        <View style={[styles.costRow, { marginTop: 20 }]} accessibilityLabel="view-row-total">
-          <Text style={styles.totalLabel} {...getReadableTextProps("text-total-label", tOpt(UI_TEXT.total, language))}>{tOpt(UI_TEXT.total, language)}</Text>
+        <View style={[styles.costRow, { marginTop: 20, flexDirection: row }]} accessibilityLabel="view-row-total">
+          <Text style={[styles.totalLabel, { textAlign }]} {...getReadableTextProps("text-total-label", tOpt(UI_TEXT.total, language))}>{tOpt(UI_TEXT.total, language)}</Text>
           <Text
             style={styles.totalValue}
             numberOfLines={1}

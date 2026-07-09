@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Colors } from "../theme/colors";
 import { useAppStore } from "../store/useAppStore";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { useRTL } from "../hooks/useRTL";
 
 const MARKETS = {
   US: "United States",
@@ -18,9 +19,10 @@ export const LocationHeader = ({
   onProfilePress?: () => void;
 }) => {
   const { country, language, setLanguage } = useAppStore();
+  const { row } = useRTL();
 
   return (
-    <View style={styles.container} accessibilityLabel="view-location-header" testID="view-location-header">
+    <View style={[styles.container, { flexDirection: row }]} accessibilityLabel="view-location-header" testID="view-location-header">
       <View style={styles.left} accessibilityLabel="view-header-left">
         {country === "CH" && (
           <View style={styles.langWrap} accessibilityLabel="view-lang-toggle">
