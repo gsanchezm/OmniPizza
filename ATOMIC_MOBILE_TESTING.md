@@ -67,19 +67,29 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | Param | Values | Effect |
 |-------|--------|--------|
 | `accessToken` | JWT string | Sets auth token in store — applied before market/hydrateCart so any downstream fetch is authenticated |
-| `market` | `US` `MX` `CH` `JP` | Sets country in store; auto-updates language |
-| `lang` | `de` `fr` | Sets CH language preference (ignored for other markets) |
-| `resetSession` | `true` | Logs out, clears cart, navigates to Login |
+| `market` | `US` `MX` `CH` `JP` `SA` | Sets country in store; **auto-updates language to the market default** (`US→en`, `MX→es`, `CH→de`, `JP→ja`, `SA→ar`) |
+| `lang` (alias `language`) | `de` `fr` **only** | Passed to `setLanguage`, which the store honors **only for CH**. Any other value (`ja`, `es`, `en`, …) is **silently ignored** — the language is already set by `market`. So `market=JP&lang=ja` works because `market=JP` sets `ja`, **not** because `lang=ja` did anything. |
+| `resetSession` | `true` | Logs out, clears cart, navigates to Login (takes priority; other params are skipped this URL) |
+| `orderId` | order id | Fires `GET /api/orders/{id}` → `lastOrder`. **Processed on ANY route**, not only `order-success` |
 
 ### Route-specific params
 
 | Route | Param | Effect |
 |-------|-------|--------|
-| `pizza-builder` | `pizzaId=<id>` | Fetches pizza from catalog by ID |
+| `pizza-builder` (alias `customizer`) | `pizzaId=<id>` (alias `item=<id>`) | Fetches pizza from catalog by ID. `omnipizza://customizer?item=<id>` is rewritten to `pizza-builder?pizzaId=<id>` in `linking.ts` |
 | `pizza-builder` | `size=small\|medium\|large\|family` | Pre-selects size |
 | `checkout` | `hydrateCart=true` | Clears local cart so screen fetches from backend |
 | any | `accessToken=<jwt>` | Injects auth token — combine with `hydrateCart=true` to bypass login UI entirely |
-| `order-success` | `orderId=<id>` | Fires `GET /api/orders/{id}` and populates `lastOrder` in the Zustand store (fire-and-forget; requires `accessToken` in the same URL or already in the store) |
+
+### Detox launch argument (not a deep-link param)
+
+`detoxCountryCode` is a **Detox launch arg** (`launchArgs: { detoxCountryCode: "MX" }`),
+read in `frontend-mobile/src/api/client.ts`. It overrides the `X-Country-Code` request
+header for the session. It does **not** appear in the URL and is not parsed by
+`useDeepLinkParams`.
+
+> **Default market:** the mobile store defaults to **`US`** (`useAppStore.ts`), whereas
+> the web store defaults to `MX`. Seed `market=` explicitly for cross-platform parity.
 
 ---
 
@@ -275,3 +285,29 @@ xcrun simctl openurl booted \
 
 Screens that require authentication but receive no `accessToken` param continue to
 handle auth errors through their own existing fallback UIs.
+
+---
+
+## Interactive widgets (for UI automation practice)
+
+Hand-rolled widgets that expose extra element types. Mobile follows the `qa.ts`
+`btn-`/`modal-`/`view-`/`text-`/`input-` convention (helpers set both content-desc and
+resource-id on Android).
+
+| Widget | Where | Key testIDs | Technique |
+|--------|-------|-------------|-----------|
+| Market dropdown | header (CustomNavbar) | `btn-market-dropdown`, `modal-market-dropdown`, `btn-market-dropdown-scrim`, `btn-market-option-{US\|MX\|CH\|JP\|SA}` | open RN `Modal` → tap option (or scrim to dismiss) |
+| Add-to-cart toast | global (fires on add in PizzaBuilder) | `view-toast`, `text-toast-message`, `btn-toast-close` | transient: wait-appear / auto-dismiss / close |
+| Pre-order confirm modal | Checkout (`btn-place-order`) | `modal-confirm-order`, `text-confirm-order-total`, `btn-confirm-order-yes`, `btn-confirm-order-cancel` | modal: confirm/cancel (Yes runs the real order) |
+| Tip tooltip | Checkout (tip ℹ️) | `btn-tip-info`, `view-tip-tooltip`, `text-tip-tooltip` | press to toggle popover |
+| Order-details accordion | Order Success | `btn-order-details`, `view-order-details-panel` | expand/collapse |
+| Country flags | Login / dropdown | `flag-{US\|MX\|CH\|JP\|SA}` | image assertion (composed from RN views, not emoji) |
+| SA address field | Checkout (SA market) | `view-field-district`, `label-district`, `input-district` | market-specific required field |
+
+> `btn-place-order` now opens the confirm modal; a test that clicked it and asserted
+> success immediately must now also tap `btn-confirm-order-yes`.
+
+> **RTL note:** selecting the Arabic (SA) market calls `I18nManager.forceRTL(true)` and
+> reloads the app (an I18nManager constraint). In Expo/dev this uses `DevSettings.reload()`;
+> in a release build RTL applies on the next app launch. Deep-linking `market=SA` is not
+> supported (it would fight the reload); select SA manually in-app.

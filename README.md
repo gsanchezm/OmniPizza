@@ -360,7 +360,7 @@ pnpm test:ui        # Interactive UI
 
 Requires the backend running on `http://localhost:8000` (or set `API_BASE_URL`).
 
-**Test suites:** Auth login, Pizza catalog, Checkout validation, Locked-out user, E2E standard flow, Country-specific logic (MX/US/CH/JP), Debug endpoints.
+**Test suites:** Auth login, Pizza catalog, Checkout validation, Locked-out user, E2E standard flow, Country-specific logic (MX/US/CH/JP/SA), Profile session isolation, Debug endpoints.
 
 > Legacy Python contract tests (Schemathesis) are also available — see `tests/README.md`.
 

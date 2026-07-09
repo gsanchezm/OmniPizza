@@ -197,6 +197,47 @@ Response:
 }
 ```
 
+### Checkout - Saudi Arabia (SAR, 15% VAT, RTL market)
+
+`SA` requires the `district` address field and uses `baksheesh` as the tip field.
+
+```bash
+curl -X POST http://localhost:8000/api/checkout \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "X-Country-Code: SA" \
+  -H "X-Language: ar" \
+  -d '{
+    "country_code": "SA",
+    "items": [
+      {"pizza_id": "p01", "quantity": 1}
+    ],
+    "name": "محمد",
+    "address": "طريق الملك فهد",
+    "phone": "0512345678",
+    "district": "العليا",
+    "baksheesh": 10
+  }'
+```
+
+Response (SAR = USD × 3.75; VAT 15%; delivery 2 USD → 7.5 SAR — values illustrative):
+```json
+{
+  "order_id": "ORDER-9F8E7D6C",
+  "subtotal": 48.71,
+  "delivery_fee": 7.5,
+  "tax_rate": 0.15,
+  "tip_percentage": 10.0,
+  "tax": 8.43,
+  "tip": 4.87,
+  "total": 69.51,
+  "currency": "SAR",
+  "currency_symbol": "ر.س",
+  "items": [...],
+  "timestamp": "2026-07-09T10:30:00"
+}
+```
+
 ### Checkout - Error (Missing required field)
 
 ```bash

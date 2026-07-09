@@ -37,12 +37,109 @@ Protected routes redirect to `/` automatically if no token is found in `localSto
 
 ## LocalStorage Keys
 
-| Key | Format | Purpose |
-|-----|--------|---------|
-| `omnipizza-auth` | Zustand JSON `{state:{token,username,behavior},version:0}` | Auth token |
-| `countryCode` | Plain string `"MX"` | API header fallback |
-| `omnipizza-country` | Zustand JSON | Market + language settings |
-| `omnipizza-cart` | Zustand JSON `{state:{items:[]},version:0}` | Cart — keep empty for API hydration |
+Every key below is written by `frontend/src/store.js` (the single source of all
+`localStorage` writes on the web app). "Persisted store" keys are managed by Zustand's
+`persist` middleware and always wrap state as `{ "state": { … }, "version": 0 }`.
+"Flat mirror" keys are plain strings written directly alongside the store.
+
+| Key | Kind | Exact shape | Written by | Read by |
+|-----|------|-------------|-----------|---------|
+| `omnipizza-auth` | Persisted store | `{state:{token,username,behavior},version:0}` | `useAuthStore` persist | rehydrate; `token` → `Authorization` header (if it looks like a JWT) |
+| `omnipizza-country` | Persisted store | `{state:{countryCode,countryInfo,language,locale,currency},version:0}` | `useCountryStore` persist | rehydrate; `countryCode` → `X-Country-Code`, `language` → `X-Language` |
+| `omnipizza-cart` | Persisted store | `{state:{items:[…]},version:0}` | `useCartStore` persist | Checkout hydration guard — keep **empty** to force `GET /api/cart` hydration |
+| `omnipizza-profile` | Persisted store | `{state:{fullName,address,phone,notes},version:0}` | `useProfileStore` persist | Profile screen (overwritten by `GET /api/users/me/profile` on mount) |
+| `omnipizza-order` | Persisted store | `{state:{lastOrder},version:0}` | `useOrderStore` persist | Order-success screen |
+| `token` | Flat mirror | JWT string | `login()` (`store.js`) | auth store initializer on cold load |
+| `username` | Flat mirror | string | `login()` | auth store initializer |
+| `countryCode` | Flat mirror | e.g. `"MX"` | `setCountryCode()` | country store initializer (fallback only) |
+| `chLang` | Flat mirror | `"de"` / `"fr"` | `setLanguage()` (CH only) | restores the CH DE/FR choice on market switch |
+| `omnipizza-release` | Flat mirror | build id string | module load | deploy-mismatch guard (see the gotcha below) |
+
+> **Markets:** `MX`, `US`, `CH`, `JP`, `SA` (Saudi Arabia / Arabic, RTL). Selecting a
+> market sets `language` to that market's default (`MX→es`, `US→en`, `CH→de`, `JP→ja`,
+> `SA→ar`); only CH exposes a runtime DE/FR toggle.
+
+> **⚠️ `omnipizza-release` gotcha (silent auth wipe):** on load, `store.js` compares
+> `omnipizza-release` against `import.meta.env.VITE_APP_RELEASE`. On mismatch it **removes
+> `token`, `username`, and `omnipizza-auth`** to avoid stale-deploy sessions. A seeded
+> session whose `omnipizza-release` differs from the deployed build is therefore wiped
+> before your test runs. For deterministic seeding, also seed
+> `localStorage.setItem("omnipizza-release", "<current VITE_APP_RELEASE>")` (or any value,
+> as long as it is present — the guard only fires on a *change*).
+
+---
+
+## Where does the seeded state come from? (annotated `setup()`)
+
+When an AI (or a human) writes a Playwright seed like the one below, every value maps
+to a specific line in `frontend/src/store.js`. This is the "source of truth" map so the
+seed mirrors *exactly* what the UI login writes — nothing more, nothing less.
+
+```ts
+setup("authenticate as standard_user", async ({ browser, request }) => {
+  // (1) Log in via API to get the JWT. This is the SAME token the UI login obtains;
+  //     the SPA never invents a token client-side.
+  const apiRes = await request.post(`${API_URL}/api/auth/login`, {
+    data: { username: USERNAME, password: PASSWORD },
+  });
+  const { access_token } = await apiRes.json();
+
+  // (2) `username`/`behavior` are DERIVED FROM THE TOKEN (JWT claims: sub, behavior).
+  //     The SPA reads them the same way — see auth.create_access_token on the backend
+  //     ({"sub": username, "behavior": behavior}) and useAuthStore.login(token, username, behavior).
+  const claims  = decodeJwt(access_token);
+  const username = claims.sub ?? USERNAME;
+  const behavior = claims.behavior ?? "standard";
+  const market   = MARKETS[COUNTRY] ?? MARKETS.MX;   // { language, locale, currency }
+
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto(BASE_URL);
+
+  await page.evaluate(([token, user, beh, countryCode, mkt]) => {
+    const { language, locale, currency } = mkt;
+
+    // ── omnipizza-auth ──────────────────────────────────────────────────────
+    //   Source: useAuthStore (persist name "omnipizza-auth"), store.js.
+    //   Zustand persist ALWAYS wraps state as { state, version:0 }. The auth store's
+    //   persisted fields are exactly { token, username, behavior }. This object — NOT a
+    //   flat `access_token` key — is the session source of truth the ProtectedRoute reads.
+    localStorage.setItem("omnipizza-auth",
+      JSON.stringify({ state: { token, username: user, behavior: beh }, version: 0 }));
+
+    // ── omnipizza-country ───────────────────────────────────────────────────
+    //   Source: useCountryStore (persist name "omnipizza-country"), store.js.
+    //   Persisted fields: { countryCode, countryInfo, language, locale, currency }.
+    //   The catalog guard needs a chosen market here or it bounces back to "/".
+    //   `countryCode` drives the X-Country-Code header; `language` drives X-Language.
+    localStorage.setItem("omnipizza-country",
+      JSON.stringify({ state: { countryCode, countryInfo: null, language, locale, currency }, version: 0 }));
+
+    // ── Flat mirrors ────────────────────────────────────────────────────────
+    //   Source: useAuthStore.login() writes `token`+`username`; setCountryCode() writes
+    //   `countryCode`. They exist so the store initializers can cold-start from a flat
+    //   value before the persisted object rehydrates. Seed them to match the objects above.
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", user);
+    localStorage.setItem("countryCode", countryCode);
+
+    // ── (recommended) omnipizza-release ───────────────────────────────────────
+    //   Present it so the deploy-mismatch guard in store.js does NOT wipe the auth you
+    //   just seeded. Any value works as long as it doesn't CHANGE between load and reload.
+    localStorage.setItem("omnipizza-release", "test-seed");
+  }, [access_token, username, behavior, COUNTRY, market]);
+});
+```
+
+**Reset recipe (fully deterministic):** removing only `omnipizza-auth` is **not**
+enough — the auth store initializer reads the flat `token`/`username` keys, so a stale
+session can rehydrate. Clear all of these:
+
+```ts
+["omnipizza-auth","token","username","omnipizza-country","countryCode",
+ "chLang","omnipizza-cart","omnipizza-profile","omnipizza-order"]
+  .forEach((k) => localStorage.removeItem(k));
+```
 
 ---
 
@@ -224,16 +321,40 @@ test("order-success renders from localStorage seed", async ({ page, request }) =
 
 ### Reset session before suite
 
+Remove **all** session keys — clearing only `omnipizza-auth` leaves the flat
+`token`/`username` mirrors behind, and the auth store initializer will rehydrate from
+them, so the app still appears logged in.
+
 ```javascript
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.removeItem("omnipizza-auth");
-    localStorage.removeItem("omnipizza-cart");
-    localStorage.removeItem("omnipizza-order");
-    localStorage.removeItem("countryCode");
+    [
+      "omnipizza-auth", "token", "username",
+      "omnipizza-country", "countryCode", "chLang",
+      "omnipizza-cart", "omnipizza-profile", "omnipizza-order",
+    ].forEach((k) => localStorage.removeItem(k));
   });
 });
 ```
+
+---
+
+## Interactive widgets (for UI automation practice)
+
+These hand-rolled widgets exist to exercise common automation techniques. All expose
+stable `data-testid`s.
+
+| Widget | Where | Key `data-testid`s | Technique |
+|--------|-------|--------------------|-----------|
+| Market dropdown | Navbar | `market-dropdown-trigger`, `market-dropdown-menu`, `market-option-{US\|MX\|CH\|JP\|SA}` | custom listbox: open → select |
+| Add-to-cart toast | global (fires on add) | `toast`, `toast-message`, `toast-close` | transient element: wait-appear / auto-dismiss / close |
+| Pre-order confirm modal | Checkout (place order) | `confirm-order-modal`, `confirm-order-total`, `confirm-order-yes`, `confirm-order-cancel` | modal: wait overlay → confirm/cancel |
+| Tip tooltip | Checkout (tip ℹ️) | `tip-info`, `tip-tooltip` | hover/focus popover |
+| Order-details accordion | Order Success | `order-details-toggle`, `order-details-panel` | expand/collapse, conditional visibility |
+| Country flags | Login / dropdown | `flag-{US\|MX\|CH\|JP\|SA}` | image assertion (real SVG flags, not emoji) |
+
+> The confirm modal intercepts the place-order button, so a test that used to click
+> `place-order-btn` and immediately assert success must now also click `confirm-order-yes`.
 
 ---
 
