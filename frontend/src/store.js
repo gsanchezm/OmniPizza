@@ -42,7 +42,14 @@ export const useAuthStore = create(
       logout: () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
+        // Clear the locally-cached profile so a previous user's data can't
+        // flash in the same browser before loadProfile() refetches it. The
+        // backend also resets the profile on login (session isolation).
+        localStorage.removeItem("omnipizza-profile");
         set({ token: null, username: null, behavior: null });
+        try {
+          useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "" });
+        } catch { /* profile store not ready — nothing to clear */ }
       },
     }),
     { name: "omnipizza-auth" }

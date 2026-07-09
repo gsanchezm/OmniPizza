@@ -87,7 +87,13 @@ async def login(request: LoginRequest):
             detail="Invalid username or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    
+
+    # Login is the session boundary. Reset the editable profile to its clean
+    # baseline on every login so a save made in a previous session (e.g. Japanese
+    # text under the JP market) cannot leak into this one. Within a single
+    # login-session, saves still persist via PATCH /api/users/me/profile.
+    db.reset_user_profile(user["username"])
+
     # Create access token
     access_token = create_access_token(
         data={"sub": user["username"], "behavior": user["behavior"]}

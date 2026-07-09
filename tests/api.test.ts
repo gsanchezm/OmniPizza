@@ -52,6 +52,38 @@ describe('POST /api/auth/login', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Profile session isolation (cross-session leak fix)
+// ---------------------------------------------------------------------------
+describe('Profile session isolation', () => {
+  it('persists a save within a login-session but resets on a fresh login', async () => {
+    // Session A: save Japanese text into the shared per-user profile.
+    const tokenA = await login('standard_user');
+    const saved = await axios.patch(
+      `${API_URL}/api/users/me/profile`,
+      { full_name: '田中太郎', notes: '配達は玄関に置いてください' },
+      { headers: authHeaders(tokenA, 'JP') },
+    );
+    expect(saved.status).toBe(200);
+    expect(saved.data.full_name).toBe('田中太郎');
+
+    // Within the same login-session, the save still persists.
+    const sameSession = await axios.get(`${API_URL}/api/users/me/profile`, {
+      headers: authHeaders(tokenA, 'JP'),
+    });
+    expect(sameSession.data.full_name).toBe('田中太郎');
+
+    // Session B: a brand-new login must start from a clean baseline, so the
+    // prior session's Japanese text does NOT leak into it.
+    const tokenB = await login('standard_user');
+    const fresh = await axios.get(`${API_URL}/api/users/me/profile`, {
+      headers: authHeaders(tokenB, 'US'),
+    });
+    expect(fresh.data.full_name).toBe('');
+    expect(fresh.data.notes).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Pizzas endpoint – requires headers
 // ---------------------------------------------------------------------------
 describe('GET /api/pizzas validation', () => {
