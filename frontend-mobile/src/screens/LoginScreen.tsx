@@ -38,6 +38,7 @@ const MARKETS = [
   { code: "MX" },
   { code: "CH" },
   { code: "JP" },
+  { code: "SA" },
 ] as const;
 
 export default function LoginScreen({ navigation }: any) {
@@ -45,7 +46,7 @@ export default function LoginScreen({ navigation }: any) {
   const [password, setPassword] = useState("pizza123");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedMarket, setSelectedMarket] = useState<"US" | "MX" | "CH" | "JP">("US");
+  const [selectedMarket, setSelectedMarket] = useState<"US" | "MX" | "CH" | "JP" | "SA">("US");
 
   const setToken = useAppStore((s) => s.setToken);
   const token = useAppStore((s) => s.token);

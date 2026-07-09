@@ -9,6 +9,7 @@ const MARKETS = {
   MX: "Mexico City",
   CH: "Zurich",
   JP: "Tokyo",
+  SA: "Riyadh",
 };
 
 export const LocationHeader = ({
@@ -76,7 +77,7 @@ export const LocationHeader = ({
             fontSize: 20,
             fontWeight: "900",
             color: "white",
-            marginLeft: 12,
+            marginStart: 12,
           }}
           {...getReadableTextProps("text-header-brand", "OmniPizza")}
         >
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   },
   langWrap: {
     flexDirection: "row",
-    marginRight: 2,
+    marginEnd: 2,
     padding: 2,
     borderRadius: 999,
     backgroundColor: Colors.surface.card,

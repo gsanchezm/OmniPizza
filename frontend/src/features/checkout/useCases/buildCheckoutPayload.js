@@ -4,6 +4,7 @@ export function buildCheckoutPayload({ countryCode, items, form }) {
     US: "tip",
     CH: "trinkgeld",
     JP: "chip",
+    SA: "baksheesh",
   };
   const payload = {
     country_code: countryCode,
@@ -32,6 +33,8 @@ export function buildCheckoutPayload({ countryCode, items, form }) {
     payload.plz = form.plz;
   } else if (countryCode === "JP") {
     payload.prefectura = form.prefectura;
+  } else if (countryCode === "SA") {
+    payload.district = form.district;
   }
 
   return payload;

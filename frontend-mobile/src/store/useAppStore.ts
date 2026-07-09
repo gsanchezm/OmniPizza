@@ -2,8 +2,8 @@ import { create } from "zustand";
 import type { Pizza } from "../types/api";
 import type { CountryInfo } from "../services/country.service";
 
-export type CountryCode = "MX" | "US" | "CH" | "JP";
-export type LanguageCode = "en" | "es" | "de" | "fr" | "ja";
+export type CountryCode = "MX" | "US" | "CH" | "JP" | "SA";
+export type LanguageCode = "en" | "es" | "de" | "fr" | "ja" | "ar";
 export type PizzaSize = "small" | "medium" | "large" | "family";
 
 export interface ProfileState {
@@ -76,6 +76,7 @@ const MARKET_LANG: Record<CountryCode, LanguageCode> = {
   US: "en",
   CH: "de",
   JP: "ja",
+  SA: "ar",
 };
 
 function makeId() {

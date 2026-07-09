@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore, useCountryStore } from "./store";
 import { useCountryFeatureInfo } from "./features/country/hooks/useCountryFeatureInfo";
@@ -16,8 +16,16 @@ const App = () => {
   const token = useAuthStore((s) => s.token);
   const isAuthenticated = Boolean(token);
   const countryCode = useCountryStore((s) => s.countryCode);
+  const language = useCountryStore((s) => s.language);
 
   useCountryFeatureInfo(isAuthenticated, countryCode);
+
+  // Full RTL: Arabic renders the document right-to-left. Native browser RTL
+  // then mirrors flex/text layout across the whole app. Reset to ltr otherwise.
+  useEffect(() => {
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = language || "en";
+  }, [language]);
 
   return (
     <BrowserRouter>

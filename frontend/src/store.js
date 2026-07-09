@@ -67,6 +67,7 @@ const MARKET = {
   US: { locale: "en-US", currency: "USD" },
   CH: { locale: "de-CH", currency: "CHF" },
   JP: { locale: "ja-JP", currency: "JPY" },
+  SA: { locale: "ar-SA", currency: "SAR" },
 };
 
 const DEFAULT_LANG_BY_MARKET = {
@@ -74,6 +75,7 @@ const DEFAULT_LANG_BY_MARKET = {
   US: "en",
   CH: "de",
   JP: "ja",
+  SA: "ar",
 };
 
 const pickMarket = (code) => MARKET[code] || MARKET.MX;

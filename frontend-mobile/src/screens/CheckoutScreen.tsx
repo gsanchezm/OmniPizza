@@ -140,6 +140,7 @@ export default function CheckoutScreen({ navigation }: any) {
     zip_code: "",
     plz: "",
     prefectura: "",
+    district: "",
     card_holder: "",
     card_number: "",
     card_expiry: "",
@@ -169,13 +170,13 @@ export default function CheckoutScreen({ navigation }: any) {
   const currency = cartItems[0]?.currency || "USD";
   const currencySymbol = cartItems[0]?.currency_symbol;
 
-  const fallbackTaxRate = country === "MX" ? 0.16 : country === "CH" ? 0.081 : country === "JP" ? 0.1 : 0.08;
+  const fallbackTaxRate = country === "MX" ? 0.16 : country === "CH" ? 0.081 : country === "JP" ? 0.1 : country === "SA" ? 0.15 : 0.08;
   const taxRate = Number.isFinite(Number(countryInfo?.tax_rate))
     ? Number(countryInfo?.tax_rate)
     : fallbackTaxRate;
   const deliveryFee = Number.isFinite(Number(countryInfo?.delivery_fee))
     ? Number(countryInfo?.delivery_fee)
-    : country === "MX" ? 35.1 : country === "CH" ? 1.56 : country === "JP" ? 316 : 2.0;
+    : country === "MX" ? 35.1 : country === "CH" ? 1.56 : country === "JP" ? 316 : country === "SA" ? 7.5 : 2.0;
   const tipPercentages =
     Array.isArray(countryInfo?.tip_percentages) && countryInfo.tip_percentages.length === 4
       ? countryInfo.tip_percentages
@@ -363,6 +364,20 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
               accessibilityLabel="input-zipcode"
               testID="input-zipcode"
+            />
+          </View>
+        )}
+        {country === "SA" && (
+          <View style={{ marginTop: 12 }} accessibilityLabel="view-field-district">
+            <Text style={styles.cardFieldLabel} {...getReadableTextProps("label-district", t("district"))}>{t("district")}</Text>
+            <TextInput
+              style={styles.cardInput}
+              placeholder="العليا"
+              placeholderTextColor="#555"
+              value={form.district}
+              onChangeText={(v) => setForm((p) => ({ ...p, district: v }))}
+              accessibilityLabel="input-district"
+              testID="input-district"
             />
           </View>
         )}
@@ -939,7 +954,7 @@ const styles = StyleSheet.create({
     color: "#999",
     fontSize: 15,
     flexShrink: 1,
-    marginRight: 8,
+    marginEnd: 8,
   },
   costValue: {
     color: "white",
@@ -996,7 +1011,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     flexShrink: 1,
-    marginRight: 8,
+    marginEnd: 8,
   },
   totalValue: {
     color: "white",

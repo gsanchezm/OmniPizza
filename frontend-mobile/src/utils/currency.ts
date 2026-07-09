@@ -8,6 +8,8 @@ export const formatCurrency = (amount: number, country: string) => {
       return `${amount.toFixed(2)} CHF`; // Swiss format
     case 'JP':
       return `¥${Math.round(amount)}`; // Yen no tiene decimales
+    case 'SA':
+      return `${amount.toFixed(2)} ر.س`; // Saudi Riyal, 2 decimales
     default:
       return `$${amount}`;
   }

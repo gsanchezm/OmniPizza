@@ -34,9 +34,11 @@ export interface CheckoutPayload {
   tip?: number;
   trinkgeld?: number;
   chip?: number;
+  baksheesh?: number;
   zip_code?: string;
   plz?: string;
   prefectura?: string;
+  district?: string;
   payment_method?: "card" | "cash";
 }
 

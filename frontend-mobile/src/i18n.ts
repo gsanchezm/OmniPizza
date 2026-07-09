@@ -5,8 +5,9 @@ import es from "./i18n/locales/es.json";
 import de from "./i18n/locales/de.json";
 import fr from "./i18n/locales/fr.json";
 import ja from "./i18n/locales/ja.json";
+import ar from "./i18n/locales/ar.json";
 
-// Type checking for the dictionary to ensure all keys are present would be nice, 
+// Type checking for the dictionary to ensure all keys are present would be nice,
 // but for now we trust the JSONs.
 const DICT: Record<string, any> = {
   en,
@@ -14,6 +15,7 @@ const DICT: Record<string, any> = {
   de,
   fr,
   ja,
+  ar,
 };
 
 export function useT() {

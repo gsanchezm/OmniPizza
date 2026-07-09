@@ -27,6 +27,7 @@ const MARKETS: { code: CountryCode; label: string }[] = [
   { code: "MX", label: "México" },
   { code: "CH", label: "Switzerland" },
   { code: "JP", label: "Japan" },
+  { code: "SA", label: "السعودية" },
 ];
 
 export const MarketDropdown = () => {
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   caret: {
     color: Colors.text.muted,
     fontSize: 10,
-    marginLeft: -2,
+    marginStart: -2,
   },
   scrim: {
     flex: 1,

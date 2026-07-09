@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
 
   langWrap: {
     flexDirection: "row",
-    marginRight: 8,
+    marginEnd: 8,
     padding: 2,
     borderRadius: 999,
     backgroundColor: Colors.surface.card,

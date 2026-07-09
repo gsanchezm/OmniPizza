@@ -10,6 +10,7 @@ export interface CheckoutFormState {
   zip_code: string;
   plz: string;
   prefectura: string;
+  district: string;
   card_holder: string;
   card_number: string;
   card_expiry: string;
@@ -28,6 +29,7 @@ export function buildCheckoutPayload(input: {
     US: "tip",
     CH: "trinkgeld",
     JP: "chip",
+    SA: "baksheesh",
   } as const;
   const payload: CheckoutPayload = {
     country_code: country,
@@ -56,6 +58,8 @@ export function buildCheckoutPayload(input: {
     payload.plz = form.plz.trim();
   } else if (country === "JP") {
     payload.prefectura = form.prefectura.trim();
+  } else if (country === "SA") {
+    payload.district = form.district.trim();
   }
 
   return payload;

@@ -252,6 +252,14 @@ const UI_TEXT = {
     fr: "Préfecture",
     ja: "都道府県",
   },
+  districtPlaceholder: {
+    en: "District",
+    es: "Distrito",
+    de: "Bezirk",
+    fr: "Quartier",
+    ja: "地区",
+    ar: "الحي",
+  },
   invalidPhone: {
     en: "Enter a valid phone number (7-15 digits)",
     es: "Ingrese un teléfono válido (7-15 dígitos)",
@@ -309,6 +317,7 @@ const FALLBACK_TAX_RATE_BY_COUNTRY = {
   US: 0.08,
   CH: 0.081,
   JP: 0.1,
+  SA: 0.15,
 };
 
 const FALLBACK_DELIVERY_FEE_BY_COUNTRY = {
@@ -316,6 +325,7 @@ const FALLBACK_DELIVERY_FEE_BY_COUNTRY = {
   US: 2,
   CH: 1.56,
   JP: 316,
+  SA: 7.5,
 };
 
 const FALLBACK_TIP_OPTIONS_BY_COUNTRY = {
@@ -323,6 +333,7 @@ const FALLBACK_TIP_OPTIONS_BY_COUNTRY = {
   US: [0, 5, 10, 15],
   CH: [0, 5, 10, 15],
   JP: [0, 5, 10, 15],
+  SA: [0, 5, 10, 15],
 };
 const DEFAULT_TIP_PERCENTAGE = "0";
 
@@ -418,6 +429,7 @@ export default function Checkout() {
     zip_code: "",
     plz: "",
     prefectura: "",
+    district: "",
     card_number: "",
     card_expiry: "",
     card_cvv: "",
@@ -703,6 +715,34 @@ export default function Checkout() {
                         value={form.prefectura}
                         onChange={(e) =>
                           setForm((p) => ({ ...p, prefectura: e.target.value }))
+                        }
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {countryCode === "SA" && (
+                    <div>
+                      <label data-testid="label-district" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        {tOpt(UI_TEXT.districtPlaceholder, language)}
+                      </label>
+                      <input
+                        data-testid="district"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder={tOpt(
+                          {
+                            en: "Al Olaya",
+                            es: "Al Olaya",
+                            de: "Al Olaya",
+                            fr: "Al Olaya",
+                            ja: "アル・オラヤ",
+                            ar: "العليا",
+                          },
+                          language,
+                        )}
+                        value={form.district}
+                        onChange={(e) =>
+                          setForm((p) => ({ ...p, district: e.target.value }))
                         }
                         required
                       />

@@ -17,6 +17,7 @@ const MARKETS = [
   { code: "MX", label: "México" },
   { code: "CH", label: "Schweiz" },
   { code: "JP", label: "日本" },
+  { code: "SA", label: "السعودية" },
 ];
 
 export default function MarketDropdown() {

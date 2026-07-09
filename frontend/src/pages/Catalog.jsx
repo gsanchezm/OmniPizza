@@ -16,6 +16,7 @@ const MARKET_OPTIONS = [
   { code: "MX", label: "MX - Spanish", flag: "🇲🇽" },
   { code: "CH", label: "CH - German", flag: "🇨🇭" },
   { code: "JP", label: "JP - Japanese", flag: "🇯🇵" },
+  { code: "SA", label: "SA - Arabic", flag: "🇸🇦" },
 ];
 
 function formatMoney(value, currency, locale, symbol) {

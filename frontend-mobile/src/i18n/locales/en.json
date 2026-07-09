@@ -94,6 +94,7 @@
   "cvv": "CVV",
   "plz": "PLZ / Postal Code",
   "prefecture": "Prefecture",
+  "district": "District",
   "addedToCart": "Added to cart",
   "tipTooltip": "100% of your tip goes to the driver."
 }
