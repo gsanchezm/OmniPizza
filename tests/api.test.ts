@@ -143,9 +143,10 @@ describe('User Behavior: Locked Out', () => {
     } catch (err) {
       const error = err as AxiosError;
       expect(error.response?.status).toBe(403);
-      expect(
-        ((error.response?.data as Record<string, string>)?.detail ?? '').toLowerCase(),
-      ).toContain('locked out');
+      // The backend's HTTPException handler reshapes errors to { error, status_code,
+      // timestamp } — read `error` (fall back to `detail` for robustness).
+      const body = error.response?.data as Record<string, string>;
+      expect(((body?.error ?? body?.detail) ?? '').toLowerCase()).toContain('locked out');
     }
   });
 });
