@@ -21,6 +21,7 @@ import { Colors } from "../theme/colors";
 import { loginUser } from "../features/auth/useCases/loginUser";
 import { selectMarket } from "../features/country/useCases/selectMarket";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { Flag } from "../components/Flag";
 
 const { height } = Dimensions.get("window");
 
@@ -33,10 +34,10 @@ const TEST_USERS = [
 ];
 
 const MARKETS = [
-  { code: "US", flag: "🇺🇸" },
-  { code: "MX", flag: "🇲🇽" },
-  { code: "CH", flag: "🇨🇭" },
-  { code: "JP", flag: "🇯🇵" },
+  { code: "US" },
+  { code: "MX" },
+  { code: "CH" },
+  { code: "JP" },
 ] as const;
 
 export default function LoginScreen({ navigation }: any) {
@@ -171,7 +172,9 @@ export default function LoginScreen({ navigation }: any) {
                         isActive && styles.flagBtnActive
                       ]}
                     >
-                      <Text style={[styles.flagText, isActive && { opacity: 1 }]} {...getReadableTextProps(`text-flag-${m.code}`, m.flag)}>{m.flag}</Text>
+                      <View style={{ opacity: isActive ? 1 : 0.6 }}>
+                        <Flag code={m.code} size={30} />
+                      </View>
                     </TouchableOpacity>
                   );
                 })}

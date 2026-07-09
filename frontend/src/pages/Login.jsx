@@ -6,6 +6,7 @@ import PrimaryButton from "../components/PrimaryButton";
 import { useResponsive } from "../hooks/useResponsive";
 import { loginUser } from "../features/auth/useCases/loginUser";
 import { getTestUsers } from "../features/auth/useCases/getTestUsers";
+import Flag from "../components/Flag";
 
 const USER_HINTS = {
   standard_user: "Standard",
@@ -168,10 +169,10 @@ export default function Login() {
             {/* Market Selection */}
             <div className="flex justify-center gap-4 py-2">
               {[
-                { code: "US", flag: "🇺🇸", label: "US" },
-                { code: "MX", flag: "🇲🇽", label: "MX" },
-                { code: "CH", flag: "🇨🇭", label: "CH" },
-                { code: "JP", flag: "🇯🇵", label: "JP" },
+                { code: "US", label: "US" },
+                { code: "MX", label: "MX" },
+                { code: "CH", label: "CH" },
+                { code: "JP", label: "JP" },
               ].map((m) => (
                 <button
                   key={m.code}
@@ -179,14 +180,14 @@ export default function Login() {
                   data-testid={`market-${m.code}`}
                   onClick={() => setSelectedMarket(m.code)}
                   className={`
-                    w-10 h-10 flex items-center justify-center rounded-full text-xl transition-all
-                    ${selectedMarket === m.code 
-                      ? "bg-[#FF5722] ring-2 ring-[#FF5722] ring-offset-2 ring-offset-[#0F0F0F] scale-110" 
+                    w-10 h-10 flex items-center justify-center rounded-full transition-all
+                    ${selectedMarket === m.code
+                      ? "bg-[#FF5722] ring-2 ring-[#FF5722] ring-offset-2 ring-offset-[#0F0F0F] scale-110"
                       : "bg-[#1F1F1F] hover:bg-[#2A2A2A] grayscale opacity-70 hover:grayscale-0 hover:opacity-100"}
                   `}
                   title={`Select ${m.label}`}
                 >
-                  {m.flag}
+                  <Flag code={m.code} size={30} />
                 </button>
               ))}
             </div>
