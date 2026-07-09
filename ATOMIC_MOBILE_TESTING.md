@@ -4,6 +4,13 @@ Enables the external automation framework (`ahm-poc`) to open the OmniPizza mobi
 app directly on any target screen after hydrating state through the API, without
 executing a full user journey.
 
+> **Which build to automate:** Android → the `omnipizza-release.apk` from the GitHub
+> Release (Appium/UIAutomator2 drives it directly). iOS → the `OmniPizza-Simulator.zip`
+> on the iOS Simulator. iOS is **simulator-only** by design — there is no `.ipa`, and you
+> never automate an App Store binary (Appium must *launch* the app with these deep
+> links / launch args, which only works on a controllable build). See `docs/app-built.md`
+> → "Distribution vs. automation".
+
 ---
 
 ## 1. Repository Findings

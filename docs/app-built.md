@@ -9,9 +9,27 @@ The current workflow produces the following artifacts:
 1.  **Android**:
     - `omnipizza-release.apk` — Universal APK for real devices & emulators
     - `omnipizza-debug-androidTest.apk` — Instrumented test APK for device farm testing (Espresso/Appium)
-2.  **iOS**:
-    - `OmniPizza-Simulator.zip` — Simulator build for Appium/Simulators (no signing required)
-    - `OmniPizza.ipa` — Real device build (_future phase_)
+2.  **iOS** (simulator only — see [Distribution vs. automation](#distribution-vs-automation-why-ios-is-simulator-only)):
+    - `OmniPizza-Simulator.zip` — Simulator build for Appium / iOS Simulator (no signing required)
+    - No `.ipa` is produced. iOS physical-device / store distribution is intentionally out of scope.
+
+## Distribution vs. automation (why iOS is simulator-only)
+
+Two different build **purposes** — the same codebase and `testID`s serve both:
+
+| Purpose | Android | iOS |
+| --- | --- | --- |
+| **Distribution** (real users install it) | `omnipizza-release.apk` — anyone downloads & sideloads it | *(out of scope)* — iOS has **no public `.ipa` sideload**; the only public paths are the App Store or a TestFlight public link, both requiring signing + Apple review. Deliberately not pursued. |
+| **UI automation** (Appium / inspection) | the **same** `omnipizza-release.apk` (UIAutomator2 reads the accessibility tree on a release APK) | **`OmniPizza-Simulator.zip`** on the iOS Simulator |
+
+Key facts behind this decision:
+
+- **iOS has no APK equivalent.** You cannot hand someone a `.ipa` to install like an Android APK, so "anyone downloads it" is an Android-only capability in this project.
+- **Automation never targets an App Store binary.** Appium drives iOS via XCUITest / WebDriverAgent, which must *launch* the app with test state (deep links, the `detoxCountryCode` launch arg, session reset). That only works on a build the harness controls — the **simulator build** (or a dev/ad-hoc build on a real device). The store binary is for end users, not QA.
+- **`testID` / `accessibilityLabel` exist in every build** (Release included — React Native does not strip them), so Appium Inspector sees the object tree on the simulator build.
+- **Real-device iOS automation is possible** (dev/ad-hoc signed build + WDA) with an Apple Developer account, but is **out of scope** here — the Simulator build covers the automation need.
+
+Net: publishing to the App Store would add nothing to automation, and iOS device distribution is intentionally skipped. Android's release APK already covers both distribution and automation.
 
 ## Prerequisites
 
@@ -83,10 +101,10 @@ cd ios/build/Build/Products/Release-iphonesimulator
 zip -r OmniPizza-Simulator.zip OmniPizza.app
 ```
 
-### Real Device Build (Future — Requires Apple Developer Account)
+### Real-device build — intentionally out of scope
 
-- Building an `.ipa` requires certificates (`.p12`) + provisioning profiles.
-- When ready, add signing secrets to GitHub and an `xcodebuild archive` + `xcodebuild -exportArchive` step.
+- iOS is **simulator only** by decision (see [Distribution vs. automation](#distribution-vs-automation-why-ios-is-simulator-only)). No `.ipa` is built.
+- A signed `.ipa` *could* be added later (certs `.p12` + provisioning profiles, `xcodebuild archive` + `-exportArchive`, App Store/TestFlight submission — e.g. via EAS), but is not part of this pipeline. The Simulator build covers Appium automation.
 
 ---
 
@@ -140,7 +158,6 @@ The final GitHub Release will contain:
 | `omnipizza-release.apk`           | Android  | Install on real devices & emulators    |
 | `omnipizza-debug-androidTest.apk` | Android  | Run instrumented tests on device farms |
 | `OmniPizza-Simulator.zip`         | iOS      | Run on iOS Simulator / Appium testing  |
-| _(Future)_ `OmniPizza.ipa`        | iOS      | Install on real iOS devices            |
 
 ---
 
@@ -161,6 +178,6 @@ pnpm build:ios:simulator # Build iOS simulator app
 
 - The workflow currently creates releases only from manual dispatch.
 - Android release signing still uses the current Gradle setup; production signing secrets are not documented here yet.
-- Real-device iOS `.ipa` output is not implemented in the workflow.
+- Real-device iOS `.ipa` output is **intentionally out of scope** — iOS is simulator-only (see "Distribution vs. automation"). iOS has no public `.ipa` sideload, and Appium automates the simulator build, not a store binary.
 - There is no XCUITest runner artifact in the current pipeline.
 - `omnipizza-debug-androidTest.apk` is currently a minimal stub (~7 KB): the Expo-prebuilt `android/` project has no Detox/instrumented-test wiring, so it contains no real instrumented tests. Appium drives the release APK directly.
