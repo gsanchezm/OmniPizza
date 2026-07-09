@@ -73,7 +73,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
       <View style={styles.bottomSheet} accessibilityLabel="view-bottom-sheet" testID="view-bottom-sheet">
         <View style={styles.statusRow} accessibilityLabel="view-status-row">
           <View style={styles.statusTextCol} accessibilityLabel="view-status-text">
-            <Text style={styles.statusTitle} {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
+            <Text style={styles.statusTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-status-title", t("outForDelivery"))}>{t("outForDelivery")}</Text>
             <Text style={styles.statusSub} numberOfLines={1} {...getReadableTextProps("text-status-sub", `${t("expectedArrival")}: 8:45 PM`)}>{t("expectedArrival")}: 8:45 PM</Text>
           </View>
 

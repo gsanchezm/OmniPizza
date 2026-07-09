@@ -74,6 +74,8 @@ export const BottomNavBar = () => {
                     color: isActive ? Colors.brand.primary : Colors.text.muted,
                   },
                 ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
                 {...getReadableTextProps(`text-nav-${item.name.toLowerCase()}`, item.label)}
               >
                 {item.label}
@@ -102,11 +104,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
+    paddingHorizontal: 2,
   },
   label: {
     fontSize: 12,
     marginTop: 4,
     fontWeight: "600",
+    textAlign: "center",
   },
   badge: {
     position: "absolute",

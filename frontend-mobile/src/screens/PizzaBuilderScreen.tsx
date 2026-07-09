@@ -180,7 +180,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         >
           <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
+        <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
           {tOpt(UI_STRINGS.title, language)}
         </Text>
         <TouchableOpacity style={styles.iconBtn} accessibilityLabel="btn-info-builder">
@@ -208,7 +208,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         <View style={styles.cardContent} accessibilityLabel="view-builder-content">
           {/* Size Selector */}
           <View style={styles.sectionHeader} accessibilityLabel="view-section-size">
-            <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
+            <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
               {tOpt(UI_STRINGS.size, language)}
             </Text>
             <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt(UI_STRINGS.required, language)))}>
@@ -242,6 +242,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                       active && styles.sizeTextActive,
                       hasPrice && { marginBottom: 2 },
                     ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
                     {...getReadableTextProps(`text-size-${opt.id}`, mainText)}
                   >
                     {mainText}
@@ -264,7 +266,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {/* Toppings Selector */}
           <View style={[styles.sectionHeader, { marginTop: 30 }]} accessibilityLabel="view-section-toppings">
-            <Text style={styles.sectionTitle} {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
+            <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
               {tOpt(UI_STRINGS.toppings, language)}
             </Text>
             <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", toppingHint)}>
@@ -318,6 +320,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                           styles.toppingName,
                           isSelected && { color: "white" },
                         ]}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
                         {...getReadableTextProps(`text-topping-${it.id}`, tOpt(it.label, language))}
                       >
                         {tOpt(it.label, language)}
@@ -351,11 +355,11 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       {/* Floating Bottom Bar */}
       <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
         <View style={styles.barContent} accessibilityLabel="view-bar-content">
-          <View accessibilityLabel="view-estimated-total">
-            <Text style={styles.totalLabel} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
+          <View accessibilityLabel="view-estimated-total" style={{ flexShrink: 1, marginRight: 12 }}>
+            <Text style={styles.totalLabel} numberOfLines={1} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
               {tOpt(UI_STRINGS.estimatedTotal, language)}
             </Text>
-            <Text style={styles.totalValue} {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>
+            <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>
               {formatMoney(unitPrice, pizza.currency, pizza.currency_symbol)}
             </Text>
           </View>
@@ -367,6 +371,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           >
             <Text
               style={styles.addToCartText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
               {...getReadableTextProps("text-add-to-cart", confirmLabel)}
             >
               {confirmLabel}
@@ -395,6 +401,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
+    marginHorizontal: 8,
   },
   iconBtn: {
     width: 40,
@@ -451,16 +460,21 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 20,
     fontWeight: "800",
+    flexShrink: 1,
+    marginRight: 8,
   },
   badge: {
     color: "#FF5722",
     fontSize: 12,
     fontWeight: "bold",
     marginTop: 4,
+    flexShrink: 0,
   },
   priceHint: {
     color: "#888",
     fontSize: 14,
+    flexShrink: 0,
+    marginLeft: 8,
   },
 
   sizePills: {
@@ -593,6 +607,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    flexShrink: 0,
   },
   addToCartText: {
     color: "white",

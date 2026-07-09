@@ -674,6 +674,8 @@ export default function CheckoutScreen({ navigation }: any) {
           <Text style={styles.totalLabel} {...getReadableTextProps("text-total-label", tOpt(UI_TEXT.total, language))}>{tOpt(UI_TEXT.total, language)}</Text>
           <Text
             style={styles.totalValue}
+            numberOfLines={1}
+            adjustsFontSizeToFit
             {...getReadableTextProps("text-total-value", money(total, currency, currencySymbol))}
           >
             {money(total, currency, currencySymbol)}
@@ -697,7 +699,7 @@ export default function CheckoutScreen({ navigation }: any) {
           disabled={loading}
           {...getReadableControlProps("btn-place-order", loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language))}
         >
-          <Text style={styles.btnText} {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${tOpt(UI_TEXT.placeOrder, language)}  →`)}>
+          <Text style={styles.btnText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${tOpt(UI_TEXT.placeOrder, language)}  →`)}>
             {loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language) + "  →"}
           </Text>
         </TouchableOpacity>
@@ -729,6 +731,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
+    flexShrink: 1,
   },
   editLink: {
     color: "#FF5722",
@@ -847,16 +850,21 @@ const styles = StyleSheet.create({
   costRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   costLabel: {
     color: "#999",
     fontSize: 15,
+    flexShrink: 1,
+    marginRight: 8,
   },
   costValue: {
     color: "white",
     fontSize: 15,
     fontWeight: "600",
+    flexShrink: 0,
+    textAlign: "right",
   },
   tipSection: {
     marginVertical: 8,
@@ -905,11 +913,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1,
+    flexShrink: 1,
+    marginRight: 8,
   },
   totalValue: {
     color: "white",
     fontSize: 32,
     fontWeight: "800",
+    flexShrink: 0,
+    textAlign: "right",
   },
   arrival: {
     textAlign: "right",

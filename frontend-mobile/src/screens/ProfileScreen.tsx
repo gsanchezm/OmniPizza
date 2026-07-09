@@ -85,11 +85,11 @@ export default function ProfileScreen({ navigation }: any) {
               }}
               accessibilityLabel="view-profile-name-row"
             >
-              <Text style={styles.userName} {...getReadableTextProps("text-profile-username", profile?.fullName || "Alexander Sterling")}>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-profile-username", profile?.fullName || "Alexander Sterling")}>
                 {profile?.fullName || "Alexander Sterling"}
               </Text>
               <View style={styles.badge} accessibilityLabel="view-premium-badge">
-                <Text style={styles.badgeText} {...getReadableTextProps("text-premium-badge", t("premiumMember") || "PREMIUM")}>
+                <Text style={styles.badgeText} numberOfLines={1} {...getReadableTextProps("text-premium-badge", t("premiumMember") || "PREMIUM")}>
                   {t("premiumMember") || "PREMIUM"}
                 </Text>
               </View>
@@ -170,7 +170,7 @@ export default function ProfileScreen({ navigation }: any) {
               onPress={() => navigation.goBack()}
               {...getReadableControlProps("btn-cancel-profile", t("cancel") || "CANCEL")}
             >
-              <Text style={styles.btnCancelText} {...getReadableTextProps("text-cancel-profile", t("cancel") || "CANCEL")}>
+              <Text style={styles.btnCancelText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-cancel-profile", t("cancel") || "CANCEL")}>
                 {t("cancel") || "CANCEL"}
               </Text>
             </TouchableOpacity>
@@ -180,7 +180,7 @@ export default function ProfileScreen({ navigation }: any) {
               disabled={saving}
               {...getReadableControlProps("btn-save-profile", saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES"))}
             >
-              <Text style={styles.btnSaveText} {...getReadableTextProps("text-save-profile", saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES"))}>
+              <Text style={styles.btnSaveText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-save-profile", saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES"))}>
                 {saving ? (t("saving") || "SAVING…") : (t("saveChanges") || "SAVE CHANGES")}
               </Text>
             </TouchableOpacity>
@@ -188,7 +188,7 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
 
         <TouchableOpacity style={styles.deleteBtn} {...getReadableControlProps("btn-delete-account", t("deleteAccount") || "Delete Account")}>
-          <Text style={styles.deleteText} {...getReadableTextProps("text-delete-account", `🗑 ${t("deleteAccount") || "Delete Account"}`)}>
+          <Text style={styles.deleteText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-delete-account", `🗑 ${t("deleteAccount") || "Delete Account"}`)}>
             🗑 {t("deleteAccount") || "Delete Account"}
           </Text>
         </TouchableOpacity>
@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "800",
+    flexShrink: 1,
   },
   badge: {
     backgroundColor: "#2A1810",
@@ -260,6 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "rgba(255,87,34,0.3)",
+    flexShrink: 0,
   },
   badgeText: {
     color: "#FF5722",

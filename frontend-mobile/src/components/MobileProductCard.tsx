@@ -34,7 +34,7 @@ export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) =>
         <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>{pizza.description}</Text>
 
         <View style={styles.footer} accessibilityLabel={`view-pizza-footer-${pizza.id}`}>
-           <Text style={styles.price} {...getReadableTextProps(`text-pizza-price-${pizza.id}`, `${pizza.currency_symbol}${pizza.price}`)}>{pizza.currency_symbol}{pizza.price}</Text>
+           <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-price-${pizza.id}`, `${pizza.currency_symbol}${pizza.price}`)}>{pizza.currency_symbol}{pizza.price}</Text>
 
            <TouchableOpacity
              onPress={() => onPress(pizza)}
@@ -106,6 +106,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "900",
     color: Colors.brand.primary,
+    flexShrink: 1,
+    marginRight: 8,
   },
   addButton: {
     width: 32,
@@ -114,6 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brand.primary,
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   addIcon: {
     color: "white",

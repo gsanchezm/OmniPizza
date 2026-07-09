@@ -32,15 +32,15 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
       />
 
       <View style={styles.info}>
-        <Text style={styles.name} {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-name-${pizza.id}`, pizza.name)}>{pizza.name}</Text>
         <Text style={styles.desc} numberOfLines={2} {...getReadableTextProps(`text-pizza-desc-${pizza.id}`, pizza.description)}>
           {pizza.description}
         </Text>
-        <Text style={styles.price} {...getReadableTextProps(`text-pizza-price-${pizza.id}`, moneyLine(pizza))}>{moneyLine(pizza)}</Text>
+        <Text style={styles.price} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps(`text-pizza-price-${pizza.id}`, moneyLine(pizza))}>{moneyLine(pizza)}</Text>
       </View>
 
       <TouchableOpacity style={styles.addBtn} onPress={() => onAdd(pizza)} {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, addLabel)}>
-        <Text style={styles.addBtnText} {...getReadableTextProps(`text-add-pizza-${pizza.id}`, addLabel)}>{addLabel}</Text>
+        <Text style={styles.addBtnText} numberOfLines={1} {...getReadableTextProps(`text-add-pizza-${pizza.id}`, addLabel)}>{addLabel}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.surface.border,
   },
   image: { width: 64, height: 64, borderRadius: 12, backgroundColor: Colors.surface.base2 },
-  info: { flex: 1, marginLeft: 10 },
+  info: { flex: 1, marginLeft: 10, minWidth: 0 },
   name: { fontWeight: "800", fontSize: 16, color: Colors.text.primary },
   desc: { color: Colors.text.muted, fontSize: 12, marginTop: 2 },
   price: { fontWeight: "800", color: Colors.brand.primary, marginTop: 6 },
@@ -67,6 +67,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 999,
+    flexShrink: 0,
+    marginLeft: 8,
   },
   addBtnText: { color: "#FFFFFF", fontWeight: "800", fontSize: 12 },
 });
