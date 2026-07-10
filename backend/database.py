@@ -51,6 +51,7 @@ class InMemoryDB:
                 "phone": "",
                 "address": "",
                 "notes": "",
+                "birthday": "",
             }
             self.user_profiles[username] = profile
         return profile

@@ -28,6 +28,7 @@ class UserProfileDetails(BaseModel):
     phone: Optional[str] = ""
     address: Optional[str] = ""
     notes: Optional[str] = ""
+    birthday: Optional[str] = ""  # ISO date "YYYY-MM-DD"
 
 
 class UserProfileUpdate(BaseModel):
@@ -36,6 +37,7 @@ class UserProfileUpdate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     notes: Optional[str] = None
+    birthday: Optional[str] = None  # ISO date "YYYY-MM-DD"
 
 # Pizza Models
 class Pizza(BaseModel):
@@ -93,7 +95,7 @@ class CheckoutRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     address: str = Field(..., min_length=5, max_length=200)
     phone: str = Field(..., min_length=8, max_length=20)
-    payment_method: Optional[Literal["card", "cash"]] = "card"
+    payment_method: Optional[Literal["card", "cash", "paypal"]] = "card"
     
     # Country-specific fields
     colonia: Optional[str] = None  # MX
@@ -186,4 +188,5 @@ class TestProfileSeedRequest(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     notes: Optional[str] = None
+    birthday: Optional[str] = None
     premium: Optional[bool] = None
