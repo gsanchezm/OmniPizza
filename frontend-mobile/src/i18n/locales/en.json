@@ -96,5 +96,7 @@
   "prefecture": "Prefecture",
   "district": "District",
   "addedToCart": "Added to cart",
-  "tipTooltip": "100% of your tip goes to the driver."
+  "tipTooltip": "100% of your tip goes to the driver.",
+  "birthday": "Birthday",
+  "paypal": "PayPal"
 }

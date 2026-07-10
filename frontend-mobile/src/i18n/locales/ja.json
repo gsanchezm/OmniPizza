@@ -95,5 +95,7 @@
   "plz": "郵便番号",
   "prefecture": "都道府県",
   "addedToCart": "カートに追加しました",
-  "tipTooltip": "チップは100%ドライバーに渡ります。"
+  "tipTooltip": "チップは100%ドライバーに渡ります。",
+  "birthday": "生年月日",
+  "paypal": "PayPal"
 }

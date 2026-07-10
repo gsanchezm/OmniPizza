@@ -10,7 +10,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "../store/useAppStore";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { Colors } from "../theme/colors";
-import { MarketDropdown } from "./MarketDropdown";
 import { useRTL } from "../hooks/useRTL";
 
 export const CustomNavbar = ({ title, navigation }: any) => {
@@ -74,11 +73,6 @@ export const CustomNavbar = ({ title, navigation }: any) => {
         >
           {title}
         </Text>
-
-        {/* Market selector (right) */}
-        <View style={styles.right} accessibilityLabel="view-navbar-right">
-          <MarketDropdown />
-        </View>
       </View>
     </SafeAreaView>
   );

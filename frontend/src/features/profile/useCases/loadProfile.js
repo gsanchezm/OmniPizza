@@ -8,6 +8,7 @@ export async function loadProfile(repository = createProfileRepository()) {
     phone: data.phone ?? "",
     address: data.address ?? "",
     notes: data.notes ?? "",
+    birthday: data.birthday ?? "",
   });
   return data;
 }

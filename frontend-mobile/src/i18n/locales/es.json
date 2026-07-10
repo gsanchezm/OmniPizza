@@ -95,5 +95,7 @@
   "plz": "Código Postal",
   "prefecture": "Prefectura",
   "addedToCart": "Agregado al carrito",
-  "tipTooltip": "El 100% de tu propina es para el repartidor."
+  "tipTooltip": "El 100% de tu propina es para el repartidor.",
+  "birthday": "Fecha de nacimiento",
+  "paypal": "PayPal"
 }

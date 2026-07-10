@@ -18,18 +18,70 @@ import { useRTL } from "../hooks/useRTL";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
 import { loadProfile } from "../features/profile/useCases/loadProfile";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
+import { Dropdown, type DropdownOption } from "../components/Dropdown";
+
+// Birthday is assembled from three dropdowns (no native date input, no new deps)
+// and combined into an ISO "YYYY-MM-DD" string. Values are zero-padded so the
+// ISO string is well-formed without extra formatting.
+const BIRTHDAY_DAY_OPTIONS: DropdownOption[] = Array.from({ length: 31 }, (_, i) => {
+  const n = i + 1;
+  return { label: String(n), value: String(n).padStart(2, "0") };
+});
+const BIRTHDAY_MONTH_OPTIONS: DropdownOption[] = Array.from({ length: 12 }, (_, i) => {
+  const n = i + 1;
+  return { label: String(n), value: String(n).padStart(2, "0") };
+});
+const BIRTHDAY_YEAR_OPTIONS: DropdownOption[] = Array.from(
+  { length: 2015 - 1950 + 1 },
+  (_, i) => {
+    const y = 2015 - i; // most recent first
+    return { label: String(y), value: String(y) };
+  },
+);
+
+function parseBirthday(iso: string): { year: string; month: string; day: string } {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+  return m ? { year: m[1], month: m[2], day: m[3] } : { year: "", month: "", day: "" };
+}
 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
-  const { textAlign } = useRTL();
+  const { textAlign, row } = useRTL();
   const { profile, setProfile } = useAppStore();
   const [saving, setSaving] = useState(false);
+
+  // Local birthday parts drive the three dropdowns. They are the source of truth
+  // for partial selections; the store only holds a full ISO (or empty) string.
+  const [bDay, setBDay] = useState("");
+  const [bMonth, setBMonth] = useState("");
+  const [bYear, setBYear] = useState("");
 
   useEffect(() => {
     loadProfile().catch(() => {
       /* no profile yet or offline — local state stays */
     });
   }, []);
+
+  // Seed the dropdowns only from a complete ISO (e.g. after loadProfile), so a
+  // partial in-progress selection is never wiped by the store write below.
+  useEffect(() => {
+    const p = parseBirthday(profile?.birthday || "");
+    if (p.year && p.month && p.day) {
+      setBDay(p.day);
+      setBMonth(p.month);
+      setBYear(p.year);
+    }
+  }, [profile?.birthday]);
+
+  const updateBirthday = (part: "day" | "month" | "year", v: string) => {
+    const day = part === "day" ? v : bDay;
+    const month = part === "month" ? v : bMonth;
+    const year = part === "year" ? v : bYear;
+    setBDay(day);
+    setBMonth(month);
+    setBYear(year);
+    setProfile({ birthday: day && month && year ? `${year}-${month}-${day}` : "" });
+  };
 
   const handleSave = async () => {
     if (saving) return;
@@ -163,6 +215,41 @@ export default function ProfileScreen({ navigation }: any) {
                 accessibilityLabel="input-profile-notes"
                 testID="input-profile-notes"
               />
+            </View>
+
+            <View style={styles.fieldGroup} accessibilityLabel="view-field-birthday">
+              <Text style={[styles.label, { textAlign }]} {...getReadableTextProps("label-birthday", t("birthday") || "Birthday")}>
+                {t("birthday") || "Birthday"}
+              </Text>
+              <View style={[styles.birthdayRow, { flexDirection: row }]} accessibilityLabel="view-birthday-row">
+                <View style={styles.birthdayCol} accessibilityLabel="view-birthday-day">
+                  <Dropdown
+                    value={bDay}
+                    options={BIRTHDAY_DAY_OPTIONS}
+                    onChange={(v) => updateBirthday("day", v)}
+                    placeholder="DD"
+                    testID="input-birthday-day"
+                  />
+                </View>
+                <View style={styles.birthdayCol} accessibilityLabel="view-birthday-month">
+                  <Dropdown
+                    value={bMonth}
+                    options={BIRTHDAY_MONTH_OPTIONS}
+                    onChange={(v) => updateBirthday("month", v)}
+                    placeholder="MM"
+                    testID="input-birthday-month"
+                  />
+                </View>
+                <View style={styles.birthdayColYear} accessibilityLabel="view-birthday-year">
+                  <Dropdown
+                    value={bYear}
+                    options={BIRTHDAY_YEAR_OPTIONS}
+                    onChange={(v) => updateBirthday("year", v)}
+                    placeholder="YYYY"
+                    testID="input-birthday-year"
+                  />
+                </View>
+              </View>
             </View>
           </View>
 
@@ -304,6 +391,16 @@ const styles = StyleSheet.create({
   },
   fieldGroup: {
     gap: 8,
+  },
+  birthdayRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  birthdayCol: {
+    flex: 1,
+  },
+  birthdayColYear: {
+    flex: 1.4,
   },
   label: {
     color: "#666",

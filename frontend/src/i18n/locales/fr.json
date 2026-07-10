@@ -13,6 +13,7 @@
   "fullName": "Nom complet",
   "address": "Adresse",
   "phone": "Téléphone",
+  "birthday": "Anniversaire",
   "save": "Enregistrer",
   "personalInformation": "Informations personnelles",
   "deliveryNotes": "Notes de livraison",

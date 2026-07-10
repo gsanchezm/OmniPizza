@@ -4,7 +4,7 @@ import type { CheckoutFormState } from "./buildCheckoutPayload";
 export function validateCheckoutForm(input: {
   country: CountryCode;
   form: CheckoutFormState;
-  paymentMethod: "card" | "cash";
+  paymentMethod: "card" | "cash" | "paypal";
   t: (key: string) => string;
 }): string {
   const { country, form, paymentMethod, t } = input;

@@ -15,7 +15,7 @@ export interface CheckoutFormState {
   card_number: string;
   card_expiry: string;
   card_cvv: string;
-  payment_method: "card" | "cash";
+  payment_method: "card" | "cash" | "paypal";
 }
 
 export function buildCheckoutPayload(input: {

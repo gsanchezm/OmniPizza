@@ -13,6 +13,7 @@
   "fullName": "الاسم الكامل",
   "address": "العنوان",
   "phone": "الهاتف",
+  "birthday": "تاريخ الميلاد",
   "save": "حفظ",
   "personalInformation": "المعلومات الشخصية",
   "deliveryNotes": "ملاحظات التوصيل",

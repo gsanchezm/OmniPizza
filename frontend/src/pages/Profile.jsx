@@ -8,7 +8,7 @@ import { loadProfile } from '../features/profile/useCases/loadProfile';
 export default function Profile() {
   const t = useT();
   const { tid } = useResponsive();
-  const { fullName, address, phone, notes, setProfile } = useProfileStore();
+  const { fullName, address, phone, notes, birthday, setProfile } = useProfileStore();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -117,6 +117,20 @@ export default function Profile() {
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                value={address}
                onChange={(e)=>setProfile({address:e.target.value})}
+             />
+           </div>
+
+           <div>
+             <label data-testid="label-profile-birthday" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+               {t('birthday') || "Birthday"}
+             </label>
+             <input
+               type="date"
+               data-testid="profile-birthday"
+               style={{ colorScheme: 'dark' }}
+               className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
+               value={birthday}
+               onChange={(e)=>setProfile({birthday:e.target.value})}
              />
            </div>
 

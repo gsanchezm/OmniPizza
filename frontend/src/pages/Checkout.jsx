@@ -39,6 +39,16 @@ const Icons = {
       <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
     </svg>
   ),
+  PayPal: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="w-10 h-10"
+    >
+      <path d="M7.5 3h6.2c2.7 0 4.6 1.4 4.2 4.2-.4 2.9-2.5 4.4-5.4 4.4H10l-.9 5.6c-.05.3-.3.5-.6.5H6.3c-.35 0-.6-.32-.54-.66L7.5 3zm3.2 3.9-.55 3.5h1.6c1.3 0 2.2-.6 2.4-1.9.18-1.2-.5-1.6-1.7-1.6h-1.75zM17.4 8.4c1.9.35 2.9 1.6 2.55 3.7-.4 2.5-2.3 3.7-5 3.7h-.6l-.85 5.2c-.05.3-.3.5-.6.5h-1.9c-.2 0-.35-.18-.32-.38l.2-1.22h1.4c2.9 0 5-1.5 5.4-4.4.28-1.95-.5-3.3-2.1-3.9.6-.9.95-2 1.15-3.2z" />
+    </svg>
+  ),
   ArrowForward: () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -195,6 +205,48 @@ const UI_TEXT = {
     fr: "Payer à la livraison",
     ja: "代金引換",
   },
+  paypal: {
+    en: "PayPal",
+    es: "PayPal",
+    de: "PayPal",
+    fr: "PayPal",
+    ja: "PayPal",
+  },
+  paypalDesc: {
+    en: "Pay with your PayPal account",
+    es: "Paga con tu cuenta PayPal",
+    de: "Mit PayPal-Konto bezahlen",
+    fr: "Payez avec votre compte PayPal",
+    ja: "PayPalアカウントで支払う",
+  },
+  paypalDemoNote: {
+    en: "Demo — no real authentication",
+    es: "Demo — sin autenticación real",
+    de: "Demo — keine echte Authentifizierung",
+    fr: "Démo — pas d'authentification réelle",
+    ja: "デモ — 実際の認証はありません",
+  },
+  paypalEmail: {
+    en: "PayPal Email",
+    es: "Correo de PayPal",
+    de: "PayPal-E-Mail",
+    fr: "E-mail PayPal",
+    ja: "PayPalメール",
+  },
+  paypalPassword: {
+    en: "PayPal Password",
+    es: "Contraseña de PayPal",
+    de: "PayPal-Passwort",
+    fr: "Mot de passe PayPal",
+    ja: "PayPalパスワード",
+  },
+  paypalLoginBtn: {
+    en: "Log in to PayPal",
+    es: "Iniciar sesión en PayPal",
+    de: "Bei PayPal anmelden",
+    fr: "Se connecter à PayPal",
+    ja: "PayPalにログイン",
+  },
   cardNumber: {
     en: "Card Number",
     es: "Número de Tarjeta",
@@ -337,6 +389,12 @@ const FALLBACK_TIP_OPTIONS_BY_COUNTRY = {
 };
 const DEFAULT_TIP_PERCENTAGE = "0";
 
+// Card expiry dropdown options: months 01–12, years 2024–2039 shown as "24".."39".
+const EXPIRY_MONTHS = Array.from({ length: 12 }, (_, i) =>
+  String(i + 1).padStart(2, "0"),
+);
+const EXPIRY_YEARS = Array.from({ length: 16 }, (_, i) => String(24 + i));
+
 function roundCurrencyAmount(value, currency) {
   if (!Number.isFinite(value)) return 0;
   if (currency === "JPY") return Math.round(value);
@@ -432,11 +490,16 @@ export default function Checkout() {
     district: "",
     card_number: "",
     card_expiry: "",
+    card_expiry_month: "",
+    card_expiry_year: "",
     card_cvv: "",
     card_holder: "",
   });
 
   const [paymentMethod, setPaymentMethod] = useState("card");
+  // PayPal demo form — client-side only, never sent to the backend.
+  const [paypalForm, setPaypalForm] = useState({ email: "", password: "" });
+  const [paypalConnected, setPaypalConnected] = useState(false);
   const [tipOption, setTipOption] = useState(DEFAULT_TIP_PERCENTAGE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -816,13 +879,27 @@ export default function Checkout() {
                   </h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div
+                  role="radiogroup"
+                  aria-label={tOpt(UI_TEXT.paymentMethod, language)}
+                  className="grid md:grid-cols-3 gap-4"
+                >
                   <button
                     type="button"
-                    data-testid={tid("payment-card")}
+                    role="radio"
+                    aria-checked={paymentMethod === "card"}
+                    data-testid="payment-method-card"
                     onClick={() => setPaymentMethod("card")}
-                    className={`p-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${paymentMethod === "card" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
+                    className={`p-4 rounded-2xl border flex items-center gap-3 transition-all cursor-pointer text-left ${paymentMethod === "card" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
                   >
+                    <span
+                      aria-hidden="true"
+                      className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${paymentMethod === "card" ? "border-[#FF5722]" : "border-gray-500"}`}
+                    >
+                      {paymentMethod === "card" && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#FF5722]" />
+                      )}
+                    </span>
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === "card" ? "bg-[#2A2A2A] text-[#FF5722]" : "bg-[#1A1A1A] text-gray-400"}`}
                     >
@@ -840,10 +917,20 @@ export default function Checkout() {
 
                   <button
                     type="button"
-                    data-testid="payment-cash"
+                    role="radio"
+                    aria-checked={paymentMethod === "cash"}
+                    data-testid="payment-method-cash"
                     onClick={() => setPaymentMethod("cash")}
-                    className={`p-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${paymentMethod === "cash" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
+                    className={`p-4 rounded-2xl border flex items-center gap-3 transition-all cursor-pointer text-left ${paymentMethod === "cash" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
                   >
+                    <span
+                      aria-hidden="true"
+                      className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${paymentMethod === "cash" ? "border-[#FF5722]" : "border-gray-500"}`}
+                    >
+                      {paymentMethod === "cash" && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#FF5722]" />
+                      )}
+                    </span>
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === "cash" ? "bg-[#2A2A2A] text-[#FF5722]" : "bg-[#1A1A1A] text-gray-400"}`}
                     >
@@ -855,6 +942,37 @@ export default function Checkout() {
                       </div>
                       <div className="text-xs text-gray-500 uppercase text-left">
                         {tOpt(UI_TEXT.cashDesc, language)}
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={paymentMethod === "paypal"}
+                    data-testid="payment-method-paypal"
+                    onClick={() => setPaymentMethod("paypal")}
+                    className={`p-4 rounded-2xl border flex items-center gap-3 transition-all cursor-pointer text-left ${paymentMethod === "paypal" ? "border-[#FF5722] bg-[#1a1a1a]" : "border-[#333] bg-[#0F0F0F] opacity-60 hover:opacity-100 hover:border-gray-600"}`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${paymentMethod === "paypal" ? "border-[#FF5722]" : "border-gray-500"}`}
+                    >
+                      {paymentMethod === "paypal" && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#FF5722]" />
+                      )}
+                    </span>
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === "paypal" ? "bg-[#2A2A2A] text-[#FF5722]" : "bg-[#1A1A1A] text-gray-400"}`}
+                    >
+                      <Icons.PayPal />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-white font-bold text-left">
+                        {tOpt(UI_TEXT.paypal, language)}
+                      </div>
+                      <div className="text-xs text-gray-500 uppercase text-left">
+                        {tOpt(UI_TEXT.paypalDesc, language)}
                       </div>
                     </div>
                   </button>
@@ -905,24 +1023,56 @@ export default function Checkout() {
                         <label data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                           {tOpt(UI_TEXT.cardExpiry, language)}
                         </label>
-                        <input
-                          data-testid="card-expiry"
-                          className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
-                          placeholder="MM/YY"
-                          value={form.card_expiry}
-                          onChange={(e) =>
-                            setForm((p) => ({
-                              ...p,
-                              card_expiry: e.target.value.replace(
-                                /[^0-9]/g,
-                                "",
-                              ),
-                            }))
-                          }
-                          maxLength={5}
-                          minLength={4}
-                          required
-                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <select
+                            data-testid="card-expiry-month"
+                            style={{ colorScheme: "dark" }}
+                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                            value={form.card_expiry_month}
+                            onChange={(e) =>
+                              setForm((p) => ({
+                                ...p,
+                                card_expiry_month: e.target.value,
+                                card_expiry:
+                                  e.target.value && p.card_expiry_year
+                                    ? `${e.target.value}/${p.card_expiry_year}`
+                                    : "",
+                              }))
+                            }
+                            required
+                          >
+                            <option value="">MM</option>
+                            {EXPIRY_MONTHS.map((m) => (
+                              <option key={m} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            data-testid="card-expiry-year"
+                            style={{ colorScheme: "dark" }}
+                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                            value={form.card_expiry_year}
+                            onChange={(e) =>
+                              setForm((p) => ({
+                                ...p,
+                                card_expiry_year: e.target.value,
+                                card_expiry:
+                                  p.card_expiry_month && e.target.value
+                                    ? `${p.card_expiry_month}/${e.target.value}`
+                                    : "",
+                              }))
+                            }
+                            required
+                          >
+                            <option value="">YY</option>
+                            {EXPIRY_YEARS.map((y) => (
+                              <option key={y} value={y}>
+                                {y}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                       <div>
                         <label data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
@@ -945,6 +1095,84 @@ export default function Checkout() {
                         />
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {paymentMethod === "paypal" && (
+                  <div
+                    data-testid="paypal-form"
+                    className="grid gap-4 mt-6 p-5 rounded-2xl border border-[#333] bg-[#0F0F0F]"
+                  >
+                    <div className="flex items-center gap-2 text-[#FF5722]">
+                      <Icons.PayPal />
+                      <span className="text-white font-bold text-lg">
+                        {tOpt(UI_TEXT.paypal, language)}
+                      </span>
+                    </div>
+                    <div
+                      data-testid="paypal-demo-note"
+                      className="text-xs font-bold uppercase tracking-wider text-amber-500/80"
+                    >
+                      {tOpt(UI_TEXT.paypalDemoNote, language)}
+                    </div>
+                    <div>
+                      <label data-testid="label-paypal-email" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        {tOpt(UI_TEXT.paypalEmail, language)}
+                      </label>
+                      <input
+                        type="email"
+                        data-testid="paypal-email"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="you@example.com"
+                        value={paypalForm.email}
+                        onChange={(e) =>
+                          setPaypalForm((p) => ({ ...p, email: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label data-testid="label-paypal-password" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        {tOpt(UI_TEXT.paypalPassword, language)}
+                      </label>
+                      <input
+                        type="password"
+                        data-testid="paypal-password"
+                        className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                        placeholder="••••••••"
+                        value={paypalForm.password}
+                        onChange={(e) =>
+                          setPaypalForm((p) => ({
+                            ...p,
+                            password: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      data-testid="paypal-login-btn"
+                      onClick={() => setPaypalConnected(true)}
+                      className="w-full bg-[#0070BA] hover:bg-[#005EA6] text-white font-bold py-4 rounded-2xl transition-colors"
+                    >
+                      {tOpt(UI_TEXT.paypalLoginBtn, language)}
+                    </button>
+                    {paypalConnected && (
+                      <div
+                        data-testid="paypal-connected"
+                        className="text-sm font-semibold text-green-400"
+                      >
+                        {tOpt(
+                          {
+                            en: "Connected (demo). Place your order below.",
+                            es: "Conectado (demo). Realiza tu pedido abajo.",
+                            de: "Verbunden (Demo). Gib deine Bestellung unten auf.",
+                            fr: "Connecté (démo). Passez votre commande ci-dessous.",
+                            ja: "接続済み（デモ）。下記から注文してください。",
+                          },
+                          language,
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -95,5 +95,7 @@
   "plz": "PLZ",
   "prefecture": "Präfektur",
   "addedToCart": "Zum Warenkorb hinzugefügt",
-  "tipTooltip": "100 % deines Trinkgelds gehen an den Fahrer."
+  "tipTooltip": "100 % deines Trinkgelds gehen an den Fahrer.",
+  "birthday": "Geburtstag",
+  "paypal": "PayPal"
 }

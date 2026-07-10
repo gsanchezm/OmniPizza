@@ -11,6 +11,7 @@ export interface ProfileState {
   address: string;
   phone: string;
   notes: string;
+  birthday: string; // ISO "YYYY-MM-DD" (empty until fully selected)
 }
 
 export interface PizzaConfig {
@@ -90,7 +91,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   token: null,
   countryInfo: null,
 
-  profile: { fullName: "", address: "", phone: "", notes: "" },
+  profile: { fullName: "", address: "", phone: "", notes: "", birthday: "" },
 
   cartItems: [],
   lastOrder: null,

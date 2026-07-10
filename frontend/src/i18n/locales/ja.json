@@ -13,6 +13,7 @@
   "fullName": "氏名",
   "address": "住所",
   "phone": "電話番号",
+  "birthday": "誕生日",
   "save": "保存",
   "personalInformation": "個人情報",
   "deliveryNotes": "配送メモ",

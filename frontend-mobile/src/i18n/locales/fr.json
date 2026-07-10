@@ -95,5 +95,7 @@
   "plz": "Code Postal",
   "prefecture": "Préfecture",
   "addedToCart": "Ajouté au panier",
-  "tipTooltip": "100 % de votre pourboire revient au livreur."
+  "tipTooltip": "100 % de votre pourboire revient au livreur.",
+  "birthday": "Date de naissance",
+  "paypal": "PayPal"
 }

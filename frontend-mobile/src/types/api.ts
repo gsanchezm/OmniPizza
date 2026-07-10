@@ -39,7 +39,7 @@ export interface CheckoutPayload {
   plz?: string;
   prefectura?: string;
   district?: string;
-  payment_method?: "card" | "cash";
+  payment_method?: "card" | "cash" | "paypal";
 }
 
 export interface OrderResult {

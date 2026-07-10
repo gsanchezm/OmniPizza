@@ -25,10 +25,21 @@ import { cartService } from "../services/cart.service";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { Dropdown, type DropdownOption } from "../components/Dropdown";
 
 const { width } = Dimensions.get("window");
 const FALLBACK_TIP_PERCENTAGES = [0, 5, 10, 15] as const;
 const DEFAULT_TIP_PERCENTAGE = "0";
+
+// Card expiry is picked from two dropdowns (MM / YY) instead of a text input.
+const CARD_EXPIRY_MONTH_OPTIONS: DropdownOption[] = Array.from({ length: 12 }, (_, i) => {
+  const m = String(i + 1).padStart(2, "0");
+  return { label: m, value: m };
+});
+const CARD_EXPIRY_YEAR_OPTIONS: DropdownOption[] = Array.from({ length: 16 }, (_, i) => {
+  const y = String(24 + i); // 24..39
+  return { label: y, value: y };
+});
 
 function normalizeMoneyAmount(value: number, currency: string) {
   if (!Number.isFinite(value)) return 0;
@@ -150,7 +161,14 @@ export default function CheckoutScreen({ navigation }: any) {
     payment_method: "card",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cash" | "paypal">("card");
+  // Card expiry parts drive the two MM/YY dropdowns; combined into form.card_expiry.
+  const [cardExpMonth, setCardExpMonth] = useState("");
+  const [cardExpYear, setCardExpYear] = useState("");
+  // Emulated (demo) PayPal login — client-side only, never placed on the order.
+  const [paypalEmail, setPaypalEmail] = useState("");
+  const [paypalPassword, setPaypalPassword] = useState("");
+  const [paypalLoggedIn, setPaypalLoggedIn] = useState(false);
   const [tipOption, setTipOption] = useState<string>(DEFAULT_TIP_PERCENTAGE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -191,6 +209,14 @@ export default function CheckoutScreen({ navigation }: any) {
   const tax = normalizeMoneyAmount(subtotal * taxRate, currency);
   const tipAmount = normalizeMoneyAmount(subtotal * (tipPercentage / 100), currency);
   const total = normalizeMoneyAmount(subtotal + deliveryFee + tipAmount + tax, currency);
+
+  const updateCardExpiry = (part: "month" | "year", v: string) => {
+    const month = part === "month" ? v : cardExpMonth;
+    const year = part === "year" ? v : cardExpYear;
+    setCardExpMonth(month);
+    setCardExpYear(year);
+    setForm((p) => ({ ...p, card_expiry: month || year ? `${month}/${year}` : "" }));
+  };
 
   const placeOrder = async () => {
     setError("");
@@ -476,6 +502,89 @@ export default function CheckoutScreen({ navigation }: any) {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={[
+            styles.paymentCard,
+            paymentMethod === "paypal" && styles.paymentCardActive,
+          ]}
+          onPress={() => setPaymentMethod("paypal")}
+          {...getReadableControlProps("btn-payment-paypal", t("paypal") || "PayPal")}
+        >
+          <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-paypal">
+            <Text style={{ fontSize: 20 }} accessibilityLabel="icon-paypal">🅿️</Text>
+          </View>
+          <View style={{ flex: 1 }} accessibilityLabel="view-payment-paypal-info">
+            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-paypal-label", t("paypal") || "PayPal")}>{t("paypal") || "PayPal"}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-paypal-desc", "Demo checkout")}>Demo checkout</Text>
+          </View>
+          <View
+            style={[
+              styles.radio,
+              paymentMethod === "paypal" && styles.radioActive,
+            ]}
+            accessibilityLabel="radio-payment-paypal"
+          >
+            {paymentMethod === "paypal" && <View style={styles.radioInner} accessibilityLabel="radio-inner-paypal" />}
+          </View>
+        </TouchableOpacity>
+
+        {paymentMethod === "paypal" && (
+          <View style={styles.cardFields} accessibilityLabel="view-paypal-fields" testID="view-paypal-fields">
+            <View style={styles.paypalDemoBadge} accessibilityLabel="view-paypal-demo-badge">
+              <Text style={styles.paypalDemoBadgeText} {...getReadableTextProps("text-paypal-demo", "DEMO — not a real PayPal login")}>
+                DEMO — not a real PayPal login
+              </Text>
+            </View>
+            <View accessibilityLabel="view-field-paypal-email">
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-email", "Email")}>Email</Text>
+              <TextInput
+                style={styles.cardInput}
+                placeholder="you@example.com"
+                placeholderTextColor="#555"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={paypalEmail}
+                onChangeText={(v) => {
+                  setPaypalEmail(v);
+                  setPaypalLoggedIn(false);
+                }}
+                accessibilityLabel="input-paypal-email"
+                testID="input-paypal-email"
+              />
+            </View>
+            <View accessibilityLabel="view-field-paypal-password">
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-password", "Password")}>Password</Text>
+              <TextInput
+                style={styles.cardInput}
+                placeholder="••••••••"
+                placeholderTextColor="#555"
+                secureTextEntry
+                value={paypalPassword}
+                onChangeText={(v) => {
+                  setPaypalPassword(v);
+                  setPaypalLoggedIn(false);
+                }}
+                accessibilityLabel="input-paypal-password"
+                testID="input-paypal-password"
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.paypalLoginBtn}
+              onPress={() => setPaypalLoggedIn(!!paypalEmail.trim() && !!paypalPassword.trim())}
+              {...getReadableControlProps("btn-paypal-login", "Log in to PayPal")}
+            >
+              <Text style={styles.paypalLoginBtnText} {...getReadableTextProps("text-paypal-login", "Log in to PayPal")}>
+                Log in to PayPal
+              </Text>
+            </TouchableOpacity>
+            {paypalLoggedIn && (
+              <Text style={styles.paypalStatus} {...getReadableTextProps("text-paypal-status", "Connected (demo) — continue with Place Order below")}>
+                ✓ Connected (demo) — continue with Place Order below
+              </Text>
+            )}
+          </View>
+        )}
+
         {paymentMethod === "card" && (
           <View style={styles.cardFields} accessibilityLabel="view-card-fields" testID="view-card-fields">
             <View accessibilityLabel="view-field-card-holder">
@@ -508,45 +617,47 @@ export default function CheckoutScreen({ navigation }: any) {
                 accessibilityLabel="input-card-number"
               />
             </View>
-            <View style={{ flexDirection: "row", gap: 12 }} accessibilityLabel="view-card-expiry-cvv">
-              <View style={{ flex: 1 }} accessibilityLabel="view-field-card-expiry">
-                <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-expiry", t("cardExpiry"))}>{t("cardExpiry")}</Text>
-                <TextInput
-                  style={styles.cardInput}
-                  placeholder="MM/YY"
-                  placeholderTextColor="#555"
-                  keyboardType="number-pad"
-                  maxLength={5}
-                  value={form.card_expiry}
-                  onChangeText={(v) =>
-                    setForm((p) => ({
-                      ...p,
-                      card_expiry: v.replace(/[^0-9]/g, ""),
-                    }))
-                  }
-                  accessibilityLabel="input-card-expiry"
-                  testID="input-card-expiry"
-                />
+            <View accessibilityLabel="view-field-card-expiry">
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-expiry", t("cardExpiry"))}>{t("cardExpiry")}</Text>
+              <View style={[styles.expiryRow, { flexDirection: row }]} accessibilityLabel="view-card-expiry-row">
+                <View style={{ flex: 1 }} accessibilityLabel="view-card-expiry-month">
+                  <Dropdown
+                    value={cardExpMonth}
+                    options={CARD_EXPIRY_MONTH_OPTIONS}
+                    onChange={(v) => updateCardExpiry("month", v)}
+                    placeholder="MM"
+                    testID="input-card-expiry-month"
+                  />
+                </View>
+                <View style={{ flex: 1 }} accessibilityLabel="view-card-expiry-year">
+                  <Dropdown
+                    value={cardExpYear}
+                    options={CARD_EXPIRY_YEAR_OPTIONS}
+                    onChange={(v) => updateCardExpiry("year", v)}
+                    placeholder="YY"
+                    testID="input-card-expiry-year"
+                  />
+                </View>
               </View>
-              <View style={{ flex: 1 }} accessibilityLabel="view-field-card-cvv">
-                <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-cvv", t("cvv"))}>{t("cvv")}</Text>
-                <TextInput
-                  style={styles.cardInput}
-                  placeholder="123"
-                  placeholderTextColor="#555"
-                  keyboardType="number-pad"
-                  maxLength={4}
-                  secureTextEntry
-                  value={form.card_cvv}
-                  onChangeText={(v) =>
-                    setForm((p) => ({
-                      ...p,
-                      card_cvv: v.replace(/[^0-9]/g, ""),
-                    }))
-                  }
-                  accessibilityLabel="input-card-cvv"
-                />
-              </View>
+            </View>
+            <View accessibilityLabel="view-field-card-cvv">
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-card-cvv", t("cvv"))}>{t("cvv")}</Text>
+              <TextInput
+                style={styles.cardInput}
+                placeholder="123"
+                placeholderTextColor="#555"
+                keyboardType="number-pad"
+                maxLength={4}
+                secureTextEntry
+                value={form.card_cvv}
+                onChangeText={(v) =>
+                  setForm((p) => ({
+                    ...p,
+                    card_cvv: v.replace(/[^0-9]/g, ""),
+                  }))
+                }
+                accessibilityLabel="input-card-cvv"
+              />
             </View>
           </View>
         )}
@@ -1071,6 +1182,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
+  },
+  expiryRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  paypalDemoBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#2A1810",
+    borderWidth: 1,
+    borderColor: "rgba(255,87,34,0.3)",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  paypalDemoBadgeText: {
+    color: "#FF5722",
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+  },
+  paypalLoginBtn: {
+    backgroundColor: "#003087",
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  paypalLoginBtnText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  paypalStatus: {
+    color: "#22C55E",
+    fontSize: 13,
+    fontWeight: "600",
   },
   errorBox: {
     backgroundColor: "rgba(239, 68, 68, 0.1)",

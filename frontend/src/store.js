@@ -48,7 +48,7 @@ export const useAuthStore = create(
         localStorage.removeItem("omnipizza-profile");
         set({ token: null, username: null, behavior: null });
         try {
-          useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "" });
+          useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "", birthday: "" });
         } catch { /* profile store not ready — nothing to clear */ }
         // Return to the neutral English/LTR state the app starts in, so a previous
         // Arabic (SA) session doesn't leave the login screen reversed / in the wrong
@@ -225,6 +225,7 @@ export const useProfileStore = create(
       address: "",
       phone: "",
       notes: "",
+      birthday: "",
       setProfile: (patch) => set(patch),
     }),
     { name: "omnipizza-profile" }

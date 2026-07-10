@@ -10,6 +10,7 @@ export async function loadProfile(
     phone: data.phone ?? "",
     address: data.address ?? "",
     notes: data.notes ?? "",
+    birthday: data.birthday ?? "",
   });
   return data;
 }

@@ -12,12 +12,14 @@ export async function saveProfile(
     phone: profile.phone,
     address: profile.address,
     notes: profile.notes,
+    birthday: profile.birthday,
   });
   useAppStore.getState().setProfile({
     fullName: data.full_name ?? "",
     phone: data.phone ?? "",
     address: data.address ?? "",
     notes: data.notes ?? "",
+    birthday: data.birthday ?? "",
   });
   notify(message);
   return data;

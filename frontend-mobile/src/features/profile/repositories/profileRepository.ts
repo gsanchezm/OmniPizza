@@ -9,6 +9,7 @@ export interface ProfileDTO {
   phone: string;
   address: string;
   notes: string;
+  birthday: string;
 }
 
 export interface ProfilePatchDTO {
@@ -16,6 +17,7 @@ export interface ProfilePatchDTO {
   phone?: string;
   address?: string;
   notes?: string;
+  birthday?: string;
 }
 
 export function createProfileRepository(client = apiClient) {
