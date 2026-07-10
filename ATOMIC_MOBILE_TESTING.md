@@ -303,13 +303,20 @@ resource-id on Android).
 
 | Widget | Where | Key testIDs | Technique |
 |--------|-------|-------------|-----------|
-| Market dropdown | header (CustomNavbar) | `btn-market-dropdown`, `modal-market-dropdown`, `btn-market-dropdown-scrim`, `btn-market-option-{US\|MX\|CH\|JP\|SA}` | open RN `Modal` → tap option (or scrim to dismiss) |
 | Add-to-cart toast | global (fires on add in PizzaBuilder) | `view-toast`, `text-toast-message`, `btn-toast-close` | transient: wait-appear / auto-dismiss / close |
 | Pre-order confirm modal | Checkout (`btn-place-order`) | `modal-confirm-order`, `text-confirm-order-total`, `btn-confirm-order-yes`, `btn-confirm-order-cancel` | modal: confirm/cancel (Yes runs the real order) |
 | Tip tooltip | Checkout (tip ℹ️) | `btn-tip-info`, `view-tip-tooltip`, `text-tip-tooltip` | press to toggle popover |
 | Order-details accordion | Order Success | `btn-order-details`, `view-order-details-panel` | expand/collapse |
-| Country flags | Login / dropdown | `flag-{US\|MX\|CH\|JP\|SA}` | image assertion (composed from RN views, not emoji) |
+| Country flags | Login | `flag-{US\|MX\|CH\|JP\|SA}` | image assertion (composed from RN views, not emoji) |
 | SA address field | Checkout (SA market) | `view-field-district`, `label-district`, `input-district` | market-specific required field |
+| Payment radios + PayPal | Checkout | `btn-payment-{card\|cash\|paypal}`, `radio-payment-paypal` | radio selection; conditional fields per choice |
+| Emulated PayPal form | Checkout (PayPal selected) | `input-paypal-email`, `input-paypal-password`, `btn-paypal-login`, `text-paypal-demo` | conditional form; demo only, does not place the order |
+| Card expiry dropdowns | Checkout (Credit Card selected) | `input-card-expiry-month`, `input-card-expiry-year` | custom `Dropdown` (Modal) — open → tap `btn-option-{value}` |
+| Birthday date picker | Profile | `input-birthday-day`, `input-birthday-month`, `input-birthday-year` | three custom `Dropdown`s → ISO date |
+| Reusable Dropdown | (Checkout expiry, Profile birthday) | trigger = caller testID, `modal-{id}`, `{id}-scrim`, options `btn-option-{value}` | open RN `Modal` → tap option |
+
+> The market dropdown was **removed** on both platforms — switching market mid-session
+> cleared the cart, so the market is chosen at login (`btn-market-{code}` on LoginScreen).
 
 > `btn-place-order` now opens the confirm modal; a test that clicked it and asserted
 > success immediately must now also tap `btn-confirm-order-yes`.

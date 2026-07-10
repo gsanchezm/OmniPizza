@@ -346,12 +346,18 @@ stable `data-testid`s.
 
 | Widget | Where | Key `data-testid`s | Technique |
 |--------|-------|--------------------|-----------|
-| Market dropdown | Navbar | `market-dropdown-trigger`, `market-dropdown-menu`, `market-option-{US\|MX\|CH\|JP\|SA}` | custom listbox: open → select |
 | Add-to-cart toast | global (fires on add) | `toast`, `toast-message`, `toast-close` | transient element: wait-appear / auto-dismiss / close |
 | Pre-order confirm modal | Checkout (place order) | `confirm-order-modal`, `confirm-order-total`, `confirm-order-yes`, `confirm-order-cancel` | modal: wait overlay → confirm/cancel |
 | Tip tooltip | Checkout (tip ℹ️) | `tip-info`, `tip-tooltip` | hover/focus popover |
 | Order-details accordion | Order Success | `order-details-toggle`, `order-details-panel` | expand/collapse, conditional visibility |
-| Country flags | Login / dropdown | `flag-{US\|MX\|CH\|JP\|SA}` | image assertion (real SVG flags, not emoji) |
+| Country flags | Login | `flag-{US\|MX\|CH\|JP\|SA}`, `market-{code}` | image assertion (real SVG flags, not emoji) |
+| Payment radio group | Checkout | `payment-method-{card\|cash\|paypal}` (`role="radiogroup"`, `aria-checked`) | radio selection; conditional fields per choice |
+| Emulated PayPal form | Checkout (PayPal selected) | `paypal-email`, `paypal-password`, `paypal-login-btn`, `paypal-demo-note` | conditional form; demo only, does not place the order |
+| Card expiry dropdowns | Checkout (Credit Card selected) | `card-expiry-month`, `card-expiry-year` (native `<select>`) | select option (real HTML selects) |
+| Birthday date picker | Profile | `profile-birthday` (native `<input type="date">`) | date input |
+
+> The market dropdown was **removed** — switching market mid-session cleared the cart, so
+> the market is chosen at login (`market-{code}` on the Login page) by design.
 
 > The confirm modal intercepts the place-order button, so a test that used to click
 > `place-order-btn` and immediately assert success must now also click `confirm-order-yes`.
