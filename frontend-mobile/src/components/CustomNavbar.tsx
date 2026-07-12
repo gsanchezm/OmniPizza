@@ -16,7 +16,9 @@ export const CustomNavbar = ({ title, navigation }: any) => {
   const { width } = useWindowDimensions();
   const compact = width < 390;
 
-  const { country, language, setLanguage } = useAppStore();
+  const country = useAppStore((s) => s.country);
+  const language = useAppStore((s) => s.language);
+  const setLanguage = useAppStore((s) => s.setLanguage);
   const { row } = useRTL();
 
   return (

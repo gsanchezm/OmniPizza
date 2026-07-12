@@ -22,7 +22,8 @@ import { getReadableTextProps, getTestProps } from "../utils/qa";
 
 export default function CatalogScreen({ navigation }: any) {
   const t = useT();
-  const { country, language } = useAppStore();
+  const country = useAppStore((s) => s.country);
+  const language = useAppStore((s) => s.language);
   const { pizzas, loading, error } = useCatalogPizzas(country, language);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");

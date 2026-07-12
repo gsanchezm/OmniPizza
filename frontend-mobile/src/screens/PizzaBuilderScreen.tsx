@@ -63,8 +63,10 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
-  const { country, language, addConfiguredItem, updateCartItem } =
-    useAppStore();
+  const country = useAppStore((s) => s.country);
+  const language = useAppStore((s) => s.language);
+  const addConfiguredItem = useAppStore((s) => s.addConfiguredItem);
+  const updateCartItem = useAppStore((s) => s.updateCartItem);
   const t = useT();
   const { textAlign } = useRTL();
 

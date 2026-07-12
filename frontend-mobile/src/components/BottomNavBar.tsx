@@ -18,7 +18,8 @@ export const BottomNavBar = () => {
   const route = useRoute();
   const t = useT();
   const { row } = useRTL();
-  const { logout, cartItems } = useAppStore();
+  const logout = useAppStore((s) => s.logout);
+  const cartItems = useAppStore((s) => s.cartItems);
   const cartCount = cartItems.reduce(
     (sum, item) => sum + Number(item.quantity || 0),
     0

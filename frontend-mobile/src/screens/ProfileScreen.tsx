@@ -47,7 +47,8 @@ function parseBirthday(iso: string): { year: string; month: string; day: string 
 export default function ProfileScreen({ navigation }: any) {
   const t = useT();
   const { textAlign, row } = useRTL();
-  const { profile, setProfile } = useAppStore();
+  const profile = useAppStore((s) => s.profile);
+  const setProfile = useAppStore((s) => s.setProfile);
   const [saving, setSaving] = useState(false);
 
   // Local birthday parts drive the three dropdowns. They are the source of truth

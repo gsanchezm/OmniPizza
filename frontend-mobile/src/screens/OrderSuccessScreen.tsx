@@ -20,7 +20,7 @@ const { width } = Dimensions.get("window");
 export default function OrderSuccessScreen({ navigation }: any) {
   const t = useT();
   const { textAlign } = useRTL();
-  const { lastOrder } = useAppStore();
+  const lastOrder = useAppStore((s) => s.lastOrder);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const courier = getCourierProfile();

@@ -80,8 +80,15 @@ const UI_TEXT: Record<string, Record<string, string>> = {
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
   const { textAlign, row } = useRTL();
-  const { country, countryInfo, cartItems, clearCart, profile, setProfile, setLastOrder, token, language } =
-    useAppStore();
+  const country = useAppStore((s) => s.country);
+  const countryInfo = useAppStore((s) => s.countryInfo);
+  const cartItems = useAppStore((s) => s.cartItems);
+  const clearCart = useAppStore((s) => s.clearCart);
+  const profile = useAppStore((s) => s.profile);
+  const setProfile = useAppStore((s) => s.setProfile);
+  const setLastOrder = useAppStore((s) => s.setLastOrder);
+  const token = useAppStore((s) => s.token);
+  const language = useAppStore((s) => s.language);
 
   // Hydrate cart from backend (enables API-based state injection for E2E tests)
   useEffect(() => {
