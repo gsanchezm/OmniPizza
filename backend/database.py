@@ -12,6 +12,9 @@ SIZE_UPCHARGE_USD = {
     "family": 5,
 }
 TOPPING_UPCHARGE_USD = 1
+# Index the catalog by id once so per-item lookups are O(1) instead of a
+# linear scan of PIZZA_CATALOG on every cart item.
+PIZZA_BY_ID: Dict[str, Dict[str, Any]] = {pizza["id"]: pizza for pizza in PIZZA_CATALOG}
 
 
 def convert_usd_amount(
@@ -154,7 +157,7 @@ class InMemoryDB:
 
         enriched: List[Dict[str, Any]] = []
         for item in cart_items:
-            pizza = next((p for p in PIZZA_CATALOG if p["id"] == item["pizza_id"]), None)
+            pizza = PIZZA_BY_ID.get(item["pizza_id"])
             if not pizza:
                 continue
 
@@ -265,7 +268,7 @@ class InMemoryDB:
 
         subtotal = 0.0
         for item in items:
-            pizza = next((p for p in PIZZA_CATALOG if p["id"] == item["pizza_id"]), None)
+            pizza = PIZZA_BY_ID.get(item["pizza_id"])
             if pizza:
                 converted_price = pizza["base_price"] * conversion_rate
                 if decimal_places == 0:
