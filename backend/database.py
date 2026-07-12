@@ -36,6 +36,25 @@ def round_currency_amount(
         return float(round(amount))
     return round(amount, decimal_places)
 
+
+_DEFAULT_LANG_BY_COUNTRY = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}
+
+
+def _resolve_language(country_code, language: Optional[str]) -> str:
+    cc = country_code.value if hasattr(country_code, "value") else str(country_code)
+    return (language or _DEFAULT_LANG_BY_COUNTRY.get(cc, "en")).lower()
+
+
+def _translate_field(value, lang: str):
+    if isinstance(value, dict):
+        return value.get(lang) or value.get("en") or next(iter(value.values()))
+    return value
+
+
+def _convert_price(base_price_usd: float, conversion_rate: float, decimal_places: int):
+    converted = base_price_usd * conversion_rate
+    return round(converted) if decimal_places == 0 else round(converted, decimal_places)
+
 class InMemoryDB:
     """In-memory database that resets on each restart"""
 
@@ -151,9 +170,7 @@ class InMemoryDB:
         conversion_rate = CURRENCY_RATES[currency]
         decimal_places = country_config.get("decimal_places", 2)
 
-        default_lang = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}
-        cc = country_code.value if hasattr(country_code, "value") else str(country_code)
-        lang = (language or default_lang.get(cc, "en")).lower()
+        lang = _resolve_language(country_code, language)
 
         enriched: List[Dict[str, Any]] = []
         for item in cart_items:
@@ -161,22 +178,13 @@ class InMemoryDB:
             if not pizza:
                 continue
 
-            name_val = pizza.get("name")
-            if isinstance(name_val, dict):
-                name = name_val.get(lang) or name_val.get("en") or next(iter(name_val.values()))
-            else:
-                name = name_val
-
-            converted_price = pizza["base_price"] * conversion_rate
+            name = _translate_field(pizza.get("name"), lang)
 
             if behavior == "problem":
                 price = 0.0
                 image = "https://broken-image-url.com/404.jpg"
             else:
-                if decimal_places == 0:
-                    price = round(converted_price)
-                else:
-                    price = round(converted_price, decimal_places)
+                price = _convert_price(pizza["base_price"], conversion_rate, decimal_places)
                 image = pizza["image"]
 
             enriched.append({
@@ -206,41 +214,23 @@ class InMemoryDB:
         conversion_rate = CURRENCY_RATES[currency]
         decimal_places = country_config.get("decimal_places", 2)
 
-        default_lang_by_country = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}
-        cc = country_code.value if hasattr(country_code, "value") else str(country_code)
-        lang = (language or default_lang_by_country.get(cc, "en")).lower()
+        lang = _resolve_language(country_code, language)
 
         catalog: List[Dict[str, Any]] = []
 
         for pizza in PIZZA_CATALOG:
             pizza_copy = pizza.copy()
 
-            # ✅ Translate name/description if they are dicts
-            name_val = pizza.get("name")
-            desc_val = pizza.get("description")
+            # Translate name/description if they are localized dicts
+            pizza_copy["name"] = _translate_field(pizza.get("name"), lang)
+            pizza_copy["description"] = _translate_field(pizza.get("description"), lang)
 
-            if isinstance(name_val, dict):
-                pizza_copy["name"] = name_val.get(lang) or name_val.get("en") or next(iter(name_val.values()))
-            else:
-                pizza_copy["name"] = name_val
-
-            if isinstance(desc_val, dict):
-                pizza_copy["description"] = desc_val.get(lang) or desc_val.get("en") or next(iter(desc_val.values()))
-            else:
-                pizza_copy["description"] = desc_val
-
-            # Convert price to country currency
-            converted_price = pizza["base_price"] * conversion_rate
-
-            # Apply behavior modifications
+            # Convert price to country currency; problem users get $0 + broken image
             if behavior == "problem":
                 pizza_copy["price"] = 0.0
                 pizza_copy["image"] = "https://broken-image-url.com/404.jpg"
             else:
-                if decimal_places == 0:
-                    pizza_copy["price"] = round(converted_price)
-                else:
-                    pizza_copy["price"] = round(converted_price, decimal_places)
+                pizza_copy["price"] = _convert_price(pizza["base_price"], conversion_rate, decimal_places)
 
             pizza_copy["currency"] = currency
             pizza_copy["currency_symbol"] = currency_symbol
