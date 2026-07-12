@@ -55,6 +55,7 @@ def _convert_price(base_price_usd: float, conversion_rate: float, decimal_places
     converted = base_price_usd * conversion_rate
     return round(converted) if decimal_places == 0 else round(converted, decimal_places)
 
+
 class InMemoryDB:
     """In-memory database that resets on each restart"""
 

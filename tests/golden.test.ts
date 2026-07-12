@@ -158,6 +158,39 @@ describe('Golden: MX optional-field inclusion rules', () => {
       propina: 0,
     });
   });
+
+  it('propina omitted: no tip key in customer_info, tip is 0', async () => {
+    const token = await login('standard_user');
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: catalogHeaders(token, 'MX', 'es'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'MX',
+        items: [{ pizza_id: pizzaId, quantity: 2 }],
+        name: 'QA Bot',
+        address: '123 Test Street',
+        phone: '5551234567',
+        colonia: 'Roma Norte',
+      },
+      { headers: checkoutHeaders(token) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.data.tip_percentage).toBe(0);
+    expect(res.data.tip).toBe(0);
+
+    const order = await findOrderById(token, res.data.order_id);
+    expect(order.customer_info).toEqual({
+      name: 'QA Bot',
+      address: '123 Test Street',
+      phone: '5551234567',
+      colonia: 'Roma Norte',
+    });
+  });
 });
 
 describe('Golden: multi-item cart (distinct pizza_ids) totals', () => {
