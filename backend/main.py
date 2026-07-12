@@ -281,29 +281,21 @@ async def checkout(
         **totals
     }
     
-    # Add country-specific fields
-    if request.country_code == CountryCode.MX:
-        order_data["customer_info"]["colonia"] = request.colonia
-        if request.zip_code:
-            order_data["customer_info"]["zip_code"] = request.zip_code
-        if request.propina is not None:
-            order_data["customer_info"]["propina"] = request.propina
-    elif request.country_code == CountryCode.US:
-        order_data["customer_info"]["zip_code"] = request.zip_code
-        if request.tip is not None:
-            order_data["customer_info"]["tip"] = request.tip
-    elif request.country_code == CountryCode.CH:
-        order_data["customer_info"]["plz"] = request.plz
-        if request.trinkgeld is not None:
-            order_data["customer_info"]["trinkgeld"] = request.trinkgeld
-    elif request.country_code == CountryCode.JP:
-        order_data["customer_info"]["prefectura"] = request.prefectura
-        if request.chip is not None:
-            order_data["customer_info"]["chip"] = request.chip
-    elif request.country_code == CountryCode.SA:
-        order_data["customer_info"]["district"] = request.district
-        if request.baksheesh is not None:
-            order_data["customer_info"]["baksheesh"] = request.baksheesh
+    # Country-specific fields, driven by COUNTRY_CONFIG (Open/Closed): adding a
+    # market is a config edit, not a new elif branch.
+    #   required_fields -> always copied (already validated non-empty above)
+    #   tip_field       -> copied if not None (so an explicit 0 is preserved)
+    #   other optional  -> copied only if truthy (mirrors the old `if request.x:`)
+    tip_field = country_config["tip_field"]
+    for field in country_config["required_fields"]:
+        order_data["customer_info"][field] = getattr(request, field)
+    for field in country_config["optional_fields"]:
+        value = getattr(request, field, None)
+        if field == tip_field:
+            if value is not None:
+                order_data["customer_info"][field] = value
+        elif value:
+            order_data["customer_info"][field] = value
 
     order_id = db.create_order(order_data)
     order = db.get_order(order_id)
