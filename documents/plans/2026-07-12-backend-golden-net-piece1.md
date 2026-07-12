@@ -44,6 +44,11 @@ pnpm install
 ```
 Expected: install completes; `node_modules/.bin/vitest` exists.
 
+- [ ] **P3: Baseline the existing suite**
+
+Run: `cd tests && pnpm test`
+Expected: `api.test.ts` all PASS **today**, before any change. If something is already red, note it now — Task 4 Step 3 re-runs the full suite, and you must not misattribute a pre-existing failure to the refactor.
+
 ---
 
 ## Task 1: Golden characterization net
@@ -52,8 +57,9 @@ Expected: install completes; `node_modules/.bin/vitest` exists.
 - Create: `tests/golden.test.ts`
 
 **Interfaces:**
-- Consumes: live backend endpoints `POST /api/auth/login`, `GET /api/pizzas`, `POST /api/checkout`, `GET /api/orders`.
+- Consumes: live backend endpoints `POST /api/auth/login`, `GET /api/pizzas` (`get_catalog`), `POST /api/checkout` (`calculate_order_total` + checkout assembly), `GET /api/orders` (stored `customer_info`), and `POST /api/cart` + `GET /api/cart` (`get_enriched_cart`).
 - Produces: a green regression net that Tasks 2–4 must keep green. No code exports.
+- Coverage map: the cart-enrichment tests are the ONLY guard for `get_enriched_cart`, which Tasks 2 and 3 both modify — do not drop them.
 
 - [ ] **Step 1: Write the golden test file**
 
@@ -87,6 +93,15 @@ async function findOrderById(token: string, orderId: string): Promise<any> {
   const order = res.data.orders.find((o: any) => o.order_id === orderId);
   if (!order) throw new Error(`order ${orderId} not found in /api/orders`);
   return order;
+}
+
+// POST /api/cart seeds the per-user cart (auth only, no country header).
+async function seedCart(token: string, items: unknown[]): Promise<void> {
+  await axios.post(
+    `${API_URL}/api/cart`,
+    { items },
+    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+  );
 }
 
 // Ground truth captured 2026-07-12 from calculate_order_total() for a
@@ -302,6 +317,73 @@ describe('Golden: problem_user chaos behavior', () => {
     expect(p01.image).toBe('https://broken-image-url.com/404.jpg');
   });
 });
+
+describe('Golden: cart enrichment (GET /api/cart)', () => {
+  it('MX/es standard: converted price with raw-USD base_price', async () => {
+    const token = await login('standard_user');
+    await seedCart(token, [{ pizza_id: 'p01', quantity: 2 }]);
+    const res = await axios.get(`${API_URL}/api/cart`, {
+      headers: catalogHeaders(token, 'MX', 'es'),
+    });
+    expect(res.data.cart_items).toEqual([
+      {
+        pizza_id: 'p01',
+        name: 'Margarita',
+        size: 'small',
+        quantity: 2,
+        price: 227.97,
+        base_price: 12.99,
+        currency: 'MXN',
+        currency_symbol: '$',
+        image:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Margherita_pizza.jpg/500px-Margherita_pizza.jpg',
+      },
+    ]);
+  });
+
+  it('JP/ja standard: Japanese name + integer yen price', async () => {
+    const token = await login('standard_user');
+    await seedCart(token, [{ pizza_id: 'p01', quantity: 2 }]);
+    const res = await axios.get(`${API_URL}/api/cart`, {
+      headers: catalogHeaders(token, 'JP', 'ja'),
+    });
+    expect(res.data.cart_items).toEqual([
+      {
+        pizza_id: 'p01',
+        name: 'マルゲリータ',
+        size: 'small',
+        quantity: 2,
+        price: 2051,
+        base_price: 12.99,
+        currency: 'JPY',
+        currency_symbol: '¥',
+        image:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Margherita_pizza.jpg/500px-Margherita_pizza.jpg',
+      },
+    ]);
+  });
+
+  it('MX/es problem_user: price 0 + broken image, name still translated', async () => {
+    const token = await login('problem_user');
+    await seedCart(token, [{ pizza_id: 'p01', quantity: 2 }]);
+    const res = await axios.get(`${API_URL}/api/cart`, {
+      headers: catalogHeaders(token, 'MX', 'es'),
+    });
+    expect(res.data.cart_items).toEqual([
+      {
+        pizza_id: 'p01',
+        name: 'Margarita',
+        size: 'small',
+        quantity: 2,
+        price: 0,
+        base_price: 12.99,
+        currency: 'MXN',
+        currency_symbol: '$',
+        image: 'https://broken-image-url.com/404.jpg',
+      },
+    ]);
+  });
+});
 ```
 
 - [ ] **Step 2: Run the net against the UNMODIFIED backend**
@@ -370,7 +452,7 @@ Replace with:
 - [ ] **Step 4: Verify the net stays green**
 
 Run: `cd tests && pnpm test -- golden.test.ts`
-Expected: all PASS (totals + catalog unchanged). If red → the index changed behavior; fix the index, don't touch expectations.
+Expected: all PASS (totals, catalog, and cart enrichment unchanged — the O(1) index is used by both `calculate_order_total` and `get_enriched_cart`). If red → the index changed behavior; fix the index, don't touch expectations.
 
 - [ ] **Step 5: Commit**
 
@@ -518,7 +600,7 @@ with:
 - [ ] **Step 4: Verify the net stays green**
 
 Run: `cd tests && pnpm test -- golden.test.ts`
-Expected: all PASS — the MX/es, MX/en, JP/ja translation tests and problem_user test specifically guard this refactor. If red → a helper diverged from the inline logic; fix the helper.
+Expected: all PASS — the catalog MX/es, MX/en, JP/ja tests guard `get_catalog`, and the cart-enrichment MX/es, JP/ja, and problem_user tests guard `get_enriched_cart` (both functions are edited in this task). If red → a helper diverged from the inline logic; fix the helper.
 
 - [ ] **Step 5: Commit**
 
@@ -615,5 +697,6 @@ git commit -m "refactor(backend): drive checkout field assembly from COUNTRY_CON
 ## Self-review notes (already applied)
 
 - **Spec coverage:** §C→Task 2, §D→Task 3, §B→Task 4, golden net (spec Paso 1)→Task 1. §A (router split) and §E (reset-db) are out of scope per the spec.
-- **Frontier cases covered:** `propina=0` present (tip-if-not-None), `zip_code` present-if-truthy / absent-if-omitted, JP `decimal_places=0` integer price, SA→English translation fallback, `problem_user` $0 + broken image.
+- **Frontier cases covered:** `propina=0` present (tip-if-not-None), `zip_code` present-if-truthy / absent-if-omitted, JP `decimal_places=0` integer price, SA→English translation fallback, `problem_user` $0 + broken image, multi-item cart with distinct `pizza_id`s (guards the O(1) index).
+- **Both catalog paths covered:** `get_catalog` (via `GET /api/pizzas`) and `get_enriched_cart` (via `POST`/`GET /api/cart`) — the latter is edited in Tasks 2 and 3 and would otherwise be untested.
 - **Type consistency:** helper names (`_resolve_language`, `_translate_field`, `_convert_price`, `PIZZA_BY_ID`) are used identically where introduced and consumed.
