@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, devtools } from "zustand/middleware";
 
 // store.js (al inicio del archivo)
 const APP_RELEASE = import.meta.env.VITE_APP_RELEASE || "dev";
@@ -27,38 +27,41 @@ try {
  * AUTH STORE
  * ========================= */
 export const useAuthStore = create(
-  persist(
-    (set) => ({
-      token: localStorage.getItem("token") || null,
-      username: localStorage.getItem("username") || null,
-      behavior: null,
+  devtools(
+    persist(
+      (set) => ({
+        token: localStorage.getItem("token") || null,
+        username: localStorage.getItem("username") || null,
+        behavior: null,
 
-      login: (token, username, behavior) => {
-        localStorage.setItem("token", token);
-        localStorage.setItem("username", username);
-        set({ token, username, behavior });
-      },
+        login: (token, username, behavior) => {
+          localStorage.setItem("token", token);
+          localStorage.setItem("username", username);
+          set({ token, username, behavior });
+        },
 
-      logout: () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        // Clear the locally-cached profile so a previous user's data can't
-        // flash in the same browser before loadProfile() refetches it. The
-        // backend also resets the profile on login (session isolation).
-        localStorage.removeItem("omnipizza-profile");
-        set({ token: null, username: null, behavior: null });
-        try {
-          useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "", birthday: "" });
-        } catch { /* profile store not ready — nothing to clear */ }
-        // Return to the neutral English/LTR state the app starts in, so a previous
-        // Arabic (SA) session doesn't leave the login screen reversed / in the wrong
-        // language. The market's language is re-applied on the next login.
-        try {
-          useCountryStore.setState({ language: "en", locale: "en-US" });
-        } catch { /* country store not ready */ }
-      },
-    }),
-    { name: "omnipizza-auth" }
+        logout: () => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          // Clear the locally-cached profile so a previous user's data can't
+          // flash in the same browser before loadProfile() refetches it. The
+          // backend also resets the profile on login (session isolation).
+          localStorage.removeItem("omnipizza-profile");
+          set({ token: null, username: null, behavior: null });
+          try {
+            useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "", birthday: "" });
+          } catch { /* profile store not ready — nothing to clear */ }
+          // Return to the neutral English/LTR state the app starts in, so a previous
+          // Arabic (SA) session doesn't leave the login screen reversed / in the wrong
+          // language. The market's language is re-applied on the next login.
+          try {
+            useCountryStore.setState({ language: "en", locale: "en-US" });
+          } catch { /* country store not ready */ }
+        },
+      }),
+      { name: "omnipizza-auth" }
+    ),
+    { name: "AuthStore" }
   )
 );
 
@@ -87,63 +90,66 @@ const DEFAULT_LANG_BY_MARKET = {
 const pickMarket = (code) => MARKET[code] || MARKET.MX;
 
 export const useCountryStore = create(
-  persist(
-    (set, get) => {
-      const initialCode = localStorage.getItem("countryCode") || "MX";
-      const cfg = pickMarket(initialCode);
+  devtools(
+    persist(
+      (set, get) => {
+        const initialCode = localStorage.getItem("countryCode") || "MX";
+        const cfg = pickMarket(initialCode);
 
-      return {
-        countryCode: initialCode,
-        countryInfo: null,
+        return {
+          countryCode: initialCode,
+          countryInfo: null,
 
-        // ✅ App starts ALWAYS in English
-        language: "en",
+          // ✅ App starts ALWAYS in English
+          language: "en",
 
-        // locale/currency follow the country (for formatting)
-        locale: cfg.locale,
-        currency: cfg.currency,
+          // locale/currency follow the country (for formatting)
+          locale: cfg.locale,
+          currency: cfg.currency,
 
-        setCountryCode: (code) => {
-          localStorage.setItem("countryCode", code); // ✅ CRITICAL for headers
-          useCartStore.getState().clearCart(); // Clear cart on market change
-          const next = pickMarket(code);
+          setCountryCode: (code) => {
+            localStorage.setItem("countryCode", code); // ✅ CRITICAL for headers
+            useCartStore.getState().clearCart(); // Clear cart on market change
+            const next = pickMarket(code);
 
-          // switch UI language to market default on change
-          let lang = DEFAULT_LANG_BY_MARKET[code] || "en";
+            // switch UI language to market default on change
+            let lang = DEFAULT_LANG_BY_MARKET[code] || "en";
 
-          // CH: respect saved DE/FR preference if exists
-          if (code === "CH") {
-            const saved = localStorage.getItem("chLang");
-            if (saved === "fr" || saved === "de") lang = saved;
-          }
+            // CH: respect saved DE/FR preference if exists
+            if (code === "CH") {
+              const saved = localStorage.getItem("chLang");
+              if (saved === "fr" || saved === "de") lang = saved;
+            }
 
-          set({
-            countryCode: code,
-            language: lang,
-            locale: code === "CH" ? (lang === "fr" ? "fr-CH" : "de-CH") : next.locale,
-            currency: next.currency,
-            countryInfo: null,
-          });
-        },
+            set({
+              countryCode: code,
+              language: lang,
+              locale: code === "CH" ? (lang === "fr" ? "fr-CH" : "de-CH") : next.locale,
+              currency: next.currency,
+              countryInfo: null,
+            });
+          },
 
-        // ✅ Only CH: toggle DE/FR
-        setLanguage: (lang) => {
-          const { countryCode } = get();
-          if (countryCode !== "CH") return;
+          // ✅ Only CH: toggle DE/FR
+          setLanguage: (lang) => {
+            const { countryCode } = get();
+            if (countryCode !== "CH") return;
 
-          const valid = lang === "fr" ? "fr" : "de";
-          localStorage.setItem("chLang", valid);
+            const valid = lang === "fr" ? "fr" : "de";
+            localStorage.setItem("chLang", valid);
 
-          set({
-            language: valid,
-            locale: valid === "fr" ? "fr-CH" : "de-CH",
-          });
-        },
+            set({
+              language: valid,
+              locale: valid === "fr" ? "fr-CH" : "de-CH",
+            });
+          },
 
-        setCountryInfo: (info) => set({ countryInfo: info }),
-      };
-    },
-    { name: "omnipizza-country" }
+          setCountryInfo: (info) => set({ countryInfo: info }),
+        };
+      },
+      { name: "omnipizza-country" }
+    ),
+    { name: "CountryStore" }
   )
 );
 
@@ -151,67 +157,70 @@ export const useCountryStore = create(
  * CART STORE
  * ========================= */
 export const useCartStore = create(
-  persist(
-    (set, get) => ({
-      items: [], 
-      // item = { id, pizza_id, pizza, quantity, config:{size,toppings}, unit_price, currency, currency_symbol }
+  devtools(
+    persist(
+      (set, get) => ({
+        items: [],
+        // item = { id, pizza_id, pizza, quantity, config:{size,toppings}, unit_price, currency, currency_symbol }
 
-      addConfiguredItem: (pizza, config) => {
-        const signature = `${pizza.id}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;
-        const items = get().items;
+        addConfiguredItem: (pizza, config) => {
+          const signature = `${pizza.id}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;
+          const items = get().items;
 
-        const existing = items.find((i) => i.signature === signature);
-        if (existing) {
+          const existing = items.find((i) => i.signature === signature);
+          if (existing) {
+            set({
+              items: items.map((i) =>
+                i.signature === signature ? { ...i, quantity: i.quantity + 1 } : i
+              ),
+            });
+            return;
+          }
+
+          const id = (globalThis.crypto?.randomUUID?.() || `item_${Date.now()}_${Math.random()}`).toString();
+
           set({
-            items: items.map((i) =>
-              i.signature === signature ? { ...i, quantity: i.quantity + 1 } : i
-            ),
+            items: [
+              ...items,
+              {
+                id,
+                signature,
+                pizza_id: pizza.id,
+                pizza,
+                quantity: 1,
+                config: { size: config.size, toppings: config.toppings || [] },
+                unit_price: config.unit_price,
+                currency: pizza.currency,
+                currency_symbol: pizza.currency_symbol,
+              },
+            ],
           });
-          return;
-        }
+        },
 
-        const id = (globalThis.crypto?.randomUUID?.() || `item_${Date.now()}_${Math.random()}`).toString();
+        removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
 
-        set({
-          items: [
-            ...items,
-            {
-              id,
-              signature,
-              pizza_id: pizza.id,
-              pizza,
-              quantity: 1,
-              config: { size: config.size, toppings: config.toppings || [] },
-              unit_price: config.unit_price,
-              currency: pizza.currency,
-              currency_symbol: pizza.currency_symbol,
-            },
-          ],
-        });
-      },
-
-      removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
-
-      updateItem: (id, patch) =>
-        set({
-          items: get().items.map((i) => (i.id === id ? { ...i, ...patch } : i)),
-        }),
-
-      setQty: (id, qty) => {
-        if (qty <= 0) {
-          set({ items: get().items.filter((i) => i.id !== id) });
-        } else {
+        updateItem: (id, patch) =>
           set({
-            items: get().items.map((i) =>
-              i.id === id ? { ...i, quantity: qty } : i
-            ),
-          });
-        }
-      },
+            items: get().items.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+          }),
 
-      clearCart: () => set({ items: [] }),
-    }),
-    { name: "omnipizza-cart" }
+        setQty: (id, qty) => {
+          if (qty <= 0) {
+            set({ items: get().items.filter((i) => i.id !== id) });
+          } else {
+            set({
+              items: get().items.map((i) =>
+                i.id === id ? { ...i, quantity: qty } : i
+              ),
+            });
+          }
+        },
+
+        clearCart: () => set({ items: [] }),
+      }),
+      { name: "omnipizza-cart" }
+    ),
+    { name: "CartStore" }
   )
 );
 
@@ -219,16 +228,19 @@ export const useCartStore = create(
  * PROFILE STORE
  * ========================= */
 export const useProfileStore = create(
-  persist(
-    (set) => ({
-      fullName: "",
-      address: "",
-      phone: "",
-      notes: "",
-      birthday: "",
-      setProfile: (patch) => set(patch),
-    }),
-    { name: "omnipizza-profile" }
+  devtools(
+    persist(
+      (set) => ({
+        fullName: "",
+        address: "",
+        phone: "",
+        notes: "",
+        birthday: "",
+        setProfile: (patch) => set(patch),
+      }),
+      { name: "omnipizza-profile" }
+    ),
+    { name: "ProfileStore" }
   )
 );
 
@@ -236,12 +248,15 @@ export const useProfileStore = create(
  * ORDER STORE
  * ========================= */
 export const useOrderStore = create(
-  persist(
-    (set) => ({
-      lastOrder: null,
-      setLastOrder: (order) => set({ lastOrder: order }),
-      clearLastOrder: () => set({ lastOrder: null }),
-    }),
-    { name: "omnipizza-order" }
+  devtools(
+    persist(
+      (set) => ({
+        lastOrder: null,
+        setLastOrder: (order) => set({ lastOrder: order }),
+        clearLastOrder: () => set({ lastOrder: null }),
+      }),
+      { name: "omnipizza-order" }
+    ),
+    { name: "OrderStore" }
   )
 );
