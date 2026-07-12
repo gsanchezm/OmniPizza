@@ -41,10 +41,6 @@ export default function Login() {
   // Defaulting to US for the "clean" login
   const [selectedMarket, setSelectedMarket] = useState("US");
 
-  if (token) {
-    return <Navigate to="/catalog" replace />;
-  }
-
   useEffect(() => {
     getTestUsers()
       .then((res) => {
@@ -54,6 +50,15 @@ export default function Login() {
         /* keep the static fallback so the panel never collapses to "Loading…" */
       });
   }, []);
+
+  // All hooks must run before any early return (Rules of Hooks). A successful
+  // login sets the token, which re-renders this still-mounted component; the
+  // redirect must come AFTER every hook (incl. the effect above), or the
+  // token-truthy render calls fewer hooks than the prior one and React throws
+  // "Rendered fewer hooks than expected".
+  if (token) {
+    return <Navigate to="/catalog" replace />;
+  }
 
   const handleLogin = async (e) => {
     e && e.preventDefault();

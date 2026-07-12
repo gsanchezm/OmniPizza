@@ -49,6 +49,49 @@ describe("Login — auth error handling", () => {
     cy.get("[data-testid=username-desktop]").should("have.value", "standard_users");
   });
 
+  // Regression for the "Rendered fewer hooks than expected" Rules-of-Hooks bug.
+  //
+  // Login had `if (token) return <Navigate/>` placed BEFORE a `useEffect`. On a
+  // successful login, `login()` sets the token; this still-mounted component
+  // re-renders with `token` truthy, the early return fires, and the effect hook
+  // is skipped — so this render calls fewer hooks than the prior one and React
+  // throws. The fix moves the redirect after every hook.
+  it("redirects cleanly (no Rules-of-Hooks error) when a successful login sets the token", () => {
+    cy.intercept("POST", "**/api/auth/login", {
+      statusCode: 200,
+      body: { access_token: "test-token", username: "standard_user", behavior: "standard" },
+    }).as("login");
+
+    let hooksErrorSeen = false;
+    cy.on("uncaught:exception", (err) => {
+      if (/Rendered fewer hooks than expected/.test(err.message)) {
+        hooksErrorSeen = true;
+        return false; // asserted explicitly below
+      }
+      // any other unexpected error should still fail the test
+      return true;
+    });
+
+    cy.mount(
+      <MemoryRouter initialEntries={["/"]}>
+        <Login />
+      </MemoryRouter>,
+    );
+
+    cy.get("[data-testid=login-button-desktop]").click();
+    cy.wait("@login");
+
+    // Token is now set → Login must redirect (render <Navigate/>), so the login
+    // screen unmounts, WITHOUT a hooks-order violation.
+    cy.get("[data-testid=screen-login]").should("not.exist");
+    cy.then(() => {
+      expect(
+        hooksErrorSeen,
+        "React 'Rendered fewer hooks than expected' error was thrown on login",
+      ).to.be.false;
+    });
+  });
+
   it("surfaces the backend's locked-out message on a 403", () => {
     cy.intercept("POST", "**/api/auth/login", {
       statusCode: 403,
