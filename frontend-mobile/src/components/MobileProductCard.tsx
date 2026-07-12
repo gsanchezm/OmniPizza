@@ -11,7 +11,7 @@ interface MobileProductCardProps {
   onPress: (pizza: Pizza) => void;
 }
 
-export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) => {
+const MobileProductCardComponent = ({ pizza, onPress }: MobileProductCardProps) => {
   const { textAlign, row } = useRTL();
   return (
     <View style={[styles.card, { flexDirection: row }]} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
@@ -50,6 +50,8 @@ export const MobileProductCard = ({ pizza, onPress }: MobileProductCardProps) =>
     </View>
   );
 };
+
+export const MobileProductCard = React.memo(MobileProductCardComponent);
 
 const styles = StyleSheet.create({
   card: {

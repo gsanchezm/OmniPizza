@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -27,18 +27,25 @@ export default function CatalogScreen({ navigation }: any) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const openBuilderAdd = (pizza: Pizza) => {
-    navigation.navigate("PizzaBuilder", { mode: "add", pizza });
-  };
+  const openBuilderAdd = useCallback(
+    (pizza: Pizza) => {
+      navigation.navigate("PizzaBuilder", { mode: "add", pizza });
+    },
+    [navigation]
+  );
 
-  const filteredPizzas = (pizzas || []).filter((p) => {
-    const matchSearch = p.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchCat =
-      selectedCategory === "all" || p.category === selectedCategory;
-    return matchSearch && matchCat;
-  });
+  const filteredPizzas = useMemo(
+    () =>
+      (pizzas || []).filter((p) => {
+        const matchSearch = p.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        const matchCat =
+          selectedCategory === "all" || p.category === selectedCategory;
+        return matchSearch && matchCat;
+      }),
+    [pizzas, searchQuery, selectedCategory]
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} accessibilityLabel="screen-catalog" testID="screen-catalog">
