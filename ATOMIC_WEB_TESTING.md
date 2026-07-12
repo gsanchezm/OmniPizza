@@ -11,6 +11,14 @@ the full user journey.
 The web app uses **React Router v6** with standard URL paths. Every route is directly
 navigable — no special linking config is required.
 
+The protected pages (`/catalog`, `/checkout`, `/profile`, `/order-success`) are
+**`React.lazy`-loaded** behind a single `<Suspense>` boundary, so a direct navigation
+first paints a brief fallback (`data-testid="route-loading"`) while the route's JS
+chunk loads, then mounts the page. Playwright/WebDriver auto-waiting on the page's own
+`data-testid` (e.g. the checkout order summary) transparently absorbs this — no test
+change is needed. Only replace any **hard `waitForTimeout`** before an assertion with a
+wait on the target element. (`Login` stays eagerly loaded, so `/` has no fallback.)
+
 The **Checkout page already fetches `GET /api/cart` on mount** and hydrates the
 local cart from the backend **when the local Zustand cart is empty**. This is the
 core mechanism for atomic cart injection.
