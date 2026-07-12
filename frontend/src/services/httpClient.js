@@ -37,7 +37,14 @@ httpClient.interceptors.request.use((config) => {
 httpClient.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err?.response?.status === 401) {
+    // A 401 means "kick the user back to login" ONLY when a session actually
+    // existed (an expired/invalidated token on an authenticated request). On a
+    // login attempt — or any request made while logged out — the store has no
+    // token, so forcing `window.location.assign("/")` would reload the login
+    // page and wipe the form's error message. In that case we must reject and
+    // let the caller's own catch render the error (e.g. "Invalid credentials").
+    const hasSession = Boolean(useAuthStore.getState().token);
+    if (err?.response?.status === 401 && hasSession) {
       useAuthStore.getState().logout?.();
       try {
         localStorage.removeItem("omnipizza-auth");

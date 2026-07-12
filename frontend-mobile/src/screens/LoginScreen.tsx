@@ -84,8 +84,15 @@ export default function LoginScreen({ navigation }: any) {
       }
     } catch (e: any) {
       const status = e?.response?.status;
+      // The backend's HTTPException handler reshapes errors to
+      // { error, status_code, timestamp } — read `error` (fall back to `detail`).
+      const serverMessage = e?.response?.data?.error ?? e?.response?.data?.detail;
       if (status === 429 || e?.response?.data?.users_limit) {
         setError("Too many users");
+      } else if (status === 403 && serverMessage) {
+        // Locked-out (and other forbidden) users get the backend's own message,
+        // e.g. "Sorry, this user has been locked out."
+        setError(serverMessage);
       } else {
         setError("Invalid credentials");
       }

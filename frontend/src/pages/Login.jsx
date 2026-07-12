@@ -75,7 +75,19 @@ export default function Login() {
 
       navigate("/catalog", { replace: true });
     } catch (err) {
-      setError(err?.users_limit ? "Too many users" : "Invalid credentials");
+      const status = err?.response?.status;
+      // The backend's HTTPException handler reshapes errors to
+      // { error, status_code, timestamp } — read `error` (fall back to `detail`).
+      const serverMessage = err?.response?.data?.error ?? err?.response?.data?.detail;
+      if (status === 429 || err?.response?.data?.users_limit) {
+        setError("Too many users");
+      } else if (status === 403 && serverMessage) {
+        // Locked-out (and other forbidden) users get the backend's own message,
+        // e.g. "Sorry, this user has been locked out."
+        setError(serverMessage);
+      } else {
+        setError("Invalid credentials");
+      }
     } finally {
       setLoading(false);
     }
