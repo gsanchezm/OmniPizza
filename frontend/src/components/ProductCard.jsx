@@ -1,7 +1,7 @@
 import React from 'react';
 import { UI_STRINGS } from "../constants/pizza"; // Keep localized strings logic if needed, or pass prop
 
-export default function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
+function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
   return (
     <div data-testid={tid ? tid(`pizza-card-${pizza.id}`) : `pizza-card-${pizza.id}`} className="bg-[#1E1E1E] rounded-[2rem] p-4 border border-[#2A2A2A] hover:border-[#FF5722]/50 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
        {/* Badge (optional - e.g. Bestseller) */}
@@ -39,7 +39,7 @@ export default function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
           
           <div className="mt-auto w-full flex items-center justify-between">
              <span data-testid={`pizza-price-${pizza.id}`} className="text-xl font-black text-[#FF5722]">
-                {formatPrice(pizza.price, pizza.currency)}
+                {formatPrice(pizza.price, pizza.currency, pizza.currency_symbol)}
              </span>
 
              <button
@@ -56,3 +56,5 @@ export default function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
     </div>
   );
 }
+
+export default React.memo(ProductCard);

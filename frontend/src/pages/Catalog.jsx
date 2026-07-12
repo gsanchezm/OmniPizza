@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
 import { useResponsive } from "../hooks/useResponsive";
@@ -58,10 +58,10 @@ export default function Catalog() {
   const { pizzas, loading, error } = useCatalogPizzas(countryCode, language);
 
   // --- Handlers ---
-  const handleOpenModal = (pizza) => {
+  const handleOpenModal = useCallback((pizza) => {
     setSelectedPizza(pizza);
     setModalOpen(true);
-  };
+  }, []);
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -75,9 +75,14 @@ export default function Catalog() {
     handleCloseModal();
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = useCallback(() => {
     navigate("/checkout");
-  };
+  }, [navigate]);
+
+  const formatPrice = useCallback(
+    (val, curr, symbol) => formatMoney(val, curr, locale, symbol),
+    [locale]
+  );
 
   // --- Filtering ---
   const filteredPizzas = useMemo(() => {
@@ -139,7 +144,7 @@ export default function Catalog() {
                          key={pizza.id}
                          pizza={pizza}
                          onAdd={handleOpenModal}
-                         formatPrice={(val, curr) => formatMoney(val, curr, locale, pizza.currency_symbol)}
+                         formatPrice={formatPrice}
                          tid={tid}
                        />
                     ))}

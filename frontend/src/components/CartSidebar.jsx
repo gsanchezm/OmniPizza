@@ -4,7 +4,7 @@ import { useT } from '../i18n';
 import { useCountryStore } from '../store';
 import { SIZE_OPTIONS } from '../constants/pizza';
 
-export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
+function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
   const t = useT();
   const language = useCountryStore((s) => s.language) || 'en';
   const locale = useCountryStore((s) => s.locale) || 'en-US';
@@ -121,3 +121,5 @@ export default function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQ
     </div>
   );
 }
+
+export default React.memo(CartSidebar);

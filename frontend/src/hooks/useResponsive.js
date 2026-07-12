@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const DESKTOP_BREAKPOINT = 768;
 
@@ -16,7 +16,7 @@ export function useResponsive() {
 
   const suffix = isDesktop ? "-desktop" : "-responsive";
 
-  const tid = (base) => `${base}${suffix}`;
+  const tid = useCallback((base) => `${base}${suffix}`, [suffix]);
 
   return { isDesktop, suffix, tid };
 }
