@@ -60,6 +60,8 @@ export const Dropdown = ({
       <TouchableOpacity
         style={styles.trigger}
         onPress={() => setOpen(true)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
         {...getReadableControlProps(testID, displayLabel || placeholder || testID)}
       >
         <Text
@@ -102,6 +104,8 @@ export const Dropdown = ({
                     key={opt.value}
                     style={[styles.option, active && styles.optionActive]}
                     onPress={() => select(opt.value)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: active }}
                     {...getReadableControlProps(`btn-option-${opt.value}`, opt.label)}
                   >
                     <Text

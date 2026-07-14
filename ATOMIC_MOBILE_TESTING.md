@@ -200,6 +200,47 @@ xcrun simctl openurl booted "omnipizza://order-success?orderId=abc123&market=US"
 xcrun simctl openurl booted omnipizza://profile?market=CH&lang=fr
 ```
 
+---
+
+## 8. Test Users, API Contract & Static Scanning
+
+### Test Users
+
+All accounts share the password `pizza123` (see `backend/constants.py:TEST_USERS`).
+These are intentional, deterministic behaviors — part of the sandbox's contract, not
+bugs to report:
+
+| Username | Behavior |
+|---|---|
+| `standard_user` | Normal login and checkout flow |
+| `locked_out_user` | Login always returns 401 |
+| `problem_user` | Catalog renders $0 prices and broken images |
+| `performance_glitch_user` | Every API call has a ~3s artificial delay |
+| `error_user` | `POST /api/checkout` returns a 500 error ~50% of the time |
+
+The same five accounts are exposed as one-tap "Quick Login" pills on `LoginScreen`
+(`btn-user-<id>`) for manual exploration.
+
+### API Contract (OpenAPI)
+
+`GET https://omnipizza-backend.onrender.com/api/openapi.json` — machine-readable
+OpenAPI 3 schema, including the `Authorization: Bearer` security scheme, for
+contract-based security tooling (fuzzers, scanners). Interactive docs at `/api/docs`.
+
+### Static scanning (MobSF)
+
+The Android release APK is a standard Expo-generated artifact — no code change is
+needed to make it scannable:
+
+```bash
+pnpm prebuild            # expo prebuild --clean, generates android/ and ios/ (gitignored)
+pnpm build:android       # ./gradlew assembleRelease → android/app/build/outputs/apk/release/*.apk
+```
+
+Feed the resulting `.apk` to a local MobSF instance. `app.json` declares
+`com.omnipizza.app` as the package id/bundle id on both platforms and no
+non-standard permissions or native config.
+
 ### Android Emulator
 ```bash
 adb shell am start -W -a android.intent.action.VIEW -d "omnipizza://login" com.omnipizza.app

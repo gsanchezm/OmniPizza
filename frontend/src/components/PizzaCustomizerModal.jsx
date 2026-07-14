@@ -70,6 +70,8 @@ export default function PizzaCustomizerModal({
   const [toppings, setToppings] = useState(initialConfig?.toppings || []);
 
   const scrollRef = useRef(null);
+  const closeBtnRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -81,6 +83,23 @@ export default function PizzaCustomizerModal({
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
     });
   }, [open, pizza?.id]);
+
+  // Focus management (WCAG 2.4.3): move focus into the modal on open, return
+  // it to the trigger on close, and let Escape close the modal.
+  useEffect(() => {
+    if (!open) return;
+    previouslyFocusedRef.current = document.activeElement;
+    closeBtnRef.current?.focus();
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocusedRef.current?.focus?.();
+    };
+  }, [open, onClose]);
 
   const sizeObj = SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
@@ -116,16 +135,22 @@ export default function PizzaCustomizerModal({
   );
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-black/90">
-      
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customizer-title"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-black/90"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+
       <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-md bg-[#121212] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-[#1F1F1F]">
-        
+
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-50 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-             <button data-testid="customizer-close" onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+             <button ref={closeBtnRef} data-testid="customizer-close" onClick={onClose} aria-label="Close" className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white/20 transition-colors">
                  ✕
              </button>
-             <h2 className="text-white font-bold text-lg drop-shadow-md">
+             <h2 id="customizer-title" className="text-white font-bold text-lg drop-shadow-md">
                  {t({en:"Customize Pizza", es:"Personalizar Pizza", de:"Pizza Anpassen", fr:"Personnaliser Pizza", ja:"ピザをカスタマイズ"}, language)}
              </h2>
              <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white">
@@ -161,12 +186,13 @@ export default function PizzaCustomizerModal({
                          <h3 className="text-white font-black text-xl">{t({en:"Choose Size", es:"Elige Tamaño", de:"Größe Wählen", fr:"Choisir Taille", ja:"サイズを選択"}, language)}</h3>
                          <span className="text-[#FF5722] text-xs font-bold uppercase bg-[#FF5722]/10 px-2 py-1 rounded">{t({en:"Required", es:"Requerido", de:"Erforderlich", fr:"Requis", ja:"必須"}, language)}</span>
                      </div>
-                     <div className="flex bg-[#1F1F1F] p-1 rounded-full">
+                     <div role="group" aria-label={t({en:"Choose Size", es:"Elige Tamaño", de:"Größe Wählen", fr:"Choisir Taille", ja:"サイズを選択"}, language)} className="flex bg-[#1F1F1F] p-1 rounded-full">
                          {SIZE_OPTIONS.map((opt) => {
                              const isSelected = size === opt.id;
                              return (
                                  <button
                                      key={opt.id}
+                                     aria-pressed={isSelected}
                                      data-testid={`size-${opt.id}`}
                                      onClick={() => setSize(opt.id)}
                                      className={`flex-1 py-3 rounded-full text-sm font-bold transition-all ${isSelected ? 'bg-[#FF5722] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
@@ -196,6 +222,7 @@ export default function PizzaCustomizerModal({
                                  return (
                                      <button
                                          key={it.id}
+                                         aria-pressed={isSelected}
                                          data-testid={`topping-${it.id}`}
                                          onClick={() => toggleTopping(it.id)}
                                          disabled={!isSelected && toppings.length >= 10}
@@ -203,17 +230,17 @@ export default function PizzaCustomizerModal({
                                      >
                                          <div className={`w-12 h-12 rounded-full mb-2 flex items-center justify-center ${isSelected ? 'bg-[#FF5722]/20' : 'bg-[#2A2A2A]'} overflow-hidden`}>
                                              {it.image ? (
-                                               <img src={it.image} alt={t(it.label, language)} className="w-full h-full object-cover" />
+                                               <img src={it.image} alt="" className="w-full h-full object-cover" />
                                              ) : (
-                                               <span className="text-xl">🧀</span> 
+                                               <span aria-hidden="true" className="text-xl">🧀</span>
                                              )}
                                          </div>
                                          <span className={`text-xs font-bold text-center leading-tight ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                                              {t(it.label, language)}
                                          </span>
-                                         
+
                                          {isSelected && (
-                                             <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
+                                             <div aria-hidden="true" className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
                                                  ✓
                                              </div>
                                          )}
@@ -248,7 +275,7 @@ export default function PizzaCustomizerModal({
                      className="bg-[#FF5722] hover:bg-[#E64A19] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
                  >
                      {t({en:"Add to Cart", es:"Agregar", de:"Hinzufügen", fr:"Ajouter", ja:"追加"}, language)}
-                     <img src="/images/ui/shopping_bag.png" alt="Cart" className="w-5 h-5 object-contain" />
+                     <img src="/images/ui/shopping_bag.png" alt="" className="w-5 h-5 object-contain" />
                  </button>
              </div>
         </div>

@@ -45,7 +45,8 @@ export default function OrderSuccessScreen({ navigation }: any) {
           <Image
             source={require("../../assets/ui/map_background.png")}
             style={styles.mapImage}
-            accessibilityLabel="img-map-background"
+            accessible={false}
+            importantForAccessibility="no"
           />
           <View style={styles.mapOverlay} accessibilityLabel="view-map-overlay" />
         </View>
@@ -56,9 +57,10 @@ export default function OrderSuccessScreen({ navigation }: any) {
             style={styles.backBtn}
             onPress={() => navigation.navigate("Catalog")}
             testID="btn-back-catalog"
-            accessibilityLabel="btn-back-catalog"
+            accessibilityLabel={t("catalog")}
+            accessibilityRole="button"
           >
-            <Text style={{ color: "white", fontSize: 20 }} accessibilityLabel="icon-back">←</Text>
+            <Text style={{ color: "white", fontSize: 20 }} importantForAccessibility="no">←</Text>
           </TouchableOpacity>
 
           <View style={styles.liveBadge} accessibilityLabel="view-live-badge" testID="view-live-badge">
@@ -106,7 +108,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
                   uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Carlos",
                 }}
                 style={styles.courierAvatar}
-                accessibilityLabel="img-courier-avatar"
+                accessibilityLabel={courier.name}
               />
               <View style={styles.ratingBadge} accessibilityLabel="view-rating-badge">
                 <Text style={styles.ratingText} {...getReadableTextProps("text-courier-rating", "4.9 ★")}>4.9 ★</Text>
@@ -124,16 +126,18 @@ export default function OrderSuccessScreen({ navigation }: any) {
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: "#333" }]}
               testID="btn-courier-chat"
-              accessibilityLabel="btn-courier-chat"
+              accessibilityLabel={`Chat with ${courier.name}`}
+              accessibilityRole="button"
             >
-              <Text style={{ fontSize: 18 }} accessibilityLabel="icon-chat">💬</Text>
+              <Text style={{ fontSize: 18 }} importantForAccessibility="no">💬</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: "#FF5722" }]}
-              accessibilityLabel="btn-courier-call"
+              accessibilityLabel={`Call ${courier.name}`}
+              accessibilityRole="button"
               testID="btn-courier-call"
             >
-              <Text style={{ fontSize: 18 }} accessibilityLabel="icon-call">📞</Text>
+              <Text style={{ fontSize: 18 }} importantForAccessibility="no">📞</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -142,12 +146,14 @@ export default function OrderSuccessScreen({ navigation }: any) {
         <TouchableOpacity
           style={styles.detailsBtn}
           onPress={() => setDetailsOpen((v) => !v)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: detailsOpen }}
           {...getReadableControlProps("btn-order-details", t("orderDetails").toUpperCase())}
         >
           <Text style={styles.detailsText} {...getReadableTextProps("text-order-details", t("orderDetails").toUpperCase())}>
             {t("orderDetails").toUpperCase()}
           </Text>
-          <Text style={{ color: "#666" }} accessibilityLabel="icon-expand">
+          <Text style={{ color: "#666" }} importantForAccessibility="no">
             {detailsOpen ? "⌄" : "^"}
           </Text>
         </TouchableOpacity>

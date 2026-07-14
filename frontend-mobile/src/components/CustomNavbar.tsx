@@ -33,6 +33,8 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                 styles.langBtn,
                 language === "de" && styles.langBtnActive,
               ]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: language === "de" }}
               {...getReadableControlProps("btn-lang-de", "DE")}
             >
               <Text
@@ -52,6 +54,8 @@ export const CustomNavbar = ({ title, navigation }: any) => {
                 styles.langBtn,
                 language === "fr" && styles.langBtnActive,
               ]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: language === "fr" }}
               {...getReadableControlProps("btn-lang-fr", "FR")}
             >
               <Text

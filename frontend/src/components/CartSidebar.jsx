@@ -81,12 +81,14 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
                      <button
                        data-testid={`cart-qty-minus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity - 1)}
+                       aria-label={`Decrease quantity of ${item.pizza.name}`}
                        className="text-gray-400 hover:text-white px-1"
                      >−</button>
                      <span data-testid={`cart-qty-${item.pizza_id}`} className="text-xs font-bold text-white w-3 text-center">{item.quantity}</span>
                      <button
                        data-testid={`cart-qty-plus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity + 1)}
+                       aria-label={`Increase quantity of ${item.pizza.name}`}
                        className="text-gray-400 hover:text-white px-1"
                      >+</button>
                   </div>

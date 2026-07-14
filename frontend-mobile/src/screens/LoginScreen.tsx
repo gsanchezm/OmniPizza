@@ -115,7 +115,8 @@ export default function LoginScreen({ navigation }: any) {
         <ImageBackground
           source={{ uri: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop" }}
           style={styles.heroImage}
-          accessibilityLabel="img-hero-background"
+          accessible={false}
+          importantForAccessibility="no"
         >
           <LinearGradient
             colors={["transparent", "#0F0F0F"]}
@@ -138,7 +139,8 @@ export default function LoginScreen({ navigation }: any) {
                   source={{ uri: "https://omnipizza-frontend.onrender.com/omnipizza-logo.png" }}
                   style={styles.logoImage}
                   resizeMode="contain"
-                  accessibilityLabel="img-logo"
+                  accessible={false}
+                  importantForAccessibility="no"
                   testID="img-logo"
                 />
                 <Text style={styles.appName} {...getReadableTextProps("text-app-name", "OmniPizza")}>OmniPizza</Text>
@@ -174,6 +176,8 @@ export default function LoginScreen({ navigation }: any) {
                     <TouchableOpacity
                       key={m.code}
                       onPress={() => setSelectedMarket(m.code)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isActive }}
                       {...getReadableControlProps(`btn-market-${m.code}`, m.code)}
                       style={[
                         styles.flagBtn,
@@ -189,7 +193,7 @@ export default function LoginScreen({ navigation }: any) {
               </View>
 
               {/* Error Message */}
-              {error ? <Text style={styles.errorText} {...getReadableTextProps("text-login-error", error)}>{error}</Text> : null}
+              {error ? <Text style={styles.errorText} accessibilityLiveRegion="polite" {...getReadableTextProps("text-login-error", error)}>{error}</Text> : null}
 
               {/* Actions */}
               <View style={styles.actions} accessibilityLabel="view-login-actions">

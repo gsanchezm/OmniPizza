@@ -33,6 +33,8 @@ export const CategoryPills = ({ selected, onSelect }: CategoryPillsProps) => {
             key={cat.id}
             onPress={() => onSelect(cat.id)}
             style={[styles.pill, isActive && styles.pillActive]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
             {...getReadableControlProps(`btn-category-${cat.id}`, t(cat.labelKey))}
           >
             <Text

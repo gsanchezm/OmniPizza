@@ -85,10 +85,11 @@ export default function Profile() {
         <div className="p-6 sm:p-8 space-y-6">
            <div className="grid sm:grid-cols-2 gap-6">
              <div>
-               <label data-testid="label-profile-fullname" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+               <label htmlFor="field-profile-fullname" data-testid="label-profile-fullname" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('fullName')}
                </label>
                <input
+                 id="field-profile-fullname"
                  data-testid={tid("profile-fullname")}
                  className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                  value={fullName}
@@ -96,10 +97,11 @@ export default function Profile() {
                />
              </div>
              <div>
-               <label data-testid="label-profile-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+               <label htmlFor="field-profile-phone" data-testid="label-profile-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                  {t('phone') || "Phone Number"}
                </label>
                <input
+                 id="field-profile-phone"
                  data-testid="profile-phone"
                  className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                  value={phone}
@@ -109,10 +111,11 @@ export default function Profile() {
            </div>
 
            <div>
-             <label data-testid="label-profile-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+             <label htmlFor="field-profile-address" data-testid="label-profile-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('address') || "Delivery Address"}
              </label>
              <input
+               id="field-profile-address"
                data-testid={tid("profile-address")}
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
                value={address}
@@ -121,10 +124,11 @@ export default function Profile() {
            </div>
 
            <div>
-             <label data-testid="label-profile-birthday" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+             <label htmlFor="field-profile-birthday" data-testid="label-profile-birthday" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('birthday') || "Birthday"}
              </label>
              <input
+               id="field-profile-birthday"
                type="date"
                data-testid="profile-birthday"
                style={{ colorScheme: 'dark' }}
@@ -135,10 +139,11 @@ export default function Profile() {
            </div>
 
            <div>
-             <label data-testid="label-profile-notes" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
+             <label htmlFor="field-profile-notes" data-testid="label-profile-notes" className="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider">
                {t('deliveryNotes') || "Delivery Notes"}
              </label>
              <textarea
+               id="field-profile-notes"
                data-testid="profile-notes"
                className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium resize-none"
                rows="3"

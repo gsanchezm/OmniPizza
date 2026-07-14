@@ -173,7 +173,7 @@ export default function ProfileScreen({ navigation }: any) {
                 onChangeText={(v) => setProfile({ fullName: v })}
                 placeholderTextColor="#666"
                 testID="input-profile-fullname"
-                accessibilityLabel="input-profile-fullname"
+                accessibilityLabel={t("fullName")}
               />
             </View>
 
@@ -184,7 +184,7 @@ export default function ProfileScreen({ navigation }: any) {
                 value={profile?.phone || ""}
                 onChangeText={(v) => setProfile({ phone: v })}
                 placeholderTextColor="#666"
-                accessibilityLabel="input-profile-phone"
+                accessibilityLabel={t("phone")}
                 testID="input-profile-phone"
               />
             </View>
@@ -196,7 +196,8 @@ export default function ProfileScreen({ navigation }: any) {
                 value={profile?.address || ""}
                 onChangeText={(v) => setProfile({ address: v })}
                 placeholderTextColor="#666"
-                accessibilityLabel="input-profile-address"
+                accessibilityLabel={t("address")}
+                testID="input-profile-address"
               />
             </View>
 
@@ -213,7 +214,7 @@ export default function ProfileScreen({ navigation }: any) {
                 value={profile?.notes || ""}
                 onChangeText={(v) => setProfile({ notes: v })}
                 placeholderTextColor="#666"
-                accessibilityLabel="input-profile-notes"
+                accessibilityLabel={t("deliveryNotes") || "Delivery Notes"}
                 testID="input-profile-notes"
               />
             </View>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResponsive } from "../hooks/useResponsive";
 import {
@@ -510,6 +510,24 @@ export default function Checkout() {
   // Automation-demo widgets: pre-order confirmation modal + tip tooltip.
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [tipTipOpen, setTipTipOpen] = useState(false);
+  const placeOrderBtnRef = useRef(null);
+  const confirmCancelRef = useRef(null);
+
+  // Move focus into the confirmation modal on open, trap Escape to close it,
+  // and return focus to the trigger button on close (WCAG 2.4.3).
+  useEffect(() => {
+    if (!confirmOpen) return;
+    confirmCancelRef.current?.focus();
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setConfirmOpen(false);
+        placeOrderBtnRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [confirmOpen]);
 
   const currency = items[0]?.currency || "USD";
   const symbol = items[0]?.currency_symbol || "$";
@@ -626,7 +644,11 @@ export default function Checkout() {
         {/* Left Column: Forms */}
         <div className="lg:col-span-2 space-y-10">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm">
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm"
+            >
               {typeof error === "string"
                 ? error
                 : JSON.stringify(error, null, 2)}
@@ -650,10 +672,11 @@ export default function Checkout() {
             >
               <div className="grid gap-6">
                 <div>
-                  <label data-testid="label-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                  <label htmlFor="field-address" data-testid="label-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                     {tOpt(UI_TEXT.streetPlaceholder, language)}
                   </label>
                   <input
+                    id="field-address"
                     data-testid={tid("address")}
                     className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                     placeholder={tOpt(
@@ -678,10 +701,11 @@ export default function Checkout() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {countryCode === "MX" && (
                     <div>
-                      <label data-testid="label-colonia" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-colonia" data-testid="label-colonia" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.coloniaPlaceholder, language)}
                       </label>
                       <input
+                        id="field-colonia"
                         data-testid="colonia"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="Polanco"
@@ -696,10 +720,11 @@ export default function Checkout() {
 
                   {countryCode === "MX" && (
                     <div>
-                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.zipPlaceholder, language)}
                       </label>
                       <input
+                        id="field-zip-code"
                         data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="06600"
@@ -718,10 +743,11 @@ export default function Checkout() {
 
                   {countryCode === "US" && (
                     <div>
-                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.zipPlaceholder, language)}
                       </label>
                       <input
+                        id="field-zip-code"
                         data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="90210"
@@ -741,10 +767,11 @@ export default function Checkout() {
 
                   {countryCode === "CH" && (
                     <div>
-                      <label data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.plzPlaceholder, language)}
                       </label>
                       <input
+                        id="field-zip-code"
                         data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="8001"
@@ -759,10 +786,11 @@ export default function Checkout() {
 
                   {countryCode === "JP" && (
                     <div>
-                      <label data-testid="label-prefectura" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-prefectura" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.prefecturaPlaceholder, language)}
                       </label>
                       <input
+                        id="field-zip-code"
                         data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder={tOpt(
@@ -786,10 +814,11 @@ export default function Checkout() {
 
                   {countryCode === "SA" && (
                     <div>
-                      <label data-testid="label-district" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-district" data-testid="label-district" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.districtPlaceholder, language)}
                       </label>
                       <input
+                        id="field-district"
                         data-testid="district"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder={tOpt(
@@ -827,10 +856,11 @@ export default function Checkout() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label data-testid="label-full-name" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label htmlFor="field-full-name" data-testid="label-full-name" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                       {tOpt(UI_TEXT.fullName, language)}
                     </label>
                     <input
+                      id="field-full-name"
                       data-testid={tid("full-name")}
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                       placeholder="Julian Casablancas"
@@ -843,10 +873,11 @@ export default function Checkout() {
                     />
                   </div>
                   <div>
-                    <label data-testid="label-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label htmlFor="field-phone" data-testid="label-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                       {tOpt(UI_TEXT.phone, language)}
                     </label>
                     <input
+                      id="field-phone"
                       type="tel"
                       data-testid={tid("phone")}
                       className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
@@ -862,8 +893,12 @@ export default function Checkout() {
                       minLength={8}
                       maxLength={20}
                       title={tOpt(UI_TEXT.invalidPhone, language)}
+                      aria-describedby="field-phone-hint"
                       required
                     />
+                    <span id="field-phone-hint" className="sr-only">
+                      {tOpt(UI_TEXT.invalidPhone, language)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -981,10 +1016,11 @@ export default function Checkout() {
                 {paymentMethod === "card" && (
                   <div className="grid gap-6 mt-6">
                     <div>
-                      <label data-testid="label-card-holder" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-card-holder" data-testid="label-card-holder" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.cardHolder, language)}
                       </label>
                       <input
+                        id="field-card-holder"
                         data-testid="card-holder"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="Julian Casablancas"
@@ -999,10 +1035,11 @@ export default function Checkout() {
                       />
                     </div>
                     <div>
-                      <label data-testid="label-card-number" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-card-number" data-testid="label-card-number" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.cardNumber, language)}
                       </label>
                       <input
+                        id="field-card-number"
                         data-testid="card-number"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="4242 4242 4242 4242"
@@ -1020,11 +1057,12 @@ export default function Checkout() {
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <label data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label id="field-card-expiry-label" data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                           {tOpt(UI_TEXT.cardExpiry, language)}
                         </label>
                         <div className="grid grid-cols-2 gap-3">
                           <select
+                            aria-labelledby="field-card-expiry-label"
                             data-testid="card-expiry-month"
                             style={{ colorScheme: "dark" }}
                             className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
@@ -1049,6 +1087,7 @@ export default function Checkout() {
                             ))}
                           </select>
                           <select
+                            aria-labelledby="field-card-expiry-label"
                             data-testid="card-expiry-year"
                             style={{ colorScheme: "dark" }}
                             className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
@@ -1075,10 +1114,11 @@ export default function Checkout() {
                         </div>
                       </div>
                       <div>
-                        <label data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label htmlFor="field-card-cvv" data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                           {tOpt(UI_TEXT.cardCvv, language)}
                         </label>
                         <input
+                          id="field-card-cvv"
                           data-testid="card-cvv"
                           className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                           placeholder="123"
@@ -1116,10 +1156,11 @@ export default function Checkout() {
                       {tOpt(UI_TEXT.paypalDemoNote, language)}
                     </div>
                     <div>
-                      <label data-testid="label-paypal-email" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-paypal-email" data-testid="label-paypal-email" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.paypalEmail, language)}
                       </label>
                       <input
+                        id="field-paypal-email"
                         type="email"
                         data-testid="paypal-email"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
@@ -1131,10 +1172,11 @@ export default function Checkout() {
                       />
                     </div>
                     <div>
-                      <label data-testid="label-paypal-password" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-paypal-password" data-testid="label-paypal-password" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
                         {tOpt(UI_TEXT.paypalPassword, language)}
                       </label>
                       <input
+                        id="field-paypal-password"
                         type="password"
                         data-testid="paypal-password"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
@@ -1337,6 +1379,7 @@ export default function Checkout() {
                       <button
                         key={`${value}`}
                         type="button"
+                        aria-pressed={active}
                         data-testid={`order-tip-${value}`}
                         onClick={() =>
                           setTipOption(optionKey)
@@ -1364,6 +1407,7 @@ export default function Checkout() {
             </div>
 
             <button
+              ref={placeOrderBtnRef}
               data-testid={tid("place-order-btn")}
               onClick={() => setConfirmOpen(true)}
               disabled={loading}
@@ -1401,7 +1445,12 @@ export default function Checkout() {
           aria-modal="true"
           aria-labelledby="confirm-order-title"
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setConfirmOpen(false); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setConfirmOpen(false);
+              placeOrderBtnRef.current?.focus();
+            }
+          }}
         >
           <div className="w-full max-w-sm rounded-2xl bg-[#161616] border border-[#2A2A2A] p-6 shadow-2xl">
             <h3 id="confirm-order-title" className="text-xl font-black text-white mb-2">
@@ -1415,9 +1464,13 @@ export default function Checkout() {
             </p>
             <div className="flex gap-3">
               <button
+                ref={confirmCancelRef}
                 type="button"
                 data-testid="confirm-order-cancel"
-                onClick={() => setConfirmOpen(false)}
+                onClick={() => {
+                  setConfirmOpen(false);
+                  placeOrderBtnRef.current?.focus();
+                }}
                 className="flex-1 py-3 rounded-xl border border-[#333] text-white font-bold hover:bg-[#222] transition-colors"
               >
                 {tOpt({ en: "Cancel", es: "Cancelar", de: "Abbrechen", fr: "Annuler", ja: "キャンセル" }, language)}

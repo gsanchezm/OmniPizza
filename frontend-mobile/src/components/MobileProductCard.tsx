@@ -25,7 +25,8 @@ const MobileProductCardComponent = ({ pizza, onPress }: MobileProductCardProps) 
           source={remoteImageSource(pizza.image)}
           style={[styles.image, StyleSheet.absoluteFill]}
           resizeMode="cover"
-          accessibilityLabel={`img-pizza-${pizza.id}`}
+          accessible={false}
+          importantForAccessibility="no"
           testID={`img-pizza-${pizza.id}`}
         />
       </View>
@@ -43,7 +44,7 @@ const MobileProductCardComponent = ({ pizza, onPress }: MobileProductCardProps) 
              style={styles.addButton}
              {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, `Add ${pizza.name}`)}
            >
-              <Text style={styles.addIcon} accessibilityLabel={`icon-add-pizza-${pizza.id}`}>＋</Text>
+              <Text style={styles.addIcon} importantForAccessibility="no">＋</Text>
            </TouchableOpacity>
         </View>
       </View>

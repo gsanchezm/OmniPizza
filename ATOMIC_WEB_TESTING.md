@@ -43,6 +43,37 @@ Protected routes redirect to `/` automatically if no token is found in `localSto
 
 ---
 
+## Test Users
+
+All accounts share the password `pizza123` (see `backend/constants.py:TEST_USERS`).
+Each encodes a deterministic behavior that automation can rely on for negative-path
+and resilience testing — these are intentional features of the sandbox, not bugs to
+report.
+
+| Username | Behavior |
+|---|---|
+| `standard_user` | Normal login and checkout flow |
+| `locked_out_user` | Login always returns 401 ("Sorry, this user has been locked out") |
+| `problem_user` | Catalog renders $0 prices and broken images |
+| `performance_glitch_user` | Every API call has a ~3s artificial delay |
+| `error_user` | `POST /api/checkout` returns a 500 error ~50% of the time |
+
+---
+
+## API Contract (OpenAPI)
+
+The backend publishes a machine-readable OpenAPI 3 schema for contract-based tooling
+(security scanners, fuzzers, mock servers):
+
+- Schema JSON: `GET /api/openapi.json`
+- Interactive docs: `/api/docs` (Swagger UI), `/api/redoc` (ReDoc)
+
+The schema already declares the `Authorization: Bearer <token>` security scheme
+(FastAPI's `HTTPBearer`), so tools that consume OpenAPI security definitions don't
+need manual auth configuration beyond supplying a token from `POST /api/login`.
+
+---
+
 ## LocalStorage Keys
 
 Every key below is written by `frontend/src/store.js` (the single source of all

@@ -62,7 +62,7 @@ export default function CatalogScreen({ navigation }: any) {
         {/* Search Bar */}
         <View style={styles.searchContainer} accessibilityLabel="view-search-container">
           <View style={styles.searchBar} accessibilityLabel="view-search-bar">
-            <Text style={{ fontSize: 16 }} accessibilityLabel="icon-search">🔍</Text>
+            <Text style={{ fontSize: 16 }} importantForAccessibility="no">🔍</Text>
             <TextInput
               placeholder={t("searchPlaceholder")}
               placeholderTextColor={Colors.text.muted}
@@ -70,7 +70,7 @@ export default function CatalogScreen({ navigation }: any) {
               value={searchQuery}
               onChangeText={setSearchQuery}
               testID="input-search-pizza"
-              accessibilityLabel="input-search-pizza"
+              accessibilityLabel={t("searchPlaceholder")}
             />
           </View>
         </View>
@@ -90,9 +90,10 @@ export default function CatalogScreen({ navigation }: any) {
             color={Colors.brand.primary}
             style={{ marginTop: 40 }}
             accessibilityLabel="loader-catalog"
+            accessibilityRole="progressbar"
           />
         ) : error ? (
-          <Text style={styles.errorText} {...getReadableTextProps("text-catalog-error", "Unable to load menu. Check connection.")}>
+          <Text style={styles.errorText} accessibilityLiveRegion="polite" {...getReadableTextProps("text-catalog-error", "Unable to load menu. Check connection.")}>
             Unable to load menu. Check connection.
           </Text>
         ) : (

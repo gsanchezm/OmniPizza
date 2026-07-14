@@ -31,6 +31,8 @@ export const LocationHeader = ({
             <TouchableOpacity
               onPress={() => setLanguage("de")}
               style={[styles.langBtn, language === "de" && styles.langBtnActive]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: language === "de" }}
               {...getReadableControlProps("btn-header-lang-de", "DE")}
             >
               <Text
@@ -47,6 +49,8 @@ export const LocationHeader = ({
             <TouchableOpacity
               onPress={() => setLanguage("fr")}
               style={[styles.langBtn, language === "fr" && styles.langBtnActive]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: language === "fr" }}
               {...getReadableControlProps("btn-header-lang-fr", "FR")}
             >
               <Text

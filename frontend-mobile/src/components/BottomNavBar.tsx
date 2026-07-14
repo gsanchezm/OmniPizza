@@ -52,7 +52,12 @@ export const BottomNavBar = () => {
             <TouchableOpacity
               key={item.name}
               style={styles.tab}
-              {...getReadableControlProps(`nav-${item.name.toLowerCase()}`, item.label)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              {...getReadableControlProps(
+                `nav-${item.name.toLowerCase()}`,
+                item.badge !== undefined ? `${item.label} (${item.badge})` : item.label
+              )}
               onPress={
                 item.onPress ||
                 (() => {

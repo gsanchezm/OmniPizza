@@ -242,6 +242,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                   key={opt.id}
                   onPress={() => setSize(opt.id)}
                   style={[styles.sizePill, active && styles.sizePillActive]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
                   {...getReadableControlProps(`btn-size-${opt.id}`, mainText)}
                 >
                   <Text
@@ -301,6 +303,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         isSelected && styles.toppingCardActive,
                         disabled && { opacity: 0.5 },
                       ]}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: isSelected, disabled }}
                       {...getReadableControlProps(`btn-topping-${it.id}`, tOpt(it.label, language))}
                     >
                       <View
@@ -310,17 +314,16 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                             backgroundColor: "rgba(255, 87, 34, 0.2)",
                           },
                         ]}
-                        accessibilityLabel={`view-topping-icon-${it.id}`}
+                        importantForAccessibility="no-hide-descendants"
                       >
                         {(it as any).image ? (
                           <Image
                             source={(it as any).image}
                             style={styles.toppingIconImage}
                             resizeMode="cover"
-                            accessibilityLabel={`img-topping-${it.id}`}
                           />
                         ) : (
-                          <Text style={{ fontSize: 24 }} accessibilityLabel={`icon-topping-${it.id}`}>🧀</Text>
+                          <Text style={{ fontSize: 24 }}>🧀</Text>
                         )}
                       </View>
                       <Text
@@ -336,14 +339,13 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                       </Text>
 
                       {isSelected && (
-                        <View style={styles.checkBadge} accessibilityLabel={`view-check-${it.id}`}>
+                        <View style={styles.checkBadge} importantForAccessibility="no-hide-descendants">
                           <Text
                             style={{
                               color: "white",
                               fontSize: 10,
                               fontWeight: "bold",
                             }}
-                            accessibilityLabel={`icon-check-${it.id}`}
                           >
                             ✓
                           </Text>

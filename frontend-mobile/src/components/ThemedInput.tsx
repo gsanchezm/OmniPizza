@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps } from 'react-native';
 import { Colors } from '../theme/colors';
-import { getReadableTextProps, getTestProps } from '../utils/qa';
+import { getReadableTextProps, getReadableControlProps } from '../utils/qa';
 
 interface ThemedInputProps extends TextInputProps {
   label: string;
@@ -26,7 +26,7 @@ export const ThemedInput = ({ label, icon, rightElement, error, testID, style, .
           style={[styles.input, icon ? { paddingLeft: 40 } : null, rightElement ? { paddingRight: 40 } : null, style]}
           placeholderTextColor={Colors.text.muted}
           selectionColor={Colors.brand.primary}
-          {...(testID ? getTestProps(testID) : {})}
+          {...(testID ? getReadableControlProps(testID, label) : {})}
           {...props}
         />
         {rightElement && <View style={styles.rightContainer}>{rightElement}</View>}
@@ -34,6 +34,7 @@ export const ThemedInput = ({ label, icon, rightElement, error, testID, style, .
       {error && (
         <Text
           style={styles.errorText}
+          accessibilityLiveRegion="polite"
           {...getReadableTextProps(testID ? `error-${testID}` : "error-themed-input", error)}
         >
           {error}

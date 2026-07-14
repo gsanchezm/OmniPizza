@@ -333,7 +333,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.colonia}
               onChangeText={(v) => setForm((p) => ({ ...p, colonia: v }))}
-              accessibilityLabel="input-colonia"
+              accessibilityLabel={t("colonia")}
               testID="input-colonia"
             />
           </View>
@@ -350,7 +350,7 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
               }
-              accessibilityLabel="input-zipcode"
+              accessibilityLabel={t("zipCode")}
               testID="input-zipcode"
               maxLength={5}
             />
@@ -368,7 +368,7 @@ export default function CheckoutScreen({ navigation }: any) {
               onChangeText={(v) =>
                 setForm((p) => ({ ...p, zip_code: v.replace(/[^0-9]/g, "") }))
               }
-              accessibilityLabel="input-zipcode"
+              accessibilityLabel={t("zipCode")}
               testID="input-zipcode"
               maxLength={5}
             />
@@ -383,7 +383,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.plz}
               onChangeText={(v) => setForm((p) => ({ ...p, plz: v }))}
-              accessibilityLabel="input-zipcode"
+              accessibilityLabel={t("plz")}
               testID="input-zipcode"
             />
           </View>
@@ -397,7 +397,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.prefectura}
               onChangeText={(v) => setForm((p) => ({ ...p, prefectura: v }))}
-              accessibilityLabel="input-zipcode"
+              accessibilityLabel={t("prefecture")}
               testID="input-zipcode"
             />
           </View>
@@ -411,7 +411,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.district}
               onChangeText={(v) => setForm((p) => ({ ...p, district: v }))}
-              accessibilityLabel="input-district"
+              accessibilityLabel={t("district")}
               testID="input-district"
             />
           </View>
@@ -430,7 +430,7 @@ export default function CheckoutScreen({ navigation }: any) {
               placeholderTextColor="#555"
               value={form.name}
               onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
-              accessibilityLabel="input-fullname"
+              accessibilityLabel={tOpt(UI_TEXT.fullName, language)}
               testID="input-fullname"
             />
           </View>
@@ -446,7 +446,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 setForm((p) => ({ ...p, phone: v.replace(/[^0-9]/g, "") }))
               }
               testID="input-phone"
-              accessibilityLabel="input-phone"
+              accessibilityLabel={tOpt(UI_TEXT.phone, language)}
               maxLength={20}
             />
           </View>
@@ -463,6 +463,8 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "card" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("card")}
+          accessibilityRole="radio"
+          accessibilityState={{ selected: paymentMethod === "card" }}
           {...getReadableControlProps("btn-payment-card", t("creditCard"))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-card">
@@ -489,6 +491,8 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "cash" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("cash")}
+          accessibilityRole="radio"
+          accessibilityState={{ selected: paymentMethod === "cash" }}
           {...getReadableControlProps("btn-payment-cash", tOpt(UI_TEXT.cash, language))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-cash">
@@ -515,6 +519,8 @@ export default function CheckoutScreen({ navigation }: any) {
             paymentMethod === "paypal" && styles.paymentCardActive,
           ]}
           onPress={() => setPaymentMethod("paypal")}
+          accessibilityRole="radio"
+          accessibilityState={{ selected: paymentMethod === "paypal" }}
           {...getReadableControlProps("btn-payment-paypal", t("paypal") || "PayPal")}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-paypal">
@@ -555,7 +561,7 @@ export default function CheckoutScreen({ navigation }: any) {
                   setPaypalEmail(v);
                   setPaypalLoggedIn(false);
                 }}
-                accessibilityLabel="input-paypal-email"
+                accessibilityLabel="Email"
                 testID="input-paypal-email"
               />
             </View>
@@ -571,7 +577,7 @@ export default function CheckoutScreen({ navigation }: any) {
                   setPaypalPassword(v);
                   setPaypalLoggedIn(false);
                 }}
-                accessibilityLabel="input-paypal-password"
+                accessibilityLabel="Password"
                 testID="input-paypal-password"
               />
             </View>
@@ -602,7 +608,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 placeholderTextColor="#555"
                 value={form.card_holder}
                 onChangeText={(v) => setForm((p) => ({ ...p, card_holder: v }))}
-                accessibilityLabel="input-card-holder"
+                accessibilityLabel={t("cardHolder")}
                 testID="input-card-holder"
               />
             </View>
@@ -621,7 +627,8 @@ export default function CheckoutScreen({ navigation }: any) {
                     card_number: v.replace(/[^0-9]/g, ""),
                   }))
                 }
-                accessibilityLabel="input-card-number"
+                accessibilityLabel={t("cardNumber")}
+                testID="input-card-number"
               />
             </View>
             <View accessibilityLabel="view-field-card-expiry">
@@ -663,7 +670,8 @@ export default function CheckoutScreen({ navigation }: any) {
                     card_cvv: v.replace(/[^0-9]/g, ""),
                   }))
                 }
-                accessibilityLabel="input-card-cvv"
+                accessibilityLabel={t("cvv")}
+                testID="input-card-cvv"
               />
             </View>
           </View>
@@ -688,7 +696,7 @@ export default function CheckoutScreen({ navigation }: any) {
                     "https://omnipizza.onrender.com/static/images/pizza-1.png",
                 )}
                 style={styles.itemImage}
-                accessibilityLabel={`img-item-${item.id}`}
+                accessibilityLabel={item.pizza.name}
               />
               <View style={{ flex: 1 }} accessibilityLabel={`view-item-info-${item.id}`}>
                 <Text
@@ -704,7 +712,7 @@ export default function CheckoutScreen({ navigation }: any) {
                     onPress={() => {
                       /* Edit logic would go here, ideally passing item to builder */
                     }}
-                    {...getTestProps(`btn-edit-item-${item.id}`)}
+                    {...getReadableControlProps(`btn-edit-item-${item.id}`, tOpt(UI_TEXT.edit, language).toUpperCase())}
                   >
                     <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, tOpt(UI_TEXT.edit, language).toUpperCase())}>
                       {tOpt(UI_TEXT.edit, language).toUpperCase()}
@@ -798,6 +806,8 @@ export default function CheckoutScreen({ navigation }: any) {
                     active && styles.tipPillActive,
                   ]}
                   onPress={() => setTipOption(optionKey)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
                   {...getReadableControlProps(`btn-tip-${optionValue}`, `${optionValue}%`)}
                 >
                   <Text
@@ -843,6 +853,7 @@ export default function CheckoutScreen({ navigation }: any) {
           <View style={styles.errorBox} accessibilityLabel="view-checkout-error">
             <Text
               style={styles.errorBoxText}
+              accessibilityLiveRegion="polite"
               {...getReadableTextProps("text-checkout-error", error)}
             >
               {error}
@@ -854,6 +865,7 @@ export default function CheckoutScreen({ navigation }: any) {
           style={styles.btnPrimary}
           onPress={() => setShowConfirm(true)}
           disabled={loading}
+          accessibilityRole="button"
           {...getReadableControlProps("btn-place-order", loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language))}
         >
           <Text style={styles.btnText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${tOpt(UI_TEXT.placeOrder, language)}  →`)}>
@@ -875,7 +887,7 @@ export default function CheckoutScreen({ navigation }: any) {
           onPress={() => setShowConfirm(false)}
           accessibilityLabel="btn-confirm-order-scrim"
         >
-          <Pressable style={styles.confirmCard} accessibilityLabel="view-confirm-order-card">
+          <Pressable style={styles.confirmCard} accessibilityViewIsModal accessibilityLabel="view-confirm-order-card">
             <Text
               style={styles.confirmTitle}
               {...getReadableTextProps("text-confirm-order-title", tOpt(UI_TEXT.placeOrder, language))}

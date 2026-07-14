@@ -57,6 +57,7 @@ export const Toast = () => {
       <Text
         style={styles.message}
         numberOfLines={2}
+        accessibilityLiveRegion="polite"
         {...getReadableTextProps("text-toast-message", message)}
       >
         {message}
@@ -65,9 +66,10 @@ export const Toast = () => {
         style={styles.closeBtn}
         onPress={hide}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        accessibilityRole="button"
         {...getReadableControlProps("btn-toast-close", "Close")}
       >
-        <Text style={styles.closeIcon} accessibilityLabel="icon-toast-close">
+        <Text style={styles.closeIcon} importantForAccessibility="no" testID="icon-toast-close">
           ✕
         </Text>
       </TouchableOpacity>

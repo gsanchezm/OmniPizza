@@ -24,7 +24,8 @@ export function PizzaCard({ pizza, addLabel, onAdd }: PizzaCardProps) {
       <Image
         source={remoteImageSource(pizza.image)}
         style={styles.image}
-        accessibilityLabel={`img-pizza-${pizza.id}`}
+        accessible={false}
+        importantForAccessibility="no"
         testID={`img-pizza-${pizza.id}`}
         onError={(event: any) => {
           event?.currentTarget?.setNativeProps?.({
