@@ -95,6 +95,7 @@
         <span>FastAPI</span>
         <span>Vitest</span>
         <span>Expo</span>
+        <span>Zustand</span>
       </div>
     </header>
 
@@ -221,8 +222,23 @@
             <ul>
               <li class="list-item">Vitest API tests in <code>tests/</code></li>
               <li class="list-item">Cypress component tests in <code>frontend/cypress/component/</code></li>
+              <li class="list-item">Golden characterization tests over checkout, catalog, and chaos-user behaviors</li>
               <li class="list-item">External atomic runners: Playwright, Appium, Gatling</li>
               <li class="list-item">Mobile atomic entry via <code>omnipizza://</code> deep links</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Backend & Performance</h4>
+            <p>
+              The backend and both clients have been incrementally refactored for
+              maintainability and runtime performance, without changing behavior.
+            </p>
+            <ul>
+              <li class="list-item">Backend split into <code>auth</code>/<code>catalog</code>/<code>checkout</code>/<code>debug</code> routers</li>
+              <li class="list-item">Checkout field assembly driven from <code>COUNTRY_CONFIG</code> (Open/Closed)</li>
+              <li class="list-item">Web: route-level code-splitting (<code>React.lazy</code> + <code>Suspense</code>), memoized cart/product components</li>
+              <li class="list-item">Mobile: <code>React.memo</code> catalog cards, narrowed Zustand field selectors</li>
+              <li class="list-item">Zustand devtools middleware wired into both web stores</li>
             </ul>
           </div>
         </div>
@@ -251,13 +267,15 @@
         <div class="feature-split">
           <div class="feature-split-text">
             <h3>Multi-Market Simulation & Pricing</h3>
-            <p>Switch between regions directly from the login screen to validate localization, dynamic pricing, and market-specific flows dynamically.</p>
+            <p>Choose a market and language directly on the login screen — the selection drives pricing, tax, required checkout fields, and localization for the rest of the session (market no longer switches mid-session, so the cart never gets silently cleared).</p>
             <ul>
               <li class="list-item"><strong>Mexico (MXN):</strong> 16% IVA, requires "colonia", optional <code>propina</code> percentage, Spanish (es)</li>
               <li class="list-item"><strong>United States (USD):</strong> 8% sales tax, requires "zip_code", optional <code>tip</code> percentage, English (en)</li>
               <li class="list-item"><strong>Switzerland (CHF):</strong> 8.1% VAT, requires <code>plz</code>, optional <code>trinkgeld</code>, DE/FR toggle</li>
               <li class="list-item"><strong>Japan (JPY):</strong> 10% consumption tax, requires "prefectura", optional <code>chip</code>, no decimals</li>
+              <li class="list-item"><strong>Saudi Arabia (SAR):</strong> 15% VAT, requires "district", optional <code>baksheesh</code> percentage, Arabic (ar) with full right-to-left layout on web and mobile</li>
               <li class="list-item"><strong>Tips:</strong> Web and mobile use percentage options <code>0%</code>, <code>5%</code>, <code>10%</code>, <code>15%</code>, with <code>0%</code> selected by default.</li>
+              <li class="list-item"><strong>Real country flags:</strong> composed SVG flags (not emoji) with stable <code>flag-{code}</code>/<code>market-{code}</code> selectors for image assertions.</li>
             </ul>
           </div>
           <div class="feature-split-image">
@@ -281,6 +299,40 @@
               <img src="screenshots/responsive/pizzabuilder_responsive.png" style="width: 45%; object-fit: contain;" alt="Responsive Builder View" />
               <img src="screenshots/ios/ordersuccess_ios.png" style="width: 45%; object-fit: contain;" alt="iOS Native View" />
             </div>
+          </div>
+        </div>
+
+        <div class="feature-split">
+          <div class="feature-split-text">
+            <h3>Rich Automatable Widgets</h3>
+            <p>Beyond forms and lists, the app exposes hand-rolled interactive element types so testers can practice against the widgets real apps ship with — no extra dependencies, same testID/data-testid conventions throughout.</p>
+            <ul>
+              <li class="list-item"><strong>Pre-order confirm modal:</strong> intercepts "Place order"; confirm/cancel with focus management.</li>
+              <li class="list-item"><strong>Add-to-cart toast:</strong> transient, auto-dismiss + manual close.</li>
+              <li class="list-item"><strong>Tip tooltip:</strong> hover/press popover on the tip info icon.</li>
+              <li class="list-item"><strong>Order-details accordion:</strong> expand/collapse on Order Success.</li>
+              <li class="list-item"><strong>Payment method radios:</strong> Card / Cash / PayPal, each revealing conditional fields — an emulated PayPal login form and MM/YY card-expiry dropdowns.</li>
+              <li class="list-item"><strong>Reusable custom dropdown:</strong> also powers the Profile birthday date picker (day/month/year).</li>
+            </ul>
+          </div>
+          <div class="feature-split-image">
+            <img src="screenshots/desktop/checkout_desktop.png" alt="Checkout screen with widgets" />
+          </div>
+        </div>
+
+        <div class="feature-split">
+          <div class="feature-split-text">
+            <h3>Accessibility (WCAG 2.2 AA)</h3>
+            <p>Selection controls, live error messaging, and modal focus are built to a real accessibility contract, not just a visual one — useful for practicing automated a11y assertions, not just axe-core sweeps.</p>
+            <ul>
+              <li class="list-item"><code>aria-pressed</code> / <code>accessibilityState</code> on tip, market, language, size, and category pills — state isn't communicated by color alone.</li>
+              <li class="list-item"><code>role="alert"</code> + <code>aria-live</code> (web) and <code>accessibilityLiveRegion</code> (mobile) on error messages.</li>
+              <li class="list-item">Form labels associated to inputs via <code>htmlFor</code>/<code>id</code>; focus management on modal open/close.</li>
+              <li class="list-item">Mobile <code>testID</code> and <code>accessibilityLabel</code> are decoupled by design — TalkBack/VoiceOver announce readable text while Appium still locates elements by stable <code>resource-id</code>.</li>
+            </ul>
+          </div>
+          <div class="feature-split-image">
+            <img src="screenshots/ios/login_ios.png" alt="Login screen with accessible market and language selection" />
           </div>
         </div>
       </section>
@@ -426,6 +478,33 @@
           <li class="list-item">
             The mobile release workflow is manual-dispatch based and creates a
             GitHub Release after building Android and iOS simulator artifacts.
+          </li>
+          <li class="list-item">
+            Catalog items expose a real <code>category</code> field
+            (<code>popular | veggie | meat | sides</code>) via
+            <code>/api/pizzas</code>, so category filters can be driven from data
+            instead of name-keyword heuristics.
+          </li>
+        </ul>
+
+        <h3 style="margin-top: 3rem">Security Testing Surface</h3>
+        <ul>
+          <li class="list-item">
+            <strong>API contract fuzzing:</strong>
+            <code>GET /api/openapi.json</code> publishes a machine-readable OpenAPI 3
+            schema — including the <code>Authorization: Bearer</code> security scheme —
+            for contract-based scanners and fuzzers to consume directly.
+          </li>
+          <li class="list-item">
+            <strong>Static scanning (MobSF):</strong> the Android release APK
+            (<code>pnpm build:android</code>) is a standard Expo artifact with no
+            non-standard permissions, ready to feed into a local MobSF instance.
+          </li>
+          <li class="list-item">
+            <strong>Intentional backdoors:</strong> the <code>accessToken</code> deep-link
+            bypass, deterministic chaos users, and predictable auth tokens are
+            deliberate parts of the sandbox contract for practicing security
+            testing — not defects to report.
           </li>
         </ul>
 
