@@ -3,10 +3,10 @@ import PrimaryButton from './PrimaryButton';
 import { useT } from '../i18n';
 import { useCountryStore } from '../store';
 import { SIZE_OPTIONS } from '../constants/pizza';
+import { getRateFromPizza } from '../utils/pizzaPricing';
 
 function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
   const t = useT();
-  const language = useCountryStore((s) => s.language) || 'en';
   const locale = useCountryStore((s) => s.locale) || 'en-US';
   const marketCurrency = useCountryStore((s) => s.currency) || 'USD';
   const cartCurrency = cartItems[0]?.currency || marketCurrency;
@@ -29,9 +29,13 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
     }
   };
 
-  const getSizeLabel = (sizeId) => {
+  const getSizeLabel = (item) => {
+    const sizeId = item.config?.size || 'small';
     const option = SIZE_OPTIONS.find((s) => s.id === sizeId);
-    return option?.label?.[language] || option?.label?.en || sizeId;
+    if (!option) return sizeId;
+    const label = t(option.label);
+    if (!option.usd) return label;
+    return `${label} (+${format(getRateFromPizza(item.pizza) * option.usd)})`;
   };
 
   if (cartItems.length === 0) {
@@ -73,7 +77,7 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
             <div className="flex-1 min-w-0">
                <h3 className="font-bold text-white text-sm truncate">{item.pizza.name}</h3>
                <p className="text-xs text-gray-500 truncate">
-                 {getSizeLabel(item.config?.size || 'small')} | {item.config?.toppings?.length || 0} {t('toppings')}
+                 {getSizeLabel(item)} | {item.config?.toppings?.length || 0} {t('toppings')}
                </p>
                
                <div className="flex items-center justify-between mt-2">
@@ -81,14 +85,14 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
                      <button
                        data-testid={`cart-qty-minus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity - 1)}
-                       aria-label={`Decrease quantity of ${item.pizza.name}`}
+                       aria-label={`${t('decreaseQuantity')} ${item.pizza.name}`}
                        className="text-gray-400 hover:text-white px-1"
                      >−</button>
                      <span data-testid={`cart-qty-${item.pizza_id}`} className="text-xs font-bold text-white w-3 text-center">{item.quantity}</span>
                      <button
                        data-testid={`cart-qty-plus-${item.pizza_id}`}
                        onClick={() => onUpdateQty(item.id, item.quantity + 1)}
-                       aria-label={`Increase quantity of ${item.pizza.name}`}
+                       aria-label={`${t('increaseQuantity')} ${item.pizza.name}`}
                        className="text-gray-400 hover:text-white px-1"
                      >+</button>
                   </div>

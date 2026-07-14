@@ -53,7 +53,7 @@ export default function Navbar() {
               setMobileOpen(false);
               navigate("/catalog");
             }}
-            aria-label="Go to catalog"
+            aria-label={t("goToCatalog")}
           >
             <img
               src="/omnipizza-logo.png"
@@ -65,7 +65,7 @@ export default function Navbar() {
                 OmniPizza
               </div>
               <div className="text-xs font-semibold text-text-muted -mt-0.5">
-                {username || "user"}
+                {username || t("user")}
               </div>
             </div>
           </button>
@@ -111,7 +111,7 @@ export default function Navbar() {
           {/* Desktop controls */}
           <div className="hidden md:flex items-center gap-2">
             {isCH && (
-              <div role="group" aria-label="Language" className="flex items-center rounded-xl border border-border overflow-hidden">
+              <div role="group" aria-label={t("language")} className="flex items-center rounded-xl border border-border overflow-hidden">
                 <button
                   type="button"
                   aria-pressed={language === "de"}
@@ -154,7 +154,7 @@ export default function Navbar() {
             data-testid="mobile-menu-btn"
             className="md:hidden px-3 py-2 rounded-xl border border-border bg-surface-2 font-extrabold text-text"
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-label={t(mobileOpen ? "closeMenu" : "openMenu")}
             aria-expanded={mobileOpen}
             aria-controls="mobile-nav-menu"
           >
@@ -167,7 +167,7 @@ export default function Navbar() {
           <div id="mobile-nav-menu" className="md:hidden border-t border-[#2A2A2A] bg-[#1E1E1E] absolute top-16 left-0 right-0 shadow-2xl z-50">
             <div className="mx-auto max-w-6xl px-4 py-3 grid gap-3">
               {isCH && (
-                <div role="group" aria-label="Language" className="flex items-center rounded-xl border border-border overflow-hidden">
+                <div role="group" aria-label={t("language")} className="flex items-center rounded-xl border border-border overflow-hidden">
                   <button
                     type="button"
                     aria-pressed={language === "de"}

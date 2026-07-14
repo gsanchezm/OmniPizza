@@ -93,8 +93,8 @@ export default function CatalogScreen({ navigation }: any) {
             accessibilityRole="progressbar"
           />
         ) : error ? (
-          <Text style={styles.errorText} accessibilityLiveRegion="polite" {...getReadableTextProps("text-catalog-error", "Unable to load menu. Check connection.")}>
-            Unable to load menu. Check connection.
+          <Text style={styles.errorText} accessibilityLiveRegion="polite" {...getReadableTextProps("text-catalog-error", t(error))}>
+            {t(error)}
           </Text>
         ) : (
           <View style={styles.list} accessibilityLabel="view-pizza-list">
@@ -106,7 +106,7 @@ export default function CatalogScreen({ navigation }: any) {
               />
             ))}
             {filteredPizzas.length === 0 && (
-              <Text style={styles.emptyText} {...getReadableTextProps("text-empty-results", "No pizzas found matching your criteria.")}>No pizzas found matching your criteria.</Text>
+              <Text style={styles.emptyText} {...getReadableTextProps("text-empty-results", t("noPizzasFound"))}>{t("noPizzasFound")}</Text>
             )}
           </View>
         )}

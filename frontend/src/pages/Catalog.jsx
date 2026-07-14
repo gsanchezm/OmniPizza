@@ -2,7 +2,6 @@ import React, { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore, useCartStore, useCountryStore } from "../store";
 import { useResponsive } from "../hooks/useResponsive";
-import { UI_STRINGS } from "../constants/pizza";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
 import { useT } from "../i18n";
 import { useCatalogPizzas } from "../features/catalog/hooks/useCatalogPizzas";
@@ -10,14 +9,6 @@ import CategoryFilter from "../components/CategoryFilter";
 import CartSidebar from "../components/CartSidebar";
 import ProductCard from "../components/ProductCard";
 import { useToastStore } from "../components/toastStore";
-
-const MARKET_OPTIONS = [
-  { code: "US", label: "US - English", flag: "🇺🇸" },
-  { code: "MX", label: "MX - Spanish", flag: "🇲🇽" },
-  { code: "CH", label: "CH - German", flag: "🇨🇭" },
-  { code: "JP", label: "JP - Japanese", flag: "🇯🇵" },
-  { code: "SA", label: "SA - Arabic", flag: "🇸🇦" },
-];
 
 function formatMoney(value, currency, locale, symbol) {
   try {
@@ -71,7 +62,7 @@ export default function Catalog() {
   const handleConfirm = (config) => {
     if (!selectedPizza) return;
     addConfiguredItem(selectedPizza, config);
-    useToastStore.getState().show(t("addedToCart") || "Added to cart");
+    useToastStore.getState().show(t("addedToCart"));
     handleCloseModal();
   };
 
@@ -97,8 +88,8 @@ export default function Catalog() {
 
 
   // --- Render ---
-  if (loading) return <div data-testid="catalog-loading" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white">Loading Menu...</div>;
-  if (error) return <div data-testid="catalog-error" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-red-500">{error}</div>;
+  if (loading) return <div data-testid="catalog-loading" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-white">{t("loadingMenu")}</div>;
+  if (error) return <div data-testid="catalog-error" className="min-h-screen bg-[#0F0F0F] flex items-center justify-center text-red-500">{t(error)}</div>;
 
   return (
     <div data-testid="screen-catalog" className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12">
@@ -146,13 +137,14 @@ export default function Catalog() {
                          onAdd={handleOpenModal}
                          formatPrice={formatPrice}
                          tid={tid}
+                         t={t}
                        />
                     ))}
                   </div>
                 ) : (
                    <div className="text-center py-20 bg-[#1E1E1E] rounded-3xl border border-[#2A2A2A]">
-                      <p className="text-gray-500 font-bold">No pizzas found matching your criteria.</p>
-                      <button data-testid={tid("clear-filters")} onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">Clear Filters</button>
+                      <p className="text-gray-500 font-bold">{t("noPizzasFound")}</p>
+                      <button data-testid={tid("clear-filters")} onClick={() => {setSearchQuery(''); setSelectedCategory('all');}} className="mt-4 text-[#FF5722] hover:underline font-bold">{t("clearFilters")}</button>
                    </div>
                 )}
              </div>

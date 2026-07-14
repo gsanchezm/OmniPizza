@@ -5,6 +5,7 @@ import type { Pizza } from "../types/api";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
 import { useRTL } from "../hooks/useRTL";
+import { useT } from "../i18n";
 
 interface MobileProductCardProps {
   pizza: Pizza;
@@ -12,6 +13,7 @@ interface MobileProductCardProps {
 }
 
 const MobileProductCardComponent = ({ pizza, onPress }: MobileProductCardProps) => {
+  const t = useT();
   const { textAlign, row } = useRTL();
   return (
     <View style={[styles.card, { flexDirection: row }]} testID={`card-pizza-${pizza.id}`} accessibilityLabel={`card-pizza-${pizza.id}`}>
@@ -42,7 +44,7 @@ const MobileProductCardComponent = ({ pizza, onPress }: MobileProductCardProps) 
            <TouchableOpacity
              onPress={() => onPress(pizza)}
              style={styles.addButton}
-             {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, `Add ${pizza.name}`)}
+             {...getReadableControlProps(`btn-add-pizza-${pizza.id}`, `${t("addPizza")} ${pizza.name}`)}
            >
               <Text style={styles.addIcon} importantForAccessibility="no">＋</Text>
            </TouchableOpacity>

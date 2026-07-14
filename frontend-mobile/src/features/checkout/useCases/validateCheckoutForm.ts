@@ -9,28 +9,28 @@ export function validateCheckoutForm(input: {
 }): string {
   const { country, form, paymentMethod, t } = input;
 
-  if (!form.address.trim()) return `${t("streetAndNumber")} is required.`;
-  if (country === "MX" && !form.colonia.trim()) return `${t("colonia")} is required.`;
-  if (country === "MX" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return `${t("zipCode")} is required and must be 5 digits.`;
-  if (country === "US" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return `${t("zipCode")} is required and must be 5 digits.`;
-  if (country === "CH" && !form.plz.trim()) return `${t("plz")} is required.`;
-  if (country === "JP" && !form.prefectura.trim()) return `${t("prefecture")} is required.`;
-  if (country === "SA" && !form.district.trim()) return `${t("district")} is required.`;
-  if (!form.name.trim()) return `${t("fullName")} is required.`;
+  if (!form.address.trim()) return t("validationAddressRequired");
+  if (country === "MX" && !form.colonia.trim()) return t("validationColoniaRequired");
+  if (country === "MX" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return t("validationZipFiveDigits");
+  if (country === "US" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return t("validationZipFiveDigits");
+  if (country === "CH" && !form.plz.trim()) return t("validationPlzRequired");
+  if (country === "JP" && !form.prefectura.trim()) return t("validationPrefectureRequired");
+  if (country === "SA" && !form.district.trim()) return t("validationDistrictRequired");
+  if (!form.name.trim()) return t("validationFullNameRequired");
   if (!form.phone.trim() || form.phone.replace(/\D/g, "").length < 8) {
-    return `${t("phone")} must be at least 8 digits.`;
+    return t("validationPhoneMinDigits");
   }
 
   if (paymentMethod === "card") {
-    if (!form.card_holder.trim()) return `${t("cardHolder")} is required.`;
+    if (!form.card_holder.trim()) return t("validationCardHolderRequired");
     if (form.card_number.replace(/\D/g, "").length < 13) {
-      return `${t("cardNumber")} must be at least 13 digits.`;
+      return t("validationCardNumberMinDigits");
     }
     if (form.card_expiry.replace(/\D/g, "").length < 4) {
-      return `${t("cardExpiry")} is required (MMYY).`;
+      return t("validationCardExpiryRequired");
     }
     if (form.card_cvv.replace(/\D/g, "").length < 3) {
-      return `${t("cvv")} must be at least 3 digits.`;
+      return t("validationCvvMinDigits");
     }
   }
 

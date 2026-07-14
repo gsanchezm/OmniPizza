@@ -3,6 +3,7 @@ import { Animated, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Colors } from "../theme/colors";
 import { useToastStore } from "./toastStore";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { useT } from "../i18n";
 
 const AUTO_DISMISS_MS = 3000;
 
@@ -13,6 +14,7 @@ const AUTO_DISMISS_MS = 3000;
  * in the tree (see App.tsx) so any screen can trigger it via useToastStore.
  */
 export const Toast = () => {
+  const t = useT();
   const message = useToastStore((s) => s.message);
   const hide = useToastStore((s) => s.hide);
   const opacity = useRef(new Animated.Value(0)).current;
@@ -67,7 +69,7 @@ export const Toast = () => {
         onPress={hide}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         accessibilityRole="button"
-        {...getReadableControlProps("btn-toast-close", "Close")}
+        {...getReadableControlProps("btn-toast-close", t("close"))}
       >
         <Text style={styles.closeIcon} importantForAccessibility="no" testID="icon-toast-close">
           ✕

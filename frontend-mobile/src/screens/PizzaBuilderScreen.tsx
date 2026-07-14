@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useAppStore } from "../store/useAppStore";
 import { Colors } from "../theme/colors";
-import { SIZE_OPTIONS, TOPPING_GROUPS, UI_STRINGS } from "../pizzaOptions";
+import { SIZE_OPTIONS, TOPPING_GROUPS } from "../pizzaOptions";
 import type { Pizza } from "../types/api";
 import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
@@ -20,8 +20,6 @@ import { remoteImageSource } from "../utils/image";
 import { useT } from "../i18n";
 import { useRTL } from "../hooks/useRTL";
 import { useToastStore } from "../components/toastStore";
-
-const tOpt = (obj: any, lang: string) => obj?.[lang] || obj?.en || "";
 
 function getRate(pizza: Pizza) {
   const bp = Number(pizza?.base_price);
@@ -159,8 +157,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
           >
             <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle} {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
-            {tOpt(UI_STRINGS.title, language)}
+          <Text style={styles.headerTitle} {...getReadableTextProps("text-builder-title", t("customize"))}>
+            {t("customize")}
           </Text>
           <View style={styles.iconBtn} />
         </View>
@@ -170,11 +168,11 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   }
 
   // Mirror the web customizer: show the per-topping price ("+$1 each").
-  const toppingHint = `+${formatMoney(usdToLocalCeil(1, pizza), pizza.currency, pizza.currency_symbol)} ${tOpt(UI_STRINGS.each, language)}`;
+  const toppingHint = `+${formatMoney(usdToLocalCeil(1, pizza), pizza.currency, pizza.currency_symbol)} ${t("each")}`;
   const confirmLabel =
     mode === "edit"
-      ? tOpt(UI_STRINGS.update, language)
-      : tOpt(UI_STRINGS.confirm, language);
+      ? t("update")
+      : t("addToCart");
 
   return (
     <View style={styles.screen} accessibilityLabel="screen-pizza-builder" testID="screen-pizza-builder">
@@ -188,8 +186,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         >
           <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-close">✕</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-builder-title", String(tOpt(UI_STRINGS.title, language)))}>
-          {tOpt(UI_STRINGS.title, language)}
+        <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-builder-title", t("customize"))}>
+          {t("customize")}
         </Text>
         <TouchableOpacity style={styles.iconBtn} accessibilityLabel="btn-info-builder">
           <Text style={{ color: "white", fontSize: 18 }} accessibilityLabel="icon-info">ⓘ</Text>
@@ -216,19 +214,18 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
         <View style={styles.cardContent} accessibilityLabel="view-builder-content">
           {/* Size Selector */}
           <View style={styles.sectionHeader} accessibilityLabel="view-section-size">
-            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-size", tOpt(UI_STRINGS.size, language))}>
-              {tOpt(UI_STRINGS.size, language)}
+            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-size", t("chooseSize"))}>
+              {t("chooseSize")}
             </Text>
-            <Text style={styles.badge} {...getReadableTextProps("text-badge-required", String(tOpt(UI_STRINGS.required, language)))}>
-              {tOpt(UI_STRINGS.required, language)}
+            <Text style={styles.badge} {...getReadableTextProps("text-badge-required", t("required"))}>
+              {t("required")}
             </Text>
           </View>
 
           <View style={styles.sizePills} accessibilityLabel="view-size-pills" testID="view-size-pills">
             {SIZE_OPTIONS.map((opt) => {
               const active = opt.id === size;
-              const rawLabelText = String(tOpt(opt.label, language));
-              const mainText = rawLabelText.replace(/\s*\(.+\)\s*$/, "").trim();
+              const mainText = t(opt.label);
               const localSizeAdd =
                 opt.usd > 0 ? usdToLocalCeil(opt.usd, pizza) : 0;
               const subText =
@@ -276,8 +273,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {/* Toppings Selector */}
           <View style={[styles.sectionHeader, { marginTop: 30 }]} accessibilityLabel="view-section-toppings">
-            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-toppings", tOpt(UI_STRINGS.toppings, language))}>
-              {tOpt(UI_STRINGS.toppings, language)}
+            <Text style={[styles.sectionTitle, { textAlign }]} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-section-toppings", t("addToppings"))}>
+              {t("addToppings")}
             </Text>
             <Text style={styles.priceHint} {...getReadableTextProps("text-toppings-hint", toppingHint)}>
               {toppingHint}
@@ -286,8 +283,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
           {TOPPING_GROUPS.map((group) => (
             <View key={group.id} style={{ marginBottom: 20 }} accessibilityLabel={`view-topping-group-${group.id}`}>
-              <Text style={[styles.groupTitle, { textAlign }]} {...getReadableTextProps(`text-topping-group-${group.id}`, tOpt(group.label, language))}>
-                {tOpt(group.label, language)}
+              <Text style={[styles.groupTitle, { textAlign }]} {...getReadableTextProps(`text-topping-group-${group.id}`, t(group.label))}>
+                {t(group.label)}
               </Text>
               <View style={styles.grid} accessibilityLabel={`view-topping-grid-${group.id}`}>
                 {group.items.map((it) => {
@@ -305,7 +302,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                       ]}
                       accessibilityRole="checkbox"
                       accessibilityState={{ checked: isSelected, disabled }}
-                      {...getReadableControlProps(`btn-topping-${it.id}`, tOpt(it.label, language))}
+                      {...getReadableControlProps(`btn-topping-${it.id}`, t(it.label))}
                     >
                       <View
                         style={[
@@ -333,9 +330,9 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         ]}
                         numberOfLines={2}
                         ellipsizeMode="tail"
-                        {...getReadableTextProps(`text-topping-${it.id}`, tOpt(it.label, language))}
+                        {...getReadableTextProps(`text-topping-${it.id}`, t(it.label))}
                       >
-                        {tOpt(it.label, language)}
+                        {t(it.label)}
                       </Text>
 
                       {isSelected && (
@@ -366,8 +363,8 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
       <View style={styles.bottomBar} accessibilityLabel="view-builder-bottom-bar">
         <View style={styles.barContent} accessibilityLabel="view-bar-content">
           <View accessibilityLabel="view-estimated-total" style={{ flexShrink: 1, marginRight: 12 }}>
-            <Text style={[styles.totalLabel, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-estimated-total-label", String(tOpt(UI_STRINGS.estimatedTotal, language)))}>
-              {tOpt(UI_STRINGS.estimatedTotal, language)}
+            <Text style={[styles.totalLabel, { textAlign }]} numberOfLines={1} {...getReadableTextProps("text-estimated-total-label", t("estimatedTotal"))}>
+              {t("estimatedTotal")}
             </Text>
             <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit {...getReadableTextProps("text-estimated-total-value", formatMoney(unitPrice, pizza.currency, pizza.currency_symbol))}>
               {formatMoney(unitPrice, pizza.currency, pizza.currency_symbol)}

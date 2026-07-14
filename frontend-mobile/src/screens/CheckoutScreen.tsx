@@ -55,30 +55,13 @@ function money(value: number, currency: string, symbol?: string) {
   return `${safeSymbol}${amount.toFixed(2)}`;
 }
 
-// Checkout copy kept in exact parity with the web checkout
-// (frontend/src/pages/Checkout.jsx UI_TEXT), which is the source of truth.
-// Web checkout uses these inline strings rather than the shared locale keys,
-// so we mirror them here to stay identical without rippling into other screens.
-const tOpt = (obj: Record<string, string>, lang: string) =>
-  obj?.[lang] || obj?.en || "";
-const UI_TEXT: Record<string, Record<string, string>> = {
-  deliveryAddress: { en: "DELIVERY ADDRESS", es: "DIRECCIÓN DE ENTREGA", de: "LIEFERADRESSE", fr: "ADRESSE DE LIVRAISON", ja: "配送先住所" },
-  fullName: { en: "Full Name", es: "Nombre completo", de: "Vollständiger Name", fr: "Nom complet", ja: "氏名" },
-  phone: { en: "Phone Number", es: "Teléfono", de: "Telefonnummer", fr: "Numéro de téléphone", ja: "電話番号" },
-  cash: { en: "Cash", es: "Efectivo", de: "Barzahlung", fr: "Espèces", ja: "現金" },
-  cashDesc: { en: "Pay on Delivery", es: "Pagar al recibir", de: "Zahlung bei Lieferung", fr: "Payer à la livraison", ja: "代金引換" },
-  creditCardDesc: { en: "VISA, Mastercard, AMEX", es: "VISA, Mastercard, AMEX", de: "VISA, Mastercard, AMEX", fr: "VISA, Mastercard, AMEX", ja: "VISA, Mastercard, AMEX" },
-  orderSummary: { en: "Your Order", es: "Tu pedido", de: "Deine Bestellung", fr: "Votre commande", ja: "ご注文" },
-  total: { en: "Total", es: "Total", de: "Gesamt", fr: "Total", ja: "合計" },
-  placeOrder: { en: "Place Order", es: "Realizar Pedido", de: "Bestellung aufgeben", fr: "Passer la commande", ja: "注文する" },
-  edit: { en: "Edit", es: "Editar", de: "Bearbeiten", fr: "Modifier", ja: "編集" },
-  remove: { en: "Remove", es: "Eliminar", de: "Entfernen", fr: "Supprimer", ja: "削除" },
-  cartEmpty: { en: "Your cart is empty", es: "Carrito vacío", de: "Warenkorb leer", fr: "Panier vide", ja: "カートは空です" },
-  startOrder: { en: "Start Your Order", es: "Comienza tu Pedido", de: "Bestellung starten", fr: "Commencer votre commande", ja: "注文を始める" },
-};
-
 export default function CheckoutScreen({ navigation }: any) {
   const t = useT();
+  const getSizeLabel = (size?: string) => {
+    if (!size) return "";
+    const option = SIZE_OPTIONS.find((candidate) => candidate.id === size);
+    return option ? t(option.label) : size;
+  };
   const { textAlign, row } = useRTL();
   const country = useAppStore((s) => s.country);
   const countryInfo = useAppStore((s) => s.countryInfo);
@@ -88,7 +71,6 @@ export default function CheckoutScreen({ navigation }: any) {
   const setProfile = useAppStore((s) => s.setProfile);
   const setLastOrder = useAppStore((s) => s.setLastOrder);
   const token = useAppStore((s) => s.token);
-  const language = useAppStore((s) => s.language);
 
   // Hydrate cart from backend (enables API-based state injection for E2E tests)
   useEffect(() => {
@@ -260,15 +242,8 @@ export default function CheckoutScreen({ navigation }: any) {
         index: 0,
         routes: [{ name: "OrderSuccess" }],
       });
-    } catch (e: any) {
-      const detail = e.response?.data?.detail;
-      if (typeof detail === "string") {
-        setError(detail);
-      } else if (Array.isArray(detail)) {
-        setError(detail.map((d: any) => d.msg || String(d)).join(", "));
-      } else {
-        setError(e.message || "Checkout failed");
-      }
+    } catch {
+      setError(t("checkoutFailed"));
     } finally {
       setLoading(false);
     }
@@ -287,15 +262,15 @@ export default function CheckoutScreen({ navigation }: any) {
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
           accessibilityLabel="view-empty-cart"
         >
-          <Text style={{ color: "white", marginBottom: 20 }} {...getReadableTextProps("text-cart-empty", tOpt(UI_TEXT.cartEmpty, language))}>
-            {tOpt(UI_TEXT.cartEmpty, language)}
+          <Text style={{ color: "white", marginBottom: 20 }} {...getReadableTextProps("text-cart-empty", t("cartEmpty"))}>
+            {t("cartEmpty")}
           </Text>
           <TouchableOpacity
             style={styles.btnPrimary}
             onPress={() => navigation.navigate("Catalog")}
-            {...getReadableControlProps("btn-go-to-menu", tOpt(UI_TEXT.startOrder, language))}
+            {...getReadableControlProps("btn-go-to-menu", t("startOrder"))}
           >
-            <Text style={styles.btnText} {...getReadableTextProps("text-go-to-menu", tOpt(UI_TEXT.startOrder, language))}>{tOpt(UI_TEXT.startOrder, language)}</Text>
+            <Text style={styles.btnText} {...getReadableTextProps("text-go-to-menu", t("startOrder"))}>{t("startOrder")}</Text>
           </TouchableOpacity>
         </View>
         <BottomNavBar />
@@ -310,12 +285,12 @@ export default function CheckoutScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent} {...getTestProps("scroll-checkout")}>
         {/* Delivery Address */}
         <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-address">
-          <Text style={[styles.sectionTitle, { textAlign }]} {...getReadableTextProps("text-section-address", tOpt(UI_TEXT.deliveryAddress, language))}>{tOpt(UI_TEXT.deliveryAddress, language)}</Text>
+          <Text style={[styles.sectionTitle, { textAlign }]} {...getReadableTextProps("text-section-address", t("deliveryAddress"))}>{t("deliveryAddress")}</Text>
         </View>
 
         <TextInput
           style={styles.cardInput}
-          placeholder="4521 Sunset Boulevard, Suite 200"
+          placeholder={t("addressExample")}
           placeholderTextColor="#555"
           value={form.address}
           onChangeText={(v) => setForm((p) => ({ ...p, address: v }))}
@@ -423,19 +398,19 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
         <View style={{ gap: 12 }} accessibilityLabel="view-contact-fields">
           <View accessibilityLabel="view-field-fullname">
-            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-fullname", tOpt(UI_TEXT.fullName, language))}>{tOpt(UI_TEXT.fullName, language)}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-fullname", t("fullName"))}>{t("fullName")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="Julian Casablancas"
               placeholderTextColor="#555"
               value={form.name}
               onChangeText={(v) => setForm((p) => ({ ...p, name: v }))}
-              accessibilityLabel={tOpt(UI_TEXT.fullName, language)}
+              accessibilityLabel={t("fullName")}
               testID="input-fullname"
             />
           </View>
           <View accessibilityLabel="view-field-phone">
-            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-phone", tOpt(UI_TEXT.phone, language))}>{tOpt(UI_TEXT.phone, language)}</Text>
+            <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-phone", t("phone"))}>{t("phone")}</Text>
             <TextInput
               style={styles.cardInput}
               placeholder="+52 55 1234 5678"
@@ -446,7 +421,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 setForm((p) => ({ ...p, phone: v.replace(/[^0-9]/g, "") }))
               }
               testID="input-phone"
-              accessibilityLabel={tOpt(UI_TEXT.phone, language)}
+              accessibilityLabel={t("phone")}
               maxLength={20}
             />
           </View>
@@ -472,7 +447,7 @@ export default function CheckoutScreen({ navigation }: any) {
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-card-info">
             <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-card-label", t("creditCard"))}>{t("creditCard")}</Text>
-            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-card-number", tOpt(UI_TEXT.creditCardDesc, language))}>{tOpt(UI_TEXT.creditCardDesc, language)}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-card-number", t("creditCardDesc"))}>{t("creditCardDesc")}</Text>
           </View>
           <View
             style={[
@@ -493,14 +468,14 @@ export default function CheckoutScreen({ navigation }: any) {
           onPress={() => setPaymentMethod("cash")}
           accessibilityRole="radio"
           accessibilityState={{ selected: paymentMethod === "cash" }}
-          {...getReadableControlProps("btn-payment-cash", tOpt(UI_TEXT.cash, language))}
+          {...getReadableControlProps("btn-payment-cash", t("cash"))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-cash">
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-cash">💵</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-cash-info">
-            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-cash-label", tOpt(UI_TEXT.cash, language))}>{tOpt(UI_TEXT.cash, language)}</Text>
-            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-cash-desc", tOpt(UI_TEXT.cashDesc, language))}>{tOpt(UI_TEXT.cashDesc, language)}</Text>
+            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-cash-label", t("cash"))}>{t("cash")}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-cash-desc", t("payOnDelivery"))}>{t("payOnDelivery")}</Text>
           </View>
           <View
             style={[
@@ -521,14 +496,14 @@ export default function CheckoutScreen({ navigation }: any) {
           onPress={() => setPaymentMethod("paypal")}
           accessibilityRole="radio"
           accessibilityState={{ selected: paymentMethod === "paypal" }}
-          {...getReadableControlProps("btn-payment-paypal", t("paypal") || "PayPal")}
+          {...getReadableControlProps("btn-payment-paypal", t("paypal"))}
         >
           <View style={styles.paymentIcon} accessibilityLabel="view-icon-payment-paypal">
             <Text style={{ fontSize: 20 }} accessibilityLabel="icon-paypal">🅿️</Text>
           </View>
           <View style={{ flex: 1 }} accessibilityLabel="view-payment-paypal-info">
-            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-paypal-label", t("paypal") || "PayPal")}>{t("paypal") || "PayPal"}</Text>
-            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-paypal-desc", "Demo checkout")}>Demo checkout</Text>
+            <Text style={[styles.paymentLabel, { textAlign }]} {...getReadableTextProps("text-payment-paypal-label", t("paypal"))}>{t("paypal")}</Text>
+            <Text style={[styles.paymentSub, { textAlign }]} {...getReadableTextProps("text-payment-paypal-desc", t("paypalDesc"))}>{t("paypalDesc")}</Text>
           </View>
           <View
             style={[
@@ -544,12 +519,12 @@ export default function CheckoutScreen({ navigation }: any) {
         {paymentMethod === "paypal" && (
           <View style={styles.cardFields} accessibilityLabel="view-paypal-fields" testID="view-paypal-fields">
             <View style={styles.paypalDemoBadge} accessibilityLabel="view-paypal-demo-badge">
-              <Text style={styles.paypalDemoBadgeText} {...getReadableTextProps("text-paypal-demo", "DEMO — not a real PayPal login")}>
-                DEMO — not a real PayPal login
+              <Text style={styles.paypalDemoBadgeText} {...getReadableTextProps("text-paypal-demo", t("paypalDemoNote"))}>
+                {t("paypalDemoNote")}
               </Text>
             </View>
             <View accessibilityLabel="view-field-paypal-email">
-              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-email", "Email")}>Email</Text>
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-email", t("paypalEmail"))}>{t("paypalEmail")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="you@example.com"
@@ -561,12 +536,12 @@ export default function CheckoutScreen({ navigation }: any) {
                   setPaypalEmail(v);
                   setPaypalLoggedIn(false);
                 }}
-                accessibilityLabel="Email"
+                accessibilityLabel={t("paypalEmail")}
                 testID="input-paypal-email"
               />
             </View>
             <View accessibilityLabel="view-field-paypal-password">
-              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-password", "Password")}>Password</Text>
+              <Text style={[styles.cardFieldLabel, { textAlign }]} {...getReadableTextProps("label-paypal-password", t("paypalPassword"))}>{t("paypalPassword")}</Text>
               <TextInput
                 style={styles.cardInput}
                 placeholder="••••••••"
@@ -577,22 +552,22 @@ export default function CheckoutScreen({ navigation }: any) {
                   setPaypalPassword(v);
                   setPaypalLoggedIn(false);
                 }}
-                accessibilityLabel="Password"
+                accessibilityLabel={t("paypalPassword")}
                 testID="input-paypal-password"
               />
             </View>
             <TouchableOpacity
               style={styles.paypalLoginBtn}
               onPress={() => setPaypalLoggedIn(!!paypalEmail.trim() && !!paypalPassword.trim())}
-              {...getReadableControlProps("btn-paypal-login", "Log in to PayPal")}
+              {...getReadableControlProps("btn-paypal-login", t("paypalLoginBtn"))}
             >
-              <Text style={styles.paypalLoginBtnText} {...getReadableTextProps("text-paypal-login", "Log in to PayPal")}>
-                Log in to PayPal
+              <Text style={styles.paypalLoginBtnText} {...getReadableTextProps("text-paypal-login", t("paypalLoginBtn"))}>
+                {t("paypalLoginBtn")}
               </Text>
             </TouchableOpacity>
             {paypalLoggedIn && (
-              <Text style={styles.paypalStatus} {...getReadableTextProps("text-paypal-status", "Connected (demo) — continue with Place Order below")}>
-                ✓ Connected (demo) — continue with Place Order below
+              <Text style={styles.paypalStatus} {...getReadableTextProps("text-paypal-status", t("paypalConnected"))}>
+                ✓ {t("paypalConnected")}
               </Text>
             )}
           </View>
@@ -681,9 +656,9 @@ export default function CheckoutScreen({ navigation }: any) {
         <View style={[styles.sectionHeader, { flexDirection: row }]} accessibilityLabel="view-section-summary">
           <Text
             style={[styles.sectionTitle, { textAlign }]}
-            {...getReadableTextProps("text-section-summary", tOpt(UI_TEXT.orderSummary, language))}
+            {...getReadableTextProps("text-section-summary", t("yourOrder"))}
           >
-            {tOpt(UI_TEXT.orderSummary, language)}
+            {t("yourOrder")}
           </Text>
         </View>
 
@@ -705,27 +680,35 @@ export default function CheckoutScreen({ navigation }: any) {
                 >
                   {item.quantity}x {item.pizza.name}
                 </Text>
-                <Text style={[styles.itemDetails, { textAlign }]} {...getReadableTextProps(`text-item-details-${item.id}`, String(item.config?.size ?? ""))}>{item.config?.size}</Text>
+                <Text
+                  style={[styles.itemDetails, { textAlign }]}
+                  {...getReadableTextProps(
+                    `text-item-details-${item.id}`,
+                    getSizeLabel(item.config?.size),
+                  )}
+                >
+                  {getSizeLabel(item.config?.size)}
+                </Text>
 
                 <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }} accessibilityLabel={`view-item-actions-${item.id}`}>
                   <TouchableOpacity
                     onPress={() => {
                       /* Edit logic would go here, ideally passing item to builder */
                     }}
-                    {...getReadableControlProps(`btn-edit-item-${item.id}`, tOpt(UI_TEXT.edit, language).toUpperCase())}
+                    {...getReadableControlProps(`btn-edit-item-${item.id}`, t("edit").toUpperCase())}
                   >
-                    <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, tOpt(UI_TEXT.edit, language).toUpperCase())}>
-                      {tOpt(UI_TEXT.edit, language).toUpperCase()}
+                    <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, t("edit").toUpperCase())}>
+                      {t("edit").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() =>
                       useAppStore.getState().removeCartItem(item.id)
                     }
-                    {...getReadableControlProps(`btn-remove-item-${item.id}`, tOpt(UI_TEXT.remove, language).toUpperCase())}
+                    {...getReadableControlProps(`btn-remove-item-${item.id}`, t("remove").toUpperCase())}
                   >
-                    <Text style={[styles.actionLink, { color: "#EF4444" }]} {...getReadableTextProps(`text-remove-item-${item.id}`, tOpt(UI_TEXT.remove, language).toUpperCase())}>
-                      {tOpt(UI_TEXT.remove, language).toUpperCase()}
+                    <Text style={[styles.actionLink, { color: "#EF4444" }]} {...getReadableTextProps(`text-remove-item-${item.id}`, t("remove").toUpperCase())}>
+                      {t("remove").toUpperCase()}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -838,7 +821,7 @@ export default function CheckoutScreen({ navigation }: any) {
         </View>
 
         <View style={[styles.costRow, { marginTop: 20, flexDirection: row }]} accessibilityLabel="view-row-total">
-          <Text style={[styles.totalLabel, { textAlign }]} {...getReadableTextProps("text-total-label", tOpt(UI_TEXT.total, language))}>{tOpt(UI_TEXT.total, language)}</Text>
+          <Text style={[styles.totalLabel, { textAlign }]} {...getReadableTextProps("text-total-label", t("total"))}>{t("total")}</Text>
           <Text
             style={styles.totalValue}
             numberOfLines={1}
@@ -866,10 +849,10 @@ export default function CheckoutScreen({ navigation }: any) {
           onPress={() => setShowConfirm(true)}
           disabled={loading}
           accessibilityRole="button"
-          {...getReadableControlProps("btn-place-order", loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language))}
+          {...getReadableControlProps("btn-place-order", loading ? t("processing") : t("placeOrder"))}
         >
-          <Text style={styles.btnText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${tOpt(UI_TEXT.placeOrder, language)}  →`)}>
-            {loading ? t("processing") : tOpt(UI_TEXT.placeOrder, language) + "  →"}
+          <Text style={styles.btnText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-btn-place-order", loading ? t("processing") : `${t("placeOrder")}  →`)}>
+            {loading ? t("processing") : t("placeOrder") + "  →"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -890,15 +873,15 @@ export default function CheckoutScreen({ navigation }: any) {
           <Pressable style={styles.confirmCard} accessibilityViewIsModal accessibilityLabel="view-confirm-order-card">
             <Text
               style={styles.confirmTitle}
-              {...getReadableTextProps("text-confirm-order-title", tOpt(UI_TEXT.placeOrder, language))}
+              {...getReadableTextProps("text-confirm-order-title", t("placeOrder"))}
             >
-              {tOpt(UI_TEXT.placeOrder, language)}
+              {t("placeOrder")}
             </Text>
             <Text
               style={styles.confirmSubtitle}
-              {...getReadableTextProps("text-confirm-order-summary", tOpt(UI_TEXT.total, language))}
+              {...getReadableTextProps("text-confirm-order-summary", t("total"))}
             >
-              {tOpt(UI_TEXT.total, language)}
+              {t("total")}
             </Text>
             <Text
               style={styles.confirmTotal}

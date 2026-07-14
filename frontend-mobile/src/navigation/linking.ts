@@ -14,8 +14,10 @@ import type { RootStackParamList } from "./types";
  *   omnipizza://profile
  *
  * All routes accept the following optional query params:
- *   market      — country code (US | MX | CH | JP)
- *   lang        — language code (en | es | de | fr | ja)
+ *   market      — country code (US | MX | CH | JP | SA); also selects the
+ *                 market's default language (including SA → ar)
+ *   lang        — CH-only language override (de | fr). Other market languages
+ *                 are derived from `market`, not overridden by this param.
  *
  * Route-specific params:
  *   pizza-builder:  pizzaId, size

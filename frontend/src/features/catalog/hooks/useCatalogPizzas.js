@@ -17,7 +17,7 @@ export function useCatalogPizzas(countryCode, language, repository) {
       const response = await repo.getCatalog();
       setPizzas(response.data?.pizzas || []);
     } catch {
-      setError("Failed to load catalog");
+      setError("catalogLoadFailed");
       setPizzas([]);
     } finally {
       setLoading(false);

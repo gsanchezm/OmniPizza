@@ -13,7 +13,7 @@ export default function CategoryFilter({ selected, onSelect }) {
   const t = useT();
 
   return (
-    <div role="group" aria-label="Categories" className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+    <div role="group" aria-label={t("categories")} className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
       {CATEGORIES.map((cat) => (
         <button
           key={cat.id}

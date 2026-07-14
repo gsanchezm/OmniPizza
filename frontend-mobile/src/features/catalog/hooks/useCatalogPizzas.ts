@@ -25,7 +25,7 @@ export function useCatalogPizzas(
     } catch (err) {
       console.log("Failed to load /api/pizzas", err);
       setPizzas([]);
-      setError("Failed to load catalog");
+      setError("catalogLoadFailed");
     } finally {
       setLoading(false);
     }

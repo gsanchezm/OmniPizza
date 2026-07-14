@@ -10,12 +10,11 @@ import {
 } from "../store";
 import { placeOrder } from "../features/checkout/useCases/placeOrder";
 import { SIZE_OPTIONS } from "../constants/pizza";
-import { computeUnitPrice } from "../utils/pizzaPricing";
+import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
 import { cartService } from "../services/cart.service";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
-
-const tOpt = (obj, lang) => obj?.[lang] || obj?.en || "";
+import { useT } from "../i18n";
 
 // SVG Icons
 const Icons = {
@@ -82,288 +81,6 @@ function signatureOf(pizzaId, size, toppings) {
   return `${pizzaId}|${size}|${t}`;
 }
 
-const UI_TEXT = {
-  checkout: {
-    en: "Checkout",
-    es: "Finalizar Compra",
-    de: "Kasse",
-    fr: "Paiement",
-    ja: "チェックアウト",
-  },
-  completeDetails: {
-    en: "Complete your details to enjoy the finest pizza experience.",
-    es: "Completa tus detalles para disfrutar de la mejor experiencia de pizza.",
-    de: "Vervollständige deine Angaben für das beste Pizza-Erlebnis.",
-    fr: "Complétez vos coordonnées pour profiter de la meilleure pizza.",
-    ja: "最高のピザ体験のために詳細を入力してください。",
-  },
-  deliveryAddress: {
-    en: "DELIVERY ADDRESS",
-    es: "DIRECCIÓN DE ENTREGA",
-    de: "LIEFERADRESSE",
-    fr: "ADRESSE DE LIVRAISON",
-    ja: "配送先住所",
-  },
-  contactInfo: {
-    en: "CONTACT INFO",
-    es: "INFORMACIÓN DE CONTACTO",
-    de: "KONTAKTINFORMATIONEN",
-    fr: "INFOS CONTACT ",
-    ja: "連絡先情報",
-  },
-  paymentMethod: {
-    en: "PAYMENT METHOD",
-    es: "MÉTODO DE PAGO",
-    de: "ZAHLUNGSMETHODE",
-    fr: "MÉTHODE DE PAIEMENT",
-    ja: "支払い方法",
-  },
-  orderSummary: {
-    en: "Your Order",
-    es: "Tu pedido",
-    de: "Deine Bestellung",
-    fr: "Votre commande",
-    ja: "ご注文",
-  },
-  subtotal: {
-    en: "Subtotal",
-    es: "Subtotal",
-    de: "Zwischensumme",
-    fr: "Sous-total",
-    ja: "小計",
-  },
-  tax: { en: "Tax", es: "Impuesto", de: "Steuer", fr: "Taxe", ja: "税金" },
-  deliveryFee: {
-    en: "Delivery Fee",
-    es: "Costo de entrega",
-    de: "Liefergebühr",
-    fr: "Frais de livraison",
-    ja: "配達料",
-  },
-  total: { en: "Total", es: "Total", de: "Gesamt", fr: "Total", ja: "合計" },
-  placeOrder: {
-    en: "Place Order",
-    es: "Realizar Pedido",
-    de: "Bestellung aufgeben",
-    fr: "Passer la commande",
-    ja: "注文する",
-  },
-  termsText: {
-    en: "By placing your order, you agree to OmniPizza's",
-    es: "Al realizar tu pedido, aceptas los",
-    de: "Mit deiner Bestellung stimmst du den",
-    fr: "En passant commande, vous acceptez les",
-    ja: "注文することで、OmniPizzaの",
-  },
-  terms: {
-    en: "Terms of Service",
-    es: "Términos de Servicio",
-    de: "Nutzungsbedingungen",
-    fr: "Conditions d'utilisation",
-    ja: "利用規約",
-  },
-  privacy: {
-    en: "Privacy Policy",
-    es: "Política de Privacidad",
-    de: "Datenschutzrichtlinien",
-    fr: "Politique de confidentialité",
-    ja: "プライバシーポリシー",
-  },
-  free: { en: "Free", es: "Gratis", de: "Gratis", fr: "Gratuit", ja: "無料" },
-  processing: {
-    en: "Processing...",
-    es: "Procesando...",
-    de: "Verarbeitung...",
-    fr: "Traitement...",
-    ja: "処理中...",
-  },
-  creditCard: {
-    en: "Credit Card",
-    es: "Tarjeta de Crédito",
-    de: "Kreditkarte",
-    fr: "Carte de Crédit",
-    ja: "クレジットカード",
-  },
-  creditCardDesc: {
-    en: "VISA, Mastercard, AMEX",
-    es: "VISA, Mastercard, AMEX",
-    de: "VISA, Mastercard, AMEX",
-    fr: "VISA, Mastercard, AMEX",
-    ja: "VISA, Mastercard, AMEX",
-  },
-  cash: {
-    en: "Cash",
-    es: "Efectivo",
-    de: "Barzahlung",
-    fr: "Espèces",
-    ja: "現金",
-  },
-  cashDesc: {
-    en: "Pay on Delivery",
-    es: "Pagar al recibir",
-    de: "Zahlung bei Lieferung",
-    fr: "Payer à la livraison",
-    ja: "代金引換",
-  },
-  paypal: {
-    en: "PayPal",
-    es: "PayPal",
-    de: "PayPal",
-    fr: "PayPal",
-    ja: "PayPal",
-  },
-  paypalDesc: {
-    en: "Pay with your PayPal account",
-    es: "Paga con tu cuenta PayPal",
-    de: "Mit PayPal-Konto bezahlen",
-    fr: "Payez avec votre compte PayPal",
-    ja: "PayPalアカウントで支払う",
-  },
-  paypalDemoNote: {
-    en: "Demo — no real authentication",
-    es: "Demo — sin autenticación real",
-    de: "Demo — keine echte Authentifizierung",
-    fr: "Démo — pas d'authentification réelle",
-    ja: "デモ — 実際の認証はありません",
-  },
-  paypalEmail: {
-    en: "PayPal Email",
-    es: "Correo de PayPal",
-    de: "PayPal-E-Mail",
-    fr: "E-mail PayPal",
-    ja: "PayPalメール",
-  },
-  paypalPassword: {
-    en: "PayPal Password",
-    es: "Contraseña de PayPal",
-    de: "PayPal-Passwort",
-    fr: "Mot de passe PayPal",
-    ja: "PayPalパスワード",
-  },
-  paypalLoginBtn: {
-    en: "Log in to PayPal",
-    es: "Iniciar sesión en PayPal",
-    de: "Bei PayPal anmelden",
-    fr: "Se connecter à PayPal",
-    ja: "PayPalにログイン",
-  },
-  cardNumber: {
-    en: "Card Number",
-    es: "Número de Tarjeta",
-    de: "Kartennummer",
-    fr: "Numéro de carte",
-    ja: "カード番号",
-  },
-  cardExpiry: {
-    en: "Expiry Date",
-    es: "Fecha de Expiración",
-    de: "Ablaufdatum",
-    fr: "Date d'expiration",
-    ja: "有効期限",
-  },
-  cardCvv: { en: "CVV", es: "CVV", de: "CVV", fr: "CVV", ja: "CVV" },
-  cardHolder: {
-    en: "Cardholder Name",
-    es: "Nombre del Titular",
-    de: "Karteninhaber",
-    fr: "Nom du titulaire",
-    ja: "カード名義人",
-  },
-  streetPlaceholder: {
-    en: "Street & House Number",
-    es: "Calle y Número",
-    de: "Straße & Hausnummer",
-    fr: "Rue et Numéro",
-    ja: "住所",
-  },
-  coloniaPlaceholder: {
-    en: "Colonia / Neighborhood",
-    es: "Colonia",
-    de: "Stadtteil",
-    fr: "Quartier",
-    ja: "地区",
-  },
-  zipPlaceholder: {
-    en: "Zip Code",
-    es: "Código Postal",
-    de: "Postleitzahl",
-    fr: "Code Postal",
-    ja: "郵便番号",
-  },
-  plzPlaceholder: {
-    en: "PLZ / Postal Code",
-    es: "Código Postal",
-    de: "PLZ",
-    fr: "Code Postal",
-    ja: "郵便番号",
-  },
-  prefecturaPlaceholder: {
-    en: "Prefecture",
-    es: "Prefectura",
-    de: "Präfektur",
-    fr: "Préfecture",
-    ja: "都道府県",
-  },
-  districtPlaceholder: {
-    en: "District",
-    es: "Distrito",
-    de: "Bezirk",
-    fr: "Quartier",
-    ja: "地区",
-    ar: "الحي",
-  },
-  invalidPhone: {
-    en: "Enter a valid phone number (7-15 digits)",
-    es: "Ingrese un teléfono válido (7-15 dígitos)",
-    de: "Geben Sie eine gültige Telefonnummer ein (7-15 Ziffern)",
-    fr: "Entrez un numéro valide (7-15 chiffres)",
-    ja: "有効な電話番号を入力してください（7〜15桁）",
-  },
-  fullName: {
-    en: "Full Name",
-    es: "Nombre completo",
-    de: "Vollständiger Name",
-    fr: "Nom complet",
-    ja: "氏名",
-  },
-  phone: {
-    en: "Phone Number",
-    es: "Teléfono",
-    de: "Telefonnummer",
-    fr: "Numéro de téléphone",
-    ja: "電話番号",
-  },
-  edit: {
-    en: "Edit",
-    es: "Editar",
-    de: "Bearbeiten",
-    fr: "Modifier",
-    ja: "編集",
-  },
-  remove: {
-    en: "Remove",
-    es: "Eliminar",
-    de: "Entfernen",
-    fr: "Supprimer",
-    ja: "削除",
-  },
-  and: { en: "and", es: "y", de: "und", fr: "et", ja: "と" },
-  cartEmpty: {
-    en: "Your cart is empty",
-    es: "Carrito vacío",
-    de: "Warenkorb leer",
-    fr: "Panier vide",
-    ja: "カートは空です",
-  },
-  startOrder: {
-    en: "Start Your Order",
-    es: "Comienza tu Pedido",
-    de: "Bestellung starten",
-    fr: "Commencer votre commande",
-    ja: "注文を始める",
-  },
-};
-
 const FALLBACK_TAX_RATE_BY_COUNTRY = {
   MX: 0.16,
   US: 0.08,
@@ -402,6 +119,7 @@ function roundCurrencyAmount(value, currency) {
 }
 
 export default function Checkout() {
+  const t = useT();
   const navigate = useNavigate();
   const { tid } = useResponsive();
 
@@ -531,6 +249,20 @@ export default function Checkout() {
 
   const currency = items[0]?.currency || "USD";
   const symbol = items[0]?.currency_symbol || "$";
+  const getSizeLabel = (item) => {
+    const sizeId = item.config?.size || "small";
+    const option = SIZE_OPTIONS.find((s) => s.id === sizeId);
+    if (!option) return sizeId;
+    const label = t(option.label);
+    if (!option.usd) return label;
+    const surcharge = formatMoney(
+      getRateFromPizza(item.pizza) * option.usd,
+      item.currency,
+      locale,
+      item.currency_symbol,
+    );
+    return `${label} (+${surcharge})`;
+  };
 
   const subtotal = useMemo(
     () =>
@@ -606,8 +338,8 @@ export default function Checkout() {
       setLastOrder(res.data);
       clearCart();
       navigate("/order-success", { replace: true });
-    } catch (err) {
-      setError(err?.response?.data?.detail || "Checkout failed");
+    } catch {
+      setError(t("checkoutFailed"));
     } finally {
       setLoading(false);
     }
@@ -617,13 +349,13 @@ export default function Checkout() {
     return (
       <div data-testid="screen-checkout" className="mx-auto max-w-6xl px-4 py-10">
         <div className="lux-card p-6 rounded-2xl text-text-muted font-semibold flex flex-col items-center gap-6 py-16">
-          <span className="text-lg">{tOpt(UI_TEXT.cartEmpty, language)}</span>
+          <span className="text-lg">{t("cartEmpty")}</span>
           <button
             data-testid="start-order-btn"
             onClick={() => navigate("/catalog")}
             className="bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-3 px-8 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
           >
-            {tOpt(UI_TEXT.startOrder, language)}
+            {t("startOrder")}
             <Icons.ArrowForward />
           </button>
         </div>
@@ -634,10 +366,10 @@ export default function Checkout() {
   return (
     <div data-testid="screen-checkout" className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="text-4xl font-black text-white font-sans mb-8">
-        {tOpt(UI_TEXT.checkout, language)}
+        {t("checkout")}
       </h1>
       <div className="text-gray-400 mb-8 -mt-6">
-        {tOpt(UI_TEXT.completeDetails, language)}
+        {t("completeDetails")}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-12">
@@ -661,7 +393,7 @@ export default function Checkout() {
                 1
               </div>
               <h2 className="text-xl font-bold text-white tracking-widest uppercase">
-                {tOpt(UI_TEXT.deliveryAddress, language)}
+                {t("deliveryAddress")}
               </h2>
             </div>
 
@@ -673,22 +405,13 @@ export default function Checkout() {
               <div className="grid gap-6">
                 <div>
                   <label htmlFor="field-address" data-testid="label-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                    {tOpt(UI_TEXT.streetPlaceholder, language)}
+                    {t("streetAndNumber")}
                   </label>
                   <input
                     id="field-address"
                     data-testid={tid("address")}
                     className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
-                    placeholder={tOpt(
-                      {
-                        en: "123 Luxury Avenue",
-                        es: "Av. Reforma 123",
-                        de: "Musterstraße 123",
-                        fr: "123 Rue de la Paix",
-                        ja: "東京都渋谷区...",
-                      },
-                      language,
-                    )}
+                    placeholder={t("addressExample")}
                     value={form.address}
                     onChange={(e) =>
                       setForm((p) => ({ ...p, address: e.target.value }))
@@ -702,7 +425,7 @@ export default function Checkout() {
                   {countryCode === "MX" && (
                     <div>
                       <label htmlFor="field-colonia" data-testid="label-colonia" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.coloniaPlaceholder, language)}
+                        {t("colonia")}
                       </label>
                       <input
                         id="field-colonia"
@@ -721,7 +444,7 @@ export default function Checkout() {
                   {countryCode === "MX" && (
                     <div>
                       <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.zipPlaceholder, language)}
+                        {t("zipCode")}
                       </label>
                       <input
                         id="field-zip-code"
@@ -744,7 +467,7 @@ export default function Checkout() {
                   {countryCode === "US" && (
                     <div>
                       <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.zipPlaceholder, language)}
+                        {t("zipCode")}
                       </label>
                       <input
                         id="field-zip-code"
@@ -768,7 +491,7 @@ export default function Checkout() {
                   {countryCode === "CH" && (
                     <div>
                       <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.plzPlaceholder, language)}
+                        {t("zipCode")}
                       </label>
                       <input
                         id="field-zip-code"
@@ -787,22 +510,13 @@ export default function Checkout() {
                   {countryCode === "JP" && (
                     <div>
                       <label htmlFor="field-zip-code" data-testid="label-prefectura" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.prefecturaPlaceholder, language)}
+                        {t("prefecture")}
                       </label>
                       <input
                         id="field-zip-code"
                         data-testid="zip-code"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
-                        placeholder={tOpt(
-                          {
-                            en: "Tokyo",
-                            es: "Tokio",
-                            de: "Tokio",
-                            fr: "Tokyo",
-                            ja: "東京都",
-                          },
-                          language,
-                        )}
+                        placeholder={t("tokyoExample")}
                         value={form.prefectura}
                         onChange={(e) =>
                           setForm((p) => ({ ...p, prefectura: e.target.value }))
@@ -815,23 +529,13 @@ export default function Checkout() {
                   {countryCode === "SA" && (
                     <div>
                       <label htmlFor="field-district" data-testid="label-district" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.districtPlaceholder, language)}
+                        {t("district")}
                       </label>
                       <input
                         id="field-district"
                         data-testid="district"
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
-                        placeholder={tOpt(
-                          {
-                            en: "Al Olaya",
-                            es: "Al Olaya",
-                            de: "Al Olaya",
-                            fr: "Al Olaya",
-                            ja: "アル・オラヤ",
-                            ar: "العليا",
-                          },
-                          language,
-                        )}
+                        placeholder={t("riyadhExample")}
                         value={form.district}
                         onChange={(e) =>
                           setForm((p) => ({ ...p, district: e.target.value }))
@@ -850,14 +554,14 @@ export default function Checkout() {
                     2
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-widest uppercase">
-                    {tOpt(UI_TEXT.contactInfo, language)}
+                    {t("contactInfo")}
                   </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="field-full-name" data-testid="label-full-name" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                      {tOpt(UI_TEXT.fullName, language)}
+                      {t("fullName")}
                     </label>
                     <input
                       id="field-full-name"
@@ -874,7 +578,7 @@ export default function Checkout() {
                   </div>
                   <div>
                     <label htmlFor="field-phone" data-testid="label-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                      {tOpt(UI_TEXT.phone, language)}
+                      {t("phone")}
                     </label>
                     <input
                       id="field-phone"
@@ -892,12 +596,12 @@ export default function Checkout() {
                       pattern="[\d\s\+\-\(\)]{8,20}"
                       minLength={8}
                       maxLength={20}
-                      title={tOpt(UI_TEXT.invalidPhone, language)}
+                      title={t("invalidPhone")}
                       aria-describedby="field-phone-hint"
                       required
                     />
                     <span id="field-phone-hint" className="sr-only">
-                      {tOpt(UI_TEXT.invalidPhone, language)}
+                      {t("invalidPhone")}
                     </span>
                   </div>
                 </div>
@@ -910,13 +614,13 @@ export default function Checkout() {
                     3
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-widest uppercase">
-                    {tOpt(UI_TEXT.paymentMethod, language)}
+                    {t("paymentMethod")}
                   </h2>
                 </div>
 
                 <div
                   role="radiogroup"
-                  aria-label={tOpt(UI_TEXT.paymentMethod, language)}
+                  aria-label={t("paymentMethod")}
                   className="grid md:grid-cols-3 gap-4"
                 >
                   <button
@@ -942,10 +646,10 @@ export default function Checkout() {
                     </div>
                     <div className="text-left">
                       <div className="text-white font-bold text-left">
-                        {tOpt(UI_TEXT.creditCard, language)}
+                        {t("creditCard")}
                       </div>
                       <div className="text-xs text-gray-500 uppercase text-left">
-                        {tOpt(UI_TEXT.creditCardDesc, language)}
+                        {t("creditCardDesc")}
                       </div>
                     </div>
                   </button>
@@ -973,10 +677,10 @@ export default function Checkout() {
                     </div>
                     <div className="text-left">
                       <div className="text-white font-bold text-left">
-                        {tOpt(UI_TEXT.cash, language)}
+                        {t("cash")}
                       </div>
                       <div className="text-xs text-gray-500 uppercase text-left">
-                        {tOpt(UI_TEXT.cashDesc, language)}
+                        {t("payOnDelivery")}
                       </div>
                     </div>
                   </button>
@@ -1004,10 +708,10 @@ export default function Checkout() {
                     </div>
                     <div className="text-left">
                       <div className="text-white font-bold text-left">
-                        {tOpt(UI_TEXT.paypal, language)}
+                        {t("paypal")}
                       </div>
                       <div className="text-xs text-gray-500 uppercase text-left">
-                        {tOpt(UI_TEXT.paypalDesc, language)}
+                        {t("paypalDesc")}
                       </div>
                     </div>
                   </button>
@@ -1017,7 +721,7 @@ export default function Checkout() {
                   <div className="grid gap-6 mt-6">
                     <div>
                       <label htmlFor="field-card-holder" data-testid="label-card-holder" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.cardHolder, language)}
+                        {t("cardHolder")}
                       </label>
                       <input
                         id="field-card-holder"
@@ -1036,7 +740,7 @@ export default function Checkout() {
                     </div>
                     <div>
                       <label htmlFor="field-card-number" data-testid="label-card-number" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.cardNumber, language)}
+                        {t("cardNumber")}
                       </label>
                       <input
                         id="field-card-number"
@@ -1058,7 +762,7 @@ export default function Checkout() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label id="field-card-expiry-label" data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                          {tOpt(UI_TEXT.cardExpiry, language)}
+                          {t("cardExpiry")}
                         </label>
                         <div className="grid grid-cols-2 gap-3">
                           <select
@@ -1079,7 +783,7 @@ export default function Checkout() {
                             }
                             required
                           >
-                            <option value="">MM</option>
+                            <option value="">{t("expiryMonthPlaceholder")}</option>
                             {EXPIRY_MONTHS.map((m) => (
                               <option key={m} value={m}>
                                 {m}
@@ -1104,7 +808,7 @@ export default function Checkout() {
                             }
                             required
                           >
-                            <option value="">YY</option>
+                            <option value="">{t("expiryYearPlaceholder")}</option>
                             {EXPIRY_YEARS.map((y) => (
                               <option key={y} value={y}>
                                 {y}
@@ -1115,7 +819,7 @@ export default function Checkout() {
                       </div>
                       <div>
                         <label htmlFor="field-card-cvv" data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                          {tOpt(UI_TEXT.cardCvv, language)}
+                          {t("cardCvv")}
                         </label>
                         <input
                           id="field-card-cvv"
@@ -1146,18 +850,18 @@ export default function Checkout() {
                     <div className="flex items-center gap-2 text-[#FF5722]">
                       <Icons.PayPal />
                       <span className="text-white font-bold text-lg">
-                        {tOpt(UI_TEXT.paypal, language)}
+                        {t("paypal")}
                       </span>
                     </div>
                     <div
                       data-testid="paypal-demo-note"
                       className="text-xs font-bold uppercase tracking-wider text-amber-500/80"
                     >
-                      {tOpt(UI_TEXT.paypalDemoNote, language)}
+                      {t("paypalDemoNote")}
                     </div>
                     <div>
                       <label htmlFor="field-paypal-email" data-testid="label-paypal-email" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.paypalEmail, language)}
+                        {t("paypalEmail")}
                       </label>
                       <input
                         id="field-paypal-email"
@@ -1173,7 +877,7 @@ export default function Checkout() {
                     </div>
                     <div>
                       <label htmlFor="field-paypal-password" data-testid="label-paypal-password" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
-                        {tOpt(UI_TEXT.paypalPassword, language)}
+                        {t("paypalPassword")}
                       </label>
                       <input
                         id="field-paypal-password"
@@ -1196,23 +900,14 @@ export default function Checkout() {
                       onClick={() => setPaypalConnected(true)}
                       className="w-full bg-[#0070BA] hover:bg-[#005EA6] text-white font-bold py-4 rounded-2xl transition-colors"
                     >
-                      {tOpt(UI_TEXT.paypalLoginBtn, language)}
+                      {t("paypalLoginBtn")}
                     </button>
                     {paypalConnected && (
                       <div
                         data-testid="paypal-connected"
                         className="text-sm font-semibold text-green-400"
                       >
-                        {tOpt(
-                          {
-                            en: "Connected (demo). Place your order below.",
-                            es: "Conectado (demo). Realiza tu pedido abajo.",
-                            de: "Verbunden (Demo). Gib deine Bestellung unten auf.",
-                            fr: "Connecté (démo). Passez votre commande ci-dessous.",
-                            ja: "接続済み（デモ）。下記から注文してください。",
-                          },
-                          language,
-                        )}
+                        {t("paypalConnected")}
                       </div>
                     )}
                   </div>
@@ -1229,7 +924,7 @@ export default function Checkout() {
               data-testid="order-summary-title"
               className="text-2xl font-black text-white mb-8"
             >
-              {tOpt(UI_TEXT.orderSummary, language)}
+              {t("yourOrder")}
             </h2>
 
             <div
@@ -1266,12 +961,7 @@ export default function Checkout() {
                       className="text-gray-500 text-xs"
                     >
                       {it.quantity}x •{" "}
-                      {tOpt(
-                        SIZE_OPTIONS.find(
-                          (s) => s.id === (it.config?.size || "small"),
-                        )?.label,
-                        language,
-                      )}
+                      {getSizeLabel(it)}
                     </div>
                     <div className="flex gap-3 mt-1.5">
                       <button
@@ -1282,14 +972,14 @@ export default function Checkout() {
                         }}
                         className="text-[10px] font-bold text-gray-500 hover:text-[#FF5722] uppercase tracking-wider transition-colors"
                       >
-                        {tOpt(UI_TEXT.edit, language)}
+                        {t("edit")}
                       </button>
                       <button
                         data-testid={`order-item-remove-${it.pizza_id}`}
                         onClick={() => removeItem(it.id)}
                         className="text-[10px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-wider transition-colors"
                       >
-                        {tOpt(UI_TEXT.remove, language)}
+                        {t("remove")}
                       </button>
                     </div>
                   </div>
@@ -1313,7 +1003,7 @@ export default function Checkout() {
                 data-testid="order-subtotal"
                 className="flex justify-between text-gray-400 text-sm"
               >
-                <span>{tOpt(UI_TEXT.subtotal, language)}</span>
+                <span>{t("subtotal")}</span>
                 <span>{formatMoney(subtotal, currency, locale, symbol)}</span>
               </div>
               <div
@@ -1321,7 +1011,7 @@ export default function Checkout() {
                 className="flex justify-between text-gray-400 text-sm"
               >
                 <span>
-                  {tOpt(UI_TEXT.tax, language)} ({taxPercent}%)
+                  {t("tax")} ({taxPercent}%)
                 </span>
                 <span>{formatMoney(taxAmount, currency, locale, symbol)}</span>
               </div>
@@ -1329,7 +1019,7 @@ export default function Checkout() {
                 data-testid="order-delivery-fee"
                 className="flex justify-between text-gray-400 text-sm"
               >
-                <span>{tOpt(UI_TEXT.deliveryFee, language)}</span>
+                <span>{t("deliveryFee")}</span>
                 <span>{formatMoney(deliveryFee, currency, locale, symbol)}</span>
               </div>
 
@@ -1339,13 +1029,13 @@ export default function Checkout() {
                   className="flex items-center justify-between gap-4 text-sm"
                 >
                   <span className="text-gray-400 flex items-center gap-1.5">
-                    {tOpt({ en: "Tip for Driver", es: "Propina para el conductor", de: "Trinkgeld für den Fahrer", fr: "Pourboire pour le chauffeur", ja: "ドライバーへのチップ" }, language)}
+                    {t("tipForDriver")}
                     <span className="relative inline-flex">
                       <button
                         type="button"
                         data-testid="tip-info"
                         aria-describedby="tip-tooltip"
-                        aria-label="Tip information"
+                        aria-label={t("tipInfoLabel")}
                         onMouseEnter={() => setTipTipOpen(true)}
                         onMouseLeave={() => setTipTipOpen(false)}
                         onFocus={() => setTipTipOpen(true)}
@@ -1362,7 +1052,7 @@ export default function Checkout() {
                           role="tooltip"
                           className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-lg bg-[#0A0A0A] border border-[#333] px-3 py-2 text-xs text-gray-200 shadow-xl"
                         >
-                          {tOpt({ en: "100% of your tip goes directly to your driver.", es: "El 100% de tu propina va directo al conductor.", de: "100% deines Trinkgelds gehen direkt an den Fahrer.", fr: "100% de votre pourboire va directement au chauffeur.", ja: "チップは100%ドライバーに渡ります。" }, language)}
+                          {t("tipTooltipText")}
                         </span>
                       )}
                     </span>
@@ -1399,7 +1089,7 @@ export default function Checkout() {
               className="flex justify-between items-end mb-8"
             >
               <div className="text-xl text-white font-black">
-                {tOpt(UI_TEXT.total, language)}
+                {t("total")}
               </div>
               <div className="text-2xl text-white font-black">
                 {formatMoney(totalAmount, currency, locale, symbol)}
@@ -1414,23 +1104,23 @@ export default function Checkout() {
               className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
             >
               {loading ? (
-                tOpt(UI_TEXT.processing, language)
+                t("processing")
               ) : (
                 <>
-                  {tOpt(UI_TEXT.placeOrder, language)}
+                  {t("placeOrder")}
                   <Icons.ArrowForward />
                 </>
               )}
             </button>
 
             <p className="text-center text-xs text-gray-600 mt-6 leading-relaxed">
-              {tOpt(UI_TEXT.termsText, language)}{" "}
+              {t("termsText")}{" "}
               <a href="#" className="underline hover:text-gray-500">
-                {tOpt(UI_TEXT.terms, language)}
+                {t("terms")}
               </a>{" "}
-              {tOpt(UI_TEXT.and, language)}{" "}
+              {t("and")}{" "}
               <a href="#" className="underline hover:text-gray-500">
-                {tOpt(UI_TEXT.privacy, language)}
+                {t("privacy")}
               </a>
               .
             </p>
@@ -1454,10 +1144,10 @@ export default function Checkout() {
         >
           <div className="w-full max-w-sm rounded-2xl bg-[#161616] border border-[#2A2A2A] p-6 shadow-2xl">
             <h3 id="confirm-order-title" className="text-xl font-black text-white mb-2">
-              {tOpt({ en: "Confirm your order", es: "Confirma tu pedido", de: "Bestellung bestätigen", fr: "Confirmer la commande", ja: "注文の確認" }, language)}
+              {t("confirmOrderTitle")}
             </h3>
             <p className="text-gray-400 text-sm mb-5">
-              {tOpt({ en: "Total to pay", es: "Total a pagar", de: "Zu zahlender Betrag", fr: "Montant à payer", ja: "お支払い金額" }, language)}:{" "}
+              {t("totalToPay")}:{" "}
               <span data-testid="confirm-order-total" className="text-[#FF5722] font-black">
                 {formatMoney(totalAmount, currency, locale, symbol)}
               </span>
@@ -1473,7 +1163,7 @@ export default function Checkout() {
                 }}
                 className="flex-1 py-3 rounded-xl border border-[#333] text-white font-bold hover:bg-[#222] transition-colors"
               >
-                {tOpt({ en: "Cancel", es: "Cancelar", de: "Abbrechen", fr: "Annuler", ja: "キャンセル" }, language)}
+                {t("cancel")}
               </button>
               <button
                 type="button"
@@ -1484,7 +1174,7 @@ export default function Checkout() {
                 }}
                 className="flex-1 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#E64A19] transition-colors"
               >
-                {tOpt({ en: "Place Order", es: "Realizar Pedido", de: "Bestellung aufgeben", fr: "Passer la commande", ja: "注文する" }, language)}
+                {t("placeOrder")}
               </button>
             </div>
           </div>
