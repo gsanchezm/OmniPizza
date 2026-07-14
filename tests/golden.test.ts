@@ -269,6 +269,32 @@ describe('Golden: catalog translation + pricing', () => {
     expect(p01.price).toBe(2051);
     expect(p01.currency_symbol).toBe('¥');
   });
+
+  it('SA/ar: all pizza names and descriptions are localized in Arabic', async () => {
+    const token = await login('standard_user');
+    const res = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: catalogHeaders(token, 'SA', 'ar'),
+    });
+
+    expect(
+      res.data.pizzas.map(({ id, name, description }: any) => ({ id, name, description })),
+    ).toEqual([
+      { id: 'p01', name: 'مارغريتا', description: 'طماطم، موزاريلا، ريحان' },
+      { id: 'p02', name: 'بيبروني', description: 'بيبروني بقري، موزاريلا، صلصة طماطم' },
+      { id: 'p03', name: 'هاوايان', description: 'ديك رومي مدخن، أناناس، موزاريلا' },
+      { id: 'p04', name: 'أربعة أجبان', description: 'موزاريلا، بارميزان، غورغونزولا، بروفولون' },
+      { id: 'p05', name: 'خضروات', description: 'فطر، فلفل، زيتون، بصل' },
+      { id: 'p06', name: 'مارينارا', description: 'طماطم، ثوم، أوريغانو' },
+      { id: 'p07', name: 'كابريتشوزا', description: 'ديك رومي مدخن، فطر، خرشوف، زيتون' },
+      { id: 'p08', name: 'ديافولا', description: 'سلامي بقري حار، فلفل حار، موزاريلا' },
+      { id: 'p09', name: 'بريسولا', description: 'بريسولا، جرجير، بارميزان' },
+      { id: 'p10', name: 'الفصول الأربعة', description: 'خرشوف، زيتون، ديك رومي مدخن، فطر' },
+      { id: 'p11', name: 'فونغي', description: 'فطر، موزاريلا، أوريغانو' },
+      { id: 'p12', name: 'دجاج باربكيو', description: 'دجاج، صلصة باربكيو، بصل، كزبرة' },
+    ]);
+    expect(JSON.stringify(res.data.pizzas)).not.toMatch(/هام|بروسكيوتو/);
+    expect(res.data.currency).toBe('SAR');
+  });
 });
 
 describe('Golden: problem_user chaos behavior', () => {

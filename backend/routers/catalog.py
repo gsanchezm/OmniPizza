@@ -49,8 +49,8 @@ async def get_pizzas(
     Get pizza catalog with country-specific pricing and language support
 
     Headers:
-    - X-Country-Code: MX | US | CH | JP
-    - X-Language: en | es | de | fr | ja
+    - X-Country-Code: MX | US | CH | JP | SA
+    - X-Language: en | es | de | fr | ja | ar
     """
     try:
         country = CountryCode(country_code)

@@ -121,13 +121,14 @@ PIZZA_CATALOG = [
     "base_price": 12.99,
     "category": "popular",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Margherita_pizza.jpg/500px-Margherita_pizza.jpg",
-    "name": {"en":"Margherita","es":"Margarita","de":"Margherita","fr":"Margherita","ja":"マルゲリータ"},
+    "name": {"en":"Margherita","es":"Margarita","de":"Margherita","fr":"Margherita","ja":"マルゲリータ","ar":"مارغريتا"},
     "description": {
       "en":"Tomato, mozzarella, basil",
       "es":"Tomate, mozzarella, albahaca",
       "de":"Tomaten, Mozzarella, Basilikum",
       "fr":"Tomate, mozzarella, basilic",
-      "ja":"トマト、モッツァレラ、バジル"
+      "ja":"トマト、モッツァレラ、バジル",
+      "ar":"طماطم، موزاريلا، ريحان"
     }
   },
   {
@@ -135,13 +136,14 @@ PIZZA_CATALOG = [
     "base_price": 14.99,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Pepperoni_pizza.jpg/500px-Pepperoni_pizza.jpg",
-    "name": {"en":"Pepperoni","es":"Pepperoni","de":"Pepperoni","fr":"Pepperoni","ja":"ペパロニ"},
+    "name": {"en":"Pepperoni","es":"Pepperoni","de":"Pepperoni","fr":"Pepperoni","ja":"ペパロニ","ar":"بيبروني"},
     "description": {
       "en":"Pepperoni, mozzarella, tomato sauce",
       "es":"Pepperoni, mozzarella, salsa de tomate",
       "de":"Pepperoni, Mozzarella, Tomatensauce",
       "fr":"Pepperoni, mozzarella, sauce tomate",
-      "ja":"ペパロニ、モッツァレラ、トマトソース"
+      "ja":"ペパロニ、モッツァレラ、トマトソース",
+      "ar":"بيبروني بقري، موزاريلا، صلصة طماطم"
     }
   },
   {
@@ -149,13 +151,14 @@ PIZZA_CATALOG = [
     "base_price": 13.99,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Hawaiian_pizza.jpg/500px-Hawaiian_pizza.jpg",
-    "name": {"en":"Hawaiian","es":"Hawaiana","de":"Hawaii","fr":"Hawaïenne","ja":"ハワイアン"},
+    "name": {"en":"Hawaiian","es":"Hawaiana","de":"Hawaii","fr":"Hawaïenne","ja":"ハワイアン","ar":"هاوايان"},
     "description": {
       "en":"Ham, pineapple, mozzarella",
       "es":"Jamón, piña, mozzarella",
       "de":"Schinken, Ananas, Mozzarella",
       "fr":"Jambon, ananas, mozzarella",
-      "ja":"ハム、パイナップル、モッツァレラ"
+      "ja":"ハム、パイナップル、モッツァレラ",
+      "ar":"ديك رومي مدخن، أناناس، موزاريلا"
     }
   },
   {
@@ -163,13 +166,14 @@ PIZZA_CATALOG = [
     "base_price": 15.49,
     "category": "popular",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Four_cheese_pizza.jpg/500px-Four_cheese_pizza.jpg",
-    "name": {"en":"Four Cheese","es":"Cuatro Quesos","de":"Vier Käse","fr":"Quatre Fromages","ja":"クアトロ・フォルマッジ"},
+    "name": {"en":"Four Cheese","es":"Cuatro Quesos","de":"Vier Käse","fr":"Quatre Fromages","ja":"クアトロ・フォルマッジ","ar":"أربعة أجبان"},
     "description": {
       "en":"Mozzarella, parmesan, gorgonzola, provolone",
       "es":"Mozzarella, parmesano, gorgonzola, provolone",
       "de":"Mozzarella, Parmesan, Gorgonzola, Provolone",
       "fr":"Mozzarella, parmesan, gorgonzola, provolone",
-      "ja":"モッツァレラ、パルメザン、ゴルゴンゾーラ、プロヴォローネ"
+      "ja":"モッツァレラ、パルメザン、ゴルゴンゾーラ、プロヴォローネ",
+      "ar":"موزاريلا، بارميزان، غورغونزولا، بروفولون"
     }
   },
   {
@@ -177,13 +181,14 @@ PIZZA_CATALOG = [
     "base_price": 13.49,
     "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/500px-Vegetarian_Pizza.jpg",
-    "name": {"en":"Veggie","es":"Vegetariana","de":"Vegetarisch","fr":"Végétarienne","ja":"ベジタリアン"},
+    "name": {"en":"Veggie","es":"Vegetariana","de":"Vegetarisch","fr":"Végétarienne","ja":"ベジタリアン","ar":"خضروات"},
     "description": {
       "en":"Mushrooms, peppers, olives, onion",
       "es":"Champiñones, pimientos, aceitunas, cebolla",
       "de":"Pilze, Paprika, Oliven, Zwiebel",
       "fr":"Champignons, poivrons, olives, oignon",
-      "ja":"きのこ、ピーマン、オリーブ、玉ねぎ"
+      "ja":"きのこ、ピーマン、オリーブ、玉ねぎ",
+      "ar":"فطر، فلفل، زيتون، بصل"
     }
   },
   {
@@ -191,13 +196,14 @@ PIZZA_CATALOG = [
     "base_price": 12.49,
     "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Pizza_marinara.jpg/500px-Pizza_marinara.jpg",
-    "name": {"en":"Marinara","es":"Marinara","de":"Marinara","fr":"Marinara","ja":"マリナーラ"},
+    "name": {"en":"Marinara","es":"Marinara","de":"Marinara","fr":"Marinara","ja":"マリナーラ","ar":"مارينارا"},
     "description": {
       "en":"Tomato, garlic, oregano",
       "es":"Tomate, ajo, orégano",
       "de":"Tomaten, Knoblauch, Oregano",
       "fr":"Tomate, ail, origan",
-      "ja":"トマト、ニンニク、オレガノ"
+      "ja":"トマト、ニンニク、オレガノ",
+      "ar":"طماطم، ثوم، أوريغانو"
     }
   },
   {
@@ -205,13 +211,14 @@ PIZZA_CATALOG = [
     "base_price": 16.49,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pizza_capricciosa.jpg/500px-Pizza_capricciosa.jpg",
-    "name": {"en":"Capricciosa","es":"Caprichosa","de":"Capricciosa","fr":"Capricciosa","ja":"カプリチョーザ"},
+    "name": {"en":"Capricciosa","es":"Caprichosa","de":"Capricciosa","fr":"Capricciosa","ja":"カプリチョーザ","ar":"كابريتشوزا"},
     "description": {
       "en":"Ham, mushrooms, artichoke, olives",
       "es":"Jamón, champiñones, alcachofa, aceitunas",
       "de":"Schinken, Pilze, Artischocke, Oliven",
       "fr":"Jambon, champignons, artichaut, olives",
-      "ja":"ハム、きのこ、アーティチョーク、オリーブ"
+      "ja":"ハム、きのこ、アーティチョーク、オリーブ",
+      "ar":"ديك رومي مدخن، فطر، خرشوف، زيتون"
     }
   },
   {
@@ -219,13 +226,14 @@ PIZZA_CATALOG = [
     "base_price": 15.99,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pizza_Diavolo.jpg/500px-Pizza_Diavolo.jpg",
-    "name": {"en":"Diavola","es":"Diavola","de":"Diavolo","fr":"Diavola","ja":"ディアボラ"},
+    "name": {"en":"Diavola","es":"Diavola","de":"Diavolo","fr":"Diavola","ja":"ディアボラ","ar":"ديافولا"},
     "description": {
       "en":"Spicy salami, chili, mozzarella",
       "es":"Salami picante, chile, mozzarella",
       "de":"Scharfe Salami, Chili, Mozzarella",
       "fr":"Salami épicé, piment, mozzarella",
-      "ja":"辛いサラミ、唐辛子、モッツァレラ"
+      "ja":"辛いサラミ、唐辛子、モッツァレラ",
+      "ar":"سلامي بقري حار، فلفل حار، موزاريلا"
     }
   },
   {
@@ -233,13 +241,14 @@ PIZZA_CATALOG = [
     "base_price": 16.99,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Pizza_Prosciutto.jpg/500px-Pizza_Prosciutto.jpg",
-    "name": {"en":"Prosciutto","es":"Prosciutto","de":"Prosciutto","fr":"Prosciutto","ja":"プロシュート"},
+    "name": {"en":"Prosciutto","es":"Prosciutto","de":"Prosciutto","fr":"Prosciutto","ja":"プロシュート","ar":"بريسولا"},
     "description": {
       "en":"Prosciutto, arugula, parmesan",
       "es":"Prosciutto, arúgula, parmesano",
       "de":"Prosciutto, Rucola, Parmesan",
       "fr":"Prosciutto, roquette, parmesan",
-      "ja":"プロシュート、ルッコラ、パルメザン"
+      "ja":"プロシュート、ルッコラ、パルメザン",
+      "ar":"بريسولا، جرجير، بارميزان"
     }
   },
   {
@@ -247,13 +256,14 @@ PIZZA_CATALOG = [
     "base_price": 16.49,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Pizza_quattro_stagioni.jpg/500px-Pizza_quattro_stagioni.jpg",
-    "name": {"en":"Quattro Stagioni","es":"Cuatro Estaciones","de":"Vier Jahreszeiten","fr":"Quatre Saisons","ja":"クアトロ・スタジオーニ"},
+    "name": {"en":"Quattro Stagioni","es":"Cuatro Estaciones","de":"Vier Jahreszeiten","fr":"Quatre Saisons","ja":"クアトロ・スタジオーニ","ar":"الفصول الأربعة"},
     "description": {
       "en":"Artichoke, olives, ham, mushrooms",
       "es":"Alcachofa, aceitunas, jamón, champiñones",
       "de":"Artischocke, Oliven, Schinken, Pilze",
       "fr":"Artichaut, olives, jambon, champignons",
-      "ja":"アーティチョーク、オリーブ、ハム、きのこ"
+      "ja":"アーティチョーク、オリーブ、ハム、きのこ",
+      "ar":"خرشوف، زيتون، ديك رومي مدخن، فطر"
     }
   },
   {
@@ -261,13 +271,14 @@ PIZZA_CATALOG = [
     "base_price": 14.49,
     "category": "veggie",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Pizzahalter_auf_Pizza_Funghi.JPG/500px-Pizzahalter_auf_Pizza_Funghi.JPG",
-    "name": {"en":"Funghi","es":"Funghi","de":"Funghi","fr":"Funghi","ja":"フンギ"},
+    "name": {"en":"Funghi","es":"Funghi","de":"Funghi","fr":"Funghi","ja":"フンギ","ar":"فونغي"},
     "description": {
       "en":"Mushrooms, mozzarella, oregano",
       "es":"Champiñones, mozzarella, orégano",
       "de":"Pilze, Mozzarella, Oregano",
       "fr":"Champignons, mozzarella, origan",
-      "ja":"きのこ、モッツァレラ、オレガノ"
+      "ja":"きのこ、モッツァレラ、オレガノ",
+      "ar":"فطر، موزاريلا، أوريغانو"
     }
   },
   {
@@ -275,13 +286,14 @@ PIZZA_CATALOG = [
     "base_price": 15.99,
     "category": "meat",
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/BBQ_CHICKEN_PIZZA.jpg/500px-BBQ_CHICKEN_PIZZA.jpg",
-    "name": {"en":"BBQ Chicken","es":"Pollo BBQ","de":"BBQ Hähnchen","fr":"Poulet BBQ","ja":"BBQチキン"},
+    "name": {"en":"BBQ Chicken","es":"Pollo BBQ","de":"BBQ Hähnchen","fr":"Poulet BBQ","ja":"BBQチキン","ar":"دجاج باربكيو"},
     "description": {
       "en":"Chicken, BBQ sauce, onion, cilantro",
       "es":"Pollo, salsa BBQ, cebolla, cilantro",
       "de":"Hähnchen, BBQ-Sauce, Zwiebel, Koriander",
       "fr":"Poulet, sauce BBQ, oignon, coriandre",
-      "ja":"チキン、BBQソース、玉ねぎ、香菜"
+      "ja":"チキン、BBQソース、玉ねぎ、香菜",
+      "ar":"دجاج، صلصة باربكيو، بصل، كزبرة"
     }
   },
 ]
