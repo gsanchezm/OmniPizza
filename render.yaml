@@ -50,6 +50,18 @@ services:
       - path: /*
         name: Strict-Transport-Security
         value: max-age=63072000; includeSubDomains
+      - path: /*
+        name: Content-Security-Policy
+        value: >-
+          default-src 'self';
+          img-src 'self' data: https://images.unsplash.com https://upload.wikimedia.org https://placehold.co https://api.dicebear.com;
+          font-src 'self' https://fonts.gstatic.com;
+          style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+          script-src 'self';
+          connect-src 'self' https://omnipizza-backend.onrender.com;
+          object-src 'none';
+          base-uri 'self';
+          frame-ancestors 'none';
     autoDeploy: true
 
 # Database: In-memory (no persistence required)
