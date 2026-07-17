@@ -22,8 +22,8 @@ export default function CategoryFilter({ selected, onSelect }) {
           onClick={() => onSelect(cat.id)}
           className={`
             whitespace-nowrap px-6 py-3 rounded-xl font-bold text-sm transition-all duration-200
-            ${selected === cat.id 
-              ? 'bg-[#FF5722] text-white shadow-lg shadow-[#FF5722]/20' 
+            ${selected === cat.id
+              ? 'bg-[#FF5722] text-[#1E1E1E] shadow-lg shadow-[#FF5722]/20'
               : 'bg-[#1E1E1E] text-gray-400 hover:bg-[#2A2A2A] hover:text-white border border-[#2A2A2A]'}
           `}
         >

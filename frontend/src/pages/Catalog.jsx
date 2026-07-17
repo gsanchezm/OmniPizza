@@ -94,7 +94,8 @@ export default function Catalog() {
   return (
     <div data-testid="screen-catalog" className="min-h-screen bg-[#0F0F0F] text-white pt-24 pb-12">
        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-          
+          <h1 className="sr-only">{t("catalog")}</h1>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
              
              {/* Left: Main Content (Catalog) */}
