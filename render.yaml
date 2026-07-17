@@ -47,6 +47,9 @@ services:
       - path: /*
         name: X-Content-Type-Options
         value: nosniff
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=63072000; includeSubDomains
     autoDeploy: true
 
 # Database: In-memory (no persistence required)
