@@ -496,9 +496,22 @@
             for contract-based scanners and fuzzers to consume directly.
           </li>
           <li class="list-item">
+            <strong>Web security headers:</strong> the deployed frontend sends an
+            allowlist-scoped <code>Content-Security-Policy</code>,
+            <code>Strict-Transport-Security</code>, <code>X-Frame-Options</code>, and
+            <code>X-Content-Type-Options</code> (see <code>render.yaml</code>) — good for
+            practicing header-presence scanners (OWASP ZAP baseline, etc.) against a
+            passing target.
+          </li>
+          <li class="list-item">
             <strong>Static scanning (MobSF):</strong> the Android release APK
-            (<code>pnpm build:android</code>) is a standard Expo artifact with no
-            non-standard permissions, ready to feed into a local MobSF instance.
+            (<code>pnpm build:android</code>) is a standard Expo artifact,
+            <code>allowBackup</code>-hardened and pinned to <code>minSdkVersion 29</code>,
+            ready to feed into a local MobSF instance. It's still signed with the debug
+            keystore by design — the APK is a GitHub Release artifact for Appium/Detox and
+            sideloading, not a Play Store binary, so that specific finding is an accepted
+            (not fixed) part of the surface. See the 2026-07-16 QA triage in
+            <code>documents/explanation/</code> for the full rationale.
           </li>
           <li class="list-item">
             <strong>Intentional backdoors:</strong> the <code>accessToken</code> deep-link

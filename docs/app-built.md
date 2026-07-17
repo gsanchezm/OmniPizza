@@ -75,7 +75,9 @@ cd android && ./gradlew assembleAndroidTest
 
 ### Signing
 
-- Currently uses the default debug keystore. For production distribution, configure a release keystore via GitHub Secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`).
+- Uses the default debug keystore — `expo prebuild`'s generated `android/build.gradle` wires the `release` build type to `signingConfigs.debug` out of the box, and nothing in this workflow overrides it. **This is an accepted-by-design gap, not a pending TODO**: `omnipizza-release.apk` is published as a GitHub Release artifact for Appium/Detox and manual sideloading, not to Play Store or another real storefront, so "production must not ship a debug cert" (a real MobSF finding, see the 2026-07-16 QA triage) doesn't apply to this distribution model. If that ever changes, wiring a real release keystore would mean adding a `signingConfigs.release` block via `expo-build-properties` (or a prebuild patch) and decoding a base64 keystore from GitHub Secrets before `assembleRelease` — generating and safeguarding that production key is a deliberate, hard-to-reverse decision that hasn't been made.
+- `minSdkVersion` is pinned to **29** (Android 10) via the `expo-build-properties` plugin config in `frontend-mobile/app.json` (was left at Expo's SDK default of 24/Android 7.0 before the 2026-07-16 QA triage flagged it — MobSF's own recommendation was ">= API 29").
+- `android.allowBackup` is set to `false` in `frontend-mobile/app.json` (was unset → defaulted to `true`, letting anyone with `adb`/USB debugging extract app data).
 
 ---
 
@@ -181,3 +183,4 @@ pnpm build:ios:simulator # Build iOS simulator app
 - Real-device iOS `.ipa` output is **intentionally out of scope** — iOS is simulator-only (see "Distribution vs. automation"). iOS has no public `.ipa` sideload, and Appium automates the simulator build, not a store binary.
 - There is no XCUITest runner artifact in the current pipeline.
 - `omnipizza-debug-androidTest.apk` is currently a minimal stub (~7 KB): the Expo-prebuilt `android/` project has no Detox/instrumented-test wiring, so it contains no real instrumented tests. Appium drives the release APK directly.
+- **`gradle.properties` append gotcha (hit on v1.1.4, fixed):** the "Disable PNG Crunching" step does `echo "..." >> android/gradle.properties`, but `expo prebuild`'s generated file doesn't always end in a trailing newline — whichever config-plugin property gets written last (e.g. `expo-build-properties`'s `minSdkVersion`) can leave the file without one. A bare `>>` then concatenates onto that same line instead of appending a new one (e.g. `android.minSdkVersion=29android.enablePngCrunchInReleaseBuilds=false`), which Gradle fails to parse. The workflow now `printf`s a leading `\n` before the property to make the append safe regardless of the file's trailing-newline state.
