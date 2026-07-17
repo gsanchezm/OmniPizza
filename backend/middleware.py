@@ -43,8 +43,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found"
         )
-    
-    return user
+
+    # Copy rather than mutate the shared TEST_USERS entry: session_id is
+    # per-login (from the JWT's "sid" claim), not part of the static user
+    # config, and every request for this username reads the same dict object.
+    return {**user, "session_id": payload.get("sid")}
 
 def apply_user_behavior(user: dict = Depends(get_current_user)):
     """Apply user-specific behavior delays"""

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from typing import List
+import uuid
 
 from models import (
     LoginRequest, LoginResponse, UserProfile,
@@ -35,15 +36,16 @@ async def login(request: LoginRequest):
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    # Login is the session boundary. Reset the editable profile to its clean
-    # baseline on every login so a save made in a previous session (e.g. Japanese
-    # text under the JP market) cannot leak into this one. Within a single
-    # login-session, saves still persist via PATCH /api/users/me/profile.
-    db.reset_user_profile(user["username"])
-
-    # Create access token
+    # Login is the session boundary. The profile is keyed by this token's own
+    # "sid" claim (not by username), so it starts empty automatically for
+    # every new login - a save made in a previous session (e.g. Japanese text
+    # under the JP market) cannot leak into this one, and two concurrent
+    # logins for the same shared test user (e.g. two markets tested in
+    # parallel) get isolated profiles instead of racing on a shared reset.
+    # Within a single login-session, saves still persist via
+    # PATCH /api/users/me/profile.
     access_token = create_access_token(
-        data={"sub": user["username"], "behavior": user["behavior"]}
+        data={"sub": user["username"], "behavior": user["behavior"], "sid": uuid.uuid4().hex}
     )
     
     return LoginResponse(
@@ -81,7 +83,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     summary="Get the editable profile for the authenticated user",
 )
 async def get_user_profile(current_user: dict = Depends(get_current_user)):
-    profile = db.get_user_profile(current_user["username"])
+    profile = db.get_user_profile(current_user["session_id"], current_user["username"])
     return UserProfileDetails(**profile)
 
 
@@ -96,6 +98,7 @@ async def patch_user_profile(
     current_user: dict = Depends(get_current_user),
 ):
     updated = db.update_user_profile(
+        current_user["session_id"],
         current_user["username"],
         patch.dict(exclude_unset=True),
     )

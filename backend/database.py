@@ -64,8 +64,8 @@ class InMemoryDB:
         self.sessions: Dict[str, Dict[str, Any]] = {}
         self.user_profiles: Dict[str, Dict[str, Any]] = {}
 
-    def _ensure_user_profile(self, username: str) -> Dict[str, Any]:
-        profile = self.user_profiles.get(username)
+    def _ensure_user_profile(self, session_id: str, username: str) -> Dict[str, Any]:
+        profile = self.user_profiles.get(session_id)
         if profile is None:
             profile = {
                 "username": username,
@@ -76,35 +76,34 @@ class InMemoryDB:
                 "notes": "",
                 "birthday": "",
             }
-            self.user_profiles[username] = profile
+            self.user_profiles[session_id] = profile
         return profile
 
-    def get_user_profile(self, username: str) -> Dict[str, Any]:
-        return self._ensure_user_profile(username)
+    def get_user_profile(self, session_id: str, username: str) -> Dict[str, Any]:
+        return self._ensure_user_profile(session_id, username)
 
-    def update_user_profile(self, username: str, patch: Dict[str, Any]) -> Dict[str, Any]:
-        profile = self._ensure_user_profile(username)
+    def update_user_profile(self, session_id: str, username: str, patch: Dict[str, Any]) -> Dict[str, Any]:
+        profile = self._ensure_user_profile(session_id, username)
         for key, value in patch.items():
             if value is None:
                 continue
             profile[key] = value
         return profile
 
-    def reset_user_profile(self, username: str) -> Dict[str, Any]:
-        """Reset the user's editable profile to the deterministic default.
+    def reset_user_profile(self, session_id: str, username: str) -> Dict[str, Any]:
+        """Reset the current session's editable profile to the deterministic
+        default. Profiles are keyed by session_id (a per-login JWT claim), so
+        this only clears the caller's own session and cannot affect a
+        concurrent session logged in under the same username."""
+        self.user_profiles.pop(session_id, None)
+        return self._ensure_user_profile(session_id, username)
 
-        The profile is per-user mutable state shared across sessions, so any
-        save by any session leaks into the next render. Resetting back to the
-        default empty profile gives tests a reproducible pre-edit baseline."""
-        self.user_profiles.pop(username, None)
-        return self._ensure_user_profile(username)
-
-    def seed_user_profile(self, username: str, fields: Dict[str, Any]) -> Dict[str, Any]:
+    def seed_user_profile(self, session_id: str, username: str, fields: Dict[str, Any]) -> Dict[str, Any]:
         """Replace the profile with a deterministic baseline: default values
         overlaid with `fields`. Unspecified fields revert to default, so the
         result depends only on this call, not on prior saves."""
-        self.user_profiles.pop(username, None)
-        profile = self._ensure_user_profile(username)
+        self.user_profiles.pop(session_id, None)
+        profile = self._ensure_user_profile(session_id, username)
         for key, value in fields.items():
             if value is None:
                 continue
