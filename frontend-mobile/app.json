@@ -17,7 +17,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F0F0F"
       },
-      "package": "com.omnipizza.app"
+      "package": "com.omnipizza.app",
+      "allowBackup": false
     },
     "ios": {
       "supportsTablet": true,
@@ -25,6 +26,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 29
+          }
+        }
+      ]
+    ]
   }
 }
