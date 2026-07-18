@@ -80,7 +80,7 @@ export default function OrderSuccess() {
                        <h1 data-testid={tid("order-success-title")} className="text-3xl md:text-4xl font-black text-white mb-2 leading-tight">
                            {t('outForDelivery')}
                        </h1>
-                        <p data-testid="expected-arrival" className="text-gray-500 font-medium">
+                        <p data-testid="expected-arrival" className="text-gray-400 font-medium">
                            {t('expectedArrival')}: 8:45 PM
                        </p>
                    </div>
@@ -88,7 +88,7 @@ export default function OrderSuccess() {
                        <div data-testid="delivery-time-min" className="text-5xl md:text-6xl font-black text-[#FF5722] italic tracking-tighter">
                            15-20
                        </div>
-                       <div data-testid="delivery-time-label" className="text-gray-500 font-black tracking-widest text-sm uppercase mr-1">
+                       <div data-testid="delivery-time-label" className="text-gray-400 font-black tracking-widest text-sm uppercase mr-1">
                            {t('min')}
                        </div>
                    </div>
@@ -101,12 +101,12 @@ export default function OrderSuccess() {
                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#2A2A2A] border border-[#333]">
                                <img data-testid="img-courier" src={courier.image} alt={courier.name} className="w-full h-full object-cover" />
                            </div>
-                           <div data-testid="courier-rating" className="absolute -bottom-2 -right-2 bg-[#FF5722] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-[#1F1F1F] flex items-center gap-0.5">
+                           <div data-testid="courier-rating" className="absolute -bottom-2 -right-2 bg-[#FF5722] text-[#1E1E1E] text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-[#1F1F1F] flex items-center gap-0.5">
                                <span>★</span> {courier.rating}
                            </div>
                        </div>
                        <div>
-                           <div data-testid="courier-role-label" className="text-xs text-gray-500 font-bold tracking-wider uppercase mb-0.5">{t('yourCourier')}</div>
+                           <div data-testid="courier-role-label" className="text-xs text-gray-400 font-bold tracking-wider uppercase mb-0.5">{t('yourCourier')}</div>
                            <div data-testid="courier-name" className="text-white font-bold text-lg">{courier.name}</div>
                            <div data-testid="courier-vehicle" className="text-gray-400 text-xs">{t(courier.vehicle)}</div>
                        </div>
@@ -126,7 +126,7 @@ export default function OrderSuccess() {
                {order && (
                    <div className="mt-8 border-t border-[#2A2A2A] pt-6">
                         <div className="flex justify-between items-center mb-4">
-                           <h3 data-testid="order-details-label" className="text-gray-500 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
+                           <h3 data-testid="order-details-label" className="text-gray-400 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
                            <span data-testid="order-id" className="text-white font-mono text-sm">#{order.order_id}</span>
                        </div>
                        <div className="flex justify-between items-center">

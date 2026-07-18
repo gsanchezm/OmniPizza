@@ -353,7 +353,7 @@ export default function Checkout() {
           <button
             data-testid="start-order-btn"
             onClick={() => navigate("/catalog")}
-            className="bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-3 px-8 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+            className="bg-[#FF5722] hover:bg-[#E64A19] text-[#1E1E1E] font-bold py-3 px-8 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
           >
             {t("startOrder")}
             <Icons.ArrowForward />
@@ -389,7 +389,7 @@ export default function Checkout() {
           {/* Section 1: Delivery Address */}
           <div>
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-[#1E1E1E] font-bold text-sm">
                 1
               </div>
               <h2 className="text-xl font-bold text-white tracking-widest uppercase">
@@ -404,7 +404,7 @@ export default function Checkout() {
             >
               <div className="grid gap-6">
                 <div>
-                  <label htmlFor="field-address" data-testid="label-address" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                  <label htmlFor="field-address" data-testid="label-address" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                     {t("streetAndNumber")}
                   </label>
                   <input
@@ -424,7 +424,7 @@ export default function Checkout() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {countryCode === "MX" && (
                     <div>
-                      <label htmlFor="field-colonia" data-testid="label-colonia" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-colonia" data-testid="label-colonia" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("colonia")}
                       </label>
                       <input
@@ -443,7 +443,7 @@ export default function Checkout() {
 
                   {countryCode === "MX" && (
                     <div>
-                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("zipCode")}
                       </label>
                       <input
@@ -466,7 +466,7 @@ export default function Checkout() {
 
                   {countryCode === "US" && (
                     <div>
-                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("zipCode")}
                       </label>
                       <input
@@ -490,7 +490,7 @@ export default function Checkout() {
 
                   {countryCode === "CH" && (
                     <div>
-                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-zip-code" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("zipCode")}
                       </label>
                       <input
@@ -509,7 +509,7 @@ export default function Checkout() {
 
                   {countryCode === "JP" && (
                     <div>
-                      <label htmlFor="field-zip-code" data-testid="label-prefectura" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-zip-code" data-testid="label-prefectura" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("prefecture")}
                       </label>
                       <input
@@ -528,7 +528,7 @@ export default function Checkout() {
 
                   {countryCode === "SA" && (
                     <div>
-                      <label htmlFor="field-district" data-testid="label-district" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-district" data-testid="label-district" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("district")}
                       </label>
                       <input
@@ -550,7 +550,7 @@ export default function Checkout() {
               {/* Section 2: Contact Info */}
               <div className="pt-8">
                 <div className="flex items-center gap-4 mb-6 -ml-12">
-                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-[#1E1E1E] font-bold text-sm">
                     2
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-widest uppercase">
@@ -560,7 +560,7 @@ export default function Checkout() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="field-full-name" data-testid="label-full-name" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label htmlFor="field-full-name" data-testid="label-full-name" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                       {t("fullName")}
                     </label>
                     <input
@@ -577,7 +577,7 @@ export default function Checkout() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="field-phone" data-testid="label-phone" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                    <label htmlFor="field-phone" data-testid="label-phone" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                       {t("phone")}
                     </label>
                     <input
@@ -610,7 +610,7 @@ export default function Checkout() {
               {/* Section 3: Payment Method */}
               <div className="pt-8">
                 <div className="flex items-center gap-4 mb-6 -ml-12">
-                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-[#1E1E1E] font-bold text-sm">
                     3
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-widest uppercase">
@@ -648,7 +648,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("creditCard")}
                       </div>
-                      <div className="text-xs text-gray-500 uppercase text-left">
+                      <div className="text-xs text-gray-400 uppercase text-left">
                         {t("creditCardDesc")}
                       </div>
                     </div>
@@ -679,7 +679,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("cash")}
                       </div>
-                      <div className="text-xs text-gray-500 uppercase text-left">
+                      <div className="text-xs text-gray-400 uppercase text-left">
                         {t("payOnDelivery")}
                       </div>
                     </div>
@@ -710,7 +710,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("paypal")}
                       </div>
-                      <div className="text-xs text-gray-500 uppercase text-left">
+                      <div className="text-xs text-gray-400 uppercase text-left">
                         {t("paypalDesc")}
                       </div>
                     </div>
@@ -720,7 +720,7 @@ export default function Checkout() {
                 {paymentMethod === "card" && (
                   <div className="grid gap-6 mt-6">
                     <div>
-                      <label htmlFor="field-card-holder" data-testid="label-card-holder" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-card-holder" data-testid="label-card-holder" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("cardHolder")}
                       </label>
                       <input
@@ -739,7 +739,7 @@ export default function Checkout() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="field-card-number" data-testid="label-card-number" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-card-number" data-testid="label-card-number" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("cardNumber")}
                       </label>
                       <input
@@ -761,7 +761,7 @@ export default function Checkout() {
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <label id="field-card-expiry-label" data-testid="label-card-expiry" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label id="field-card-expiry-label" data-testid="label-card-expiry" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                           {t("cardExpiry")}
                         </label>
                         <div className="grid grid-cols-2 gap-3">
@@ -818,7 +818,7 @@ export default function Checkout() {
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="field-card-cvv" data-testid="label-card-cvv" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                        <label htmlFor="field-card-cvv" data-testid="label-card-cvv" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                           {t("cardCvv")}
                         </label>
                         <input
@@ -860,7 +860,7 @@ export default function Checkout() {
                       {t("paypalDemoNote")}
                     </div>
                     <div>
-                      <label htmlFor="field-paypal-email" data-testid="label-paypal-email" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-paypal-email" data-testid="label-paypal-email" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("paypalEmail")}
                       </label>
                       <input
@@ -876,7 +876,7 @@ export default function Checkout() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="field-paypal-password" data-testid="label-paypal-password" className="block text-gray-500 text-xs font-bold mb-2 uppercase">
+                      <label htmlFor="field-paypal-password" data-testid="label-paypal-password" className="block text-gray-400 text-xs font-bold mb-2 uppercase">
                         {t("paypalPassword")}
                       </label>
                       <input
@@ -958,7 +958,7 @@ export default function Checkout() {
                     </div>
                     <div
                       data-testid={`order-item-details-${it.pizza_id}`}
-                      className="text-gray-500 text-xs"
+                      className="text-gray-400 text-xs"
                     >
                       {it.quantity}x •{" "}
                       {getSizeLabel(it)}
@@ -970,14 +970,14 @@ export default function Checkout() {
                           setEditing(it);
                           setEditOpen(true);
                         }}
-                        className="text-[10px] font-bold text-gray-500 hover:text-[#FF5722] uppercase tracking-wider transition-colors"
+                        className="text-[10px] font-bold text-gray-400 hover:text-[#FF5722] uppercase tracking-wider transition-colors"
                       >
                         {t("edit")}
                       </button>
                       <button
                         data-testid={`order-item-remove-${it.pizza_id}`}
                         onClick={() => removeItem(it.id)}
-                        className="text-[10px] font-bold text-gray-500 hover:text-red-500 uppercase tracking-wider transition-colors"
+                        className="text-[10px] font-bold text-gray-400 hover:text-red-500 uppercase tracking-wider transition-colors"
                       >
                         {t("remove")}
                       </button>
@@ -1074,7 +1074,7 @@ export default function Checkout() {
                         onClick={() =>
                           setTipOption(optionKey)
                         }
-                        className={`min-w-[92px] flex-1 rounded-full px-4 py-2 text-center text-sm font-bold transition-colors sm:flex-none ${active ? "bg-[#FF5722] text-white" : "bg-[#242424] text-gray-300 hover:bg-[#303030]"}`}
+                        className={`min-w-[92px] flex-1 rounded-full px-4 py-2 text-center text-sm font-bold transition-colors sm:flex-none ${active ? "bg-[#FF5722] text-[#1E1E1E]" : "bg-[#242424] text-gray-300 hover:bg-[#303030]"}`}
                       >
                         {value}%
                       </button>
@@ -1101,7 +1101,7 @@ export default function Checkout() {
               data-testid={tid("place-order-btn")}
               onClick={() => setConfirmOpen(true)}
               disabled={loading}
-              className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+              className="w-full bg-[#FF5722] hover:bg-[#E64A19] text-[#1E1E1E] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
             >
               {loading ? (
                 t("processing")
@@ -1113,7 +1113,7 @@ export default function Checkout() {
               )}
             </button>
 
-            <p className="text-center text-xs text-gray-600 mt-6 leading-relaxed">
+            <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
               {t("termsText")}{" "}
               <a href="#" className="underline hover:text-gray-500">
                 {t("terms")}
@@ -1172,7 +1172,7 @@ export default function Checkout() {
                   setConfirmOpen(false);
                   document.getElementById("checkout-form").requestSubmit();
                 }}
-                className="flex-1 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#E64A19] transition-colors"
+                className="flex-1 py-3 rounded-xl bg-[#FF5722] text-[#1E1E1E] font-bold hover:bg-[#E64A19] transition-colors"
               >
                 {t("placeOrder")}
               </button>

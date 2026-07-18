@@ -191,14 +191,58 @@ mismo defecto en el mismo componente que estaba editando, y los corregí junto c
   `ProductCard.jsx` (`pizza-description`), pero ese fix no tocó este componente. Corregido a
   `text-gray-400` (≈6.55:1), misma técnica.
 
-**No corregido — requiere una decisión de diseño, no de bug-fix:** el patrón `text-white` sobre
-`bg-[#FF5722]`/`bg-brand-primary` aparece en varios lugares más de la app (botón "Place Order" y
-círculos de sección en Checkout, badges "Bestseller"/"Veggie" en `ProductCard`, badge de rating de
-repartidor en `OrderSuccess`, botones en `PizzaCustomizerModal`, etc.). Varios de estos son texto
-grande/bold (pasan el umbral AA de 3:1 para "large text") pero varios no lo son y muy probablemente
-comparten el mismo ratio ~3.16:1. Recolorear cada CTA primario de la app es una decisión de diseño de
-marca, no un bug puntual — se deja fuera de este triage a propósito; ver conversación para la
-pregunta planteada al usuario.
+### Barrido completo — decisión del usuario: corregir todo, web y mobile
+
+Se planteó la pregunta al usuario (recolorear solo lo reportado vs. todo el patrón app-wide) y la
+respuesta fue corregir todo ahora. Se hizo un barrido completo de `text-white`/`text-gray-500`
+sobre fondos saturados (`#FF5722`/`bg-brand-primary`, o superficies oscuras) en **web y mobile**,
+verificando caso por caso el tamaño/peso de fuente contra los umbrales WCAG (texto "grande" = ≥24px
+normal o ≥18.66px bold, exento del 4.5:1 y solo requiere 3:1) antes de tocar nada — texto grande,
+iconos SVG-only (que ya cumplen el umbral no-textual de 3:1) y estados solo-`:hover` se dejaron
+intactos a propósito.
+
+**Web (`frontend/src/`):** además de lo ya descrito arriba, se corrigió: `PrimaryButton.jsx` (botón
+compartido — "Sign In" en Login, "Ver mi pedido →" en `CartSidebar`), las 15 etiquetas de campo de
+`Checkout.jsx` (`text-gray-500`→`text-gray-400`), las 3 descripciones de método de pago, el texto de
+cada ítem del resumen de orden (`order-item-details`, `edit`, `remove`), los 3 círculos numerados de
+sección, el botón de tip activo, `place-order-btn`/`start-order-btn`/`confirm-order-yes`, el párrafo
+de Términos/Privacidad (`text-gray-600`→`text-gray-400`, este era el peor caso: 2.48:1), el selector
+de tamaño y el badge de check en `PizzaCustomizerModal.jsx`, el badge `courier-rating` en
+`OrderSuccess.jsx`, el botón de guardar en `Profile.jsx`, y el separador "Quick Login" en
+`Login.jsx`.
+
+**No tocado (verificado, no es un bug):** los badges "Bestseller"/"Veggie" en `ProductCard.jsx`
+(`pizza.type === 'meat'|'veggie'`) — código muerto, nunca se renderizan, porque el campo real en
+`backend/constants.py` es `category`, no `type` (`"category": "meat"`, etc.). Es un bug de lógica
+separado y no relacionado al contraste — no se corrigió aquí porque no es lo que se preguntó y
+cambiar el comportamiento visible de qué pizzas muestran badge merece su propia decisión. La clase
+`.btn-primary` en `index.css` también está sin usar en ningún JSX — se dejó igual por la misma razón
+(no toca nada visible).
+
+**Verificación:** `npx vite build` limpio, y una pasada empírica real (no solo matemática) — corrí
+`vite dev` local apuntando al backend de Render (ver [[omnipizza-web-local-verify]]), sembré sesión
+CH/de y CH/fr vía `localStorage`, y reejecuté el mismo script de contraste en Login, Catalog,
+Checkout (con carrito), Profile y Order Success (con un pedido real vía `POST /api/checkout`,
+incluyendo el acordeón de detalle expandido). Esto encontró y corrigió 3 gaps que el barrido inicial
+por código se saltó: `CartSidebar.jsx` (línea de tamaño/toppings del ítem, un segundo `text-gray-500`
+distinto al del carrito vacío), `Profile.jsx` (5 labels de campo + "Joined" + "Delete Account", nunca
+escaneados) y `OrderSuccess.jsx` (4 labels: "Expected arrival", "MIN", "YOUR COURIER", "ORDER
+DETAILS"). Las 5 páginas dan 0 violaciones ahora. Los únicos dos elementos que no pude confirmar
+visualmente (el modal de confirmación de Checkout y `PizzaCustomizerModal`) no abrieron vía click
+automatizado en este entorno tras varios intentos — la corrección ahí usa el mismo patrón
+`bg-[#FF5722] text-[#1E1E1E]` ya confirmado docenas de veces en esta misma sesión, así que la
+confianza es alta pese a no tener el pixel-check.
+
+**Mobile (`frontend-mobile/src/`):** mismo patrón, confirmado con la misma auditoría — 14
+ocurrencias en 11 archivos (`PrimaryButton.tsx`, `CheckoutScreen.tsx` x3, `OrderSuccessScreen.tsx`
+x2, `PizzaBuilderScreen.tsx` x4, `ProfileScreen.tsx`, `PizzaCard.tsx`, `LocationHeader.tsx`,
+`CustomNavbar.tsx` x2, `CategoryPills.tsx`, `BottomNavBar.tsx`, `theme/styles.ts` x2). Mobile ya
+tenía un token `Colors.text.inverse = "#111111"` definido en `theme/colors.ts` pero **sin ningún
+uso en toda la app** — evidencia de que alguien ya había anticipado este fix y nunca lo conectó. Se
+usó ese token en cada corrección (contraste `#111111` sobre `#FF5722` ≈ 5.97:1) en vez de un hex
+nuevo. `npx tsc --noEmit` corre limpio después del cambio. Requiere un release nuevo de mobile para
+llegar a producción (ver [[omnipizza-mobile-release]]) — web se despliega solo con el push a
+`main`.
 
 ---
 

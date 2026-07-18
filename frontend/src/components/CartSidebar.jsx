@@ -76,7 +76,7 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
             </div>
             <div className="flex-1 min-w-0">
                <h3 className="font-bold text-white text-sm truncate">{item.pizza.name}</h3>
-               <p className="text-xs text-gray-500 truncate">
+               <p className="text-xs text-gray-400 truncate">
                  {getSizeLabel(item)} | {item.config?.toppings?.length || 0} {t('toppings')}
                </p>
                

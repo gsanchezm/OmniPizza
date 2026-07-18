@@ -244,7 +244,7 @@ export default function Login() {
                  <div className="w-full border-t border-[#2A2A2A]"></div>
                </div>
                <div className="relative flex justify-center text-sm">
-                 <span className="px-2 bg-[#0F0F0F] text-gray-500 uppercase tracking-widest font-bold text-xs">Quick Login</span>
+                 <span className="px-2 bg-[#0F0F0F] text-gray-400 uppercase tracking-widest font-bold text-xs">Quick Login</span>
                </div>
             </div>
 

@@ -206,7 +206,7 @@ export default function PizzaCustomizerModal({
                                      aria-pressed={isSelected}
                                      data-testid={`size-${opt.id}`}
                                      onClick={() => setSize(opt.id)}
-                                     className={`flex-1 py-3 rounded-full text-sm font-bold transition-all ${isSelected ? 'bg-[#FF5722] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                     className={`flex-1 py-3 rounded-full text-sm font-bold transition-all ${isSelected ? 'bg-[#FF5722] text-[#1E1E1E] shadow-lg' : 'text-gray-400 hover:text-white'}`}
                                  >
                                      {getSizeLabel(opt)}
                                  </button>
@@ -219,7 +219,7 @@ export default function PizzaCustomizerModal({
                  <div className="space-y-6">
                      <div className="flex justify-between items-center mb-4">
                          <h3 className="text-white font-black text-xl">{t("addToppings")}</h3>
-                         <span className="text-gray-500 text-sm font-medium">+{toppingLocalText} {t("each")}</span>
+                         <span className="text-gray-400 text-sm font-medium">+{toppingLocalText} {t("each")}</span>
                      </div>
                      
                      {TOPPING_GROUPS.map((group) => (
@@ -251,7 +251,7 @@ export default function PizzaCustomizerModal({
                                          </span>
 
                                          {isSelected && (
-                                             <div aria-hidden="true" className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-white text-[10px]">
+                                             <div aria-hidden="true" className="absolute top-2 right-2 w-5 h-5 bg-[#FF5722] rounded-full flex items-center justify-center text-[#1E1E1E] text-[10px]">
                                                  ✓
                                              </div>
                                          )}
@@ -283,7 +283,7 @@ export default function PizzaCustomizerModal({
                  <button
                      data-testid="confirm-add-to-cart"
                      onClick={() => onConfirm({ size, toppings, unit_price: unitPrice })}
-                     className="bg-[#FF5722] hover:bg-[#E64A19] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
+                     className="bg-[#FF5722] hover:bg-[#E64A19] text-[#1E1E1E] px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-[#FF5722]/20"
                  >
                      {t("addToCart")}
                      <img src="/images/ui/shopping_bag.png" alt="" className="w-5 h-5 object-contain" />

@@ -9,8 +9,8 @@ export default function PrimaryButton({ children, onClick, type = "button", disa
       data-testid={dataTestId}
       className={`
         ${fullWidth ? 'w-full' : ''}
-        bg-brand-primary hover:bg-brand-hover 
-        text-white font-bold 
+        bg-brand-primary hover:bg-brand-hover
+        text-[#1E1E1E] font-bold
         py-3.5 px-6 
         rounded-xl 
         transition-all duration-200 
