@@ -42,7 +42,7 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
      return (
         <div data-testid="cart-sidebar-empty" className="bg-[#1E1E1E] rounded-3xl p-6 border border-[#2A2A2A] sticky top-24">
            <h2 className="text-xl font-extrabold text-white mb-4">{t('yourOrder')}</h2>
-           <div className="text-center py-10 text-gray-500">
+           <div className="text-center py-10 text-gray-400">
               <div className="mb-2 text-4xl">🛒</div>
               <p>{t('cartEmpty')}</p>
               <p className="text-sm">{t('addSomePizzas')}</p>

@@ -91,7 +91,7 @@ export default function Navbar() {
             >
               {t("checkout")}
               {cartCount > 0 && (
-                <span data-testid="nav-cart-count" className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
+                <span data-testid="nav-cart-count" className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-[#1E1E1E] text-xs font-extrabold">
                   {cartCount}
                 </span>
               )}
@@ -119,7 +119,7 @@ export default function Navbar() {
                   className={cx(
                     "px-3 py-2 font-extrabold transition",
                     language === "de"
-                      ? "bg-brand-primary text-white"
+                      ? "bg-brand-primary text-[#1E1E1E]"
                       : "text-text-muted hover:text-text"
                   )}
                   onClick={() => setLanguage("de")}
@@ -133,7 +133,7 @@ export default function Navbar() {
                   className={cx(
                     "px-3 py-2 font-extrabold transition",
                     language === "fr"
-                      ? "bg-brand-primary text-white"
+                      ? "bg-brand-primary text-[#1E1E1E]"
                       : "text-text-muted hover:text-text"
                   )}
                   onClick={() => setLanguage("fr")}
@@ -174,7 +174,7 @@ export default function Navbar() {
                     className={cx(
                       "px-3 py-2 font-extrabold transition",
                       language === "de"
-                        ? "bg-brand-primary text-white"
+                        ? "bg-brand-primary text-[#1E1E1E]"
                         : "text-text-muted"
                     )}
                     onClick={() => setLanguage("de")}
@@ -187,7 +187,7 @@ export default function Navbar() {
                     className={cx(
                       "px-3 py-2 font-extrabold transition",
                       language === "fr"
-                        ? "bg-brand-primary text-white"
+                        ? "bg-brand-primary text-[#1E1E1E]"
                         : "text-text-muted"
                     )}
                     onClick={() => setLanguage("fr")}
@@ -218,7 +218,7 @@ export default function Navbar() {
               >
                 {t("checkout")}
                 {cartCount > 0 && (
-                  <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-white text-xs font-extrabold">
+                  <span className="ml-2 px-2 py-0.5 rounded-lg bg-brand-primary text-[#1E1E1E] text-xs font-extrabold">
                     {cartCount}
                   </span>
                 )}

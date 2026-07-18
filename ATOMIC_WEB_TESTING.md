@@ -403,6 +403,31 @@ stable `data-testid`s.
 
 ---
 
+## Responsive `data-testid` suffixes
+
+A handful of elements exercise a *viewport-aware* selector strategy: their `data-testid`
+is not a fixed string but carries a `-desktop` or `-responsive` suffix depending on
+`window.innerWidth` at render time (`frontend/src/hooks/useResponsive.js`, breakpoint
+768px). This is deliberate — not all real-world apps expose one universal selector across
+breakpoints, so automation needs to pick the suffix that matches the viewport under test.
+
+Affected elements (via the `tid()` helper returned by `useResponsive()`):
+
+| Page | Base testid | Resolves to |
+|------|-------------|-------------|
+| Login | `username`, `password`, `login-button` | `username-desktop` / `username-responsive`, etc. |
+| Catalog | `search-pizza`, `clear-filters` | `search-pizza-desktop` / `search-pizza-responsive`, etc. |
+| Checkout | `address`, `full-name`, `phone`, `place-order-btn` | `address-desktop` / `address-responsive`, etc. |
+| Profile | `profile-fullname`, `profile-address`, `profile-save-btn`, `profile-saving-indicator` | `profile-fullname-desktop` / `profile-fullname-responsive`, etc. |
+| Order Success | `back-to-catalog`, `order-success-title`, `courier-chat`, `courier-call` | `order-success-title-desktop` / `order-success-title-responsive`, etc. |
+
+A selector strategy that hardcodes one suffix (or omits it) will find the element at one
+viewport and time out waiting for it at the other. Query with the suffix that matches the
+viewport under test, e.g. `getByTestId(isDesktop ? 'address-desktop' : 'address-responsive')`,
+or match on a prefix (`[data-testid^="address-"]`) if your framework supports it.
+
+---
+
 ## Using Playwright `storageState`
 
 For test suites that reuse the same auth session across many tests:
