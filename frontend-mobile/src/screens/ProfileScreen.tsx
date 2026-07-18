@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   btnSaveText: {
-    color: "white",
+    color: Colors.text.inverse,
     fontWeight: "800",
     fontSize: 12,
   },

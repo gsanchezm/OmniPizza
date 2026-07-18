@@ -339,7 +339,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
                         <View style={styles.checkBadge} importantForAccessibility="no-hide-descendants">
                           <Text
                             style={{
-                              color: "white",
+                              color: Colors.text.inverse,
                               fontSize: 10,
                               fontWeight: "bold",
                             }}
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   sizeTextActive: {
-    color: "white",
+    color: Colors.text.inverse,
   },
   sizeSubText: {
     color: "#555",
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   sizeSubTextActive: {
-    color: "rgba(255,255,255,0.9)",
+    color: Colors.text.inverse,
   },
 
   grid: {
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   addToCartText: {
-    color: "white",
+    color: Colors.text.inverse,
     fontWeight: "800",
     fontSize: 16,
   },

@@ -74,6 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   textActive: {
-    color: '#FFFFFF',
+    color: Colors.text.inverse,
   },
 });

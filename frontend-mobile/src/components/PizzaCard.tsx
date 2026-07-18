@@ -73,5 +73,5 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     marginLeft: 8,
   },
-  addBtnText: { color: "#FFFFFF", fontWeight: "800", fontSize: 12 },
+  addBtnText: { color: Colors.text.inverse, fontWeight: "800", fontSize: 12 },
 });

@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     marginTop: -10,
   },
   courierNameTag: {
-    color: "white",
+    color: Colors.text.inverse,
     fontWeight: "800",
     fontSize: 10,
   },
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   ratingText: {
-    color: "white",
+    color: Colors.text.inverse,
     fontSize: 10,
     fontWeight: "bold",
   },

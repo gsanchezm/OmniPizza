@@ -1118,7 +1118,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   tipTextActive: {
-    color: "white",
+    color: Colors.text.inverse,
   },
   totalLabel: {
     color: "#999",
@@ -1159,7 +1159,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   btnText: {
-    color: "white",
+    color: Colors.text.inverse,
     fontSize: 18,
     fontWeight: "700",
   },
@@ -1297,7 +1297,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF5722",
   },
   confirmBtnYesText: {
-    color: "white",
+    color: Colors.text.inverse,
     fontSize: 15,
     fontWeight: "800",
   },

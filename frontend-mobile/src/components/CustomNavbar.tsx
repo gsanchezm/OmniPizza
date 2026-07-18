@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: "#FFFFFF",
+    color: Colors.text.inverse,
     fontSize: 10,
     fontWeight: "800",
     lineHeight: 12,
@@ -164,5 +164,5 @@ const styles = StyleSheet.create({
   langBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
   langBtnActive: { backgroundColor: Colors.brand.primary },
   langText: { fontWeight: "800", fontSize: 10, color: Colors.text.muted },
-  langTextActive: { color: "#FFFFFF" },
+  langTextActive: { color: Colors.text.inverse },
 });

@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   text: {
-    color: '#FFFFFF',
+    color: Colors.text.inverse,
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 0.5,

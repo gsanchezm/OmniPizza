@@ -34,7 +34,7 @@ export const GlobalStyles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryButtonText: {
-    color: "#FFFFFF",
+    color: Colors.text.inverse,
     fontWeight: "800",
     fontSize: 14,
     letterSpacing: 0.4,
@@ -48,7 +48,7 @@ export const GlobalStyles = StyleSheet.create({
     marginBottom: 8,
   },
   accentChipText: {
-    color: "#FFFFFF",
+    color: Colors.text.inverse,
     fontWeight: "800",
     fontSize: 11,
   },
