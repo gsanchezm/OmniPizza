@@ -13,8 +13,9 @@
 ## Global Constraints
 
 - Password for every test user is `pizza123` (unchanged).
-- Backend runs with **no `--reload`** (`backend/main.py` → `uvicorn.run(app, ...)`) — after every backend code edit, kill and restart the process on `:8000` before re-running tests, or the suite silently tests stale code.
-- Backend venv already exists at `backend/venv` — run it with `backend/venv/Scripts/python.exe main.py` (Windows).
+- Backend runs with **no `--reload`** (`backend/main.py` → `uvicorn.run(app, ...)`) — after every backend code edit, kill and restart the process before re-running tests, or the suite silently tests stale code.
+- Backend venv already exists at `backend/venv` (Windows paths below).
+- **Port 8000 is occupied on this machine by an unrelated, pre-existing process (MobSF) — do not kill it.** Run the OmniPizza backend on **8001** instead (verified free and working as of this plan's baseline run) and point tests at it via `API_BASE_URL`, exactly as `tests/README.md`'s `API_BASE_URL=http://other-host:8000 pnpm test` override already documents — same mechanism, different port. If 8001 is ever occupied too when you get to your task, pick the next free port (8002, 8003, ...) and use it consistently for that task's start + test run.
 - `tests/vitest.config.ts` sets `fileParallelism: false` — do not remove it. Tests share one stateful in-memory backend.
 - `pnpm test -- <file>` does **not** isolate a single file on this pnpm/Windows setup — from `tests/`, use `npx vitest run <file>` instead.
 - `GET /api/pizzas` defaults `X-Language` server-side to `"en"` if the header is omitted — always send `X-Language` explicitly in new tests that assert on translated text.
@@ -22,17 +23,24 @@
 
 ## Local Dev Loop (used by every task below)
 
-Terminal A (keep running, restart after each backend edit):
+Terminal A (keep running, restart after each backend edit) — starts uvicorn directly on **8001**,
+bypassing `main.py`'s hardcoded `port=8000` in its `__main__` block (do not edit that file to
+change the default port; this is a local-only override to dodge the pre-existing MobSF process on
+8000):
 ```bash
-cd backend && ./venv/Scripts/python.exe main.py
+cd backend && ./venv/Scripts/python.exe -m uvicorn main:app --host 0.0.0.0 --port 8001
 ```
 
 Terminal B (run after Terminal A is up):
 ```bash
-cd tests && npx vitest run golden.test.ts
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts
 ```
 
-To restart Terminal A: `Ctrl+C`, then re-run the command. The in-memory DB resets on restart — that's expected and desired between tasks.
+To restart Terminal A: stop the process (`Ctrl+C`, or on Windows find the PID with
+`netstat -ano | grep :8001` and `taskkill //PID <pid> //F`), then re-run the start command. The
+in-memory DB resets on restart — that's expected and desired between tasks. A clean baseline was
+already verified for this plan: 39/39 existing tests (`api.test.ts` + `golden.test.ts`) pass
+against a freshly started backend on 8001.
 
 ---
 
@@ -68,9 +76,9 @@ describe('Golden: new chaos users are registered', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Start Terminal A (`cd backend && ./venv/Scripts/python.exe main.py`), then in Terminal B:
+Start Terminal A (`cd backend && ./venv/Scripts/python.exe -m uvicorn main:app --host 0.0.0.0 --port 8001`), then in Terminal B:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "new chaos users are registered"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "new chaos users are registered"
 ```
 Expected: FAIL — `usernames` does not contain `'a11y_glitch_user'` (the login calls would also 401, since `TEST_USERS.get(username)` returns `None` for both).
 
@@ -143,7 +151,7 @@ SECURITY_GLITCH_LEAK_MESSAGES = [
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "new chaos users are registered"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "new chaos users are registered"
 ```
 Expected: PASS.
 
@@ -236,7 +244,7 @@ describe('Golden: a11y_glitch_user cart behavior', () => {
 
 Restart Terminal A (picks up Task 1's changes), then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "a11y_glitch_user"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "a11y_glitch_user"
 ```
 Expected: FAIL — `a11y_glitch_user` currently behaves like `standard_user`, so every call returns the clean `'Margarita'` name and the `else throw` branch fires.
 
@@ -352,11 +360,11 @@ In `get_catalog`, replace the loop body (currently lines ~219-240):
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "a11y_glitch_user"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "a11y_glitch_user"
 ```
 Expected: PASS. Also re-run the full file once to confirm no regression on `problem_user`/`standard_user` golden cases:
 ```bash
-cd tests && npx vitest run golden.test.ts
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts
 ```
 Expected: all PASS.
 
@@ -411,7 +419,7 @@ describe('Golden: security_glitch_user profile poisoning', () => {
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "security_glitch_user profile poisoning"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "security_glitch_user profile poisoning"
 ```
 Expected: FAIL — `poisoned.length` is `0` (profile starts at the clean default for every user today).
 
@@ -459,7 +467,7 @@ Change the token-minting block (currently lines 47-49) to capture `sid` in a var
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "security_glitch_user profile poisoning"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "security_glitch_user profile poisoning"
 ```
 Expected: PASS.
 
@@ -526,7 +534,7 @@ describe('Golden: security_glitch_user IDOR on order detail', () => {
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "IDOR on order detail"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "IDOR on order detail"
 ```
 Expected: FAIL — the request throws with HTTP 403 ("Access denied"), since `axios` rejects on non-2xx and the test's `expect(res.status)` line is never reached (the `await axios.get(...)` call itself throws).
 
@@ -546,7 +554,7 @@ In `backend/routers/checkout.py`, in `get_order` (currently lines 113-132), chan
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "IDOR on order detail"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "IDOR on order detail"
 ```
 Expected: PASS.
 
@@ -635,7 +643,7 @@ describe('Golden: security_glitch_user checkout information leak', () => {
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "checkout information leak"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "checkout information leak"
 ```
 Expected: FAIL — `sawError` stays `false` (today `security_glitch` isn't in `should_trigger_error`'s check, so checkout always succeeds for this user).
 
@@ -677,11 +685,11 @@ Change the error-trigger block in `checkout` (currently lines 34-39):
 
 Restart Terminal A, then:
 ```bash
-cd tests && npx vitest run golden.test.ts -t "checkout information leak"
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run golden.test.ts -t "checkout information leak"
 ```
 Expected: PASS. Then run the whole suite once to confirm nothing else regressed:
 ```bash
-cd tests && npx vitest run
+cd tests && API_BASE_URL=http://localhost:8001 npx vitest run
 ```
 Expected: all PASS (`api.test.ts`, `golden.test.ts`).
 
