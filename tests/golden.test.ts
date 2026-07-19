@@ -450,3 +450,25 @@ describe('Golden: a11y_glitch_user cart behavior', () => {
     expect(seenModes).toEqual(new Set(['missing_name', 'wrong_lang', 'extreme_text']));
   });
 });
+
+describe('Golden: security_glitch_user profile poisoning', () => {
+  it('login seeds exactly one profile field with one canned XSS-probe payload', async () => {
+    const PAYLOADS = [
+      "<script>alert('xss-test')</script>",
+      "<img src=x onerror=\"console.warn('xss-test')\">",
+      "\"><svg onload=alert(1)>",
+    ];
+    const FIELDS = ['full_name', 'address', 'notes'] as const;
+
+    const token = await login('security_glitch_user');
+    const res = await axios.get(`${API_URL}/api/users/me/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const poisoned = FIELDS.filter((f) => PAYLOADS.includes(res.data[f]));
+    expect(poisoned.length).toBe(1);
+
+    const clean = FIELDS.filter((f) => f !== poisoned[0]);
+    clean.forEach((f) => expect(res.data[f]).toBe(''));
+  });
+});

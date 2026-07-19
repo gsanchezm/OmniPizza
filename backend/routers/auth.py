@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from typing import List
 import uuid
+import random
 
 from models import (
     LoginRequest, LoginResponse, UserProfile,
     UserProfileDetails, UserProfileUpdate,
 )
-from constants import TEST_USERS
+from constants import TEST_USERS, SECURITY_GLITCH_PROFILE_FIELDS, SECURITY_GLITCH_PAYLOADS
 from auth import authenticate_user, create_access_token
 from middleware import get_current_user
 from database import db
@@ -19,13 +20,15 @@ router = APIRouter()
 async def login(request: LoginRequest):
     """
     Authenticate user with predefined test credentials
-    
+
     Test users:
     - standard_user / pizza123 (normal flow)
     - locked_out_user / pizza123 (locked out error)
     - problem_user / pizza123 (broken UI)
     - performance_glitch_user / pizza123 (3s delay)
     - error_user / pizza123 (random 500 errors)
+    - a11y_glitch_user / pizza123 (random accessibility failure per call)
+    - security_glitch_user / pizza123 (poisoned profile, IDOR, leaked checkout errors)
     """
     user = authenticate_user(request.username, request.password)
     
@@ -44,10 +47,16 @@ async def login(request: LoginRequest):
     # parallel) get isolated profiles instead of racing on a shared reset.
     # Within a single login-session, saves still persist via
     # PATCH /api/users/me/profile.
+    sid = uuid.uuid4().hex
     access_token = create_access_token(
-        data={"sub": user["username"], "behavior": user["behavior"], "sid": uuid.uuid4().hex}
+        data={"sub": user["username"], "behavior": user["behavior"], "sid": sid}
     )
-    
+
+    if user["behavior"] == "security_glitch":
+        field = random.choice(SECURITY_GLITCH_PROFILE_FIELDS)
+        payload = random.choice(SECURITY_GLITCH_PAYLOADS)
+        db.seed_user_profile(sid, user["username"], {field: payload})
+
     return LoginResponse(
         access_token=access_token,
         username=user["username"],
