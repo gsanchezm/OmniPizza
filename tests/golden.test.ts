@@ -390,3 +390,63 @@ describe('Golden: new chaos users are registered', () => {
     expect(typeof securityToken).toBe('string');
   });
 });
+
+describe('Golden: a11y_glitch_user catalog behavior', () => {
+  it('MX/es: every call lands on exactly one of the three a11y modes; price/currency unaffected', async () => {
+    const token = await login('a11y_glitch_user');
+    const seenModes = new Set<string>();
+
+    for (let i = 0; i < 30; i++) {
+      const res = await axios.get(`${API_URL}/api/pizzas`, {
+        headers: catalogHeaders(token, 'MX', 'es'),
+      });
+      const p01 = res.data.pizzas.find((p: any) => p.id === 'p01');
+
+      expect(p01.price).toBe(227.97);
+      expect(p01.currency).toBe('MXN');
+      expect(p01.image).not.toBe('https://broken-image-url.com/404.jpg');
+
+      if (p01.name === '') {
+        seenModes.add('missing_name');
+      } else if (p01.name.length > 100) {
+        seenModes.add('extreme_text');
+      } else if (p01.name !== 'Margarita') {
+        seenModes.add('wrong_lang');
+      } else {
+        throw new Error(`unexpected clean name for a11y_glitch_user: ${JSON.stringify(p01.name)}`);
+      }
+    }
+
+    expect(seenModes).toEqual(new Set(['missing_name', 'wrong_lang', 'extreme_text']));
+  });
+});
+
+describe('Golden: a11y_glitch_user cart behavior', () => {
+  it('MX/es: enriched cart name lands on one of the three a11y modes', async () => {
+    const token = await login('a11y_glitch_user');
+    await seedCart(token, [{ pizza_id: 'p01', quantity: 2 }]);
+    const seenModes = new Set<string>();
+
+    for (let i = 0; i < 30; i++) {
+      const res = await axios.get(`${API_URL}/api/cart`, {
+        headers: catalogHeaders(token, 'MX', 'es'),
+      });
+      const item = res.data.cart_items[0];
+
+      expect(item.price).toBe(227.97);
+      expect(item.currency).toBe('MXN');
+
+      if (item.name === '') {
+        seenModes.add('missing_name');
+      } else if (item.name.length > 100) {
+        seenModes.add('extreme_text');
+      } else if (item.name !== 'Margarita') {
+        seenModes.add('wrong_lang');
+      } else {
+        throw new Error(`unexpected clean name for a11y_glitch_user: ${JSON.stringify(item.name)}`);
+      }
+    }
+
+    expect(seenModes).toEqual(new Set(['missing_name', 'wrong_lang', 'extreme_text']));
+  });
+});

@@ -1,5 +1,8 @@
 from typing import List, Dict, Any, Optional
-from constants import PIZZA_CATALOG, COUNTRY_CONFIG, CURRENCY_RATES, CountryCode
+from constants import (
+    PIZZA_CATALOG, COUNTRY_CONFIG, CURRENCY_RATES, CountryCode,
+    A11Y_GLITCH_MODES, A11Y_GLITCH_LANGS,
+)
 import uuid
 from datetime import datetime
 import random
@@ -49,6 +52,29 @@ def _translate_field(value, lang: str):
     if isinstance(value, dict):
         return value.get(lang) or value.get("en") or next(iter(value.values()))
     return value
+
+
+def _a11y_glitch_text(raw_value, lang: str, mode: str, field: str):
+    """Apply the a11y_glitch_user failure `mode` to one localized field.
+    `raw_value` is the pre-translation dict (or scalar) as stored in
+    PIZZA_CATALOG — needed so `wrong_lang` can pick a *different* language's
+    text, not just mutate the already-resolved string."""
+    translated = _translate_field(raw_value, lang)
+
+    if mode == "missing_name":
+        return "" if field == "name" else translated
+
+    if mode == "wrong_lang":
+        if not isinstance(raw_value, dict):
+            return translated
+        other_langs = [l for l in A11Y_GLITCH_LANGS if l != lang and l in raw_value]
+        wrong_lang = random.choice(other_langs) if other_langs else lang
+        return raw_value.get(wrong_lang, translated)
+
+    if mode == "extreme_text":
+        return " ".join([str(translated)] * 15)
+
+    return translated
 
 
 def _convert_price(base_price_usd: float, conversion_rate: float, decimal_places: int):
@@ -171,6 +197,7 @@ class InMemoryDB:
         decimal_places = country_config.get("decimal_places", 2)
 
         lang = _resolve_language(country_code, language)
+        a11y_mode = random.choice(A11Y_GLITCH_MODES) if behavior == "a11y_glitch" else None
 
         enriched: List[Dict[str, Any]] = []
         for item in cart_items:
@@ -178,7 +205,10 @@ class InMemoryDB:
             if not pizza:
                 continue
 
-            name = _translate_field(pizza.get("name"), lang)
+            if behavior == "a11y_glitch":
+                name = _a11y_glitch_text(pizza.get("name"), lang, a11y_mode, "name")
+            else:
+                name = _translate_field(pizza.get("name"), lang)
 
             if behavior == "problem":
                 price = 0.0
@@ -215,15 +245,19 @@ class InMemoryDB:
         decimal_places = country_config.get("decimal_places", 2)
 
         lang = _resolve_language(country_code, language)
+        a11y_mode = random.choice(A11Y_GLITCH_MODES) if behavior == "a11y_glitch" else None
 
         catalog: List[Dict[str, Any]] = []
 
         for pizza in PIZZA_CATALOG:
             pizza_copy = pizza.copy()
 
-            # Translate name/description if they are localized dicts
-            pizza_copy["name"] = _translate_field(pizza.get("name"), lang)
-            pizza_copy["description"] = _translate_field(pizza.get("description"), lang)
+            if behavior == "a11y_glitch":
+                pizza_copy["name"] = _a11y_glitch_text(pizza.get("name"), lang, a11y_mode, "name")
+                pizza_copy["description"] = _a11y_glitch_text(pizza.get("description"), lang, a11y_mode, "description")
+            else:
+                pizza_copy["name"] = _translate_field(pizza.get("name"), lang)
+                pizza_copy["description"] = _translate_field(pizza.get("description"), lang)
 
             # Convert price to country currency; problem users get $0 + broken image
             if behavior == "problem":
