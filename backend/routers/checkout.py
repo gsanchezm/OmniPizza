@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
+import random
 from models import CheckoutRequest, OrderSummary
-from constants import COUNTRY_CONFIG, CountryCode
+from constants import COUNTRY_CONFIG, CountryCode, SECURITY_GLITCH_LEAK_MESSAGES
 from middleware import apply_user_behavior, get_current_user
 from database import db
 
@@ -31,8 +32,13 @@ async def checkout(
     - JP: chip
     - SA: baksheesh
     """
-    # Check if error_user should trigger error
+    # Check if error_user/security_glitch_user should trigger an error
     if db.should_trigger_error(current_user["behavior"]):
+        if current_user["behavior"] == "security_glitch":
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=random.choice(SECURITY_GLITCH_LEAK_MESSAGES)
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Random checkout error triggered for testing purposes"

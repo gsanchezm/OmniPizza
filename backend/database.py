@@ -327,7 +327,7 @@ class InMemoryDB:
         }
 
     def should_trigger_error(self, behavior: str) -> bool:
-        if behavior == "error":
+        if behavior in ("error", "security_glitch"):
             return random.random() < 0.5
         return False
 

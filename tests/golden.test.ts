@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const API_URL = process.env.API_BASE_URL ?? 'http://localhost:8000';
 const PASSWORD = process.env.TEST_USER_PASSWORD ?? 'pizza123';
@@ -504,5 +504,54 @@ describe('Golden: security_glitch_user IDOR on order detail', () => {
     expect(res.status).toBe(200);
     expect(res.data.order_id).toBe(orderId);
     expect(res.data.subtotal).toBe(checkoutRes.data.subtotal);
+  });
+});
+
+describe('Golden: security_glitch_user checkout information leak', () => {
+  it('every triggered 500 leaks a simulated internal detail, never the generic error_user message', async () => {
+    const LEAK_MESSAGES = [
+      'Traceback (most recent call last):\n  File "checkout.py", line 214, in process_payment\nsqlite3.OperationalError: database is locked',
+      'psycopg2.OperationalError: FATAL: password authentication failed for user "omnipizza_prod" at 10.0.4.12:5432',
+      'Unhandled exception: /home/deploy/omnipizza/backend/.env not found (SECRET_KEY missing)',
+    ];
+
+    const token = await login('security_glitch_user');
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: catalogHeaders(token, 'US', 'en'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+
+    let sawSuccess = false;
+    let sawError = false;
+
+    for (let i = 0; i < 20; i++) {
+      try {
+        const res = await axios.post(
+          `${API_URL}/api/checkout`,
+          {
+            country_code: 'US',
+            items: [{ pizza_id: pizzaId, quantity: 1 }],
+            name: 'QA Bot',
+            address: '123 Test Street',
+            phone: '5551234567',
+            zip_code: '12345',
+            tip: 0,
+          },
+          { headers: checkoutHeaders(token) },
+        );
+        expect(res.status).toBe(200);
+        sawSuccess = true;
+      } catch (err) {
+        const error = err as AxiosError;
+        expect(error.response?.status).toBe(500);
+        const body = error.response?.data as Record<string, string>;
+        expect(LEAK_MESSAGES).toContain(body.error);
+        expect(body.error).not.toBe('Random checkout error triggered for testing purposes');
+        sawError = true;
+      }
+    }
+
+    expect(sawSuccess).toBe(true);
+    expect(sawError).toBe(true);
   });
 });
