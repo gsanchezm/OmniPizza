@@ -472,3 +472,37 @@ describe('Golden: security_glitch_user profile poisoning', () => {
     clean.forEach((f) => expect(res.data[f]).toBe(''));
   });
 });
+
+describe('Golden: security_glitch_user IDOR on order detail', () => {
+  it("reads another user's order by id instead of getting 403", async () => {
+    const ownerToken = await login('standard_user');
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: catalogHeaders(ownerToken, 'US', 'en'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+
+    const checkoutRes = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'US',
+        items: [{ pizza_id: pizzaId, quantity: 1 }],
+        name: 'Order Owner',
+        address: '1 Owner Street',
+        phone: '5550000000',
+        zip_code: '12345',
+        tip: 0,
+      },
+      { headers: checkoutHeaders(ownerToken) },
+    );
+    const orderId = checkoutRes.data.order_id;
+
+    const attackerToken = await login('security_glitch_user');
+    const res = await axios.get(`${API_URL}/api/orders/${orderId}`, {
+      headers: { Authorization: `Bearer ${attackerToken}` },
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.data.order_id).toBe(orderId);
+    expect(res.data.subtotal).toBe(checkoutRes.data.subtotal);
+  });
+});
