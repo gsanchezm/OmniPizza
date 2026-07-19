@@ -14,6 +14,8 @@ const USER_HINTS = {
   problem_user: "Problem",
   performance_glitch_user: "Glitch",
   error_user: "Error",
+  a11y_glitch_user: "A11y",
+  security_glitch_user: "Security",
 };
 
 // Render Quick Login from a stable client-side list so the panel has a
