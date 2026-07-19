@@ -52,7 +52,7 @@ httpClient.interceptors.response.use(
         // ignore localStorage failures (privacy mode / disabled storage)
       }
       window.location.assign("/");
-      return;
+      return Promise.reject(err);
     }
     return Promise.reject(err);
   },
