@@ -31,6 +31,8 @@ const TEST_USERS = [
   { id: "problem_user", label: "Problem" },
   { id: "performance_glitch_user", label: "Glitch" },
   { id: "error_user", label: "Error" },
+  { id: "a11y_glitch_user", label: "A11y" },
+  { id: "security_glitch_user", label: "Security" },
 ];
 
 const MARKETS = [
