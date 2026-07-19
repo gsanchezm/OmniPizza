@@ -555,3 +555,46 @@ describe('Golden: security_glitch_user checkout information leak', () => {
     expect(sawError).toBe(true);
   });
 });
+
+describe('Golden: error_user checkout error message unchanged', () => {
+  it('every triggered 500 uses the original generic message, never a security_glitch leak', async () => {
+    const token = await login('error_user');
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: catalogHeaders(token, 'US', 'en'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+
+    let sawSuccess = false;
+    let sawError = false;
+
+    for (let i = 0; i < 20; i++) {
+      try {
+        const res = await axios.post(
+          `${API_URL}/api/checkout`,
+          {
+            country_code: 'US',
+            items: [{ pizza_id: pizzaId, quantity: 1 }],
+            name: 'QA Bot',
+            address: '123 Test Street',
+            phone: '5551234567',
+            zip_code: '12345',
+            tip: 0,
+          },
+          { headers: checkoutHeaders(token) },
+        );
+        expect(res.status).toBe(200);
+        sawSuccess = true;
+      } catch (err) {
+        const error = err as AxiosError;
+        expect(error.response?.status).toBe(500);
+        const body = error.response?.data as Record<string, string>;
+        expect(body.error).toBe('Random checkout error triggered for testing purposes');
+        expect(body.error).not.toMatch(/Traceback|psycopg2|SECRET_KEY/);
+        sawError = true;
+      }
+    }
+
+    expect(sawSuccess).toBe(true);
+    expect(sawError).toBe(true);
+  });
+});
