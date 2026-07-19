@@ -7,6 +7,8 @@ class UserBehavior(str, Enum):
     PROBLEM = "problem"
     PERFORMANCE_GLITCH = "performance_glitch"
     ERROR = "error"
+    A11Y_GLITCH = "a11y_glitch"
+    SECURITY_GLITCH = "security_glitch"
 
 class CountryCode(str, Enum):
     MX = "MX"
@@ -46,8 +48,42 @@ TEST_USERS = {
         "password": "pizza123",
         "behavior": UserBehavior.ERROR,
         "description": "El botón de Checkout lanza un error 500 al azar"
+    },
+    "a11y_glitch_user": {
+        "username": "a11y_glitch_user",
+        "password": "pizza123",
+        "behavior": UserBehavior.A11Y_GLITCH,
+        "description": "Catálogo y carrito muestran, al azar, un problema de accesibilidad distinto en cada llamada"
+    },
+    "security_glitch_user": {
+        "username": "security_glitch_user",
+        "password": "pizza123",
+        "behavior": UserBehavior.SECURITY_GLITCH,
+        "description": "Perfil sembrado con payload sin sanear, detalle de orden sin validar dueño, y errores de checkout con detalles internos filtrados"
     }
 }
+
+# a11y_glitch_user: interchangeable per-call failure modes for catalog/cart
+# (database.py::get_catalog / get_enriched_cart). One mode is chosen per
+# call, independently — consecutive calls may land on different modes.
+A11Y_GLITCH_MODES = ["missing_name", "wrong_lang", "extreme_text"]
+A11Y_GLITCH_LANGS = ["en", "es", "de", "fr", "ja", "ar"]
+
+# security_glitch_user: canned fixtures for its three endpoint-bound failures.
+# Profile poisoning (routers/auth.py::login) picks one field + one payload.
+SECURITY_GLITCH_PROFILE_FIELDS = ["full_name", "address", "notes"]
+SECURITY_GLITCH_PAYLOADS = [
+    "<script>alert('xss-test')</script>",
+    "<img src=x onerror=\"console.warn('xss-test')\">",
+    "\"><svg onload=alert(1)>"
+]
+# Checkout info-leak (checkout.py::checkout), only used when
+# should_trigger_error() fires for this behavior.
+SECURITY_GLITCH_LEAK_MESSAGES = [
+    "Traceback (most recent call last):\n  File \"checkout.py\", line 214, in process_payment\nsqlite3.OperationalError: database is locked",
+    "psycopg2.OperationalError: FATAL: password authentication failed for user \"omnipizza_prod\" at 10.0.4.12:5432",
+    "Unhandled exception: /home/deploy/omnipizza/backend/.env not found (SECRET_KEY missing)"
+]
 
 # Country-specific configurations
 COUNTRY_CONFIG = {

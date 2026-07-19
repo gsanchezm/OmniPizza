@@ -375,3 +375,18 @@ describe('Golden: cart enrichment (GET /api/cart)', () => {
     ]);
   });
 });
+
+describe('Golden: new chaos users are registered', () => {
+  it('a11y_glitch_user and security_glitch_user appear in /api/auth/users and can log in', async () => {
+    const listRes = await axios.get(`${API_URL}/api/auth/users`);
+    const usernames = listRes.data.map((u: any) => u.username);
+    expect(usernames).toContain('a11y_glitch_user');
+    expect(usernames).toContain('security_glitch_user');
+
+    const a11yToken = await login('a11y_glitch_user');
+    expect(typeof a11yToken).toBe('string');
+
+    const securityToken = await login('security_glitch_user');
+    expect(typeof securityToken).toBe('string');
+  });
+});
