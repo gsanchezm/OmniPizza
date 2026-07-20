@@ -34,6 +34,12 @@ export function useCatalogPizzas(
   const token = useAppStore(state => state.token);
 
   useEffect(() => {
+    // Deep-link cold start sets the token asynchronously (useDeepLinkParams
+    // awaits Linking.getInitialURL() before calling setToken); this screen
+    // can mount before that resolves. Skip the fetch until a token exists so
+    // it never fires without an Authorization header — the effect re-runs
+    // once setToken lands, since token is already a dependency here.
+    if (!token) return;
     loadPizzas();
   }, [country, language, token, loadPizzas]);
 
