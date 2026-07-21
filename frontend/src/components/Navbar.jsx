@@ -171,6 +171,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     aria-pressed={language === "de"}
+                    data-testid="mobile-lang-de"
                     className={cx(
                       "px-3 py-2 font-extrabold transition",
                       language === "de"
@@ -184,6 +185,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     aria-pressed={language === "fr"}
+                    data-testid="mobile-lang-fr"
                     className={cx(
                       "px-3 py-2 font-extrabold transition",
                       language === "fr"
