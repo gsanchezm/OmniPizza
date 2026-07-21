@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   userMeta: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     flex: 1.4,
   },
   label: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 11,
     fontWeight: "800",
     textTransform: "uppercase",
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   deleteText: {
-    color: "#666",
+    color: Colors.text.muted,
     fontWeight: "700",
     fontSize: 14,
   },

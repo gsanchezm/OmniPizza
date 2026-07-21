@@ -153,7 +153,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
           <Text style={styles.detailsText} {...getReadableTextProps("text-order-details", t("orderDetails").toUpperCase())}>
             {t("orderDetails").toUpperCase()}
           </Text>
-          <Text style={{ color: "#666" }} importantForAccessibility="no">
+          <Text style={{ color: Colors.text.muted }} importantForAccessibility="no">
             {detailsOpen ? "⌄" : "^"}
           </Text>
         </TouchableOpacity>
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   courierLabel: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   detailsText: {
-    color: "#666",
+    color: Colors.text.muted,
     fontWeight: "800",
     fontSize: 12,
     letterSpacing: 1,

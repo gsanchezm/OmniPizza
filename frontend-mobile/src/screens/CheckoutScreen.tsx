@@ -760,7 +760,7 @@ export default function CheckoutScreen({ navigation }: any) {
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 {...getReadableControlProps("btn-tip-info", t("tipTooltip"))}
               >
-                <Text style={{ color: "#666" }} accessibilityLabel="icon-tip-info">ℹ️</Text>
+                <Text style={{ color: Colors.text.muted }} accessibilityLabel="icon-tip-info">ℹ️</Text>
               </Pressable>
               {showTipTooltip && (
                 <View style={styles.tipTooltip} accessibilityLabel="view-tip-tooltip" testID="view-tip-tooltip">
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   sectionTitle: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1,
@@ -1004,7 +1004,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   paymentSub: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 13,
   },
   radio: {
@@ -1046,7 +1046,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   itemDetails: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 13,
   },
   itemPrice: {
@@ -1137,7 +1137,7 @@ const styles = StyleSheet.create({
   },
   arrival: {
     textAlign: "right",
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 13,
     marginTop: -8,
     marginBottom: 24,
@@ -1168,7 +1168,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardFieldLabel: {
-    color: "#666",
+    color: Colors.text.muted,
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1,
