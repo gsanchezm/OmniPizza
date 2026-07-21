@@ -648,7 +648,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("creditCard")}
                       </div>
-                      <div className="text-xs text-gray-400 uppercase text-left">
+                      <div className="text-xs text-gray-300 uppercase text-left">
                         {t("creditCardDesc")}
                       </div>
                     </div>
@@ -679,7 +679,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("cash")}
                       </div>
-                      <div className="text-xs text-gray-400 uppercase text-left">
+                      <div className="text-xs text-gray-300 uppercase text-left">
                         {t("payOnDelivery")}
                       </div>
                     </div>
@@ -710,7 +710,7 @@ export default function Checkout() {
                       <div className="text-white font-bold text-left">
                         {t("paypal")}
                       </div>
-                      <div className="text-xs text-gray-400 uppercase text-left">
+                      <div className="text-xs text-gray-300 uppercase text-left">
                         {t("paypalDesc")}
                       </div>
                     </div>
@@ -1041,7 +1041,7 @@ export default function Checkout() {
                         onFocus={() => setTipTipOpen(true)}
                         onBlur={() => setTipTipOpen(false)}
                         onClick={() => setTipTipOpen((v) => !v)}
-                        className="text-gray-500 hover:text-white transition-colors"
+                        className="text-gray-400 hover:text-white transition-colors"
                       >
                         ℹ️
                       </button>
