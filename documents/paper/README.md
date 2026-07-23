@@ -29,7 +29,7 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 | 6. Guías (RQ4) | 7 guías etiquetadas por fuerza de evidencia | **Redactado** |
 | 7. Discusión / amenazas | Amenazas de artefacto + de evaluación + ética + drift documental | Outline (lista de amenazas ya definitiva) |
 | 8. Conclusión y disponibilidad | Restate + trabajo futuro + snapshot archivado | Outline |
-| Referencias | 8 candidatas | Por completar y fijar |
+| Referencias | 35 en APA 7 (29 peer-reviewed + 2 libros + 4 oficiales) | **Completadas** — cada una verificada contra DOI/página del editor (2026-07-23) |
 
 ## Material suplementario comprometido
 
@@ -51,6 +51,27 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 - Lecturas acotadas: §5 = prueba de existencia; taxonomía = clasificación preliminar;
   audiencias = previstas.
 
+## Mapeo referencia → sección (guía para redactar)
+
+| Sección del paper | Referencias (autor, año) |
+|---|---|
+| §1 Motivación (ruido de CI, costo del triage) | Memon 2017; Parry 2022; Bessey 2010 |
+| §2 Sandboxes y benchmarks | Sauce Labs (SauceDemo); OWASP Juice Shop; Just 2014 (Defects4J); Gyimesi 2019 (BugsJS); Do 2005 (SIR) |
+| §2/§3 Testabilidad y diseño (RQ1) | Binder 1994; Freedman 1991; Basiri 2016 (chaos); Leotta 2016 (locators) |
+| §4 Medibilidad y oráculos (RQ2, ejemplar 4.1) | Weyuker 1982; Barr 2015; Campbell 2024 (WCAG 2.2); Deque (axe-core) |
+| §5 Evaluación: ruido, veredictos, fixtures (RQ3) | Luo 2014; Johnson 2013; Sadowski 2018; Herzig 2013; Zhang 2014; Gyori 2015; Bell & Kaiser 2014; Vahabzadeh 2015; Bettenburg 2008; Runeson 2007 |
+| §5/§6 Triage LLM-asistido + supervisión humana | Wang 2024; Kang 2023 (LIBRO); Fan 2023; Amershi 2019 |
+| §6.1/§9 (metodología) | Runeson & Höst 2009; Yin 2018; Wieringa 2014; Hevner 2004 |
+| §3.3/§5 i18n/RTL | Alameer 2016 |
+
+**Reserva verificada** (no incluidas en las 35; registro canónico confirmado, usables al
+redactar): Ralph et al. 2021 (Empirical Standards, arXiv); Lam et al. 2019 (iDFlakies);
+Eck et al. 2019 (flaky, percepción de devs); Bell et al. 2018 (DeFlaker); Christakis & Bird
+2016; Sadowski et al. 2015 (Tricorder); TasteJS TodoMVC; Voas & Miller 1995; Garousi et al.
+2019 (testability survey); van Deursen et al. 2001 (test smells); Kang et al. 2024 (fault
+localization); Hou et al. 2024 (LLM4SE SLR); Anvik et al. 2006; Zimmermann et al. 2012
+(reopened bugs); Principles of Chaos Engineering (2019).
+
 ## Historial de versiones
 
 | Commit | Versión | Cambio |
@@ -64,7 +85,9 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 
 1. ~~`findings.csv` + fact sheet de la plataforma~~ — hecho (2026-07-23).
 2. ~~Commitear los documentos fuente sin trackear~~ — hecho (`78b7631`, 2026-07-23).
-3. Pasada de literatura para Related Work; fijar referencias.
+3. ~~Pasada de literatura para Related Work; fijar referencias~~ — hecho (2026-07-23):
+   35 referencias APA 7 verificadas (50 encontradas, 0 rechazadas por los verificadores;
+   15 quedan en reserva, abajo).
 4. Redactar Intro y Abstract completos (fluyen de lo ya aprobado).
 5. ~~Ejecutar el ejemplar de §4~~ — hecho (2026-07-23): **0 de 4 capas detectan el defecto
    sembrado tal cual están** (contrato no ejecutable por drift OpenAPI 3.1 + `price` sin
