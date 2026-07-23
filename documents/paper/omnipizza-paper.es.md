@@ -1,4 +1,4 @@
-# OmniPizza: Un laboratorio controlado para la automatización de pruebas de UI y API
+# OmniPizza: Un laboratorio controlado para la automatización de pruebas multiplataforma
 
 > **Estado:** documento base (v0.4, 2026-07-23). **Gemelo en español** de
 > `omnipizza-paper.md`; la versión canónica — y la destinada a publicación — es la inglesa:
@@ -44,7 +44,8 @@
 
 ## 1. Introducción (esquema)
 
-- Motivación: ¿dónde se practica la automatización UI/API, se evalúa una herramienta de
+- Motivación: ¿dónde se practica la automatización de pruebas — funcional, de performance,
+  de accesibilidad, de seguridad, visual, en web y en móvil —, se evalúa una herramienta de
   testing nueva o se estudian procesos de QA? Los sistemas de producción son inseguros, no
   deterministas e inobservables; las demos de juguete carecen de los modos de fallo que hacen
   difícil la automatización. El hueco es un *laboratorio controlado*: superficie de producto

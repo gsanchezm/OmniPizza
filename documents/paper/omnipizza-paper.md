@@ -1,4 +1,4 @@
-# OmniPizza: A Controlled Laboratory for UI and API Test Automation
+# OmniPizza: A Controlled Laboratory for Multi-Platform Test Automation
 
 > **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
 > earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
@@ -36,8 +36,9 @@
 
 ## 1. Introduction (outline)
 
-- Motivation: where do you practice UI/API automation, evaluate a new testing tool, or study
-  QA processes? Production systems are unsafe, nondeterministic, and unobservable; toy demos
+- Motivation: where do you practice test automation — functional, performance,
+  accessibility, security, visual, across web and mobile — evaluate a new testing tool, or
+  study QA processes? Production systems are unsafe, nondeterministic, and unobservable; toy demos
   lack the failure modes that make automation hard. The gap is a *controlled laboratory*:
   realistic product surface, deterministic and enumerable failure modes, sanctioned
   observability/controllability.
