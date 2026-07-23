@@ -5,8 +5,9 @@
 > ante cualquier discrepancia, prevalece el original. Encuadre centrado en la plataforma (pivote
 > desde el borrador anterior centrado en el triage); el estudio de triage QA de una semana es
 > la evaluación (Sección 5). Las Secciones 3–6 están redactadas (3.1, 4.1 y los bloques de
-> método de la Sección 5 en prosa completa); la Sección 7 lleva la discusión redactada más
-> las amenazas en esquema; las Secciones 1–2 y 8 son esquemas. Todas las afirmaciones cuantitativas
+> método de la Sección 5 en prosa completa); la discusión de la Sección 7 está redactada en
+> prosa completa con la enumeración de amenazas en esquema; las Secciones 1–2 y 8 son
+> esquemas. Todas las afirmaciones cuantitativas
 > pasaron una verificación adversarial contra el repositorio en el snapshot fijado
 > (Sección 3.1); tres afirmaciones refutadas en revisión fueron corregidas en esta versión.
 >
@@ -411,27 +412,107 @@ Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
    viajar como metadatos con cada hallazgo reportado. *[Conjetura generalizada desde un único
    incidente observado.]*
 
-## 7. Discusión, limitaciones y amenazas (discusión redactada; amenazas en esquema)
+## 7. Discusión, limitaciones y amenazas (discusión redactada; enumeración de amenazas)
 
-**Discusión (redactada).**
+El número titular del ejemplar es pequeño pero afilado. Cero de cuatro capas marcaron un
+defecto cuyo ground truth era conocido y estaba confirmado en vivo. Los datos sugieren que
+en un sandbox cuyos defectos son intencionales, la detección y la caracterización tiran en
+direcciones opuestas: la suite que vigila el catálogo más de cerca es precisamente la que
+certifica los precios de $0$ como correctos. Esto se lee como el problema del oráculo de
+Weyuker (1982) en forma invertida — un oráculo existe y se ejecuta, pero está alineado con
+el defecto y no con el requisito. Barr et al. (2015) clasifican los oráculos por su fuente;
+una suite de caracterización es un oráculo derivado, y la derivación es aquí la
+vulnerabilidad, porque deriva del comportamiento y el comportamiento está sembrado. Donde
+los benchmarks de defectos tratan las fallas curadas como ground truth contra el que se
+puntúa la detección (Just et al., 2014; Do et al., 2005), un laboratorio vivo aparentemente
+debe mantener la disciplina opuesta: conservar al menos un oráculo ciego a lo que la
+plataforma sembró. El manifiesto de defectos planificado es esa disciplina hecha explícita.
 
-- Ejemplar de RQ2 (resultados en la Sección 4.1): en un sandbox cuyos defectos sembrados son
-  *intencionales*, la detección y la caracterización tiran en direcciones opuestas — la única
-  capa que observa el defecto lo pinnea como correcto, un oráculo invertido. Dos de las
-  cuatro capas habían decaído silenciosamente hasta la no-ejecutabilidad (drift de versión de
-  esquema; tooling ausente), un hecho que solo salió a la luz al intentar la ejecución. La
-  medición que la fila del catálogo promete (poder de detección por capa) requiere además
-  oráculos ciegos al defecto — que el manifiesto de defectos sembrados legible por máquina
-  habilitaría.
-- Lectura de RQ3 (resultados en la Sección 5): en este único despliegue, los hallazgos
-  clasificados como bugs reales declinaron en los extremos de la ventana (con un pico tardío
-  de baja severidad) — consistente con, pero sin demostrar, la convergencia de la app; con un
-  solo harness no puede excluirse la saturación de su inventario de checks como explicación
-  alternativa. Los hallazgos no-bug instancian varias clases de fenómenos que el diseño
-  persigue; como la clasificación se derivó de estos mismos hallazgos, esto es una prueba de
-  existencia de generación de fenómenos, no una confirmación del catálogo de la Sección 4.
+Las dos capas no ejecutables cuentan una historia más silenciosa. El drift de versión de
+esquema y el tooling ausente no son fallas exóticas; son la bugosidad ordinaria del código
+de prueba que documentan Vahabzadeh et al. (2015), agravada aquí por una configuración de CI
+que corre la capa de componentes en modo no bloqueante — de modo que su único spec fallido
+no tenía canal por el cual hacerse notar. Es plausible que el modo no bloqueante, adoptado
+para mantener el ruido fuera del camino del merge, funcionara exactamente como se pretendía
+y aun así produjera rot: Sadowski et al. (2018) argumentan que los desarrolladores descartan
+los hallazgos que perciben como no accionables, y una suite permanentemente ignorable es el
+caso límite de la no accionabilidad. El mecanismo que protege la velocidad del trunk también
+silencia la alarma de humo.
 
-**Limitaciones y amenazas (esquema).**
+Los hallazgos no-bug de la evaluación caen en una tasa reconocible pero en una ubicación
+poco familiar. Ocho de diecinueve hallazgos ($8/19$) no eran, bajo veredictos finales, bugs de
+la aplicación — el mismo orden de magnitud que el tercio aproximado de misclasificación que
+Herzig et al. (2013) reportan para issue trackers, y consistente con el hallazgo de la
+literatura de tests flaky de que los fallos no deterministas y acoplados al entorno permean
+las señales de CI a gran escala (Luo et al., 2014; Parry et al., 2022) y explican una parte
+grande de las transiciones pasa-a-falla observadas a escala (Memon et al., 2017).
+La procedencia, sin embargo, es donde nuestros datos divergen del relato estándar. Mientras
+la literatura de análisis estático ubica las falsas alarmas en el analizador (Bessey et al.,
+2010; Johnson et al., 2013), y Sadowski et al. (2018) las reubican en el juicio del
+desarrollador, los dos hallazgos confirmados mediados por instrumentación sugieren un tercer
+locus: la propia maquinaria sancionada de entrada de pruebas, operando como fue diseñada. La
+contaminación de fixtures completa el cuadro — el hallazgo del carrito huérfano es una
+instancia de campo de la contaminación de estado que Gyori et al. (2015) detectan y que
+Zhang et al. (2014) encontraron en cada suite que examinaron, salvo que aquí las escrituras
+contaminantes llegaron desde otros tests a través de una cuenta compartida en una instancia
+caliente en memoria.
+Bettenburg et al. (2008) encontraron que reportadores y desarrolladores valoran información
+distinta; la reversión de veredicto es una instancia concreta en la que la información
+faltante no era esfuerzo del reportador sino la semántica de aserción del harness, y por eso
+la guía 7 aboga por metadatos transportados por máquina en lugar de mejor prosa.
+
+Del lado del diseño, la fricción es con la forma canónica del chaos engineering. Basiri et
+al. (2016) abogan por inyectar eventos del mundo real en sistemas de producción —
+aleatorizados en herramientas como Chaos Monkey — evaluados contra hipótesis de estado
+estable; el caos de OmniPizza es casi lo opuesto — determinista, anclado a
+credenciales, componible — y se alinea más con el programa de
+controlabilidad/observabilidad de Binder (1994) y la testabilidad de dominio de Freedman
+(1991) que con la experimentación en producción. No leemos ambos como competidores. Los
+datos sugieren que el determinismo es lo que hace usable un laboratorio de enseñanza y
+benchmarking — la misma persona falla siempre de la misma manera, así que una afirmación de
+detección es verificable — mientras que el caos aleatorio en producción responde una
+pregunta distinta sobre la resiliencia de un despliegue específico. La persona de error con
+$p = 0.5$ se sitúa deliberadamente entre ambos regímenes: probabilística por solicitud,
+determinista en distribución. El `problem_user` de Sauce Labs demostró el valor pedagógico
+del patrón de personas (Sauce Labs, n.d.); la extensión aquí es la amplitud — latencia,
+fallo probabilístico, accesibilidad, seguridad — y la imposición del lado del servidor a
+través del JWT.
+
+Los resultados del triage hablan a la literatura de LLMs-en-testing con más cautela de la
+que esa literatura a veces usa para hablar de sí misma. Kang et al. (2023) muestran que los
+LLMs pueden reproducir bugs a partir de sus reportes; Wang et al. (2024) mapean el uso de
+LLMs a lo largo del ciclo de testing; Fan et al. (2023) señalan la alucinación y la
+necesidad de supervisión como problemas abiertos. Nuestra semana de triage es consistente
+con los tres, y es plausible que el protocolo, no el modelo, cargara con la confiabilidad
+observada: las dos explicaciones retractadas fueron las dos afirmaciones de causa raíz que
+rebasaron la frontera reproducible — atribuciones sobre un harness que el agente no podía
+observar — y el único veredicto revertido descansó en una brecha emparentada, la semántica
+de aserción no observada del harness; toda afirmación disciplinada por
+reproducir-antes-de-veredicto sobrevivió. Esto se alinea con las guidelines de Amershi et
+al. (2019) de que los errores de un sistema de IA deben poder descartarse y corregirse con
+eficiencia (G8–G9); los puntos de control humanos por lote y los documentos de explicación
+durables y fechados fueron el mecanismo de visibilidad. Runeson et al. (2007) automatizaron el apoyo al triage con el procesamiento de
+lenguaje natural de su época. La continuidad es el patrón, no el tooling: la automatización
+propone, la evidencia dispone.
+
+Las limitaciones son sustanciales y vale la pena decirlas sin rodeos. Este es un caso — un
+sandbox construido a propósito, una semana, un harness externo, diecinueve hallazgos —
+números que sostienen afirmaciones de existencia y nada más fuerte, y por eso no aparece
+estadística inferencial en ninguna parte de este paper. Los autores construyeron la
+plataforma, definieron las reglas del triage, supervisaron el triage y ahora evalúan las
+tres cosas; la metodología de estudio de caso archiva esto como observación participante con
+su sesgo correspondiente (Runeson & Höst, 2009; Yin, 2018), mitigado solo en parte por el
+rastro de archivo y la verificación adversarial de cada conteo. La clasificación de
+veredictos se indujo post hoc de los mismos diecinueve hallazgos que organiza, por un único
+pipeline codificador, con varias clases en $n = 1$; los fallos de triage registrados son una
+cota inferior porque la cobertura de re-verificación externa fue asimétrica. El artefacto se
+movió durante la ventana — once fixes, cinco releases — y tres de los seis documentos fuente
+entraron a control de versiones solo después de cerrada la ventana. La generalización desde
+un sistema diseñado para ser testeable hacia sistemas que no lo son es, en el mejor de los
+casos, analítica. El sandbox mide lo que fue construido para exhibir. Esa circularidad aquí
+se declara, no se resuelve.
+
+**Amenazas a la validez (enumeración detallada — esquema).**
 
 - Amenazas propias de un paper de artefacto: los autores construyeron la plataforma (la evidencia de
   adopción es exactamente un harness externo; las cuatro audiencias de la Sección 1 son

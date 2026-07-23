@@ -3,8 +3,8 @@
 > **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
 > earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
 > Sections 3–6 are drafted (3.1, 4.1 and the Section 5 method blocks in full prose);
-> Section 7 carries drafted discussion bullets plus threat outlines; Sections 1–2 and 8 are
-> outlines.
+> Section 7's discussion is drafted in full prose with the threat enumeration as outline;
+> Sections 1–2 and 8 are outlines.
 > All quantitative claims were adversarially fact-checked against the repository at the
 > pinned snapshot (Section 3.1); three claims refuted in review were corrected in this version.
 >
@@ -369,26 +369,97 @@ Transferable patterns, each tagged with the strength of its evidence:
    verdict; harness assertion contracts should travel as metadata with each reported finding.
    *[Conjecture generalized from a single observed incident.]*
 
-## 7. Discussion, Limitations & Threats (discussion bullets drafted; threats outline)
+## 7. Discussion, Limitations & Threats (discussion drafted; threat enumeration)
 
-**Discussion (drafted).**
+The exemplar's headline number is small but pointed. Zero of four layers flagged a defect
+whose ground truth was known and confirmed live. The data suggest that in a sandbox whose
+defects are intentional, detection and characterization pull in opposite directions: the
+suite that watches the catalog most closely is precisely the one that certifies $0$ prices
+as correct. This reads as Weyuker's (1982) oracle problem in inverted form — an oracle
+exists and executes, but it is aligned with the defect rather than with the requirement.
+Barr et al. (2015) classify oracles by their source; a characterization suite is a derived
+oracle, and derivation is the vulnerability here, because it derives from behavior and the
+behavior is seeded. Where defect benchmarks treat curated faults as ground truth against
+which detection is scored (Just et al., 2014; Do et al., 2005), a living sandbox apparently
+must maintain the opposite discipline: keeping at least one oracle blind to what the
+platform seeded. The planned defect manifest is that discipline made explicit.
 
-- RQ2 exemplar (results in Section 4.1): in a sandbox whose seeded defects are *intentional*,
-  detection and characterization pull in opposite directions — the only layer that observes
-  the defect pins it as correct, an inverted oracle. Two of the four layers had silently
-  decayed into non-executability (schema-version drift; missing tooling), a fact surfaced
-  only by attempting execution. The measurement the catalog row promises (per-layer detection
-  power) therefore additionally requires defect-blind oracles — which the planned
-  machine-readable seeded-defect manifest would enable.
-- RQ3 reading (results in Section 5): in this single deployment, findings classified as real
-  bugs declined at the endpoints of the window (with a late low-severity spike) — consistent
-  with, but not demonstrating, app convergence; with one harness, saturation of its check
-  inventory cannot be excluded as an alternative explanation. The non-bug findings
-  instantiate several phenomenon classes the design targets; because the classification was
-  derived from these same findings, this is an existence proof of phenomenon generation, not
-  a confirmation of the Section 4 catalog.
+The two non-executable layers tell a quieter story. Schema-version drift and missing tooling
+are not exotic failures; they are the ordinary bugginess of test code that Vahabzadeh et al.
+(2015) document, compounded here by a CI configuration that runs the component layer
+non-blocking — so its one failing spec had no channel through which to be noticed. It is
+plausible that the non-blocking setting, adopted to keep noise out of the merge path, worked
+exactly as intended and still produced rot: Sadowski et al. (2018) argue that developers
+discount findings they perceive as non-actionable, and a permanently ignorable suite is the
+limit case of non-actionability. The mechanism that protects trunk velocity also silences
+the smoke alarm.
 
-**Limitations & threats (outline).**
+The evaluation's non-bug findings sit at a recognizable rate but an unfamiliar address.
+Eight of nineteen findings ($8/19$) were, under final verdicts, not application bugs —
+the same order of magnitude as the roughly one-third misclassification Herzig et al. (2013)
+report for issue trackers, and consistent with the flaky-test literature's finding that
+non-deterministic and environment-coupled failures pervade large CI signals (Luo et al.,
+2014; Parry et al., 2022) and account for a large share of observed pass-to-fail transitions
+at scale (Memon et al., 2017). The provenance, however, is where our data
+diverge from the standard account. While the static-analysis literature locates false alarms
+in the analyzer (Bessey et al., 2010; Johnson et al., 2013), and Sadowski et al. (2018)
+relocate them in the developer's judgment, the two confirmed instrumentation-mediated
+findings suggest a third locus: the sanctioned test-entry machinery itself, operating as
+designed. Fixture pollution completes the picture — the orphan-cart finding is a field
+instance of the state pollution Gyori et al. (2015) detect and Zhang et al. (2014) found in
+every suite they examined, except that here the polluting writes arrived from other tests
+through a shared account on a warm in-memory instance. Bettenburg et al. (2008) found that reporters and
+developers value different information; the verdict reversal is a concrete instance in which
+the missing information was not reporter effort but the harness's assertion semantics,
+which is why guideline 7 argues for machine-carried metadata rather than better prose.
+
+On the design side, the friction is with chaos engineering's canonical form. Basiri et al.
+(2016) advocate injecting real-world events into production systems — randomized in tools
+such as Chaos Monkey — evaluated against steady-state hypotheses; OmniPizza's chaos is
+nearly the opposite — deterministic, credential-keyed,
+composable — and aligns more closely with Binder's (1994) controllability/observability
+program and Freedman's (1991) domain testability than with production experimentation. We do
+not read the two as competitors. The data suggest that determinism is what makes a teaching
+and benchmarking laboratory usable — the same persona always fails the same way, so a
+detection claim is checkable — while randomized production chaos answers a different
+question about a specific deployment's resilience. The $p = 0.5$ error persona sits
+deliberately between the two regimes: probabilistic per request, deterministic in
+distribution. Sauce Labs' `problem_user` demonstrated the persona pattern's teaching value
+(Sauce Labs, n.d.); the extension here is breadth — latency, probabilistic failure,
+accessibility, security — and server-side enforcement through the JWT.
+
+The triage results speak to the LLM-in-testing literature more cautiously than that
+literature sometimes speaks of itself. Kang et al. (2023) show that LLMs can reproduce
+reported bugs from their reports; Wang et al. (2024) map LLM use across the testing
+lifecycle; Fan et al. (2023) flag hallucination and the need for oversight as open problems.
+Our week of triage is consistent with all three, and it is plausible that the protocol, not
+the model, carried the reliability we observed: the two retracted explanations were the two
+root-cause claims that reached beyond the reproducible boundary — attributions about a
+harness the agent could not observe — and the one reversed verdict rested on a kindred gap,
+the harness's unobserved assertion semantics; every claim disciplined by
+reproduce-before-verdict survived. This aligns with Amershi et al.'s (2019) guidelines that
+an AI system's mistakes should be efficiently dismissible and correctable (G8–G9); the
+per-batch human gates and the durable, dated explanation documents were the visibility
+mechanism. Runeson
+et al. (2007) automated triage support with the natural-language processing of their day.
+The continuity is the pattern, not the tooling: automation proposes, evidence disposes.
+
+The limitations are substantial, and they are worth stating plainly. This is one case — one
+purpose-built sandbox, one week, one external harness, nineteen findings — numbers that
+support existence claims and nothing stronger, which is why no inferential statistics appear
+anywhere in this paper. The authors built the platform, defined the triage rules, supervised
+the triage, and now evaluate all three; case-study methodology files this under participant
+observation with its attendant bias (Runeson & Höst, 2009; Yin, 2018), only partly mitigated
+by the archival trail and the adversarial fact-checking of every count. The verdict
+classification was induced post hoc from the same nineteen findings it organizes, by a
+single coder pipeline, with several classes at $n = 1$; recorded triage failures are a lower
+bound because external re-verification coverage was asymmetric. The artifact moved during
+the window — eleven fixes, five releases — and three of the six source documents entered
+version control only after the window closed. Generalization from a system designed to be
+testable toward systems that are not is analytic at best. The sandbox measures what it was
+built to exhibit. That circularity is disclosed here, not resolved.
+
+**Threats to validity (detailed enumeration — outline).**
 
 - Artifact-paper threats: the authors built the platform (adoption evidence is exactly one
   external harness; the four audiences of Section 1 are intended, not demonstrated); sandbox
