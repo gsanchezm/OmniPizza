@@ -66,8 +66,12 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 2. ~~Commitear los documentos fuente sin trackear~~ — hecho (`78b7631`, 2026-07-23).
 3. Pasada de literatura para Related Work; fijar referencias.
 4. Redactar Intro y Abstract completos (fluyen de lo ya aprobado).
-5. Opcional (convierte una affordance en evidencia): ejecutar el ejemplar barato de §4 —
-   el defecto de precios $0 de `problem_user` a través de las 4 suites existentes.
+5. ~~Ejecutar el ejemplar de §4~~ — hecho (2026-07-23): **0 de 4 capas detectan el defecto
+   sembrado tal cual están** (contrato no ejecutable por drift OpenAPI 3.1 + `price` sin
+   mínimo; Vitest 46/46 verde con oráculo invertido; Cypress ciega por fixtures + 1 spec
+   podrida; Detox = andamiaje sin tooling). Resultados en §4.1 del paper y §6 del fact sheet.
+   Opcional futuro: hacer ejecutable la capa Detox (deps + jest.config + build instrumentado)
+   y correrla en dispositivo físico.
 6. Redactar Results/Discussion/Conclusion en prosa completa.
 7. Al publicar: snapshot archivado + manifiesto de defectos + extractos en idioma original
    para findings.csv.

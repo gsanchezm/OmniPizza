@@ -76,6 +76,23 @@ Sections 3–5, with its **counting rule** and an **executable read-only verific
 | Releases total (Section 3 / Appendix) | 18 distinct versions (22 raw tags) | tags normalized (strip `v`/`V`, lowercase), deduplicated; excludes 1.0.1, V1.0.0, V1.0.4, V1.0.5 | `git tag \| sed 's/^[Vv]//' \| sort -u \| wc -l && git tag \| wc -l` | 18 / 22 |
 | Snapshot pin (3.1) | `83b8ba4`, 2026-07-22 | commit date; "last product commit" = no later commit touches product code | `git show -s --format='%H %ad' --date=short 83b8ba4 && git diff --stat 83b8ba4..HEAD` | date matches; diff to HEAD touches only `documents/paper/` |
 
+## 6. Section 4.1 exemplar execution (2026-07-23)
+
+Environment: local backend (`python main.py`, port 8000) at product snapshot `83b8ba4`
+(working tree product-code-identical); fresh in-memory state; suites run **as-is**, unmodified.
+
+| Step / layer | Command | Outcome |
+|---|---|---|
+| Ground truth (live) | login `problem_user` → `GET /api/pizzas` (US/en headers) | 12/12 pizzas `price: 0.0`, image `https://broken-image-url.com/404.jpg` |
+| Contract (Schemathesis 3.25.1, pinned) | `pytest test_contract.py -v` (deps from `tests/requirements.txt`) | collection error: "The provided schema uses Open API 3.1.0, which is currently not fully supported" — layer non-executable as-is |
+| Contract, by construction | `curl /api/openapi.json` → inspect `Pizza.price` / `EnrichedCartItem.price` | both are `{"type": "number"}` with no `minimum`/`exclusiveMinimum` → $0 is schema-valid; undetectable by any contract run |
+| API integration (Vitest 4.0.18) | `npx vitest run` in `tests/` | 46/46 passed with defect active, incl. "problem_user gets $0 prices and the broken image" (`expect(p01.price).toBe(0)`) — inverted oracle |
+| Component (Cypress 15.11.0) | `npx cypress run --component` in `frontend/` | 14/15 passed; `ProductCard.cy.jsx` fails on mount with `t is not a function` — spec omits the `t` prop the component acquired later (fixture `type: "meat"` renders the badge calling `t("bestseller")`); unrelated to the seeded defect; masked in CI by `continue-on-error` |
+| E2E (Detox) | inspection: `frontend-mobile/package.json`, `e2e/jest.config.js`, released `omnipizza-debug-androidTest.apk` (v1.1.8) | non-executable as-is: no `detox`/`jest` devDependencies; `e2e/jest.config.js` (referenced by `.detoxrc.js`) does not exist; androidTest APK is 8,518 bytes / 4 entries with zero Detox classes; spec has no price oracle and targets standard/performance-glitch only |
+
+Headline: **0 of 4 layers detect the seeded defect as-is**; 2 of 4 layers are currently
+non-executable (schema-version drift; missing tooling).
+
 ## Caveats (must accompany any use of the numbers above)
 
 1. **Archival gap (resolved 2026-07-23):** three of the six explanation documents the
@@ -103,3 +120,8 @@ Sections 3–5, with its **counting rule** and an **executable read-only verific
    *sanctioned state-injection mechanism* (cart hydration, `resetSession`, `seedProfile`) is
    the vehicle. F01's login race manifested under harness parallelism — a usage pattern, not
    an injection mechanism — and is coded `false`.
+9. **Source vs. runtime test counts:** "41 API integration cases" counts source-level
+   `it(`/`test(` declarations (23 + 18). At runtime Vitest executes **46** tests (23 + 23):
+   parametrized loops in `golden.test.ts` expand five additional cases. Both numbers are
+   correct under their respective counting rules; the Section 6 exemplar reports the runtime
+   figure (46/46).

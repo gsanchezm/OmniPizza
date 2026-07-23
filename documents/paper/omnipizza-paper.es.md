@@ -39,8 +39,10 @@
   generador de fenómenos QA estudiables — incluidos falsos positivos mediados por la propia
   instrumentación de testing.
 - Salida: un catálogo de patrones de diseño para testabilidad, un catálogo de lo que el
-  laboratorio está instrumentado para medir, y guías de diseño-para-testabilidad etiquetadas
-  por fuerza de evidencia.
+  laboratorio está instrumentado para medir — con una fila ejecutada como ejemplar: el
+  defecto sembrado de precios $0 pasa sin detección por las cuatro capas de prueba existentes
+  tal cual están (Sección 4.1) — y guías de diseño-para-testabilidad etiquetadas por fuerza
+  de evidencia.
 
 ## 1. Introducción (esquema)
 
@@ -70,8 +72,9 @@
     controlable, observable — sin dejar de ser realista? *Evidencia: la descripción verificada
     del artefacto, Sección 3.*
   - **RQ2 (pregunta de capacidad/affordance).** ¿Qué propiedades relacionadas con el testing
-    está instrumentada la plataforma para medir? *Evidencia: el catálogo de affordances,
-    Sección 4 — afirmaciones de diseño; este paper solo ejercita una fila.*
+    está instrumentada la plataforma para medir? *Evidencia: el catálogo de affordances, Sección 4;
+    una fila se ejecuta como ejemplar (4.1), la fila del proceso de QA la ejercita la
+    Sección 5, y el resto siguen siendo afirmaciones de diseño.*
   - **RQ3 (pregunta de validación).** ¿Cómo se comporta la plataforma bajo uso real de QA
     automatizada externa? *Evidencia: el estudio de caso retrospectivo, Sección 5 — una
     prueba de existencia con un despliegue y un harness externo.*
@@ -221,8 +224,8 @@ suite de API externa — apuntan al mismo producto: tests de contrato generados 
 (Schemathesis, el número de casos escala con el esquema OpenAPI), 41 casos de integración de
 API escritos a mano que incluyen una suite golden de caracterización, 11 specs de tests de
 componentes, y experimentos E2E de resiliencia a latencia por plataforma. Esto habilita la
-comparación en igualdad de condiciones de qué detecta cada capa (una comparación que este paper habilita
-pero no ejecuta; Sección 7). El documento de requisitos del producto entrega además una
+comparación en igualdad de condiciones de qué detecta cada capa (ejecutada como ejemplar en
+la Sección 4.1). El documento de requisitos del producto entrega además una
 matriz de aceptación de flujos negativos de 13 escenarios (códigos de estado y resultados de
 UI esperados), usable directamente como dataset de oráculos.
 
@@ -235,7 +238,7 @@ qué filas ejercita este paper.
 
 | Dimensión | Instrumento | Medición de ejemplo | Estado |
 |---|---|---|---|
-| Poder de detección por capa de prueba | el mismo defecto sembrado (p. ej., los precios $0 de `problem_user`) observable en las capas de contrato, API, componente y E2E | qué capas lo atrapan; costo por detección | affordance — aún no ejecutada |
+| Poder de detección por capa de prueba | el mismo defecto sembrado (p. ej., los precios $0 de `problem_user`) observable en las capas de contrato, API, componente y E2E | qué capas lo atrapan; costo por detección | **ejecutada como ejemplar (4.1): 0 de 4 capas lo detectan tal cual** |
 | Resiliencia a latencia | `performance_glitch_user` (3 s fijos en catálogo y checkout) + endpoint de debug latency-spike (0.5–5 s aleatorios) | manejo de timeouts, corrección de estados de carga, tasa de flakes vs. retardo | affordance — aún no ejecutada |
 | Manejo de fallos probabilísticos | `error_user` (checkout 500 con p = 0.5) | lógica de reintentos, consistencia de la UX de error, comportamiento de políticas de test-retry | affordance — aún no ejecutada |
 | Detección de accesibilidad | `a11y_glitch_user` (3 modos de defecto en llamadas de catálogo/carrito) | recall del tooling de a11y contra defectos sembrados conocidos | affordance — aún no ejecutada |
@@ -244,6 +247,30 @@ qué filas ejercita este paper.
 | Costo de setup y superficie de flakes | entrada atómica (3.4) vs. recorrido completo hasta el mismo estado | pasos/tiempo-al-estado; qué flakes desaparecen con entrada atómica | affordance — aún no ejecutada |
 | Robustez de estrategias de selectores | sufijos dependientes del viewport, zoológico de widgets, RTL | supervivencia de localizadores entre viewports/idiomas | affordance — aún no ejecutada |
 | Fenómenos del proceso de QA | replay determinista + artefactos de triage durables + despliegues públicos | taxonomías de triage, procedencia de falsos positivos, estudios de artefactos de harness | ejercitada — Sección 5 |
+
+### 4.1 Un ejemplar ejecutado: el defecto sembrado de precios $0 a través de las cuatro capas
+
+Para convertir una fila del catálogo de afirmación de diseño en evidencia, corrimos el
+portafolio de la Sección 3.8 **tal cual está** — sin modificar ninguna suite — contra el
+defecto sembrado de `problem_user`, el 2026-07-23, sobre una instancia local en el snapshot
+fijado. El ground truth se confirmó en vivo antes de las corridas (12/12 pizzas del catálogo
+a precio 0.0 con la URL de imagen rota). Resultado: **ninguna de las cuatro capas detecta el
+defecto**, cada una por una razón distinta e instructiva:
+
+| Capa | Resultado tal-cual-está |
+|---|---|
+| Contrato (Schemathesis) | **No ejecutable:** el loader de la 3.25.1 pineada rechaza el esquema OpenAPI 3.1.0 actual del backend; además `price` es un `number` sin restricciones en ambos esquemas de respuesta, así que ni una corrida funcional podría marcar el $0 — indetectable *por construcción* |
+| Integración de API (Vitest) | **Oráculo invertido:** 46/46 en verde con el defecto activo — la suite golden de caracterización *asserta* `price = 0` y la imagen rota de `problem_user` como comportamiento esperado del sandbox; solo fallaría si el defecto sembrado se eliminara |
+| Componentes (Cypress) | **Estructuralmente ciega:** los componentes se montan con fixtures hardcodeados (precio 12.99) y jamás contactan al backend; incidentalmente 1 de 11 specs falla al montar por una obsolescencia no relacionada (el componente adquirió una prop de i18n después de escrito el spec) — invisible en CI porque esta capa corre en modo no bloqueante |
+| E2E (Detox) | **Solo andamiaje:** `detox`/`jest` no están en las dependencias del workspace, el config de jest que referencia `.detoxrc.js` no existe, y el APK `androidTest` publicado (8.5 KB, 4 entradas) no contiene instrumentación Detox alguna; el único spec apunta solo a las personas standard y performance-glitch, sin oráculo de precio |
+
+Lectura: en un sandbox cuyos defectos sembrados son *intencionales*, la detección y la
+caracterización tiran en direcciones opuestas — la única capa que observa el defecto lo
+pinnea como correcto. Dos de las cuatro capas habían decaído silenciosamente hasta la
+no-ejecutabilidad (drift de versión de esquema; tooling ausente), un hecho que el ejemplar
+sacó a la luz y que la columna de estado ahora registra. La medición que esta fila promete
+(poder de detección por capa) requiere además oráculos ciegos al defecto — que el manifiesto
+de defectos sembrados legible por máquina (Sección 7, planificado) habilitaría.
 
 ## 5. Evaluación: una semana de QA automatizada externa (RQ3)
 
@@ -378,9 +405,11 @@ Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
   repo preceden al mercado y a los usuarios caos más nuevos (describen 4 mercados / 5
   personas vs. los 5 / 7 actuales) — una advertencia para adoptantes de la plataforma y, en
   sí mismo, un fenómeno medible.
-- Frontera de alcance: sin experimentos controlados (el catálogo de la Sección 4 está
-  habilitado, no ejecutado) — por diseño de este paper; candidatos para trabajo posterior. La
-  generalizabilidad de las guías está acotada a un dominio (e-commerce) y un equipo.
+- Frontera de alcance: una fila del catálogo se ejecutó como ejemplar de bajo costo
+  (Sección 4.1, 2026-07-23, instancia local en el snapshot fijado); las demás filas de la
+  Sección 4 están habilitadas, no ejecutadas — por diseño de este paper; candidatos para
+  trabajo posterior. La generalizabilidad de las guías está acotada a un dominio (e-commerce)
+  y un equipo.
 
 ## 8. Conclusión y disponibilidad (esquema)
 

@@ -32,7 +32,9 @@
   study-able QA phenomena — including false positives mediated by the test-enabling
   instrumentation itself.
 - Output: a design-pattern catalog for testability, a catalog of what the laboratory is
-  instrumented to measure, and design-for-testability guidelines tagged by evidence strength.
+  instrumented to measure — one row executed as an exemplar: the seeded $0-price defect goes
+  undetected by all four existing test layers as-is (Section 4.1) — and design-for-testability
+  guidelines tagged by evidence strength.
 
 ## 1. Introduction (outline)
 
@@ -59,8 +61,9 @@
     controllable, observable — without ceasing to be realistic? *Evidence: the verified
     artifact description, Section 3.*
   - **RQ2 (capability/affordance question).** What testing-related properties is the platform
-    instrumented to measure? *Evidence: the affordance catalog, Section 4 — design claims;
-    only one row is exercised by this paper.*
+    instrumented to measure? *Evidence: the affordance catalog, Section 4; one row
+    is executed as an exemplar (4.1), the QA-process row is exercised by Section 5, the rest
+    remain design claims.*
   - **RQ3 (validation question).** How does the platform behave under real external
     automated-QA use? *Evidence: the retrospective case study, Section 5 — an existence
     proof from one deployment and one external harness.*
@@ -195,8 +198,7 @@ Four heterogeneous test layers — from in-repo component tests to an external A
 target the same product: schema-generated contract tests (Schemathesis, case count scales with
 the OpenAPI schema), 41 hand-written API integration cases including a golden characterization
 suite, 11 component-test specs, and platform E2E latency-resilience experiments. This enables
-like-for-like comparison of what each layer detects (a comparison this paper enables but does
-not execute; Section 7). The product requirements document additionally ships a 13-scenario
+like-for-like comparison of what each layer detects (executed as an exemplar in Section 4.1). The product requirements document additionally ships a 13-scenario
 negative-flow acceptance matrix (expected status codes and UI outcomes), usable directly as an
 oracle dataset.
 
@@ -208,7 +210,7 @@ enables, not executed results; the status column records which rows this paper e
 
 | Dimension | Instrument | Example measurement | Status |
 |---|---|---|---|
-| Detection power per test layer | the same seeded defect (e.g., `problem_user`'s $0 prices) observable at contract, API, component, and E2E layers | which layers catch it; cost per detection | affordance — not yet executed |
+| Detection power per test layer | the same seeded defect (e.g., `problem_user`'s $0 prices) observable at contract, API, component, and E2E layers | which layers catch it; cost per detection | **executed as an exemplar (4.1): 0 of 4 layers detect it as-is** |
 | Latency resilience | `performance_glitch_user` (fixed 3 s on catalog fetch and checkout) + debug latency-spike endpoint (0.5–5 s random) | timeout handling, loading-state correctness, flake rate vs. delay | affordance — not yet executed |
 | Probabilistic-failure handling | `error_user` (checkout 500 at p = 0.5) | retry logic, error-UX consistency, test-retry policy behavior | affordance — not yet executed |
 | Accessibility detection | `a11y_glitch_user` (3 defect modes on catalog/cart calls) | recall of a11y tooling against known seeded defects | affordance — not yet executed |
@@ -217,6 +219,29 @@ enables, not executed results; the status column records which rows this paper e
 | Test-setup cost and flake surface | atomic entry (3.4) vs. full journey to the same state | steps/time-to-state; which flakes disappear under atomic entry | affordance — not yet executed |
 | Selector-strategy robustness | viewport-dependent suffixes, widget zoo, RTL | locator survival across viewports/languages | affordance — not yet executed |
 | QA process phenomena | deterministic replay + durable triage artifacts + public deployments | triage taxonomies, false-positive provenance, harness-artifact studies | exercised — Section 5 |
+
+### 4.1 An executed exemplar: the seeded $0-price defect across the four layers
+
+To convert one catalog row from design claim into evidence, we ran the Section 3.8 portfolio
+**as-is** — no suite modified — against the seeded `problem_user` defect on 2026-07-23, on a
+local instance at the pinned snapshot. Ground truth was confirmed live before the runs
+(12/12 catalog pizzas at price 0.0 with the broken image URL). Outcome: **none of the four
+layers detects the defect**, each for a different, instructive reason:
+
+| Layer | As-is outcome |
+|---|---|
+| Contract (Schemathesis) | **Non-executable:** the pinned 3.25.1 loader rejects the backend's current OpenAPI 3.1.0 schema; moreover `price` is an unconstrained `number` in both response schemas, so even a working contract run could not flag $0 — undetectable *by construction* |
+| API integration (Vitest) | **Inverted oracle:** 46/46 green with the defect active — the golden characterization suite *asserts* `price = 0` and the broken image for `problem_user` as expected sandbox behavior; it would fail only if the seeded defect were removed |
+| Component (Cypress) | **Structurally blind:** components mount against hardcoded fixtures (price 12.99) and never contact the backend; incidentally 1 of 11 specs fails on mount for an unrelated staleness (the component gained an i18n prop after the spec was written) — invisible in CI because this layer runs non-blocking |
+| E2E (Detox) | **Scaffolding only:** `detox`/`jest` are absent from the workspace's dependencies, the jest config referenced by `.detoxrc.js` does not exist, and the released `androidTest` APK (8.5 KB, 4 entries) contains no Detox instrumentation; the one spec targets only the standard and performance-glitch personas, with no price oracle |
+
+Reading: in a sandbox whose seeded defects are *intentional*, detection and characterization
+pull in opposite directions — the only layer that observes the defect pins it as correct.
+Two of the four layers had silently decayed into non-executability (schema-version drift;
+missing tooling), a fact the exemplar surfaced and the status column now records. The
+measurement this row promises (per-layer detection power) therefore additionally requires
+defect-blind oracles — which the planned machine-readable seeded-defect manifest (Section 7)
+would enable.
 
 ## 5. Evaluation: One Week of External Automated QA (RQ3)
 
@@ -334,9 +359,10 @@ Transferable patterns, each tagged with the strength of its evidence:
 - Documentation drift as a user-facing hazard: parts of the in-repo product documentation
   predate the newest market and chaos users (they describe 4 markets / 5 personas vs. the
   current 5 / 7) — a caveat for platform adopters and itself a measurable phenomenon.
-- Scope boundary: no controlled experiments (the Section 4 catalog is enabled, not executed) —
-  by design of this paper; candidates for follow-up work. Guideline generalizability is
-  bounded by one domain (e-commerce), one team.
+- Scope boundary: one catalog row was executed as a low-cost exemplar (Section 4.1,
+  2026-07-23, local instance at the pinned snapshot); the remaining Section 4 rows are
+  enabled, not executed — by design of this paper; candidates for follow-up work. Guideline
+  generalizability is bounded by one domain (e-commerce), one team.
 
 ## 8. Conclusion & Availability (outline)
 
