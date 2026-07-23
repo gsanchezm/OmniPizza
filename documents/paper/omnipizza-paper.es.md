@@ -4,8 +4,9 @@
 > `omnipizza-paper.md`; la versión canónica — y la destinada a publicación — es la inglesa:
 > ante cualquier discrepancia, prevalece el original. Encuadre centrado en la plataforma (pivote
 > desde el borrador anterior centrado en el triage); el estudio de triage QA de una semana es
-> la evaluación (Sección 5). Las Secciones 3–6 están redactadas como esqueletos de hechos
-> verificados; las Secciones 1–2 y 7–8 son esquemas. Todas las afirmaciones cuantitativas
+> la evaluación (Sección 5). Las Secciones 3–6 están redactadas (3.1, 4.1 y los bloques de
+> método de la Sección 5 en prosa completa); la Sección 7 lleva la discusión redactada más
+> las amenazas en esquema; las Secciones 1–2 y 8 son esquemas. Todas las afirmaciones cuantitativas
 > pasaron una verificación adversarial contra el repositorio en el snapshot fijado
 > (Sección 3.1); tres afirmaciones refutadas en revisión fueron corregidas en esta versión.
 >
@@ -270,23 +271,19 @@ comparten un único backend con estado; Cypress 15.11.0 headless vía `cypress r
 Schemathesis 3.25.1 bajo pytest 7.4.4 con `max_examples = 50` por endpoint). El ground truth
 se confirmó en vivo antes de las corridas: un login de `problem_user` seguido de una
 obtención de catálogo devolvió $12/12$ pizzas a precio $0.0$ con la URL de imagen rota.
-Resultado: **ninguna de las cuatro capas detecta el defecto**, cada una por una razón
-distinta e instructiva:
 
-| Capa | Resultado tal-cual-está |
+Ninguna capa reportó un fallo atribuible al defecto sembrado — detección de $0/4$. Dos de
+las cuatro capas no llegaron a ejecutarse. Observaciones por capa:
+
+| Capa | Resultado observado (tal cual está) |
 |---|---|
-| Contrato (Schemathesis) | **No ejecutable:** el loader de la 3.25.1 pineada rechaza el esquema OpenAPI 3.1.0 actual del backend; además `price` es un `number` sin restricciones en ambos esquemas de respuesta, así que ni una corrida funcional podría marcar el $0 — indetectable *por construcción* |
-| Integración de API (Vitest) | **Oráculo invertido:** 46/46 en verde con el defecto activo — la suite golden de caracterización *asserta* `price = 0` y la imagen rota de `problem_user` como comportamiento esperado del sandbox; solo fallaría si el defecto sembrado se eliminara |
-| Componentes (Cypress) | **Estructuralmente ciega:** los componentes se montan con fixtures hardcodeados (precio 12.99) y jamás contactan al backend; incidentalmente 1 de 11 specs falla al montar por una obsolescencia no relacionada (el componente adquirió una prop de i18n después de escrito el spec) — invisible en CI porque esta capa corre en modo no bloqueante |
-| E2E (Detox) | **Solo andamiaje:** `detox`/`jest` no están en las dependencias del workspace, el config de jest que referencia `.detoxrc.js` no existe, y el APK `androidTest` publicado (8.5 KB, 4 entradas) no contiene instrumentación Detox alguna; el único spec apunta solo a las personas standard y performance-glitch, sin oráculo de precio |
+| Contrato (Schemathesis) | La colección falló antes de ejecutar caso alguno: la versión 3.25.1 lanza `SchemaError` sobre el documento OpenAPI 3.1.0 del backend ("currently not fully supported"). Independientemente, `price` no lleva restricción `minimum` en ninguno de los dos esquemas de respuesta (`Pizza`, `EnrichedCartItem`); un valor de $0$ es válido contra el esquema |
+| Integración de API (Vitest) | $46/46$ casos pasaron con el defecto activo. Dos casos assertan el defecto como comportamiento esperado de `problem_user`: `expect(p01.price).toBe(0)` y la URL de imagen rota (`tests/golden.test.ts`) |
+| Componentes (Cypress) | $14/15$ casos en $11$ specs pasaron. Cada spec se monta con datos de fixture (`price: 12.99`); ninguno emite una solicitud al backend. El único spec fallido (`ProductCard.cy.jsx`) lanzó `TypeError: t is not a function` al montar; el spec es anterior a la prop `t` del componente. La capa corre bajo `continue-on-error: true` en CI |
+| E2E (Detox) | No se ejecutó. `detox` y `jest` no figuran en las dependencias del workspace; `e2e/jest.config.js`, referenciado por `.detoxrc.js`, no existe; el APK `androidTest` publicado contiene $4$ entradas ($8{,}518$ bytes) y ninguna clase Detox. El único spec no contiene aserciones de precio y se autentica solo como `standard_user` y `performance_glitch_user` |
 
-Lectura: en un sandbox cuyos defectos sembrados son *intencionales*, la detección y la
-caracterización tiran en direcciones opuestas — la única capa que observa el defecto lo
-pinnea como correcto. Dos de las cuatro capas habían decaído silenciosamente hasta la
-no-ejecutabilidad (drift de versión de esquema; tooling ausente), un hecho que el ejemplar
-sacó a la luz y que la columna de estado ahora registra. La medición que esta fila promete
-(poder de detección por capa) requiere además oráculos ciegos al defecto — que el manifiesto
-de defectos sembrados legible por máquina (Sección 7, planificado) habilitaría.
+La interpretación de estos resultados — la tensión detección-vs-caracterización, las capas
+decaídas y el requisito de oráculos que implican — se difiere a la Sección 7.
 
 ## 5. Evaluación: una semana de QA automatizada externa (RQ3)
 
@@ -373,13 +370,7 @@ Destacados:
   el harness externo inobservable, mientras que toda exoneración empírica del lado de la app
   sobrevivió.
 
-**Lectura (acotada).** En este único despliegue, los hallazgos clasificados como bugs reales
-declinaron en los extremos de la ventana (con un pico tardío de baja severidad) —
-consistente con, pero sin demostrar, la convergencia de la app; con un solo harness no
-podemos excluir explicaciones alternativas como la saturación del inventario de checks del
-harness. Los hallazgos no-bug instancian varias clases de fenómenos que el diseño persigue;
-como la clasificación se derivó de estos mismos hallazgos, esto es una prueba de existencia
-de generación de fenómenos, no una confirmación del catálogo de la Sección 4.
+La interpretación de estos resultados se difiere a la Sección 7.
 
 ## 6. Guías de diseño para testabilidad (RQ4)
 
@@ -420,7 +411,27 @@ Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
    viajar como metadatos con cada hallazgo reportado. *[Conjetura generalizada desde un único
    incidente observado.]*
 
-## 7. Discusión, limitaciones y amenazas (esquema)
+## 7. Discusión, limitaciones y amenazas (discusión redactada; amenazas en esquema)
+
+**Discusión (redactada).**
+
+- Ejemplar de RQ2 (resultados en la Sección 4.1): en un sandbox cuyos defectos sembrados son
+  *intencionales*, la detección y la caracterización tiran en direcciones opuestas — la única
+  capa que observa el defecto lo pinnea como correcto, un oráculo invertido. Dos de las
+  cuatro capas habían decaído silenciosamente hasta la no-ejecutabilidad (drift de versión de
+  esquema; tooling ausente), un hecho que solo salió a la luz al intentar la ejecución. La
+  medición que la fila del catálogo promete (poder de detección por capa) requiere además
+  oráculos ciegos al defecto — que el manifiesto de defectos sembrados legible por máquina
+  habilitaría.
+- Lectura de RQ3 (resultados en la Sección 5): en este único despliegue, los hallazgos
+  clasificados como bugs reales declinaron en los extremos de la ventana (con un pico tardío
+  de baja severidad) — consistente con, pero sin demostrar, la convergencia de la app; con un
+  solo harness no puede excluirse la saturación de su inventario de checks como explicación
+  alternativa. Los hallazgos no-bug instancian varias clases de fenómenos que el diseño
+  persigue; como la clasificación se derivó de estos mismos hallazgos, esto es una prueba de
+  existencia de generación de fenómenos, no una confirmación del catálogo de la Sección 4.
+
+**Limitaciones y amenazas (esquema).**
 
 - Amenazas propias de un paper de artefacto: los autores construyeron la plataforma (la evidencia de
   adopción es exactamente un harness externo; las cuatro audiencias de la Sección 1 son

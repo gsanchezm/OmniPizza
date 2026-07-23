@@ -2,7 +2,9 @@
 
 > **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
 > earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
-> Sections 3–6 are drafted as verified-fact skeletons; Sections 1–2 and 7–8 are outlines.
+> Sections 3–6 are drafted (3.1, 4.1 and the Section 5 method blocks in full prose);
+> Section 7 carries drafted discussion bullets plus threat outlines; Sections 1–2 and 8 are
+> outlines.
 > All quantitative claims were adversarially fact-checked against the repository at the
 > pinned snapshot (Section 3.1); three claims refuted in review were corrected in this version.
 >
@@ -240,23 +242,20 @@ fresh in-memory state; Vitest 4.0.18 via `npx vitest run`, with the repository-p
 headless via `cypress run --component`; Schemathesis 3.25.1 under pytest 7.4.4 with
 `max_examples = 50` per endpoint). Ground truth was confirmed live before the runs: a
 `problem_user` login followed by a catalog fetch returned $12/12$ pizzas at price $0.0$ with
-the broken image URL. Outcome: **none of the four layers detects the defect**, each for a
-different, instructive reason:
+the broken image URL.
 
-| Layer | As-is outcome |
+No failure attributable to the seeded defect was reported by any layer — $0/4$ detection.
+Two of the four layers did not execute. Per-layer observations:
+
+| Layer | Observed outcome (as-is) |
 |---|---|
-| Contract (Schemathesis) | **Non-executable:** the pinned 3.25.1 loader rejects the backend's current OpenAPI 3.1.0 schema; moreover `price` is an unconstrained `number` in both response schemas, so even a working contract run could not flag $0 — undetectable *by construction* |
-| API integration (Vitest) | **Inverted oracle:** 46/46 green with the defect active — the golden characterization suite *asserts* `price = 0` and the broken image for `problem_user` as expected sandbox behavior; it would fail only if the seeded defect were removed |
-| Component (Cypress) | **Structurally blind:** components mount against hardcoded fixtures (price 12.99) and never contact the backend; incidentally 1 of 11 specs fails on mount for an unrelated staleness (the component gained an i18n prop after the spec was written) — invisible in CI because this layer runs non-blocking |
-| E2E (Detox) | **Scaffolding only:** `detox`/`jest` are absent from the workspace's dependencies, the jest config referenced by `.detoxrc.js` does not exist, and the released `androidTest` APK (8.5 KB, 4 entries) contains no Detox instrumentation; the one spec targets only the standard and performance-glitch personas, with no price oracle |
+| Contract (Schemathesis) | Collection failed before any case ran: version 3.25.1 raises `SchemaError` on the backend's OpenAPI 3.1.0 document ("currently not fully supported"). Independently, `price` carries no `minimum` constraint in either response schema (`Pizza`, `EnrichedCartItem`); a value of $0$ is schema-valid |
+| API integration (Vitest) | $46/46$ cases passed with the defect active. Two cases assert the defect as expected behavior for `problem_user`: `expect(p01.price).toBe(0)` and the broken-image URL (`tests/golden.test.ts`) |
+| Component (Cypress) | $14/15$ cases across $11$ specs passed. Every spec mounts against fixture data (`price: 12.99`); none issues a backend request. The one failing spec (`ProductCard.cy.jsx`) raised `TypeError: t is not a function` at mount; the spec predates the component's `t` prop. The layer runs under `continue-on-error: true` in CI |
+| E2E (Detox) | Did not execute. `detox` and `jest` are absent from the workspace's dependencies; `e2e/jest.config.js`, referenced by `.detoxrc.js`, does not exist; the released `androidTest` APK contains $4$ entries ($8{,}518$ bytes) and no Detox classes. The single spec contains no price assertion and authenticates only as `standard_user` and `performance_glitch_user` |
 
-Reading: in a sandbox whose seeded defects are *intentional*, detection and characterization
-pull in opposite directions — the only layer that observes the defect pins it as correct.
-Two of the four layers had silently decayed into non-executability (schema-version drift;
-missing tooling), a fact the exemplar surfaced and the status column now records. The
-measurement this row promises (per-layer detection power) therefore additionally requires
-defect-blind oracles — which the planned machine-readable seeded-defect manifest (Section 7)
-would enable.
+Interpretation of these outcomes — the detection-vs-characterization tension, the decayed
+layers, and the oracle requirement they imply — is deferred to Section 7.
 
 ## 5. Evaluation: One Week of External Automated QA (RQ3)
 
@@ -336,13 +335,7 @@ reproducible. Highlights:
   both retracted explanations were attributions about the unobservable external harness, while
   every app-side empirical exoneration survived.
 
-**Reading (hedged).** In this single deployment, findings classified as real bugs declined at
-the endpoints of the window (with a late low-severity spike) — consistent with, but not
-demonstrating, app convergence; with one harness we cannot exclude alternative explanations
-such as saturation of the harness's check inventory. The non-bug findings instantiate several
-phenomenon classes the design targets; because the classification was derived from these same
-findings, this is an existence proof of phenomenon generation, not a confirmation of the
-Section 4 catalog.
+Interpretation of these results is deferred to Section 7.
 
 ## 6. Design-for-Testability Guidelines (RQ4)
 
@@ -376,7 +369,26 @@ Transferable patterns, each tagged with the strength of its evidence:
    verdict; harness assertion contracts should travel as metadata with each reported finding.
    *[Conjecture generalized from a single observed incident.]*
 
-## 7. Discussion, Limitations & Threats (outline)
+## 7. Discussion, Limitations & Threats (discussion bullets drafted; threats outline)
+
+**Discussion (drafted).**
+
+- RQ2 exemplar (results in Section 4.1): in a sandbox whose seeded defects are *intentional*,
+  detection and characterization pull in opposite directions — the only layer that observes
+  the defect pins it as correct, an inverted oracle. Two of the four layers had silently
+  decayed into non-executability (schema-version drift; missing tooling), a fact surfaced
+  only by attempting execution. The measurement the catalog row promises (per-layer detection
+  power) therefore additionally requires defect-blind oracles — which the planned
+  machine-readable seeded-defect manifest would enable.
+- RQ3 reading (results in Section 5): in this single deployment, findings classified as real
+  bugs declined at the endpoints of the window (with a late low-severity spike) — consistent
+  with, but not demonstrating, app convergence; with one harness, saturation of its check
+  inventory cannot be excluded as an alternative explanation. The non-bug findings
+  instantiate several phenomenon classes the design targets; because the classification was
+  derived from these same findings, this is an existence proof of phenomenon generation, not
+  a confirmation of the Section 4 catalog.
+
+**Limitations & threats (outline).**
 
 - Artifact-paper threats: the authors built the platform (adoption evidence is exactly one
   external harness; the four audiences of Section 1 are intended, not demonstrated); sandbox
