@@ -78,11 +78,12 @@ Sections 3–5, with its **counting rule** and an **executable read-only verific
 
 ## Caveats (must accompany any use of the numbers above)
 
-1. **Archival gap (action item):** three of the six explanation documents the evaluation
-   depends on (`EXPLANATION_qa_report_2026-07-{19,20,22}.md`) plus `arquitectura_qa.md` are
-   currently **untracked in git** — present in the working tree only, absent from both the
-   pinned snapshot and HEAD. Until committed, the paper's "archival sources / durable
-   artifacts" framing is not fully backed by version control.
+1. **Archival gap (resolved 2026-07-23):** three of the six explanation documents the
+   evaluation depends on (`EXPLANATION_qa_report_2026-07-{19,20,22}.md`) plus
+   `arquitectura_qa.md` were untracked at measurement time; they were committed in `78b7631`.
+   Note they are therefore absent from the pinned product snapshot `83b8ba4` and entered
+   version control after the study window closed — their pre-commit provenance rests on
+   file-system timestamps and the working tree.
 2. **Exclusions partially verifiable:** of the three exclusion rules behind N = 19, the
    pre-dismissed locked-out item is archived in the 07-16 doc, but the two harness-own-code
    bugs rest on unarchived primary sources (raw QA reports are deleted per the triage

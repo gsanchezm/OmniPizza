@@ -63,9 +63,7 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 ## Próximos pasos (orden propuesto)
 
 1. ~~`findings.csv` + fact sheet de la plataforma~~ — hecho (2026-07-23).
-2. **Commitear los documentos fuente sin trackear** (`EXPLANATION_qa_report_2026-07-{19,20,22}.md`,
-   `arquitectura_qa.md`): el paper los llama "fuentes de archivo" y hoy no están en git
-   (pendiente de OK del autor).
+2. ~~Commitear los documentos fuente sin trackear~~ — hecho (`78b7631`, 2026-07-23).
 3. Pasada de literatura para Related Work; fijar referencias.
 4. Redactar Intro y Abstract completos (fluyen de lo ya aprobado).
 5. Opcional (convierte una affordance en evidencia): ejecutar el ejemplar barato de §4 —
