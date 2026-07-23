@@ -1,409 +1,386 @@
-# When the Bug Is Not in the App: An Empirical Study of LLM-Assisted, Empirically Verified Triage of Automated QA Findings
+# OmniPizza: A Controlled Laboratory for UI and API Test Automation
 
-> **Status:** base document (v0.2, 2026-07-23). Sections 4–6 and 9 are drafted and approved; the
-> remaining sections are structured outlines to be developed next. v0.2 incorporates an
-> adversarial fact-check of every quantitative claim against the primary sources.
+> **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
+> earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
+> Sections 3–6 are drafted as verified-fact skeletons; Sections 1–2 and 7–8 are outlines.
+> All quantitative claims were adversarially fact-checked against the repository at the
+> pinned snapshot (Section 3.1); three claims refuted in review were corrected in this version.
 >
 > **Working-title alternatives:**
-> - *Not Every Failing Check Is a Bug: An Empirical Study of Automated-QA Finding Triage*
-> - *The Harness Did It: Characterizing Non-Bug Findings from Automated QA in an Instrumented Sandbox*
+> - *Testability as a Product Feature: OmniPizza, an Open Multi-Market Testbed for QA Automation*
+> - *A Pizza Shop as a Laboratory: A Realistic, Deterministic Testbed for Multi-Platform Test Automation*
 >
-> **Target:** academic-style preprint (arXiv, cs.SE), adaptable later to an industry track
-> (e.g., ICST/ISSTA industry, EuroSTAR). **Language:** English. **Study type:** retrospective
-> case study — no new experiments; all evidence is already recorded in the repository.
+> **Target:** academic-style preprint (arXiv, cs.SE), adaptable to tool/artifact or industry
+> tracks. **Language:** English. **Study type:** artifact (design-science) paper with a
+> retrospective case-study evaluation — no new experiments; all evidence already exists in the
+> repository.
 
 ---
 
 ## Abstract (outline)
 
-- One-paragraph arc: instrumented QA sandbox → one week of externally reported automated-QA
-  findings → LLM-assisted triage with mandatory empirical verification and human oversight →
-  by the final cycle, none of the reported findings is an app bug → taxonomy + recorded triage
-  failure modes (2 root-cause retractions, 1 verdict reversal).
-- Headline numbers: 19 findings across 6 triage cycles (5 findings-bearing reports plus one
-  re-verification round); 11/19 real bugs fixed; first cycle 6/8 real, final cycle 0/3 real —
-  a non-monotonic path whose one late all-real cycle (3/3) consisted solely of low-severity
-  localization copy drift.
-- Closing claim: the instrumentation that enables automation also mediates a distinct class of
-  false positives, and root-cause attributions that cross into systems the triager cannot
-  observe (the QA harness) are exactly where triage explanations failed.
+- Pitch: practicing, benchmarking, and studying test automation needs a system that is
+  realistic enough to matter and controlled enough to measure — production apps are neither
+  safe nor deterministic; existing sandboxes are single-platform or single-concern.
+- OmniPizza: an open, publicly deployed pizza-ordering product (FastAPI backend, React web,
+  Expo/React Native mobile) built so that testability is a product feature: 7 deterministic
+  chaos users whose failure modes travel in the JWT, 5 data-driven markets / 6 languages
+  including Arabic RTL, atomic state-injection entry to any screen, and versioned
+  instrumentation contracts (165 web + 114 mobile stable-selector occurrences).
+- Evaluation: one week of real external automated-QA use (19 findings, 6 triage cycles)
+  provides initial evidence for the laboratory in both roles — app under test and generator of
+  study-able QA phenomena — including false positives mediated by the test-enabling
+  instrumentation itself.
+- Output: a design-pattern catalog for testability, a catalog of what the laboratory is
+  instrumented to measure, and design-for-testability guidelines tagged by evidence strength.
 
 ## 1. Introduction (outline)
 
-- Context: UI/API test automation routinely reports "bugs" that are not application defects;
-  triage cost is dominated by exoneration, not fixing. Related industrial pain: flaky tests,
-  false alarms, environment noise.
-- Gap: little empirical evidence tracing *each* automated-QA finding to a verified root cause,
-  and none (to our knowledge) characterizing the recorded failure modes of LLM-assisted triage
-  itself.
-- Approach: a purpose-built, fully instrumented sandbox (OmniPizza) went through six triage
-  cycles in one week (2026-07-16 → 2026-07-22): five findings-bearing automated QA reports plus
-  one re-verification round; every finding was triaged by an LLM agent under human supervision
-  with a mandatory reproduce-before-verdict rule; every cycle produced a durable, dated
-  explanation document.
+- Motivation: where do you practice UI/API automation, evaluate a new testing tool, or study
+  QA processes? Production systems are unsafe, nondeterministic, and unobservable; toy demos
+  lack the failure modes that make automation hard. The gap is a *controlled laboratory*:
+  realistic product surface, deterministic and enumerable failure modes, sanctioned
+  observability/controllability.
+- Who it is designed to serve (intended audiences; adoption evidence to date is one external
+  QA harness — Section 7): **practitioners** (a training ground whose pitfalls —
+  viewport-dependent selectors, custom widgets, RTL, state races — are deliberately embedded,
+  not accidental); **tool builders** (a stable benchmark target with documented seeded
+  defects; a machine-readable defect manifest is planned supplementary material);
+  **researchers** (deterministic phenomena plus complete archival capture of the triage side
+  of the QA process — the harness side is unobserved); **educators** (a free, deployed,
+  resettable curriculum).
+- Why a pizza shop: multi-market commerce exercises i18n/RTL, per-market validation rules,
+  currency/tax arithmetic, and checkout flows — a realistic complexity envelope with a small
+  domain vocabulary.
+- **Research questions** (typed per Wieringa; each names its evidence and strength):
+  - **RQ1 (descriptive design question).** What design mechanisms make a realistic
+    multi-platform product function as a controlled testing laboratory — deterministic,
+    controllable, observable — without ceasing to be realistic? *Evidence: the verified
+    artifact description, Section 3.*
+  - **RQ2 (capability/affordance question).** What testing-related properties is the platform
+    instrumented to measure? *Evidence: the affordance catalog, Section 4 — design claims;
+    only one row is exercised by this paper.*
+  - **RQ3 (validation question).** How does the platform behave under real external
+    automated-QA use? *Evidence: the retrospective case study, Section 5 — an existence
+    proof from one deployment and one external harness.*
+  - **RQ4 (prescriptive question).** What transferable design-for-testability guidelines,
+    with what trade-offs, follow from the design and its evaluation? *Evidence: Section 6,
+    each guideline tagged by evidence strength.*
 - Contributions (approved list):
-  1. An eight-class verdict taxonomy for automated-QA findings, including an explicit
-     "exonerated, cause unattributed" class (Section 5.2).
-  2. A retrospective empirical study of 19 findings across 6 triage cycles, each with a
-     verified verdict and, where attributable, a verified root cause.
-  3. A characterization of the LLM-assisted triage protocol through its recorded failure modes
-     (2 retracted root-cause hypotheses, 1 reversed verdict — a triage false negative).
-  4. Evidence that test-enabling instrumentation working *as designed* mediates its own class
-     of false positives.
-  5. The OmniPizza sandbox as a reproducible study platform (public repository and deployments).
+  1. The platform, made available to the four audiences above: open, publicly deployed,
+     reproducible (3 deployables, 5 markets / 6 languages incl. RTL, 7 deterministic chaos
+     users, 20 `/api` operations under contract, heterogeneous test suites).
+  2. A design-pattern catalog for testability-first product design (Section 3).
+  3. A catalog of properties the laboratory is instrumented to measure or study (Section 4).
+  4. Evaluation in real use: one week of external automated QA — 19 findings, a preliminary
+     8-class verdict classification, and instrumentation-mediated false positives (Section 5).
+  5. Design-for-testability guidelines tagged by evidence strength (Section 6).
 
 ## 2. Related Work (outline)
 
-- Flaky tests and test-failure noise (Luo et al.; industrial reports from Google/Microsoft).
-- False-positive triage in static analysis and alert deduplication.
-- Test-fixture pollution / shared mutable state in test environments.
-- LLMs for bug triage, deduplication, and repair; human-AI oversight loops.
-- Purpose-built testing sandboxes (e.g., SauceDemo's `problem_user` pattern, OWASP Juice Shop);
-  position OmniPizza as an extension: multi-market, multi-platform, chaos-by-identity.
-- Case-study methodology in software engineering (Runeson & Höst; Yin).
+- Testing sandboxes and demo apps: SauceDemo (origin of the `problem_user` pattern — OmniPizza
+  extends it to latency, probabilistic, a11y, and security personas), OWASP Juice Shop
+  (security training), TodoMVC / RealWorld (implementation benchmarks, not testing
+  laboratories).
+- Defect benchmarks (Defects4J, BugsJS): curated *historical defects* for tool evaluation —
+  contrast with a *living* laboratory of seeded, deterministic, currently-reproducible failure
+  modes plus process capture.
+- Design for testability: controllability/observability as testability dimensions (Binder;
+  Freedman) — OmniPizza operationalizes both as product features.
+- Flaky tests and test-failure noise (Luo et al.; industrial reports); false-positive triage;
+  test-fixture pollution — the phenomena Section 5 shows the laboratory generating.
+- LLMs in testing and triage; human-AI oversight (context for the evaluation's triage
+  protocol).
+- Case-study and design-science methodology (Runeson & Höst; Yin; Wieringa).
 
-## 3. Study Context: The OmniPizza Sandbox (outline + key facts)
+## 3. The OmniPizza Platform: Design Principles (RQ1)
 
-Purpose-built QA sandbox; testability features are product features. Three deployables
-(FastAPI backend, React web, Expo/React Native mobile) plus external test suites.
+Three deployables — FastAPI backend, React/Vite web, Expo/React Native mobile — plus test
+suites in and out of the app packages. The product surface is a complete ordering flow (login,
+catalog, pizza builder, checkout, order tracking, profile) over a catalog of 12 pizzas
+localized in 6 languages. Testability mechanisms are product features with the same
+compatibility guarantees as user features.
 
-Key characteristics (to be described in prose; all values verifiable in the repository):
+### 3.1 How this description was derived and verified (method)
 
-| Dimension | Value |
+The design rationale is reconstructed from archival sources: the in-repo product and design
+documents, the atomic-testing guides, the QA-architecture document, and git history. Every
+quantitative claim in Sections 3–5 was verified against the code at a pinned repository
+snapshot — commit `83b8ba4` (2026-07-22, the last product commit of the study window) — by an
+adversarial fact-checking pass independent of the drafting pass; each count carries an
+explicit counting rule, consolidated in the fact-sheet appendix (a required companion of this
+paper, not optional material). Design principles are labeled by provenance: *ex-ante* goals
+stated in the founding documents (chaos personas, market-as-data, atomic entry, selector
+contracts) vs. *ex-post* codifications of operational lessons (per-login profile keying was
+introduced mid-history as a race fix, Section 3.6; a defensive deep-link guard likewise) —
+the catalog does not present hindsight as foresight.
+
+### 3.2 Chaos-by-identity: failure modes travel in credentials
+
+Seven deterministic test users (shared password), each carrying a `behavior` claim in its JWT
+that the backend enforces server-side:
+
+| User | Enforced behavior |
 |---|---|
-| Markets (data-driven config) | 5 — MX, US, CH, JP, SA (Arabic, RTL) |
-| Languages | 6 — en, es, de, fr, ja, ar |
-| Deterministic "chaos" users | 7 — behavior carried in a JWT `behavior` claim (fixed 3 s latency; p=0.5 checkout errors; seeded a11y and security defects; $0 prices/broken images; locked-out login) |
-| API surface | 20 `/api` route operations (18 distinct `/api` paths; 22 operations including root and health probes); market-sensitive endpoints gated by a required-header contract (HTTP 400 on missing `X-Country-Code`) |
-| Stable selector contract | 165 `data-testid` (web) + 114 `testID` (mobile) occurrences |
-| Atomic state-injection entry | web: localStorage seeding + backend cart/market seeding; mobile: `omnipizza://` deep links (`accessToken`, `market`, `lang`, `resetSession`, `hydrateCart`) |
-| Persistence | in-memory DB; restart = deterministic reset; profiles keyed per-login session (`sid` JWT claim) |
-| External test layers | 41 Vitest API cases (incl. golden characterization suite), Schemathesis contract tests, 11 Cypress component specs, Detox e2e experiments |
-| Repository history | 209 commits (2026-02-07 → 2026-07-22), 23% `fix:`; 18 releases on GitHub Releases, v1.0.0–v1.1.8 (four duplicate-case legacy git tags excluded from the count) |
+| `standard_user` | nominal behavior |
+| `locked_out_user` | login always rejected |
+| `problem_user` | $0 prices and broken catalog images |
+| `performance_glitch_user` | fixed 3.0 s delay injected on the behavior-enabled endpoints (catalog fetch and checkout) |
+| `error_user` | checkout fails with HTTP 500 at p = 0.5 |
+| `a11y_glitch_user` | one accessibility defect mode per catalog/cart call, drawn from 3 modes; the wrong-language mode draws among the 6 supported languages |
+| `security_glitch_user` | XSS-seeded profile fields (3 fields × 3 payloads), internal-error message leaks at p = 0.5, order-ownership bypass |
 
-The sandbox is exercised by an *external* automated QA harness (UI + API suites, multiple
-markets/languages, web and mobile) that files findings; the harness is not under our control
-and its internals are not observable to the triager — a boundary that turns out to matter
-(Sections 7.3, 8).
+Because the failure mode is keyed to the *identity*, it composes orthogonally with every
+market, language, and platform — no environment flags, no server-side test configuration, and
+two tests using different personas never interfere.
 
-## 4. Study Objective and Research Questions
+### 3.3 Multi-market complexity as data, not code
 
-### 4.1 Objective
+One configuration table drives 5 markets (MX, US, CH, JP, SA): currency and conversion,
+decimal rules (JPY: 0 decimals), tax rates (8–16%), a market-specific required address field
+(`colonia` / `zip_code` / `plz` / `prefectura` / `district`), and a localized tip field name
+(`propina` / `tip` / `trinkgeld` / `chip` / `baksheesh`). A model-level validation rule
+additionally enforces the 5-digit US zip format. SA additionally exercises Arabic
+right-to-left layout. Market rules are therefore *enumerable test dimensions*: a test
+generator can walk the table instead of reverse-engineering branches.
 
-We examine the proposition that, in a mature, instrumentation-rich system under continuous
-automated QA, real application defects become a shrinking share of reported findings — shrinking
-in severity, and (non-monotonically) in rate — while the dominant sources of non-bug findings
-become the QA harness itself, shared mutable fixtures, and hosting infrastructure, including the
-test-enabling instrumentation working exactly as designed. In our corpus the first cycle was 6/8
-real bugs and the final cycle 0/3, with the one late all-real cycle consisting solely of
-low-severity localization copy drift. We further characterize the recorded failure modes of
-LLM-assisted, empirically verified triage: both retracted root-cause explanations were
-attributions about a system outside the triager's observable boundary (the external harness),
-while every app-side empirical exoneration survived; the one reversed verdict — a triage false
-negative — fell when the harness's assertion semantics became known.
+### 3.4 Atomic state injection: O(1) entry to any screen
 
-### 4.2 Research questions
+Both platforms expose sanctioned bypasses that put a test *directly into* any target state
+instead of replaying the user journey:
 
-- **RQ1 — Prevalence and trend.** What proportion of automated-QA findings corresponds to real
-  application defects, and how does that proportion evolve as the system matures?
-  *(verdict distribution; the full per-cycle series under final verdicts, with sensitivity to
-  initial verdicts; severity-weighted reading of the trend)*
-- **RQ2 — Non-bug root causes.** What are the root-cause categories of findings that are *not*
-  application bugs? *(taxonomy of Section 5.2 with per-class frequencies, distinguishing
-  confirmed attributions from exonerations without attribution)*
-- **RQ3 — Triage failure modes.** What triage failures were recorded, how were they detected,
-  and how were they corrected? *(2 root-cause retractions and 1 verdict reversal as embedded
-  mini-cases; the verdict-correct vs. explanation-correct decomposition of Section 5.1;
-  recorded failures are a lower bound on triage error — Section 9)*
-- **RQ4 — Instrumentation as confounder.** What role does the test-enabling instrumentation
-  itself play in generating false positives? *(the `instrumentation-mediated` flag of
-  Section 5.1: confirmed for the cart-hydration and `resetSession` findings; candidate for the
-  `seedProfile` mechanism)*
+- **Web:** seed `localStorage` (documented key set with the store-envelope format), seed
+  backend state via `POST /api/cart` and `POST /api/store/market`, then navigate straight to
+  the target route; the Checkout page hydrates from `GET /api/cart` when its local cart is
+  empty.
+- **Mobile:** `omnipizza://` deep links to 6 screens with universal parameters
+  (`accessToken` bypasses login, `market`, `lang`, `resetSession`, `hydrateCart`), plus a
+  Detox launch argument for market selection.
 
-## 5. What We Measure
+The bypasses are load-bearing, versioned features — and Section 5 shows their cost: the same
+machinery, working exactly as designed, mediated false positives during real QA use.
 
-Retrospective extraction only: every variable below is coded from artifacts that already exist
-(triage explanation documents, git history, repository docs). No new measurements are collected.
+### 3.5 Instrumentation contracts as versioned APIs
 
-### 5.1 Units of analysis and variables
+Every interactive element carries a stable selector (165 `data-testid` occurrences on web,
+114 `testID` on mobile, shared prefix convention); routes and response shapes are frozen. The
+API surface under contract is 20 `/api` route operations (18 distinct paths; 22 operations
+including root and health probes). The market-sensitive *read* endpoints — catalog fetch and
+cart hydration — reject requests without an `X-Country-Code` header (HTTP 400); checkout
+instead carries the market in its request body. Selector renames are treated as breaking
+changes — testability has the same compatibility discipline as a public API.
 
-**Inclusion criteria.** One finding = one numbered item in the triage explanation document's
-contemporaneous segmentation. Excluded from N = 19: (a) one item the reporting team had already
-dismissed before the window (a locked-out-user error-message report, cycle 1); (b) two bugs the
-QA report itself attributed to the harness's own code (cycle 4); (c) same-pattern sibling bugs
-self-discovered during fix sweeps, which were never externally reported (tracked separately).
-Exclusions (a) and (b) remove non-bug items from the denominator and therefore bias the measured
-real-bug rate *upward*; exclusion (c) understates real-defect prevalence (both noted in
-Section 9). One cycle-1 finding aggregates a batch of static-analysis (MobSF) items with mixed
-dispositions under one verdict; finding granularity is listed as a construct threat.
+### 3.6 Ephemeral state as isolation
 
-**Per finding (N = 19)** — the primary unit. Verdict state is deliberately decomposed into
-three variables so that changes can be typed precisely:
+The backend persists everything in memory: restart = deterministic clean slate. Editable
+profile state is keyed to the login session (a per-login `sid` JWT claim), so concurrent
+sessions of the same shared test user get isolated profiles — an *ex-post* design lesson: the
+keying was introduced mid-history to fix an observed login race. The flip side, warm-instance
+state retention on shared fixtures, is deliberately kept: it generates exactly the
+shared-fixture phenomena that Section 5 studies.
 
-| Variable | Type | Source |
-|---|---|---|
-| Report date / triage cycle | date (6 cycles: 2026-07-16, -18, -19, -20, -21, -22) | explanation docs |
-| Platform | web / mobile / backend / build artifact | explanation docs |
-| Market & language involved | MX/US/CH/JP/SA × en/es/de/fr/ja/ar | explanation docs |
-| Defect category | functional, visual/contrast, localization, security, performance, build/packaging | explanation docs |
-| **Binary verdict** (initial, final) | app bug / not app bug — changed in exactly 1 finding (the reversal: not-a-bug → real bug) | explanation docs |
-| **Taxonomy class** (initial, final) | Section 5.2 class — changed in 3 findings (the reversal + the 2 retractions) | explanation docs |
-| **Root-cause narrative** | free text; `confirmed / candidate / unidentified` confidence flag | explanation docs |
-| Instrumentation-mediated | boolean, orthogonal to taxonomy class (Section 4.2 RQ4) | explanation docs |
-| Verification method(s) | API replay, physical-device repro, in-page axe-core run, latency measurement, code-plus-live-system inspection | explanation docs |
-| Fix commit(s) | commit hash(es), if fixed | git history |
-| Retraction / reversal flags | reversal = binary-verdict change; retraction = class/narrative change with binary verdict stable | explanation docs |
-| Report-to-fix latency | derived: report date → fix commit date | git history |
+### 3.7 A deliberately embedded automation curriculum
 
-**Per triage cycle (N = 6):** findings count; real-bug rate (final verdicts); self-discovered
-sibling bugs; release shipped. Four of the six cycles produced a release (cycle 1 → v1.1.4,
-cycle 2 → v1.1.5, cycle 4 → v1.1.7, cycle 5 → v1.1.8); the re-verification cycle (07-19) and
-the final cycle (07-22) shipped no code change. Release v1.1.6 falls inside the window but
-contains only concurrent feature work (two new chaos users) plus a separately-triaged defensive
-guard; it is not attributed to the studied cycles.
+Real-world automation pitfalls are reproduced on purpose: viewport-dependent selector suffixes
+that switch at a responsive breakpoint, a deploy-guard key that silently wipes naively seeded
+auth state, a persistence envelope that must be reproduced exactly, and a zoo of hand-rolled
+interactive widgets (9 on web, 11 on mobile: toasts, confirm modals, custom dropdowns, a fake
+in-form payment flow, multi-part date pickers). Practicing against OmniPizza means meeting the
+pitfalls production apps contain by accident — here documented and stable.
 
-**Process-level:** number of root-cause retractions (2); verdict reversals (1); sweep
-expansions triggered by a confirmed finding; human decision gates exercised (push/release
-authorizations per batch).
+### 3.8 A reference test portfolio over one system
 
-**Context descriptives (Section 3):** instrumentation counts and repository statistics.
-These describe the platform; they are not outcome variables.
+Four heterogeneous test layers — from in-repo component tests to an external API suite —
+target the same product: schema-generated contract tests (Schemathesis, case count scales with
+the OpenAPI schema), 41 hand-written API integration cases including a golden characterization
+suite, 11 component-test specs, and platform E2E latency-resilience experiments. This enables
+like-for-like comparison of what each layer detects (a comparison this paper enables but does
+not execute; Section 7). The product requirements document additionally ships a 13-scenario
+negative-flow acceptance matrix (expected status codes and UI outcomes), usable directly as an
+oracle dataset.
 
-### 5.2 Verdict taxonomy (a contribution of this paper)
+## 4. What the Laboratory Is Instrumented to Measure (RQ2)
 
-1. **Real application bug** — defect in app code; reproduced, fixed, and shipped.
-2. **Harness artifact** — positively attributed to the reporting harness's behavior (e.g.,
-   firing a `resetSession` deep link mid-session).
-3. **Shared-fixture state** — leftover state on shared mutable test users (e.g., an orphan
-   backend cart hydrating into a "pre-selected" checkout).
-4. **Infrastructure** — hosting/environment effects (e.g., free-tier cold start measured at
-   31.5 s vs. 215–663 ms warm).
-5. **Accepted-by-design** — behavior is intentional and documented (e.g., debug-signed test APK).
-6. **Third-party code** — finding points at library/framework code, not the application
-   (e.g., MobSF flagging AndroidX internals).
-7. **Not reproducible** — faithful re-execution of the reported scenario does not exhibit the
-   reported failure, and no causal mechanism is identified.
-8. **Exonerated, cause unattributed** — the application is ruled out empirically, but no
-   external attribution is confirmed (candidate mechanisms may exist without confirmation).
+Catalog format: dimension → instrument the platform provides → example measurement → status.
+This is an *affordance* catalog: rows are design claims about what studies the platform
+enables, not executed results; the status column records which rows this paper exercises.
 
-Classes 2–4 require *positive* attribution; class 8 exists precisely because the studied
-protocol refuses to guess an owner when the evidence stops at exoneration. Classes 2–4 and 8
-are all "not an app bug" but have different owners and different prevention strategies —
-collapsing them, as most triage practice does, loses actionable information. The
-`instrumentation-mediated` flag (Section 5.1) is orthogonal: e.g., the orphan-cart finding is
-class 3 *and* instrumentation-mediated (the cart-hydration feature is the vehicle; the leftover
-fixture state is the cause).
+| Dimension | Instrument | Example measurement | Status |
+|---|---|---|---|
+| Detection power per test layer | the same seeded defect (e.g., `problem_user`'s $0 prices) observable at contract, API, component, and E2E layers | which layers catch it; cost per detection | affordance — not yet executed |
+| Latency resilience | `performance_glitch_user` (fixed 3 s on catalog fetch and checkout) + debug latency-spike endpoint (0.5–5 s random) | timeout handling, loading-state correctness, flake rate vs. delay | affordance — not yet executed |
+| Probabilistic-failure handling | `error_user` (checkout 500 at p = 0.5) | retry logic, error-UX consistency, test-retry policy behavior | affordance — not yet executed |
+| Accessibility detection | `a11y_glitch_user` (3 defect modes on catalog/cart calls) | recall of a11y tooling against known seeded defects | affordance — not yet executed |
+| Security detection | `security_glitch_user` (XSS payloads, info leaks, ownership bypass) | scanner recall against known seeded vulnerabilities | affordance — not yet executed |
+| i18n / RTL correctness | 6 languages incl. Arabic RTL; 5 market rule sets; cross-platform copy | cross-platform copy divergence; RTL layout checks; per-market validation coverage | exercised incidentally in Section 5 (copy-divergence findings) |
+| Test-setup cost and flake surface | atomic entry (3.4) vs. full journey to the same state | steps/time-to-state; which flakes disappear under atomic entry | affordance — not yet executed |
+| Selector-strategy robustness | viewport-dependent suffixes, widget zoo, RTL | locator survival across viewports/languages | affordance — not yet executed |
+| QA process phenomena | deterministic replay + durable triage artifacts + public deployments | triage taxonomies, false-positive provenance, harness-artifact studies | exercised — Section 5 |
 
-### 5.3 Headline retrospective numbers (to be tabulated in Results)
+## 5. Evaluation: One Week of External Automated QA (RQ3)
 
-All rates use **final** verdicts; the one difference under initial verdicts is noted in the
-table.
+**Setting.** An external automated QA harness (UI + API suites, multiple markets and
+languages, web and mobile) — not under our control and not observable to us — exercised the
+deployed platform and filed findings over one week (2026-07-16 → 07-22): six triage cycles,
+five findings-bearing reports plus one re-verification round. Every finding was triaged by an
+LLM agent under human supervision; every cycle produced a durable, dated explanation document.
 
-| Cycle | Date (2026) | Findings | Real bugs (final) | Release |
-|---|---|---|---|---|
-| 1 | 07-16 | 8 | 6 | v1.1.4 |
-| 2 | 07-18 | 3 | 1 | v1.1.5 |
-| 3 | 07-19 | 0 (re-verification round) | — | — |
-| 4 | 07-20 | 2 | 1 | v1.1.7 |
-| 5 | 07-21 | 3 | 3 (2 under initial verdicts; one reversal) | v1.1.8 |
-| 6 | 07-22 | 3 | 0 | — |
+**Method (self-contained summary).** Retrospective embedded case study (Runeson & Höst) over
+archival artifacts: the six dated explanation documents, git history, and QA report content as
+quoted therein. One finding = one numbered item in the explanation documents' contemporaneous
+segmentation; excluded from N = 19: one item pre-dismissed by the reporting team, two bugs the
+report itself attributed to the harness's own code, and self-discovered sibling bugs from fix
+sweeps (the first two exclusions bias the measured real-bug rate *upward*; Section 7). Coding:
+an LLM-assisted pass over the Spanish-language sources, human-reviewed row by row; verdict
+state is decomposed into a binary verdict, a taxonomy class, and a root-cause narrative with a
+confidence flag; rates use final verdicts (one cycle's 3/3 was 2/3 under initial verdicts).
+The studied triage protocol enforced reproduce-before-verdict against the running system,
+fix-and-commit for confirmed bugs, durable explanation documents, and human decision gates.
+The full coding table ships as `findings.csv` (appendix), which also pins the artifact version
+(release tag) in effect at each cycle.
 
-- Verdict distribution over the 19 findings: **11 real bugs fixed (11/19); 3 attributed
-  non-bugs** (1 harness artifact, 1 shared-fixture state, 1 infrastructure); **2 exonerated
-  with cause unattributed** (one with a candidate mechanism — `seedProfile` — confirmed possible
-  but not confirmed as the actual cause; one with the cause never identified); **1
-  accepted-by-design; 1 third-party; 1 not reproducible**.
-- The rate series is non-monotonic (75% → 33% → n/a → 50% → 100% → 0%); the decline is in
-  severity and at the endpoints: cycle 1's real bugs included functional and security-relevant
-  defects, cycle 5's were exclusively low-severity localization copy divergences, and cycle 6
-  contained no app bug at all.
-- 2 root-cause retractions (07-19) with binary verdicts left standing; 1 full verdict reversal
-  (a cycle-5 finding initially exonerated as stale-fixture, re-judged a real cross-platform copy
-  divergence on 07-22 after the harness's contains-substring assertion semantics and an Arabic
-  orthographic contraction were established) — a triage **false negative**.
-- 2 findings confirmed **instrumentation-mediated** (cart hydration; `resetSession` deep link)
-  plus 1 candidate (`seedProfile` wipe mechanism, confirmed possible against the live system).
+**The laboratory as app under test.** 19 findings; 11/19 real bugs, all fixed and shipped
+(4 of the 6 cycles produced a release). Real-bug rate per cycle: 6/8 (07-16) → 1/3 (07-18) →
+re-verification, 0 new (07-19) → 1/2 (07-20) → 3/3 (07-21) → 0/3 (07-22) — non-monotonic; the
+decline is in severity and at the endpoints (the late all-real cycle was exclusively
+low-severity localization copy drift).
 
-## 6. Methodology
+**The laboratory as phenomenon generator.** All 19 findings distribute into a preliminary
+8-class verdict classification (real bug; harness artifact; shared-fixture state;
+infrastructure; accepted-by-design; third-party; not reproducible; exonerated-unattributed).
+The 8 non-bug findings decompose as: 1 harness artifact, 1 shared-fixture state, 1
+infrastructure, 2 exonerated-unattributed, 1 accepted-by-design, 1 third-party, 1 not
+reproducible. Highlights:
 
-### 6.1 Design
+- **Instrumentation-mediated false positives:** 2 confirmed — a `resetSession` deep link fired
+  mid-session by the harness (class: harness artifact) and cart hydration surfacing an orphan
+  cart left by earlier tests (class: shared-fixture state; the hydration feature is the
+  vehicle, the leftover fixture the cause) — plus 1 candidate (profile seeding, one of the
+  exonerated-unattributed pair). The `instrumentation-mediated` attribute is orthogonal to the
+  class.
+- **Environment phenomena:** a single opportunistically measured free-tier cold start of
+  31.5 s (warm requests ranged 215–663 ms over repeated checks) presenting as a
+  market-specific "slow tracking" bug.
+- **Triage failure modes:** 2 root-cause retractions and 1 verdict reversal (a triage false
+  negative flipped when the harness's contains-substring assertion semantics became known) —
+  both retracted explanations were attributions about the unobservable external harness, while
+  every app-side empirical exoneration survived.
 
-Retrospective **embedded single-case case study** (Runeson & Höst 2009; Yin 2018): the case is
-one week of automated-QA operation against the OmniPizza sandbox; embedded units are the 19
-findings within 6 triage cycles. The single-case rationale is the *revelatory* one: a fully
-instrumented sandbox with near-total artifact capture (dated triage documents, commit hashes,
-deterministic state) allows per-finding causal tracing that ordinary industrial settings rarely
-preserve — with the flip side that the same properties bound generalization (Section 9). In
-Runeson & Höst's terms all data are third-degree (archival): documents and version-control
-records produced for other purposes, with no in-vivo observation or interviews. The triage was
-performed as normal engineering work before this paper was conceived, which *reduces* (not
-removes) design-for-publication bias: the explanation documents were written to be read — and
-potentially rebutted — by the external QA team, making them advocacy-adjacent artifacts; the
-mitigating evidence is that they record their own errors (retractions, an honest
-"cause never identified" negative), which pure advocacy documents rarely do.
+**Reading (hedged).** In this single deployment, findings classified as real bugs declined at
+the endpoints of the window (with a late low-severity spike) — consistent with, but not
+demonstrating, app convergence; with one harness we cannot exclude alternative explanations
+such as saturation of the harness's check inventory. The non-bug findings instantiate several
+phenomenon classes the design targets; because the classification was derived from these same
+findings, this is an existence proof of phenomenon generation, not a confirmation of the
+Section 4 catalog.
 
-### 6.2 The studied triage protocol
+## 6. Design-for-Testability Guidelines (RQ4)
 
-The object of study is the triage protocol as practiced and documented:
+Transferable patterns, each tagged with the strength of its evidence:
 
-1. Findings arrive as automated QA reports (external harness; UI + API suites).
-2. An LLM agent (Claude, Anthropic) performs triage under standing human-defined rules:
-   - **Empirical verification over code reading**: no verdict without reproducing against the
-     running system (local and/or the deployed Render instance) — API replay, seeded-state
-     reproduction, on-device repro via `adb`, in-page axe-core runs.
-   - **Fix-and-commit** for confirmed real bugs, with conventional-commit hashes as audit trail.
-   - **Durable explanation documents** for every cycle: rejected findings become dated
-     `EXPLANATION_qa_report_*.md` files rather than silent dismissals.
-   - **Human decision gates**: pushes, releases, and scope expansions require explicit
-     per-batch user authorization.
-3. Follow-up cycles may retract earlier root-cause hypotheses or reverse verdicts when new
-   evidence (including QA counter-evidence) arrives — these events are recorded, not erased.
+1. **Put failure modes in credentials.** Deterministic chaos personas compose orthogonally
+   with every other test dimension and need no environment mutation. *[Grounded in design
+   history, Section 3.2.]* Trade-off (anticipated, not yet observed): personas are part of the
+   public contract; changing their behavior is a breaking change.
+2. **Make market/i18n rules data, not branches.** Enumerable rule tables turn compliance into
+   walkable test dimensions. *[Grounded in design history, Section 3.3; trade-off observed in
+   Section 5: drift between rule table/copy and platforms is itself a bug class.]*
+3. **Ship sanctioned state-injection entry points — and treat their side effects as part of
+   the design.** O(1) setup removes the flakiest part of E2E suites *[grounded in design
+   history, Section 3.4]*; the observed cost is that the same bypasses mediate false positives
+   *[observed in Section 5]*. The prescriptive half — guardrails such as refusing
+   `resetSession` mid-scenario, plus usage telemetry — is proposed future design: OmniPizza
+   currently ships only a partial defensive guard and no telemetry.
+4. **Version your instrumentation.** Selectors, headers, and response shapes treated as a
+   public API make automation durable. *[Grounded in design rationale, Section 3.5; no
+   breaking-rename episode occurred in the evaluation window to test it.]*
+5. **Prefer resettable state; key mutable session state to the login.** Restart-as-reset plus
+   per-login profile isolation removed an observed race *[grounded in design history,
+   Section 3.6]*; where shared mutable fixtures remain, their leftovers mimic deterministic
+   app bugs *[observed in Section 5]* — decide per state class, deliberately.
+6. **Make triage durable and falsifiable.** Dated explanation documents that record their own
+   retractions turn triage into auditable data — and any attribution about a system you cannot
+   observe is a hypothesis for its owner, not a verdict. *[Observed in Section 5: both
+   retracted explanations were cross-boundary attributions.]*
+7. **Carry assertion semantics with findings.** A contains-vs-exact mismatch flipped a
+   verdict; harness assertion contracts should travel as metadata with each reported finding.
+   *[Conjecture generalized from a single observed incident.]*
 
-### 6.3 Data sources (triangulation)
+## 7. Discussion, Limitations & Threats (outline)
 
-1. **Six explanation documents** (`documents/explanation/EXPLANATION_qa_report_2026-07-{16,18,19,20,21,22}.md`,
-   written in Spanish) — primary source for verdicts, root causes, verification methods.
-2. **Git history** — 209 commits, releases v1.0.0–v1.1.8, fix commits referenced by hash in the
-   explanation docs; provides independent timestamps and diffs.
-3. **QA report content as quoted** within the explanation documents (the original external
-   reports are not retained as files; a limitation, Section 9).
-4. **Repository documentation** — PRD, design docs, `ATOMIC_WEB_TESTING.md`,
-   `ATOMIC_MOBILE_TESTING.md`, `arquitectura_qa.md` — for the platform description (Section 3).
+- Artifact-paper threats: the authors built the platform (adoption evidence is exactly one
+  external harness; the four audiences of Section 1 are intended, not demonstrated); sandbox
+  realism vs. production representativeness (deliberately seeded chaos inflates specific
+  phenomena; free-tier hosting inflates the infrastructure class); no machine-readable
+  ground-truth manifest of seeded defects yet (the tool-builder pitch depends on it; planned
+  as supplementary material); archival sustainability (live deployments sit on a free tier —
+  an archived snapshot with a pinned commit/DOI is committed to in Section 8).
+- Evaluation threats (condensed from the Section 5 instrument): self-reported triage documents
+  written by the triaging agent; researcher-as-participant; LLM-as-triager validity as its own
+  threat class; recorded triage failures are a lower bound (external re-verification coverage
+  was asymmetric); N = 19 under stated inclusion rules whose exclusions bias the real-bug rate
+  upward; the study window ends where the data stopped; primary sources in Spanish, coding
+  involves human-reviewed translation.
+- Taxonomy construct validity: the 8-class classification is preliminary — induced post hoc
+  from the same 19 findings by a single coder pipeline (LLM + one supervising author), several
+  classes have n = 1, no second coder or inter-rater reliability yet.
+- Moving-target artifact: 11 bugs were fixed and 4 releases shipped *during* the evaluation
+  window, so per-cycle rates measure a changing artifact (mitigated by pinning the release tag
+  per cycle in `findings.csv`).
+- Third-party ethics: the evaluation publishes failure attributions about an identifiable
+  external harness operator whose system we cannot observe — attributions are labeled as
+  hypotheses, and the operator remains anonymous.
+- Documentation drift as a user-facing hazard: parts of the in-repo product documentation
+  predate the newest market and chaos users (they describe 4 markets / 5 personas vs. the
+  current 5 / 7) — a caveat for platform adopters and itself a measurable phenomenon.
+- Scope boundary: no controlled experiments (the Section 4 catalog is enabled, not executed) —
+  by design of this paper; candidates for follow-up work. Guideline generalizability is
+  bounded by one domain (e-commerce), one team.
 
-All sources are archival (third-degree) in the Runeson & Höst sense: produced for purposes
-other than this study.
+## 8. Conclusion & Availability (outline)
 
-### 6.4 Coding and analysis procedure
-
-- **Extraction:** an LLM-assisted pass codes each finding on the Section 5.1 variables directly
-  from the explanation documents; a human pass reviews every coded row against the source text.
-  The primary sources are in Spanish and the paper is in English; translation happens during
-  coding and is human-reviewed, with original-language excerpts preserved in supplementary
-  material (the reversal mini-case additionally involves Arabic-script codepoint evidence).
-  The full coding table ships as supplementary material (`findings.csv`, planned companion
-  file, carrying the confidence and instrumentation-mediated flags).
-- **RQ1:** descriptive statistics — verdict distribution overall and per cycle under final
-  verdicts, with the initial-verdict sensitivity reported (cycle 5: 2/3 vs. 3/3); the full
-  non-monotonic series is always shown; no inferential statistics at N = 19.
-- **RQ2:** qualitative coding of non-bug root causes into the Section 5.2 taxonomy, reporting
-  confirmed attributions (classes 2–4) separately from exonerations without attribution
-  (class 8); per-class narrative of the causal mechanism.
-- **RQ3:** the 2 retractions and 1 reversal analyzed as embedded mini-cases: what evidence the
-  original conclusion rested on, what evidence overturned it, and — using the Section 5.1
-  three-variable decomposition — whether the *binary verdict*, the *taxonomy class*, or only
-  the *root-cause narrative* changed.
-- **RQ4:** mechanism tracing for the instrumentation-mediated findings: feature intent (from
-  the atomic-testing docs) vs. observed effect in the report; confirmed vs. candidate
-  attribution.
-
-### 6.5 Transparency of AI involvement
-
-The same class of LLM agent participates twice: as the triage agent under study, and as an
-analysis assistant for this paper. We disclose both roles; all coded values remain traceable to
-dated, human-reviewed repository artifacts, and the coding table is human-verified. The paper's
-claims are about the *documented protocol and its recorded outcomes*, not about model internals.
-
-## 7. Results (outline — one subsection per RQ)
-
-- 7.1 Verdict distribution and temporal trend (RQ1): table of 19 findings; the full per-cycle
-  series (final verdicts, with initial-verdict sensitivity); the severity-weighted convergence
-  reading, addressing the all-real cycle 5 head-on (3/3 real, all low-severity localization
-  drift) rather than letting it sit against the thesis.
-- 7.2 Root causes of non-bug findings (RQ2): taxonomy frequencies (3 attributed, 2 exonerated
-  unattributed, 1 by-design, 1 third-party, 1 not reproducible); one short mechanism narrative
-  per class (orphan cart; `resetSession` timing; cold start; the two unattributed exonerations).
-- 7.3 Triage failure modes (RQ3): mini-cases — (a) re-auth hypothesis retracted, (b)
-  stale-selector hypothesis retracted (original failure cause never identified — an honest
-  negative), (c) Arabic `outForDelivery` verdict reversal. In (a) and (b) the binary verdicts
-  survived while the explanations did not — and both failed explanations were attributions about
-  the unobservable external harness; in (c) the verdict itself fell. Detection of all three
-  depended on QA's re-verification coverage, which was asymmetric (web re-checked; the mobile
-  contrast sweep taken on faith) — hence "recorded failures" is a lower bound.
-- 7.4 Instrumentation as false-positive mediator (RQ4): 2 confirmed + 1 candidate; the
-  observability/controllability machinery added for automation becomes a confounder in triage.
-- Secondary observations (each tied to an RQ during drafting): weak contains-substring oracles
-  masking a 5-language regression in 4 of 5 languages (RQ3 — assertion semantics); each
-  confirmed finding triggering a bounded same-pattern sweep that found additional unreported
-  bugs (RQ1 — the external count understates defect prevalence); the ancestor-opacity contrast
-  miss as a method gap distinct from a coverage gap (RQ3).
-
-## 8. Discussion (outline)
-
-- Implications for practice: triage effort shifts from fixing to exonerating as systems mature;
-  budget accordingly. Taxonomy classes 2–4 and 8 need different owners (harness team, fixture
-  policy, infra, "needs joint investigation") — routing findings by class is actionable.
-- Design tension: the same atomic entry points that make automation cheap mediate false
-  positives; sanctioned bypasses need guardrails (e.g., refusing `resetSession` mid-scenario).
-- The observable-boundary lesson: empirical verification reliably settled every claim about the
-  system under the triager's control (all app-side exonerations survived), but both retracted
-  explanations were conjectures about the external harness's internals — outside the
-  reproducible boundary. Actionable rule: label cross-boundary attributions as hypotheses and
-  hand them to the owning team for confirmation (which is what eventually happened with the
-  `seedProfile` candidate).
-- Weak assertion semantics (contains-substring) can flip verdicts; harness assertion contracts
-  should travel as metadata with each finding.
-
-## 9. Threats to Validity
-
-- **Construct:** verdicts are the triager's own conclusions; no independent adjudication panel.
-  The 2 retractions + 1 reversal are a *lower bound* on triage error: detection depended on
-  QA's re-verification, whose coverage was asymmetric (web re-checked; mobile taken on faith) —
-  any standing exoneration resting on unstated harness semantics could be wrong undetected.
-  Finding granularity follows the triage documents' contemporaneous segmentation (one MobSF
-  batch row aggregates heterogeneous items with mixed dispositions). Mitigations: every verdict
-  ties to a reproducible check with recorded commands/output; one verdict was in fact reversed
-  when counter-evidence arrived — the process admits error.
-- **Internal:** the explanation documents were written by the same agent that performed the
-  triage (self-report bias); the human author defined the triage rules, supervised the triage,
-  authorized every fix, and co-authors this evaluation (researcher-as-participant); coding
-  happens with hindsight. The declining-noise narrative is partly endogenous: fixes in cycle
-  *k* mechanically suppress the findings cycle *k+1* could have re-reported, and the harness
-  itself was non-stationary within the window (mobile automation paused mid-week; the report
-  mix shifted from a static-analysis-heavy first cycle to localization-only late cycles).
-  Mitigations: triangulation with git timestamps and hashes; human review of every coded row.
-- **External:** single case; one week; the study window is where the data stopped, not a design
-  choice — it ends the day before the study was conceived, exactly when the real-bug rate hit
-  0/3 (stopping-rule threat). A sandbox *designed* for automation with deliberately seeded
-  chaos behaviors and free-tier hosting idiosyncrasies (cold starts) inflates specific classes.
-  Generalization is analytic, not statistical.
-- **Reliability:** the in-memory database cannot be archived post-hoc (state at report time is
-  reconstructed, not preserved); original external QA reports survive only as quotations inside
-  the explanation documents; N = 19 depends on stated inclusion rules (Section 5.1) whose
-  exclusions (a)/(b) bias the measured real-bug rate upward; primary sources are Spanish and
-  coding involves human-reviewed translation.
-- **AI involvement:** an LLM participated in both the studied process and the analysis
-  (Section 6.5); coding is human-verified and source-traceable.
-
-## 10. Conclusion (outline)
-
-- Restate: 19 findings, one week; 75% real in the first cycle (6/8) → 0% in the last (0/3),
-  11/19 overall, with the decline carried by severity as much as rate; an eight-class taxonomy
-  whose "exonerated, unattributed" class embodies the protocol's refusal to guess; two
-  retractions and one reversal as evidence that empirical verification settles what is
-  observable — and that cross-boundary attributions, not unverified code reading, were where
-  explanations failed; instrumentation itself is a first-class mediator of false positives.
-- Future work: multi-case replication on non-sandbox systems; harness-side assertion-semantics
-  metadata; controlled experiments on atomic-entry guardrails (out of scope here by design).
+- Restate: a realistic product can be a controlled laboratory if determinism, controllability,
+  and observability are product features; one week of real external QA use provides an
+  existence proof in both roles — app under test and phenomenon generator — including the
+  instructive failure mode where the laboratory's own instrumentation mediates false
+  positives.
+- Future work: independent adoption studies; executing the Section 4 catalog (per-layer
+  detection power, atomic-entry setup-cost comparison); a machine-readable seeded-defect
+  manifest; harness-side assertion-semantics metadata.
+- Availability: public repository (backend, web, mobile, tests, documentation) and live
+  deployments (`https://omnipizza-backend.onrender.com`,
+  `https://omnipizza-frontend.onrender.com`); an archived snapshot (pinned commit, DOI) will
+  accompany the preprint.
 
 ## References (candidates — to be completed)
 
-- P. Runeson, M. Höst. *Guidelines for conducting and reporting case study research in software
-  engineering.* Empirical Software Engineering, 2009.
+- P. Runeson, M. Höst. *Guidelines for conducting and reporting case study research in
+  software engineering.* Empirical Software Engineering, 2009.
 - R. K. Yin. *Case Study Research and Applications*, 6th ed., 2018.
+- R. J. Wieringa. *Design Science Methodology for Information Systems and Software
+  Engineering.* Springer, 2014.
+- R. V. Binder. *Design for testability in object-oriented systems.* CACM, 1994.
+- R. S. Freedman. *Testability of software components.* IEEE TSE, 1991.
 - Q. Luo, F. Hariri, L. Eloussi, D. Marinov. *An empirical analysis of flaky tests.* FSE 2014.
 - J. Micco. *The state of continuous integration testing at Google.* 2017.
-- Flaky-test and static-analysis-false-positive triage literature (to be surveyed for Section 2).
+- Defects4J / BugsJS / Juice Shop / SauceDemo sources (to be pinned for Section 2).
 
-## Appendix / supplementary material (planned)
+## Appendix / supplementary material
 
-- `findings.csv` — full coding table of the 19 findings (one row per finding, Section 5.1
-  variables including confidence and instrumentation-mediated flags), plus original-language
-  excerpts for quoted evidence.
-- Pointers to primary artifacts: `documents/explanation/EXPLANATION_qa_report_*.md`, fix commits
-  by hash, `ATOMIC_WEB_TESTING.md`, `ATOMIC_MOBILE_TESTING.md`, `backend/constants.py`.
+- **Platform fact sheet (required companion):** every Section 3–5 number with its counting
+  rule and the pinned snapshot commit (endpoint operations vs. paths; selector *occurrence*
+  counts vs. distinct IDs; release count excluding duplicate-case legacy tags; widget-table
+  row counts).
+- `findings.csv` — coding table of the 19 evaluation findings (verdict decomposition,
+  confidence and instrumentation-mediated flags, artifact version per cycle), with
+  original-language excerpts.
+- Machine-readable seeded-defect manifest (planned; required for the tool-builder use case).
+- Pointers to primary artifacts: `documents/explanation/EXPLANATION_qa_report_*.md`,
+  `ATOMIC_WEB_TESTING.md`, `ATOMIC_MOBILE_TESTING.md`, `backend/constants.py`, fix commits by
+  hash.
 
 ---
 
-*Data availability:* the study platform and all primary artifacts are public:
-repository (backend, web, mobile, tests, documentation) and live deployments
+*Data availability:* the study platform and all primary artifacts are public: repository
+(backend, web, mobile, tests, documentation) and live deployments
 (`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`).
