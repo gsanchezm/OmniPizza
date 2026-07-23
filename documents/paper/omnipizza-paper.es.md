@@ -124,18 +124,29 @@ las funcionalidades de usuario.
 
 ### 3.1 Cómo se derivó y verificó esta descripción (método)
 
-La justificación de diseño se reconstruye desde fuentes de archivo: los documentos de producto y
-diseño del repo, las guías de testing atómico, el documento de arquitectura QA y el historial
-de git. Cada afirmación cuantitativa de las Secciones 3–5 se verificó contra el código en un
-snapshot fijado del repositorio — commit `83b8ba4` (2026-07-22, el último commit de producto
-de la ventana de estudio) — mediante una pasada adversarial de verificación de hechos
-independiente de la pasada de redacción; cada conteo lleva una regla de conteo explícita,
-consolidada en el apéndice de hoja de datos (compañero obligatorio de este paper, no material
-opcional). Los principios de diseño se etiquetan por procedencia: metas *ex-ante* declaradas
-en los documentos fundacionales (personas caos, mercado-como-datos, entrada atómica,
-contratos de selectores) vs. codificaciones *ex-post* de lecciones operativas (el anclaje del
-perfil al login se introdujo a mitad de la historia como fix de una carrera, Sección 3.6; un
-guard defensivo de deep links, igualmente) — el catálogo no presenta la retrospectiva como
+La justificación de diseño se reconstruyó exclusivamente desde fuentes de archivo fechadas —
+los documentos de requisitos de producto y de diseño del repo, las dos guías de testing atómico, el
+documento de arquitectura QA y el historial de git ($209$ commits, 2026-02-07 → 2026-07-22) —
+y no desde el recuerdo de los autores, de modo que cada afirmación de diseño traza a un
+artefacto que el lector puede abrir. La exactitud descriptiva se impuso después de forma
+mecánica. Cada afirmación cuantitativa de las Secciones 3–5 se verificó contra el repositorio — código
+y documentos de archivo — en un snapshot fijado, commit `83b8ba4` (2026-07-22, el último commit de
+producto de la ventana de estudio), mediante una pasada adversarial de verificación de hechos
+ejecutada con independencia de la pasada de redacción; la separación se eligió porque las
+descripciones auto-verificadas heredan los supuestos de quien redacta, y aquí se ganó el
+sueldo — tres afirmaciones redactadas (la superficie de imposición del header obligatorio, el alcance
+de la latencia inyectada y un conteo de widgets) fueron refutadas contra el código y
+corregidas. Cada conteo
+superviviente lleva una regla de conteo explícita — qué se cuenta, qué se excluye y el
+comando que reproduce el número — consolidada en el apéndice de hoja de datos, compañero
+obligatorio de este paper y no material opcional.
+
+Los principios de diseño se etiquetan además por procedencia. Los mecanismos declarados como
+metas en los documentos fundacionales (personas caos, mercado-como-datos, entrada atómica,
+contratos de selectores) se marcan *ex-ante*; las codificaciones de lecciones operativas —
+el anclaje del perfil al login de la Sección 3.6, introducido a mitad de la historia para
+arreglar una carrera de login observada, y un guard defensivo de deep links — se marcan
+*ex-post*. El etiquetado se adoptó para que el catálogo no presente la retrospectiva como
 previsión.
 
 ### 3.2 Caos-por-identidad: los modos de fallo viajan en las credenciales
@@ -250,12 +261,17 @@ qué filas ejercita este paper.
 
 ### 4.1 Un ejemplar ejecutado: el defecto sembrado de precios $0 a través de las cuatro capas
 
-Para convertir una fila del catálogo de afirmación de diseño en evidencia, corrimos el
-portafolio de la Sección 3.8 **tal cual está** — sin modificar ninguna suite — contra el
-defecto sembrado de `problem_user`, el 2026-07-23, sobre una instancia local en el snapshot
-fijado. El ground truth se confirmó en vivo antes de las corridas (12/12 pizzas del catálogo
-a precio 0.0 con la URL de imagen rota). Resultado: **ninguna de las cuatro capas detecta el
-defecto**, cada una por una razón distinta e instructiva:
+Para convertir una fila del catálogo de afirmación de diseño en evidencia, el portafolio de
+la Sección 3.8 se ejecutó **tal cual está** — sin modificar ninguna suite — contra el defecto
+sembrado de `problem_user`, el 2026-07-23, sobre una instancia local en el snapshot fijado
+(backend servido en el puerto $8000$ con estado en memoria fresco; Vitest 4.0.18 vía
+`npx vitest run`, con el `fileParallelism: false` fijado en el repositorio porque las suites
+comparten un único backend con estado; Cypress 15.11.0 headless vía `cypress run --component`;
+Schemathesis 3.25.1 bajo pytest 7.4.4 con `max_examples = 50` por endpoint). El ground truth
+se confirmó en vivo antes de las corridas: un login de `problem_user` seguido de una
+obtención de catálogo devolvió $12/12$ pizzas a precio $0.0$ con la URL de imagen rota.
+Resultado: **ninguna de las cuatro capas detecta el defecto**, cada una por una razón
+distinta e instructiva:
 
 | Capa | Resultado tal-cual-está |
 |---|---|
@@ -274,28 +290,59 @@ de defectos sembrados legible por máquina (Sección 7, planificado) habilitarí
 
 ## 5. Evaluación: una semana de QA automatizada externa (RQ3)
 
-**Escenario.** Un harness externo de QA automatizada (suites de UI + API, múltiples mercados
-e idiomas, web y móvil) — fuera de nuestro control y no observable para nosotros — ejercitó
-la plataforma desplegada y presentó hallazgos durante una semana (2026-07-16 → 07-22): seis
-ciclos de triage, cinco reportes con hallazgos más una ronda de re-verificación. Cada
-hallazgo fue triado por un agente LLM bajo supervisión humana; cada ciclo produjo un
-documento de explicación durable y fechado.
+**Escenario.** Un harness externo de QA automatizada — suites de UI y API que abarcan
+múltiples mercados e idiomas en web y móvil, operado por un tercero y observable para los
+autores únicamente a través de sus reportes — ejercitó la plataforma desplegada públicamente
+durante una semana (2026-07-16 → 2026-07-22). Resultaron seis ciclos de triage: cinco
+reportes con hallazgos más una ronda de re-verificación. Cada hallazgo fue triado por un
+agente LLM (Claude, Anthropic) bajo reglas permanentes definidas por humanos y con puntos de
+control de decisión humana por lote, y cada ciclo produjo un documento de explicación durable
+y fechado en el momento del triage — antes de que este paper fuera concebido (caveats de
+procedencia documental: Sección 7).
 
-**Método (resumen autocontenido).** Estudio de caso retrospectivo embebido (Runeson & Höst)
-sobre artefactos de archivo: los seis documentos de explicación fechados, el historial de git
-y el contenido de los reportes de QA citado en aquellos. Un hallazgo = un ítem numerado en la
-segmentación contemporánea de los documentos de explicación; excluidos de N = 19: un ítem ya
-descartado por el equipo reportante, dos bugs que el propio reporte atribuyó al código del
-harness, y bugs hermanos autodescubiertos en sweeps de fixes (las dos primeras exclusiones
-sesgan *al alza* la tasa medida de bugs reales; Sección 7). Codificación: una pasada
-asistida por LLM sobre las fuentes en español, revisada por un humano fila por fila; el estado
-del veredicto se descompone en veredicto binario, clase de taxonomía y narrativa de causa
-raíz con flag de confianza; las tasas usan veredictos finales (el 3/3 de un ciclo era 2/3
-bajo veredictos iniciales). El protocolo de triage estudiado imponía reproducir-antes-de-
-veredicto contra el sistema en ejecución, fix-and-commit para bugs confirmados, documentos de
-explicación durables y puntos de control con decisión humana. La tabla completa de codificación se
-entrega como `findings.csv` (apéndice), que además fija la versión del artefacto (tag de
-release) vigente en cada ciclo.
+**Diseño.** La evaluación se enmarcó como un estudio de caso retrospectivo embebido de caso
+único (Runeson & Höst, 2009; Yin, 2018): el caso es la semana de operación; las unidades
+embebidas son los hallazgos. Se eligió un diseño retrospectivo porque el triage ocurrió como
+trabajo de ingeniería normal, lo que elimina el sesgo de diseñar-para-publicar del proceso
+bajo estudio — al costo de las preocupaciones de auto-reporte declaradas en la Sección 7.
+
+**Datos e inclusión.** Se triangularon tres fuentes de archivo: los seis documentos de
+explicación fechados (escritos en español), el historial de git (los commits de fix se citan
+por hash dentro de los documentos y fueron re-resueltos contra el repositorio) y el contenido
+de los reportes de QA citado en los documentos — los reportes crudos los borra el flujo de
+triage y sobreviven solo como citas, una limitación declarada. Un hallazgo equivale a un ítem
+numerado en la segmentación contemporánea de los documentos; la regla se adoptó para no
+re-segmentar el corpus con retrospectiva. Tres reglas de exclusión producen $N = 19$: un ítem
+que el equipo reportante había descartado antes de la ventana, dos bugs que el propio reporte
+atribuyó al código del harness, y bugs hermanos del mismo patrón autodescubiertos en sweeps
+de fixes. Las dos primeras exclusiones eliminan no-bugs del denominador y por tanto sesgan
+*al alza* la tasa medida de bugs reales; la dirección se declara para que el lector pueda
+razonar sobre ella (Sección 7).
+
+**Codificación.** Los hallazgos se codificaron mediante una pasada de extracción asistida por
+LLM sobre las fuentes en español y fueron revisados por un humano fila por fila contra el
+texto citado; la traducción al inglés ocurrió durante la codificación y fue revisada por
+humanos. El estado del veredicto se descompuso deliberadamente en tres variables — un
+veredicto binario (bug de la app / no bug de la app), una de ocho clases de taxonomía, y una
+narrativa de causa raíz con flag de confianza `confirmed` / `candidate` / `unidentified` —
+porque el corpus contiene eventos que una sola variable de veredicto confundiría: dos
+retractaciones de causa raíz que dejaron en pie los veredictos binarios, y una reversión de veredicto que
+invirtió un veredicto binario por completo. Todas las tasas usan veredictos finales; la única
+divergencia bajo veredictos iniciales (un ciclo puntuó $3/3$ al final pero $2/3$ al inicio)
+se reporta al lado. La tabla completa de codificación se entrega como `findings.csv`
+(apéndice), que además registra el release en el que se publicaron los fixes de cada ciclo,
+porque $11$ bugs se arreglaron y cinco releases se publicaron *durante* la ventana (cuatro
+de ellos derivados del triage; el quinto, v1.1.6, fue trabajo concurrente de features) — las
+tasas por ciclo describen por tanto un artefacto en movimiento, una amenaza que la Sección 7
+registra.
+
+**Protocolo bajo estudio.** El propio protocolo de triage — el objeto de la RQ3 — imponía
+reproducción empírica contra el sistema en ejecución (replay de API, reproducción con estado
+sembrado, reproducción en dispositivo vía `adb`, corridas de axe-core en página) antes de
+cualquier veredicto que exonerara a la app; los bugs confirmados con causa evidente a nivel
+de código podían veredictarse por auditoría de código más medición dirigida. Exigía además
+fix-and-commit con hashes de conventional commits para los bugs confirmados, documentos de
+explicación durables para cada ciclo, y autorización humana explícita por push y por release.
 
 **El laboratorio como app bajo prueba.** 19 hallazgos; 11/19 bugs reales, todos arreglados y
 liberados (4 de los 6 ciclos produjeron un release). Tasa de bugs reales por ciclo: 6/8
@@ -390,14 +437,18 @@ Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
   re-verificación externa fue asimétrica); N = 19 bajo reglas de inclusión declaradas cuyas
   exclusiones sesgan al alza la tasa de bugs reales; la ventana de estudio termina donde
   se detuvieron los datos; fuentes primarias en español, la codificación implica traducción
-  revisada por humanos.
+  revisada por humanos; tres de los seis documentos de explicación entraron a control de
+  versiones solo después de cerrada la ventana, así que su procedencia al-momento-del-triage
+  descansa en timestamps del sistema de archivos.
 - Validez de constructo de la taxonomía: la clasificación de 8 clases es preliminar —
   inducida post hoc de los mismos 19 hallazgos por un único pipeline codificador (LLM + un
   autor supervisor), varias clases tienen n = 1, sin segundo codificador ni fiabilidad
   inter-evaluador todavía.
-- Artefacto en movimiento: se arreglaron 11 bugs y se publicaron 4 releases *durante* la
-  ventana de evaluación, así que las tasas por ciclo miden un artefacto cambiante (mitigado
-  fijando el tag de release por ciclo en `findings.csv`).
+- Artefacto en movimiento: se arreglaron 11 bugs y se publicaron 5 releases *durante* la
+  ventana de evaluación (4 derivados del triage; v1.1.6 fue trabajo concurrente de features),
+  así que las tasas por ciclo miden un artefacto cambiante (`findings.csv` registra el
+  release en que se publicaron los fixes de cada ciclo; una columna de versión-vigente real
+  queda como trabajo futuro).
 - Ética hacia terceros: la evaluación publica atribuciones de fallo sobre un operador de
   harness externo identificable cuyo sistema no podemos observar — las atribuciones se
   etiquetan como hipótesis y el operador permanece anónimo.
@@ -477,8 +528,8 @@ editor/oficial) el 2026-07-23; la lista de reserva verificada vive en el índice
   excluyendo tags legacy duplicados que difieren solo en mayúsculas/minúsculas; conteos de filas de la tabla de
   widgets).
 - `findings.csv` — tabla de codificación de los 19 hallazgos de la evaluación (descomposición
-  del veredicto, flags de confianza y de mediación por instrumentación, versión del artefacto
-  por ciclo), con extractos en el idioma original.
+  del veredicto, flags de confianza y de mediación por instrumentación, y el release en que
+  se publicaron los fixes de cada ciclo), con extractos en el idioma original.
 - Manifiesto de defectos sembrados legible por máquina (planificado; requerido para el caso
   de uso de constructores de herramientas).
 - Punteros a artefactos primarios: `documents/explanation/EXPLANATION_qa_report_*.md`,

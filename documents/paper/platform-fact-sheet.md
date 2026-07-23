@@ -75,11 +75,14 @@ Sections 3–5, with its **counting rule** and an **executable read-only verific
 | Releases from cycles (5) | 4 of 6 | attribution rule: 07-16→v1.1.4, 07-18→v1.1.5, 07-20→v1.1.7, 07-21→v1.1.8; v1.1.6 (in-window) was feature work, not triage output | `git for-each-ref --format='%(refname:short) %(creatordate:short)' refs/tags \| grep v1.1` | tags dated 07-17/18/19/20/21; attribution from the explanation docs, **not derivable from tags alone** |
 | Releases total (Section 3 / Appendix) | 18 distinct versions (22 raw tags) | tags normalized (strip `v`/`V`, lowercase), deduplicated; excludes 1.0.1, V1.0.0, V1.0.4, V1.0.5 | `git tag \| sed 's/^[Vv]//' \| sort -u \| wc -l && git tag \| wc -l` | 18 / 22 |
 | Snapshot pin (3.1) | `83b8ba4`, 2026-07-22 | commit date; "last product commit" = no later commit touches product code | `git show -s --format='%H %ad' --date=short 83b8ba4 && git diff --stat 83b8ba4..HEAD` | date matches; diff to HEAD touches only `documents/paper/` |
+| Repository history (3.1) | 209 commits, 2026-02-07 → 2026-07-22 | commits reachable from the pinned snapshot `83b8ba4` (not HEAD) | `git rev-list --count 83b8ba4 && git log --reverse --format='%ad' --date=short 83b8ba4 \| head -1` | 209; first commit 2026-02-07; snapshot 2026-07-22 |
 
 ## 6. Section 4.1 exemplar execution (2026-07-23)
 
 Environment: local backend (`python main.py`, port 8000) at product snapshot `83b8ba4`
 (working tree product-code-identical); fresh in-memory state; suites run **as-is**, unmodified.
+Contract layer executed with Schemathesis 3.25.1 under pytest 7.4.4 (`tests/requirements.txt`),
+Hypothesis `max_examples = 50` per endpoint with a 5000 ms deadline (`tests/test_contract.py:19-23`).
 
 | Step / layer | Command | Outcome |
 |---|---|---|

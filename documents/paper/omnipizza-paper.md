@@ -107,17 +107,27 @@ compatibility guarantees as user features.
 
 ### 3.1 How this description was derived and verified (method)
 
-The design rationale is reconstructed from archival sources: the in-repo product and design
-documents, the atomic-testing guides, the QA-architecture document, and git history. Every
-quantitative claim in Sections 3–5 was verified against the code at a pinned repository
-snapshot — commit `83b8ba4` (2026-07-22, the last product commit of the study window) — by an
-adversarial fact-checking pass independent of the drafting pass; each count carries an
-explicit counting rule, consolidated in the fact-sheet appendix (a required companion of this
-paper, not optional material). Design principles are labeled by provenance: *ex-ante* goals
-stated in the founding documents (chaos personas, market-as-data, atomic entry, selector
-contracts) vs. *ex-post* codifications of operational lessons (per-login profile keying was
-introduced mid-history as a race fix, Section 3.6; a defensive deep-link guard likewise) —
-the catalog does not present hindsight as foresight.
+The design rationale was reconstructed exclusively from dated archival sources — the in-repo
+product-requirements and design documents, the two atomic-testing guides, the QA-architecture
+document, and the git history ($209$ commits, 2026-02-07 → 2026-07-22) — rather than from the
+authors' recollection, so that every design claim traces to an artifact a reader can open.
+Descriptive accuracy was then enforced mechanically. Every quantitative claim in Sections 3–5
+was verified against the repository — code and archival documents — at a pinned snapshot,
+commit `83b8ba4` (2026-07-22,
+the last product commit of the study window), by an adversarial fact-checking pass run
+independently of the drafting pass; the separation was chosen because self-verified
+descriptions inherit the drafter's assumptions, and it earned its keep here — three drafted
+claims (the required-header enforcement surface, the scope of the injected latency, and a
+widget count) were refuted against the code and corrected. Each surviving count carries an explicit counting rule —
+what is counted, what is excluded, and the command that reproduces the number — consolidated
+in the fact-sheet appendix, a required companion of this paper rather than optional material.
+
+Design principles are additionally labeled by provenance. Mechanisms stated as goals in the
+founding documents (chaos personas, market-as-data, atomic entry, selector contracts) are
+marked *ex-ante*; codifications of operational lessons — the per-login profile keying of
+Section 3.6, introduced mid-history to fix an observed login race, and a defensive deep-link
+guard — are marked *ex-post*. The labeling was adopted so the catalog does not present
+hindsight as foresight.
 
 ### 3.2 Chaos-by-identity: failure modes travel in credentials
 
@@ -222,11 +232,16 @@ enables, not executed results; the status column records which rows this paper e
 
 ### 4.1 An executed exemplar: the seeded $0-price defect across the four layers
 
-To convert one catalog row from design claim into evidence, we ran the Section 3.8 portfolio
-**as-is** — no suite modified — against the seeded `problem_user` defect on 2026-07-23, on a
-local instance at the pinned snapshot. Ground truth was confirmed live before the runs
-(12/12 catalog pizzas at price 0.0 with the broken image URL). Outcome: **none of the four
-layers detects the defect**, each for a different, instructive reason:
+To convert one catalog row from design claim into evidence, the Section 3.8 portfolio was
+executed **as-is** — no suite modified — against the seeded `problem_user` defect on
+2026-07-23, on a local instance at the pinned snapshot (backend served on port $8000$ with a
+fresh in-memory state; Vitest 4.0.18 via `npx vitest run`, with the repository-pinned
+`fileParallelism: false` because the suites share one stateful backend; Cypress 15.11.0
+headless via `cypress run --component`; Schemathesis 3.25.1 under pytest 7.4.4 with
+`max_examples = 50` per endpoint). Ground truth was confirmed live before the runs: a
+`problem_user` login followed by a catalog fetch returned $12/12$ pizzas at price $0.0$ with
+the broken image URL. Outcome: **none of the four layers detects the defect**, each for a
+different, instructive reason:
 
 | Layer | As-is outcome |
 |---|---|
@@ -245,25 +260,54 @@ would enable.
 
 ## 5. Evaluation: One Week of External Automated QA (RQ3)
 
-**Setting.** An external automated QA harness (UI + API suites, multiple markets and
-languages, web and mobile) — not under our control and not observable to us — exercised the
-deployed platform and filed findings over one week (2026-07-16 → 07-22): six triage cycles,
-five findings-bearing reports plus one re-verification round. Every finding was triaged by an
-LLM agent under human supervision; every cycle produced a durable, dated explanation document.
+**Setting.** An external automated QA harness — UI and API suites spanning multiple markets
+and languages on web and mobile, operated by a third party and observable to the authors only
+through its reports — exercised the publicly deployed platform over one week
+(2026-07-16 → 2026-07-22). Six triage cycles resulted: five findings-bearing reports plus one
+re-verification round. Each finding was triaged by an LLM agent (Claude, Anthropic) under
+standing human-defined rules with per-batch human decision gates, and each cycle produced a
+durable, dated explanation document at triage time — before this paper was conceived
+(document-provenance caveats: Section 7).
 
-**Method (self-contained summary).** Retrospective embedded case study (Runeson & Höst) over
-archival artifacts: the six dated explanation documents, git history, and QA report content as
-quoted therein. One finding = one numbered item in the explanation documents' contemporaneous
-segmentation; excluded from N = 19: one item pre-dismissed by the reporting team, two bugs the
-report itself attributed to the harness's own code, and self-discovered sibling bugs from fix
-sweeps (the first two exclusions bias the measured real-bug rate *upward*; Section 7). Coding:
-an LLM-assisted pass over the Spanish-language sources, human-reviewed row by row; verdict
-state is decomposed into a binary verdict, a taxonomy class, and a root-cause narrative with a
-confidence flag; rates use final verdicts (one cycle's 3/3 was 2/3 under initial verdicts).
-The studied triage protocol enforced reproduce-before-verdict against the running system,
-fix-and-commit for confirmed bugs, durable explanation documents, and human decision gates.
-The full coding table ships as `findings.csv` (appendix), which also pins the artifact version
-(release tag) in effect at each cycle.
+**Design.** The evaluation was framed as a retrospective embedded single-case case study
+(Runeson & Höst, 2009; Yin, 2018): the case is the week of operation; the embedded units are
+the findings. A retrospective design was chosen because the triage occurred as normal
+engineering work, which removes design-for-publication bias from the process under study —
+at the cost of the self-report concerns disclosed in Section 7.
+
+**Data and inclusion.** Three archival sources were triangulated: the six dated explanation
+documents (written in Spanish), the git history (fix commits are cited by hash inside the
+documents and were re-resolved against the repository), and the QA-report content as quoted
+in the documents — the raw reports are deleted by the triage workflow and survive only as
+quotations, a stated limitation. One finding equals one numbered item in the documents'
+contemporaneous segmentation; the rule was adopted to avoid re-segmenting the corpus with
+hindsight. Three exclusion rules yield $N = 19$: one item the reporting team had dismissed
+before the window, two bugs the report itself attributed to the harness's own code, and
+same-pattern sibling bugs self-discovered during fix sweeps. The first two exclusions remove
+non-bugs from the denominator and therefore bias the measured real-bug rate *upward*; the
+direction is stated so readers can reason about it (Section 7).
+
+**Coding.** Findings were coded by an LLM-assisted extraction pass over the Spanish-language
+sources and reviewed by a human row by row against the quoted text; translation into English
+occurred during coding and was human-reviewed. Verdict state was deliberately decomposed into
+three variables — a binary verdict (app bug / not app bug), one of eight taxonomy classes,
+and a root-cause narrative carrying a `confirmed` / `candidate` / `unidentified` confidence
+flag — because the corpus contains events a single verdict variable would conflate: two
+root-cause retractions that left binary verdicts standing, and one verdict reversal that
+flipped a binary verdict outright. All rates use final verdicts; the one divergence under
+initial verdicts (a cycle scored $3/3$ finally but $2/3$ initially) is reported alongside.
+The full coding table ships as `findings.csv` (appendix), which also records the release
+each cycle's fixes shipped in, because $11$ bugs were fixed and five releases shipped
+*during* the window (four of them triage-driven; the fifth, v1.1.6, was concurrent feature
+work) — per-cycle rates therefore describe a moving artifact, a threat Section 7 records.
+
+**Protocol under study.** The triage protocol itself — the object of RQ3 — enforced
+empirical reproduction against the running system (API replay, seeded-state reproduction,
+on-device reproduction via `adb`, in-page axe-core runs) before any verdict that exonerated
+the app; confirmed bugs with self-evident code-level causes could be verdicted by code audit
+plus targeted measurement. It further required fix-and-commit with conventional-commit hashes
+for confirmed bugs, durable explanation documents for every cycle, and explicit human
+authorization per push and release.
 
 **The laboratory as app under test.** 19 findings; 11/19 real bugs, all fixed and shipped
 (4 of the 6 cycles produced a release). Real-bug rate per cycle: 6/8 (07-16) → 1/3 (07-18) →
@@ -346,13 +390,16 @@ Transferable patterns, each tagged with the strength of its evidence:
   threat class; recorded triage failures are a lower bound (external re-verification coverage
   was asymmetric); N = 19 under stated inclusion rules whose exclusions bias the real-bug rate
   upward; the study window ends where the data stopped; primary sources in Spanish, coding
-  involves human-reviewed translation.
+  involves human-reviewed translation; three of the six explanation documents entered version
+  control only after the study window closed, so their at-triage provenance rests on
+  file-system timestamps.
 - Taxonomy construct validity: the 8-class classification is preliminary — induced post hoc
   from the same 19 findings by a single coder pipeline (LLM + one supervising author), several
   classes have n = 1, no second coder or inter-rater reliability yet.
-- Moving-target artifact: 11 bugs were fixed and 4 releases shipped *during* the evaluation
-  window, so per-cycle rates measure a changing artifact (mitigated by pinning the release tag
-  per cycle in `findings.csv`).
+- Moving-target artifact: 11 bugs were fixed and 5 releases shipped *during* the evaluation
+  window (4 triage-driven; v1.1.6 was concurrent feature work), so per-cycle rates measure a
+  changing artifact (`findings.csv` records the release each cycle's fixes shipped in; a true
+  version-in-effect column remains future work).
 - Third-party ethics: the evaluation publishes failure attributions about an identifiable
   external harness operator whose system we cannot observe — attributions are labeled as
   hypotheses, and the operator remains anonymous.
@@ -427,8 +474,8 @@ official page) on 2026-07-23; a verified reserve list is kept in the progress in
   counts vs. distinct IDs; release count excluding duplicate-case legacy tags; widget-table
   row counts).
 - `findings.csv` — coding table of the 19 evaluation findings (verdict decomposition,
-  confidence and instrumentation-mediated flags, artifact version per cycle), with
-  original-language excerpts.
+  confidence and instrumentation-mediated flags, and the release each cycle's fixes shipped
+  in), with original-language excerpts.
 - Machine-readable seeded-defect manifest (planned; required for the tool-builder use case).
 - Pointers to primary artifacts: `documents/explanation/EXPLANATION_qa_report_*.md`,
   `ATOMIC_WEB_TESTING.md`, `ATOMIC_MOBILE_TESTING.md`, `backend/constants.py`, fix commits by
