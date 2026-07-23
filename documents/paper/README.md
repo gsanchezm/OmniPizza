@@ -35,8 +35,8 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 
 | Artefacto | Qué es | Estado |
 |---|---|---|
-| Fact sheet de la plataforma | Cada número de §3–5 con su regla de conteo y snapshot (`83b8ba4`) | **Por construir — obligatorio** |
-| `findings.csv` | Codificación de los 19 hallazgos (veredicto en 3 variables, flags de confianza e instrumentación, release por ciclo) | **Por construir — obligatorio** |
+| Fact sheet de la plataforma | Cada número de §3–5 con su regla de conteo, comando ejecutable y valor medido (snapshot `83b8ba4`) | **Construido** — `platform-fact-sheet.md` (extraído + re-ejecutado independientemente) |
+| `findings.csv` | Codificación de los 19 hallazgos (veredicto en 3 variables, flags de confianza e instrumentación, release por ciclo) | **Construido** — verificado fila por fila contra los 6 EXPLANATION y git |
 | Manifiesto de defectos sembrados | Legible por máquina; requerido para el caso de uso de tool builders | Por construir (puede ser trabajo futuro) |
 | Snapshot archivado (commit fijado / DOI) | Compromiso de la Sección 8 | Al momento de publicar |
 
@@ -62,10 +62,14 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 
 ## Próximos pasos (orden propuesto)
 
-1. `findings.csv` + fact sheet de la plataforma (los dos compañeros obligatorios).
-2. Pasada de literatura para Related Work; fijar referencias.
-3. Redactar Intro y Abstract completos (fluyen de lo ya aprobado).
-4. Opcional (convierte una affordance en evidencia): ejecutar el ejemplar barato de §4 —
+1. ~~`findings.csv` + fact sheet de la plataforma~~ — hecho (2026-07-23).
+2. **Commitear los documentos fuente sin trackear** (`EXPLANATION_qa_report_2026-07-{19,20,22}.md`,
+   `arquitectura_qa.md`): el paper los llama "fuentes de archivo" y hoy no están en git
+   (pendiente de OK del autor).
+3. Pasada de literatura para Related Work; fijar referencias.
+4. Redactar Intro y Abstract completos (fluyen de lo ya aprobado).
+5. Opcional (convierte una affordance en evidencia): ejecutar el ejemplar barato de §4 —
    el defecto de precios $0 de `problem_user` a través de las 4 suites existentes.
-5. Redactar Results/Discussion/Conclusion en prosa completa.
-6. Al publicar: snapshot archivado + manifiesto de defectos.
+6. Redactar Results/Discussion/Conclusion en prosa completa.
+7. Al publicar: snapshot archivado + manifiesto de defectos + extractos en idioma original
+   para findings.csv.
