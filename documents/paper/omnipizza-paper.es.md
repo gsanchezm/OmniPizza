@@ -5,9 +5,10 @@
 > ante cualquier discrepancia, prevalece el original. Encuadre centrado en la plataforma (pivote
 > desde el borrador anterior centrado en el triage); el estudio de triage QA de una semana es
 > la evaluación (Sección 5). Las Secciones 3–6 están redactadas (3.1, 4.1 y los bloques de
-> método de la Sección 5 en prosa completa); la discusión de la Sección 7 está redactada en
-> prosa completa con la enumeración de amenazas en esquema; las Secciones 1–2 y 8 son
-> esquemas. Todas las afirmaciones cuantitativas
+> método de la Sección 5 en prosa completa); las Secciones 7 (discusión en prosa +
+> enumeración de amenazas) y 8 (conclusión) están redactadas; la Sección 1 está redactada
+> (movimientos CARS + listas de RQs y contribuciones); la Sección 2 y el Abstract siguen en
+> esquema. Todas las afirmaciones cuantitativas
 > pasaron una verificación adversarial contra el repositorio en el snapshot fijado
 > (Sección 3.1); tres afirmaciones refutadas en revisión fueron corregidas en esta versión.
 >
@@ -46,29 +47,62 @@
   tal cual están (Sección 4.1) — y guías de diseño-para-testabilidad etiquetadas por fuerza
   de evidencia.
 
-## 1. Introducción (esquema)
+## 1. Introducción
 
-- Motivación: ¿dónde se practica la automatización de pruebas — funcional, de performance,
-  de accesibilidad, de seguridad, visual, en web y en móvil —, se evalúa una herramienta de
-  testing nueva o se estudian procesos de QA? Los sistemas de producción son inseguros, no
-  deterministas e inobservables; las demos de juguete carecen de los modos de fallo que hacen
-  difícil la automatización. El hueco es un *laboratorio controlado*: superficie de producto
-  realista, modos de fallo deterministas y enumerables, observabilidad/controlabilidad
-  sancionadas.
-- A quién está diseñado para servir (audiencias previstas; la evidencia de adopción hasta la
-  fecha es un único harness de QA externo — Sección 7): **profesionales de la automatización** (un campo de
-  entrenamiento cuyos pitfalls — selectores dependientes del viewport, widgets a medida, RTL,
-  condiciones de carrera de estado — están embebidos a propósito, no por accidente); **constructores de
-  herramientas** (un blanco de benchmark estable con defectos sembrados documentados; un
-  manifiesto de defectos legible por máquina está planificado como material suplementario);
-  **investigadores** (fenómenos deterministas más captura de archivo completa del lado del
-  triage del proceso de QA — el lado del harness no es observado); **docentes** (un
-  currículum gratuito, desplegado y reseteable).
-- Por qué una pizzería: el comercio multi-mercado ejercita i18n/RTL, reglas de validación por
-  mercado, aritmética de moneda/impuestos y flujos de checkout — una envolvente de
-  complejidad realista con un vocabulario de dominio pequeño.
-- **Preguntas de investigación** (tipadas según Wieringa; cada una nombra su evidencia y su
-  fuerza):
+Las pruebas automatizadas son la manera en que los equipos de software modernos compran
+confianza: los sistemas de integración continua ejecutan suites en cada cambio, y un
+ecosistema de herramientas — motores de localizadores, verificadores de contratos, escáneres
+de accesibilidad y, últimamente, agentes basados en LLMs (Wang et al., 2024) — compite por
+convertir esas ejecuciones en veredictos confiables. El progreso en este campo siempre ha
+dependido de objetos de estudio compartidos. Los investigadores miden técnicas contra
+infraestructuras curadas y corpus de defectos (Do et al., 2005; Just et al., 2014); los
+profesionales aprenden y calibran contra sistemas demo; y una tradición de diseño que corre
+desde Freedman (1991) y Binder (1994) trata la controlabilidad y la observabilidad como
+propiedades que un sistema puede ser diseñado para tener, y no accidentes que resulta
+exhibir.
+
+Los objetos de estudio disponibles tiran en direcciones distintas, y ninguno sostiene las
+preguntas cotidianas de la automatización multiplataforma de UI y API. Los corpus de
+defectos son controlados pero están congelados: empaquetan fallas históricas para puntuación
+offline, no un producto en ejecución que un harness pueda ejercitar hoy. Los sistemas de
+producción están vivos pero son inseguros y cerrados a la inspección, y sus señales de fallo
+están permeadas de no determinismo (Memon et al., 2017; Parry et al., 2022). Las
+aplicaciones demo ocupan el punto medio seguro y renuncian a las partes difíciles: tienden a
+ser monoplataforma o de un solo ámbito — las personas de SauceDemo se detienen en un puñado
+de comportamientos web (Sauce Labs, n.d.); Juice Shop apunta solo a seguridad (OWASP
+Foundation, n.d.) — y su maquinaria de testabilidad está sin documentar, sin versionar y sin
+estudiar. Lo que falta es un sistema lo bastante realista para que los pitfalls importen, lo
+bastante determinista para que las afirmaciones sean verificables, y lo bastante
+instrumentado para que la instrumentación misma pueda examinarse: un laboratorio controlado
+en lugar de una demo.
+
+Este paper propone tal laboratorio y examina lo que una semana de uso real revela sobre él.
+OmniPizza es un producto abierto de pedidos de pizza, desplegado públicamente — backend
+FastAPI, web React, móvil React Native — construido para que la testabilidad sea una
+funcionalidad del producto: personas de fallo deterministas cuyos comportamientos viajan en
+las credenciales, reglas de mercado e idioma sostenidas como datos, entrada sancionada por
+inyección de estado a cualquier pantalla, y contratos de instrumentación versionados como
+APIs públicas. Describimos los mecanismos de diseño y su procedencia (RQ1), catalogamos lo
+que la plataforma está instrumentada para medir y ejecutamos una fila del catálogo como
+ejemplar (RQ2), evaluamos la plataforma bajo una semana de QA automatizada externa mediante
+un estudio de caso retrospectivo (RQ3), y destilamos guías de diseño-para-testabilidad
+etiquetadas por la fuerza de su evidencia (RQ4). El laboratorio está diseñado para servir a
+cuatro audiencias — profesionales que entrenan contra pitfalls embebidos a propósito
+(selectores dependientes del viewport, widgets a medida, RTL, condiciones de carrera de
+estado), constructores de herramientas que necesitan un blanco de benchmark estable con
+defectos sembrados documentados, investigadores que necesitan fenómenos deterministas con
+captura de archivo del lado del triage del proceso de QA, y docentes que necesitan un
+currículum gratuito, desplegado y reseteable — aunque la evidencia de adopción hasta la
+fecha es un único harness externo (Sección 7).
+
+El dominio es deliberadamente mundano. El comercio multi-mercado ejercita la
+internacionalización y el layout de derecha a izquierda, reglas de validación por mercado,
+aritmética de moneda e impuestos, y flujos de checkout — una envolvente de complejidad
+realista sobre un vocabulario lo bastante pequeño como para que ningún lector necesite
+entrenamiento en el dominio.
+
+- **Preguntas de investigación** (tipadas según Wieringa, 2014; cada una nombra su evidencia
+  y su fuerza):
   - **RQ1 (pregunta descriptiva de diseño).** ¿Qué mecanismos de diseño hacen que un producto
     multiplataforma realista funcione como laboratorio de pruebas controlado — determinista,
     controlable, observable — sin dejar de ser realista? *Evidencia: la descripción verificada
@@ -554,21 +588,57 @@ se declara, no se resuelve.
   trabajo posterior. La generalizabilidad de las guías está acotada a un dominio (e-commerce)
   y un equipo.
 
-## 8. Conclusión y disponibilidad (esquema)
+## 8. Conclusión y disponibilidad
 
-- Reafirmar: un producto realista puede ser un laboratorio controlado si el determinismo, la
-  controlabilidad y la observabilidad son funcionalidades del producto; una semana de uso
-  real por QA externa aporta una prueba de existencia en ambos papeles — app bajo prueba y
-  generador de fenómenos — incluido el modo de fallo instructivo en el que la propia
-  instrumentación del laboratorio actúa como vehículo de falsos positivos.
-- Trabajo futuro: estudios de adopción independiente; ejecutar el catálogo de la Sección 4
-  (poder de detección por capa, comparación de costo de setup de la entrada atómica); un
-  manifiesto de defectos sembrados legible por máquina; metadatos de semántica de aserción
-  del lado del harness.
-- Disponibilidad: repositorio público (backend, web, móvil, tests, documentación) y
-  despliegues vivos (`https://omnipizza-backend.onrender.com`,
-  `https://omnipizza-frontend.onrender.com`); un snapshot archivado (commit fijado, DOI)
-  acompañará al preprint.
+Un laboratorio es una promesa sobre el futuro, no un reporte sobre el pasado. La promesa que
+esta plataforma hace a sus audiencias es compatibilidad: personas, selectores, puntos de
+entrada y formas de respuesta sostenidos estables como se sostienen las APIs públicas, de
+modo que un test escrito hoy contra el sandbox siga significando algo mañana. Para quienes
+construyen sistemas de producción, la implicación corre en la misma dirección. La maquinaria
+que abarata probar el software es software también — con sus propios modos de fallo, efectos
+secundarios y obligaciones de versionado — y presupuestar esas obligaciones desde el inicio
+es lo que separa la testabilidad diseñada de la deuda de pruebas acumulada.
+
+Para quienes diseñan benchmarks, la implicación es más filosa. Un benchmark vivo no puede
+tomar prestado el contrato del corpus de defectos, en el que el ground truth queda a salvo
+fuera del sistema bajo estudio; cuando los defectos viven dentro del artefacto y sus suites
+caracterizan el comportamiento, el ground truth debe cercenarse deliberadamente del
+comportamiento y transportarse en un artefacto propio. Es plausible que todo sandbox de
+enseñanza longevo derive hacia certificar sus propias fallas sembradas a menos que un
+manifiesto legible por máquina — versionado, independiente de los oráculos, verificable
+contra el despliegue — ancle qué significa *defecto*. Consideramos tales manifiestos higiene
+de benchmark, no un extra opcional.
+
+Para el trabajo de calidad asistido por IA, la implicación es que la disciplina de
+evidencia, no la elección de modelo, puede ser la superficie de diseño que más importa. Si
+los veredictos fallan donde las afirmaciones rebasan lo observable y se sostienen donde un
+protocolo fuerza primero la reproducción, entonces los equipos que adopten triage con LLMs
+deberían ingeniar la frontera: etiquetar las atribuciones entre sistemas como hipótesis,
+transportar la semántica de aserción como metadatos, y mantener puntos de control humanos
+donde los errores serían de otro modo invisibles. La pregunta interesante deja de ser si un
+modelo puede hacer triage. Pasa a ser qué protocolo hace baratos de atrapar los fallos de
+cualquier triager.
+
+Esa pregunta es ahora directamente contrastable, y esta plataforma está construida para
+contrastarla. Los pasos más próximos ya están en cola — las filas no ejecutadas del
+catálogo, estudios de adopción independiente — pero la vía que este estudio destraba
+específicamente es una ablación de protocolo dentro de la plataforma: repetir el stream de
+hallazgos archivado — los reportes tal como quedaron citados en los documentos de
+explicación, la única forma en que los reportes crudos sobreviven, con el sesgo de selección
+que eso implica — con el mismo modelo bajo componentes del protocolo conmutados
+(reproducir-antes-de-veredicto activado y desactivado; puntos de control humanos activados y
+desactivados) y puntuar los veredictos resultantes contra los veredictos finales adjudicados
+en `findings.csv`. Los ciclos que retengan reportes crudos y capturen los contratos de
+aserción del harness según la guía 7 extienden el diseño a entradas no seleccionadas, a un
+brazo de metadatos de aserción, y a sondas de defectos sembrados puntuadas contra el
+manifiesto. Las tasas de retractación y reversión se vuelven resultados medidos en lugar de
+anécdotas. Cualquiera puede correrla; el laboratorio es público.
+
+**Disponibilidad.** Repositorio público
+(`https://github.com/gsanchezm/OmniPizza` — backend, web, móvil, tests, documentación,
+incluidos el fact sheet y `findings.csv` bajo `documents/paper/`) y despliegues vivos
+(`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`); un
+snapshot archivado (commit fijado, DOI) acompañará al preprint.
 
 ## Referencias
 
@@ -630,6 +700,9 @@ editor/oficial) el 2026-07-23; la lista de reserva verificada vive en el índice
 
 ---
 
-*Disponibilidad de datos:* la plataforma de estudio y todos los artefactos primarios son
-públicos: repositorio (backend, web, móvil, tests, documentación) y despliegues vivos
-(`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`).
+*Disponibilidad de datos:* la plataforma de estudio y sus artefactos primarios son públicos:
+repositorio (`https://github.com/gsanchezm/OmniPizza`, incluidos el fact sheet y
+`findings.csv` bajo `documents/paper/`) y despliegues vivos
+(`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`); el
+manifiesto de defectos sembrados está planificado, y un snapshot archivado (commit fijado,
+DOI) acompañará al preprint.

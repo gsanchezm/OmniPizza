@@ -21,14 +21,14 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 | Sección | Contenido | Estado |
 |---|---|---|
 | Abstract | Arco, números clave, claim de cierre | Outline |
-| 1. Introducción | Motivación, audiencias previstas, RQ1–RQ4 (tipadas por Wieringa), 5 contribuciones | Outline (RQs y contribuciones ya definitivas) |
+| 1. Introducción | Movimientos CARS (territorio/nicho/ocupación) + audiencias + RQ1–RQ4 + 5 contribuciones | **Redactada** |
 | 2. Related Work | Sandboxes, benchmarks de defectos, testabilidad, flaky/triage, LLMs, metodología | Outline — falta pasada de literatura |
 | 3. Principios de diseño (RQ1) | 3.1 método + 3.2–3.8 mecanismos (caos-por-identidad, mercado-como-datos, entrada atómica, contratos, estado efímero, currículum, portafolio) | **Redactado y verificado** (2 rondas adversariales) |
 | 4. Catálogo de medibilidad (RQ2) | 9 dimensiones con instrumento + medición + estado | **Redactado** — 8/9 filas son affordances no ejecutadas |
 | 5. Evaluación (RQ3) | Método autocontenido, veredictos (11/19), serie por ciclo, 8 clases, falsos positivos por instrumentación, modos de fallo del triage | **Redactado y verificado** |
 | 6. Guías (RQ4) | 7 guías etiquetadas por fuerza de evidencia | **Redactado** |
-| 7. Discusión / amenazas | Amenazas de artefacto + de evaluación + ética + drift documental | Outline (lista de amenazas ya definitiva) |
-| 8. Conclusión y disponibilidad | Restate + trabajo futuro + snapshot archivado | Outline |
+| 7. Discusión / amenazas | 6 párrafos de discusión con fricción de citas (verificadas vía web) + párrafo íntegro de limitaciones; enumeración de amenazas como detalle | **Discusión redactada**; enumeración en esquema |
+| 8. Conclusión y disponibilidad | Implicaciones (sin resumen) + vía destrabada: ablación de protocolo dentro de la plataforma | **Redactada** |
 | Referencias | 35 en APA 7 (29 peer-reviewed + 2 libros + 4 oficiales) | **Completadas** — cada una verificada contra DOI/página del editor (2026-07-23) |
 
 ## Material suplementario comprometido

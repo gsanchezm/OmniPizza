@@ -3,8 +3,9 @@
 > **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
 > earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
 > Sections 3–6 are drafted (3.1, 4.1 and the Section 5 method blocks in full prose);
-> Section 7's discussion is drafted in full prose with the threat enumeration as outline;
-> Sections 1–2 and 8 are outlines.
+> Sections 7 (discussion prose + threat enumeration) and 8 (conclusion) are drafted;
+> Section 1 is drafted (CARS moves + RQ and contribution lists); Section 2 and the Abstract
+> remain outlines.
 > All quantitative claims were adversarially fact-checked against the repository at the
 > pinned snapshot (Section 3.1); three claims refuted in review were corrected in this version.
 >
@@ -38,26 +39,53 @@
   undetected by all four existing test layers as-is (Section 4.1) — and design-for-testability
   guidelines tagged by evidence strength.
 
-## 1. Introduction (outline)
+## 1. Introduction
 
-- Motivation: where do you practice test automation — functional, performance,
-  accessibility, security, visual, across web and mobile — evaluate a new testing tool, or
-  study QA processes? Production systems are unsafe, nondeterministic, and unobservable; toy demos
-  lack the failure modes that make automation hard. The gap is a *controlled laboratory*:
-  realistic product surface, deterministic and enumerable failure modes, sanctioned
-  observability/controllability.
-- Who it is designed to serve (intended audiences; adoption evidence to date is one external
-  QA harness — Section 7): **practitioners** (a training ground whose pitfalls —
-  viewport-dependent selectors, custom widgets, RTL, state races — are deliberately embedded,
-  not accidental); **tool builders** (a stable benchmark target with documented seeded
-  defects; a machine-readable defect manifest is planned supplementary material);
-  **researchers** (deterministic phenomena plus complete archival capture of the triage side
-  of the QA process — the harness side is unobserved); **educators** (a free, deployed,
-  resettable curriculum).
-- Why a pizza shop: multi-market commerce exercises i18n/RTL, per-market validation rules,
-  currency/tax arithmetic, and checkout flows — a realistic complexity envelope with a small
-  domain vocabulary.
-- **Research questions** (typed per Wieringa; each names its evidence and strength):
+Automated testing is how modern software teams buy confidence: continuous-integration
+systems execute suites at every change, and an ecosystem of tools — locator engines,
+contract checkers, accessibility scanners, and lately LLM-based agents (Wang et al., 2024) —
+competes to turn those executions into trustworthy verdicts. Progress in this field has
+always depended on shared objects of study. Researchers measure techniques against curated
+infrastructures and defect corpora (Do et al., 2005; Just et al., 2014); practitioners learn
+and calibrate against demo systems; and a design tradition running from Freedman (1991) and
+Binder (1994) treats controllability and observability as properties a system can be
+engineered to have rather than accidents it happens to exhibit.
+
+The available objects of study pull in different directions, and none of them supports the
+everyday questions of multi-platform UI and API automation. Defect corpora are controlled
+but frozen: they package historical faults for offline scoring, not a running product a
+harness can exercise today. Production systems are live but unsafe and closed to inspection,
+and their failure signals are pervaded by nondeterminism (Memon et al., 2017; Parry et al.,
+2022). Demo applications occupy the safe middle and give up the hard parts: they tend to be
+single-platform or single-concern — SauceDemo's personas stop at a handful of web behaviors
+(Sauce Labs, n.d.); Juice Shop targets security alone (OWASP Foundation, n.d.) — and their
+testability machinery is undocumented, unversioned, and unstudied. What is missing is a
+system realistic enough for the pitfalls to matter, deterministic enough for claims to be
+checkable, and instrumented enough that the instrumentation itself can be examined: a
+controlled laboratory rather than a demo.
+
+This paper proposes such a laboratory and examines what one week of real use reveals about
+it. OmniPizza is an open, publicly deployed pizza-ordering product — FastAPI backend, React
+web, React Native mobile — built so that testability is a product feature: deterministic
+failure personas whose behaviors travel in credentials, market and language rules held as
+data, sanctioned state-injection entry to any screen, and instrumentation contracts
+versioned like public APIs. We describe the design mechanisms and their provenance (RQ1),
+catalog what the platform is instrumented to measure and execute one catalog row as an
+exemplar (RQ2), evaluate the platform under one week of external automated QA through a
+retrospective case study (RQ3), and distill design-for-testability guidelines tagged by the
+strength of their evidence (RQ4). The laboratory is designed to serve four audiences —
+practitioners training against deliberately embedded pitfalls (viewport-dependent selectors,
+custom widgets, RTL, state races), tool builders needing a stable benchmark target with
+documented seeded defects, researchers needing deterministic phenomena with archival capture
+of the triage side of the QA process, and educators needing a free, deployed, resettable
+curriculum — though adoption evidence to date is a single external harness (Section 7).
+
+The domain is deliberately mundane. Multi-market commerce exercises internationalization and
+right-to-left layout, per-market validation rules, currency and tax arithmetic, and checkout
+flows — a realistic complexity envelope over a vocabulary small enough that no reader needs
+domain training.
+
+- **Research questions** (typed per Wieringa, 2014; each names its evidence and strength):
   - **RQ1 (descriptive design question).** What design mechanisms make a realistic
     multi-platform product function as a controlled testing laboratory — deterministic,
     controllable, observable — without ceasing to be realistic? *Evidence: the verified
@@ -494,20 +522,51 @@ built to exhibit. That circularity is disclosed here, not resolved.
   enabled, not executed — by design of this paper; candidates for follow-up work. Guideline
   generalizability is bounded by one domain (e-commerce), one team.
 
-## 8. Conclusion & Availability (outline)
+## 8. Conclusion & Availability
 
-- Restate: a realistic product can be a controlled laboratory if determinism, controllability,
-  and observability are product features; one week of real external QA use provides an
-  existence proof in both roles — app under test and phenomenon generator — including the
-  instructive failure mode where the laboratory's own instrumentation mediates false
-  positives.
-- Future work: independent adoption studies; executing the Section 4 catalog (per-layer
-  detection power, atomic-entry setup-cost comparison); a machine-readable seeded-defect
-  manifest; harness-side assertion-semantics metadata.
-- Availability: public repository (backend, web, mobile, tests, documentation) and live
-  deployments (`https://omnipizza-backend.onrender.com`,
-  `https://omnipizza-frontend.onrender.com`); an archived snapshot (pinned commit, DOI) will
-  accompany the preprint.
+A laboratory is a promise about the future, not a report about the past. The promise this
+platform makes to its audiences is compatibility: personas, selectors, entry points, and
+response shapes held stable the way public APIs are held stable, so that a test written
+against the sandbox today still means something tomorrow. For builders of production
+systems, the implication runs in the same direction. The machinery that makes software cheap
+to test is itself software — with failure modes, side effects, and versioning obligations of
+its own — and budgeting for those obligations up front is what separates designed
+testability from accumulated test debt.
+
+For benchmark designers, the implication is sharper. A living benchmark cannot borrow the
+defect-corpus contract, in which ground truth sits safely outside the system under study;
+when the defects live inside the artifact and its suites characterize behavior, ground truth
+must be deliberately severed from behavior and carried in an artifact of its own. It is
+plausible that any long-lived teaching sandbox drifts toward certifying its own seeded
+faults unless a machine-readable manifest — versioned, oracle-independent, checkable against
+the deployment — anchors what *defect* means. We regard such manifests as benchmark hygiene,
+not an optional extra.
+
+For AI-assisted quality work, the implication is that evidence discipline, not model choice,
+may be the design surface that matters most. If verdicts fail where claims outrun the
+observable and hold where a protocol forces reproduction first, then teams adopting LLM
+triage should engineer the boundary: label cross-system attributions as hypotheses, carry
+assertion semantics as metadata, and keep human gates where errors would otherwise be
+invisible. The interesting question stops being whether a model can triage. It becomes which
+protocol makes any triager's failures cheap to catch.
+
+That question is now directly testable, and this platform is built to test it. Nearer-term
+steps are already queued — the unexecuted catalog rows, independent adoption studies — but
+the pathway this study specifically unlocks is a within-platform protocol ablation: replay
+the archived findings stream — the reports as quoted in the explanation documents, the only
+form in which the raw reports survive, with the selection bias that implies — through the
+same model under toggled protocol components (reproduce-before-verdict on and off; human
+gates on and off) and score the resulting verdicts against the adjudicated final verdicts in
+`findings.csv`. Cycles that retain raw reports and capture harness assertion contracts per
+guideline 7 extend the design to unselected inputs, to an assertion-metadata arm, and to
+seeded-defect probes scored against the manifest. Retraction and reversal rates become
+measured outcomes instead of anecdotes. Anyone can run it; the laboratory is public.
+
+**Availability.** Public repository
+(`https://github.com/gsanchezm/OmniPizza` — backend, web, mobile, tests, documentation,
+including the fact sheet and `findings.csv` under `documents/paper/`) and live deployments
+(`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`); an
+archived snapshot (pinned commit, DOI) will accompany the preprint.
 
 ## References
 
@@ -566,6 +625,8 @@ official page) on 2026-07-23; a verified reserve list is kept in the progress in
 
 ---
 
-*Data availability:* the study platform and all primary artifacts are public: repository
-(backend, web, mobile, tests, documentation) and live deployments
-(`https://omnipizza-backend.onrender.com`, `https://omnipizza-frontend.onrender.com`).
+*Data availability:* the study platform and its primary artifacts are public: repository
+(`https://github.com/gsanchezm/OmniPizza`, including the fact sheet and `findings.csv` under
+`documents/paper/`) and live deployments (`https://omnipizza-backend.onrender.com`,
+`https://omnipizza-frontend.onrender.com`); the seeded-defect manifest is planned, and an
+archived snapshot (pinned commit, DOI) will accompany the preprint.
