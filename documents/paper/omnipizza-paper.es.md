@@ -1,16 +1,14 @@
 # OmniPizza: Un laboratorio controlado para la automatización de pruebas multiplataforma
 
-> **Estado:** documento base (v0.4, 2026-07-23). **Gemelo en español** de
+> **Estado:** documento base (v0.5, 2026-07-23). **Gemelo en español** de
 > `omnipizza-paper.md`; la versión canónica — y la destinada a publicación — es la inglesa:
-> ante cualquier discrepancia, prevalece el original. Encuadre centrado en la plataforma (pivote
-> desde el borrador anterior centrado en el triage); el estudio de triage QA de una semana es
-> la evaluación (Sección 5). Las Secciones 3–6 están redactadas (3.1, 4.1 y los bloques de
-> método de la Sección 5 en prosa completa); las Secciones 7 (discusión en prosa +
-> enumeración de amenazas) y 8 (conclusión) están redactadas; la Sección 1 está redactada
-> (movimientos CARS + listas de RQs y contribuciones); la Sección 2 y el Abstract siguen en
-> esquema. Todas las afirmaciones cuantitativas
-> pasaron una verificación adversarial contra el repositorio en el snapshot fijado
-> (Sección 3.1); tres afirmaciones refutadas en revisión fueron corregidas en esta versión.
+> ante cualquier discrepancia, prevalece el original. Estructura IMRyD: 1 Introducción
+> (CARS) · 2 Trabajo relacionado (esquema) · 3 Métodos (derivación, materiales, instrumentos,
+> procedimiento del ejemplar, método del estudio de caso) · 4 Resultados · 5 Discusión
+> (prosa + guías + enumeración de amenazas) · 6 Conclusión y disponibilidad. El Abstract y la
+> Sección 2 siguen en esquema; todo lo demás es prosa redactada. Todas las afirmaciones
+> cuantitativas pasaron verificación adversarial contra el repositorio en el snapshot fijado
+> (Sección 3.1).
 >
 > **Títulos alternativos de trabajo:**
 > - *La testabilidad como funcionalidad del producto: OmniPizza, un testbed abierto y
@@ -52,8 +50,8 @@
 Las pruebas automatizadas son la manera en que los equipos de software modernos compran
 confianza: los sistemas de integración continua ejecutan suites en cada cambio, y un
 ecosistema de herramientas — motores de localizadores, verificadores de contratos, escáneres
-de accesibilidad y, últimamente, agentes basados en LLMs (Wang et al., 2024) — compite por
-convertir esas ejecuciones en veredictos confiables. El progreso en este campo siempre ha
+de accesibilidad y, últimamente, herramientas de testing basadas en LLMs (Wang et al.,
+2024) — compite por convertir esas ejecuciones en veredictos confiables. El progreso en este campo siempre ha
 dependido de objetos de estudio compartidos. Los investigadores miden técnicas contra
 infraestructuras curadas y corpus de defectos (Do et al., 2005; Just et al., 2014); los
 profesionales aprenden y calibran contra sistemas demo; y una tradición de diseño que corre
@@ -65,14 +63,17 @@ Los objetos de estudio disponibles tiran en direcciones distintas, y ninguno sos
 preguntas cotidianas de la automatización multiplataforma de UI y API. Los corpus de
 defectos son controlados pero están congelados: empaquetan fallas históricas para puntuación
 offline, no un producto en ejecución que un harness pueda ejercitar hoy. Los sistemas de
-producción están vivos pero son inseguros y cerrados a la inspección, y sus señales de fallo
-están permeadas de no determinismo (Memon et al., 2017; Parry et al., 2022). Las
+producción están vivos pero son inseguros y cerrados a la inspección, y las señales
+obtenidas al probarlos a escala están permeadas de no determinismo (Memon et al., 2017;
+Parry et al., 2022). Las
 aplicaciones demo ocupan el punto medio seguro y renuncian a las partes difíciles: tienden a
 ser monoplataforma o de un solo ámbito — las personas de SauceDemo se detienen en un puñado
 de comportamientos web (Sauce Labs, n.d.); Juice Shop apunta solo a seguridad (OWASP
-Foundation, n.d.) — y su maquinaria de testabilidad está sin documentar, sin versionar y sin
-estudiar. Lo que falta es un sistema lo bastante realista para que los pitfalls importen, lo
-bastante determinista para que las afirmaciones sean verificables, y lo bastante
+Foundation, n.d.) — y su maquinaria de testabilidad no lleva contrato de compatibilidad —
+selectores y personas pueden cambiar sin aviso — y no ha sido estudiada como objeto de
+investigación por derecho propio. Lo que falta es un sistema lo bastante realista para que
+los pitfalls importen, lo bastante determinista para que las afirmaciones sean verificables,
+y lo bastante
 instrumentado para que la instrumentación misma pueda examinarse: un laboratorio controlado
 en lugar de una demo.
 
@@ -88,12 +89,12 @@ ejemplar (RQ2), evaluamos la plataforma bajo una semana de QA automatizada exter
 un estudio de caso retrospectivo (RQ3), y destilamos guías de diseño-para-testabilidad
 etiquetadas por la fuerza de su evidencia (RQ4). El laboratorio está diseñado para servir a
 cuatro audiencias — profesionales que entrenan contra pitfalls embebidos a propósito
-(selectores dependientes del viewport, widgets a medida, RTL, condiciones de carrera de
-estado), constructores de herramientas que necesitan un blanco de benchmark estable con
+(selectores dependientes del viewport, widgets a medida, RTL, estado de fixtures
+compartidos), constructores de herramientas que necesitan un blanco de benchmark estable con
 defectos sembrados documentados, investigadores que necesitan fenómenos deterministas con
 captura de archivo del lado del triage del proceso de QA, y docentes que necesitan un
 currículum gratuito, desplegado y reseteable — aunque la evidencia de adopción hasta la
-fecha es un único harness externo (Sección 7).
+fecha es un único harness externo (Sección 5.2).
 
 El dominio es deliberadamente mundano. El comercio multi-mercado ejercita la
 internacionalización y el layout de derecha a izquierda, reglas de validación por mercado,
@@ -106,29 +107,31 @@ entrenamiento en el dominio.
   - **RQ1 (pregunta descriptiva de diseño).** ¿Qué mecanismos de diseño hacen que un producto
     multiplataforma realista funcione como laboratorio de pruebas controlado — determinista,
     controlable, observable — sin dejar de ser realista? *Evidencia: la descripción verificada
-    del artefacto, Sección 3.*
+    del artefacto, Secciones 3.1–3.2.*
   - **RQ2 (pregunta de capacidad/affordance).** ¿Qué propiedades relacionadas con el testing
-    está instrumentada la plataforma para medir? *Evidencia: el catálogo de affordances, Sección 4;
-    una fila se ejecuta como ejemplar (4.1), la fila del proceso de QA la ejercita la
-    Sección 5, y el resto siguen siendo afirmaciones de diseño.*
+    está instrumentada la plataforma para medir? *Evidencia: el catálogo de affordances,
+    Sección 3.3; una fila se ejecuta vía el procedimiento de la Sección 3.4 (resultados en la
+    Sección 4.1), la fila del proceso de QA la ejercita la Sección 4.2, y el resto siguen
+    siendo afirmaciones de diseño.*
   - **RQ3 (pregunta de validación).** ¿Cómo se comporta la plataforma bajo uso real de QA
-    automatizada externa? *Evidencia: el estudio de caso retrospectivo, Sección 5 — una
-    prueba de existencia con un despliegue y un harness externo.*
+    automatizada externa? *Evidencia: el estudio de caso retrospectivo (método en la
+    Sección 3.5, resultados en la Sección 4.2) — una prueba de existencia con un despliegue y
+    un harness externo.*
   - **RQ4 (pregunta prescriptiva).** ¿Qué guías transferibles de diseño-para-testabilidad,
-    con qué trade-offs, se siguen del diseño y de su evaluación? *Evidencia: Sección 6, cada
+    con qué trade-offs, se siguen del diseño y de su evaluación? *Evidencia: Sección 5.1, cada
     guía etiquetada por fuerza de evidencia.*
 - Contribuciones (lista aprobada):
   1. La plataforma, puesta a disposición de las cuatro audiencias anteriores: abierta,
      desplegada públicamente, reproducible (3 desplegables, 5 mercados / 6 idiomas incl. RTL,
      7 usuarios caos deterministas, 20 operaciones `/api` bajo contrato, suites de prueba
      heterogéneas).
-  2. Un catálogo de patrones para el diseño de productos testability-first (Sección 3).
+  2. Un catálogo de patrones para el diseño de productos testability-first (Sección 3.2).
   3. Un catálogo de propiedades que el laboratorio está instrumentado para medir o estudiar
-     (Sección 4).
+     (Sección 3.3).
   4. Evaluación en uso real: una semana de QA automatizada externa — 19 hallazgos, una
      clasificación preliminar de veredictos de 8 clases, y falsos positivos mediados por la
-     instrumentación (Sección 5).
-  5. Guías de diseño-para-testabilidad etiquetadas por fuerza de evidencia (Sección 6).
+     instrumentación (Secciones 3.5 y 4.2).
+  5. Guías de diseño-para-testabilidad etiquetadas por fuerza de evidencia (Sección 5.1).
 
 ## 2. Trabajo relacionado (esquema)
 
@@ -143,29 +146,29 @@ entrenamiento en el dominio.
   testabilidad (Binder; Freedman) — OmniPizza operacionaliza ambas como funcionalidades del
   producto.
 - Tests flaky y ruido de fallos de prueba (Luo et al.; reportes industriales); triage de
-  falsos positivos; contaminación de fixtures — los fenómenos que, como muestra la Sección 5, el
-  laboratorio genera.
+  falsos positivos; contaminación de fixtures — los fenómenos que, como muestra la
+  Sección 4.2, el laboratorio genera.
 - LLMs en testing y triage; supervisión humano-IA (contexto para el protocolo de triage de la
   evaluación).
 - Metodología de estudio de caso y design science (Runeson & Höst; Yin; Wieringa).
 
-## 3. La plataforma OmniPizza: principios de diseño (RQ1)
+## 3. Métodos
 
-Tres desplegables — backend FastAPI, web React/Vite, móvil Expo/React Native — más suites de
-prueba dentro y fuera de los paquetes de la app. La superficie de producto es un flujo de
-pedido completo (login, catálogo, constructor de pizzas, checkout, seguimiento de pedido,
-perfil) sobre un catálogo de 12 pizzas localizado en 6 idiomas. Los mecanismos de
-testabilidad son funcionalidades del producto con las mismas garantías de compatibilidad que
-las funcionalidades de usuario.
+El estudio combina dos instrumentos unidos por un ejemplar ejecutado de bajo costo: una
+descripción de artefacto de design science y un estudio de caso retrospectivo embebido. Las
+preguntas de investigación mapean a evidencia así: RQ1 → la descripción verificada de la
+plataforma (3.2); RQ2 → el catálogo de instrumentación (3.3), con una fila ejecutada vía el
+procedimiento de 3.4 (resultados en 4.1); RQ3 → el método del estudio de caso (3.5;
+resultados en 4.2); RQ4 → las guías derivadas en la discusión (5.1).
 
-### 3.1 Cómo se derivó y verificó esta descripción (método)
+### 3.1 Derivación y verificación de la descripción de la plataforma
 
 La justificación de diseño se reconstruyó exclusivamente desde fuentes de archivo fechadas —
 los documentos de requisitos de producto y de diseño del repo, las dos guías de testing atómico, el
 documento de arquitectura QA y el historial de git ($209$ commits, 2026-02-07 → 2026-07-22) —
 y no desde el recuerdo de los autores, de modo que cada afirmación de diseño traza a un
 artefacto que el lector puede abrir. La exactitud descriptiva se impuso después de forma
-mecánica. Cada afirmación cuantitativa de las Secciones 3–5 se verificó contra el repositorio — código
+mecánica. Cada afirmación cuantitativa de las Secciones 3–4 se verificó contra el repositorio — código
 y documentos de archivo — en un snapshot fijado, commit `83b8ba4` (2026-07-22, el último commit de
 producto de la ventana de estudio), mediante una pasada adversarial de verificación de hechos
 ejecutada con independencia de la pasada de redacción; la separación se eligió porque las
@@ -180,12 +183,21 @@ obligatorio de este paper y no material opcional.
 Los principios de diseño se etiquetan además por procedencia. Los mecanismos declarados como
 metas en los documentos fundacionales (personas caos, mercado-como-datos, entrada atómica,
 contratos de selectores) se marcan *ex-ante*; las codificaciones de lecciones operativas —
-el anclaje del perfil al login de la Sección 3.6, introducido a mitad de la historia para
+el anclaje del perfil al login de la Sección 3.2.5, introducido a mitad de la historia para
 arreglar una carrera de login observada, y un guard defensivo de deep links — se marcan
 *ex-post*. El etiquetado se adoptó para que el catálogo no presente la retrospectiva como
 previsión.
 
-### 3.2 Caos-por-identidad: los modos de fallo viajan en las credenciales
+### 3.2 Materiales: la plataforma OmniPizza (RQ1)
+
+Tres desplegables — backend FastAPI, web React/Vite, móvil Expo/React Native — más suites de
+prueba dentro y fuera de los paquetes de la app. La superficie de producto es un flujo de
+pedido completo (login, catálogo, constructor de pizzas, checkout, seguimiento de pedido,
+perfil) sobre un catálogo de 12 pizzas localizado en 6 idiomas. Los mecanismos de
+testabilidad son funcionalidades del producto con las mismas garantías de compatibilidad que
+las funcionalidades de usuario.
+
+#### 3.2.1 Caos-por-identidad: los modos de fallo viajan en las credenciales
 
 Siete usuarios de prueba deterministas (contraseña compartida), cada uno con un claim
 `behavior` en su JWT que el backend impone del lado del servidor:
@@ -204,7 +216,7 @@ Como el modo de fallo va anclado a la *identidad*, compone ortogonalmente con ca
 idioma y plataforma — sin flags de entorno, sin configuración de prueba del lado del
 servidor, y dos tests que usan personas distintas jamás interfieren entre sí.
 
-### 3.3 La complejidad multi-mercado como datos, no como código
+#### 3.2.2 La complejidad multi-mercado como datos, no como código
 
 Una tabla de configuración gobierna 5 mercados (MX, US, CH, JP, SA): moneda y conversión,
 reglas de decimales (JPY: 0 decimales), tasas de impuesto (8–16%), un campo de dirección
@@ -215,7 +227,7 @@ de 5 dígitos del zip de US. SA ejercita adicionalmente el layout árabe de dere
 izquierda. Las reglas de mercado son, por tanto, *dimensiones de prueba enumerables*: un
 generador de tests puede recorrer la tabla en lugar de hacer ingeniería inversa de ramas.
 
-### 3.4 Inyección atómica de estado: entrada O(1) a cualquier pantalla
+#### 3.2.3 Inyección atómica de estado: entrada O(1) a cualquier pantalla
 
 Ambas plataformas exponen bypasses sancionados que colocan un test *directamente en* el
 estado objetivo en lugar de repetir el recorrido del usuario:
@@ -228,11 +240,11 @@ estado objetivo en lugar de repetir el recorrido del usuario:
   (`accessToken` evita el login, `market`, `lang`, `resetSession`, `hydrateCart`), más un
   argumento de lanzamiento de Detox para la selección de mercado.
 
-Los bypasses son funcionalidades versionadas y estructurales — y la Sección 5 muestra su
+Los bypasses son funcionalidades versionadas y estructurales — y la Sección 4.2 muestra su
 costo: la misma maquinaria, funcionando exactamente como fue diseñada, propició falsos positivos
 durante el uso real de QA.
 
-### 3.5 Contratos de instrumentación como APIs versionadas
+#### 3.2.4 Contratos de instrumentación como APIs versionadas
 
 Cada elemento interactivo lleva un selector estable (165 ocurrencias de `data-testid` en web,
 114 de `testID` en móvil, convención de prefijos compartida); las rutas y las formas de
@@ -243,7 +255,7 @@ endpoints de *lectura* sensibles al mercado — obtención de catálogo e hidrat
 lleva el mercado en el cuerpo de la solicitud. Renombrar un selector se trata como cambio
 rompiente — la testabilidad tiene la misma disciplina de compatibilidad que una API pública.
 
-### 3.6 Estado efímero como aislamiento
+#### 3.2.5 Estado efímero como aislamiento
 
 El backend persiste todo en memoria: reinicio = borrón determinista y cuenta nueva. El estado
 editable del perfil se ancla a la sesión de login (un claim JWT `sid` por login), de modo que
@@ -251,9 +263,9 @@ sesiones concurrentes del mismo usuario de prueba compartido obtienen perfiles a
 lección de diseño *ex-post*: el anclaje se introdujo a mitad de la historia para arreglar una
 carrera de login observada. La contracara, la retención de estado en instancias calientes
 sobre fixtures compartidos, se conserva deliberadamente: genera exactamente los fenómenos de
-fixture compartido que la Sección 5 estudia.
+fixture compartido que la Sección 4.2 estudia.
 
-### 3.7 Un currículum de automatización deliberadamente embebido
+#### 3.2.6 Un currículum de automatización deliberadamente embebido
 
 Los pitfalls reales de la automatización están reproducidos a propósito: sufijos de selector
 dependientes del viewport que conmutan en un breakpoint responsivo, una clave de
@@ -264,19 +276,21 @@ flujo de pago falso en formulario, date pickers multiparte). Practicar contra
 OmniPizza es encontrarse con los pitfalls que las apps de producción contienen por accidente
 — aquí documentados y estables.
 
-### 3.8 Un portafolio de pruebas de referencia sobre un mismo sistema
+#### 3.2.7 Un portafolio de pruebas de referencia sobre un mismo sistema
 
 Cuatro capas de prueba heterogéneas — desde tests de componentes dentro del repo hasta una
 suite de API externa — apuntan al mismo producto: tests de contrato generados por esquema
 (Schemathesis, el número de casos escala con el esquema OpenAPI), 41 casos de integración de
-API escritos a mano que incluyen una suite golden de caracterización, 11 specs de tests de
+API escritos a mano que incluyen una suite golden de caracterización (46 ejecutados en
+runtime vía expansión parametrizada; regla de conteo en el fact sheet), 11 specs de tests de
 componentes, y experimentos E2E de resiliencia a latencia por plataforma. Esto habilita la
-comparación en igualdad de condiciones de qué detecta cada capa (ejecutada como ejemplar en
-la Sección 4.1). El documento de requisitos del producto entrega además una
+comparación en igualdad de condiciones de qué detecta cada capa (procedimiento en la
+Sección 3.4; resultados en la Sección 4.1). El documento de requisitos del producto entrega
+además una
 matriz de aceptación de flujos negativos de 13 escenarios (códigos de estado y resultados de
 UI esperados), usable directamente como dataset de oráculos.
 
-## 4. Lo que el laboratorio está instrumentado para medir (RQ2)
+### 3.3 Instrumentos: lo que el laboratorio está instrumentado para medir (RQ2)
 
 Formato del catálogo: dimensión → instrumento que provee la plataforma → medición de ejemplo
 → estado. Este es un catálogo de *affordances*: las filas son afirmaciones de diseño sobre
@@ -290,37 +304,25 @@ qué filas ejercita este paper.
 | Manejo de fallos probabilísticos | `error_user` (checkout 500 con p = 0.5) | lógica de reintentos, consistencia de la UX de error, comportamiento de políticas de test-retry | affordance — aún no ejecutada |
 | Detección de accesibilidad | `a11y_glitch_user` (3 modos de defecto en llamadas de catálogo/carrito) | recall del tooling de a11y contra defectos sembrados conocidos | affordance — aún no ejecutada |
 | Detección de seguridad | `security_glitch_user` (payloads XSS, fugas de información, bypass de propiedad) | recall de escáneres contra vulnerabilidades sembradas conocidas | affordance — aún no ejecutada |
-| Corrección de i18n / RTL | 6 idiomas incl. árabe RTL; 5 conjuntos de reglas de mercado; copy multiplataforma | divergencia de copy entre plataformas; verificaciones de layout RTL; cobertura de validación por mercado | ejercitada incidentalmente en la Sección 5 (hallazgos de divergencia de copy) |
-| Costo de setup y superficie de flakes | entrada atómica (3.4) vs. recorrido completo hasta el mismo estado | pasos/tiempo-al-estado; qué flakes desaparecen con entrada atómica | affordance — aún no ejecutada |
+| Corrección de i18n / RTL | 6 idiomas incl. árabe RTL; 5 conjuntos de reglas de mercado; copy multiplataforma | divergencia de copy entre plataformas; verificaciones de layout RTL; cobertura de validación por mercado | ejercitada incidentalmente en la Sección 4.2 (hallazgos de divergencia de copy) |
+| Costo de setup y superficie de flakes | entrada atómica (3.2.3) vs. recorrido completo hasta el mismo estado | pasos/tiempo-al-estado; qué flakes desaparecen con entrada atómica | affordance — aún no ejecutada |
 | Robustez de estrategias de selectores | sufijos dependientes del viewport, zoológico de widgets, RTL | supervivencia de localizadores entre viewports/idiomas | affordance — aún no ejecutada |
-| Fenómenos del proceso de QA | replay determinista + artefactos de triage durables + despliegues públicos | taxonomías de triage, procedencia de falsos positivos, estudios de artefactos de harness | ejercitada — Sección 5 |
+| Fenómenos del proceso de QA | replay determinista + artefactos de triage durables + despliegues públicos | taxonomías de triage, procedencia de falsos positivos, estudios de artefactos de harness | ejercitada — Sección 4.2 |
 
-### 4.1 Un ejemplar ejecutado: el defecto sembrado de precios $0 a través de las cuatro capas
+### 3.4 Procedimiento del ejemplar: el defecto sembrado de precios $0 a través de las cuatro capas
 
 Para convertir una fila del catálogo de afirmación de diseño en evidencia, el portafolio de
-la Sección 3.8 se ejecutó **tal cual está** — sin modificar ninguna suite — contra el defecto
+la Sección 3.2.7 se ejecutó **tal cual está** — sin modificar ninguna suite — contra el defecto
 sembrado de `problem_user`, el 2026-07-23, sobre una instancia local en el snapshot fijado
 (backend servido en el puerto $8000$ con estado en memoria fresco; Vitest 4.0.18 vía
 `npx vitest run`, con el `fileParallelism: false` fijado en el repositorio porque las suites
 comparten un único backend con estado; Cypress 15.11.0 headless vía `cypress run --component`;
 Schemathesis 3.25.1 bajo pytest 7.4.4 con `max_examples = 50` por endpoint). El ground truth
 se confirmó en vivo antes de las corridas: un login de `problem_user` seguido de una
-obtención de catálogo devolvió $12/12$ pizzas a precio $0.0$ con la URL de imagen rota.
+obtención de catálogo devolvió $12/12$ pizzas a precio $0.0$ con la URL de imagen rota. Los
+resultados se reportan en la Sección 4.1.
 
-Ninguna capa reportó un fallo atribuible al defecto sembrado — detección de $0/4$. Dos de
-las cuatro capas no llegaron a ejecutarse. Observaciones por capa:
-
-| Capa | Resultado observado (tal cual está) |
-|---|---|
-| Contrato (Schemathesis) | La colección falló antes de ejecutar caso alguno: la versión 3.25.1 lanza `SchemaError` sobre el documento OpenAPI 3.1.0 del backend ("currently not fully supported"). Independientemente, `price` no lleva restricción `minimum` en ninguno de los dos esquemas de respuesta (`Pizza`, `EnrichedCartItem`); un valor de $0$ es válido contra el esquema |
-| Integración de API (Vitest) | $46/46$ casos pasaron con el defecto activo. Dos casos assertan el defecto como comportamiento esperado de `problem_user`: `expect(p01.price).toBe(0)` y la URL de imagen rota (`tests/golden.test.ts`) |
-| Componentes (Cypress) | $14/15$ casos en $11$ specs pasaron. Cada spec se monta con datos de fixture (`price: 12.99`); ninguno emite una solicitud al backend. El único spec fallido (`ProductCard.cy.jsx`) lanzó `TypeError: t is not a function` al montar; el spec es anterior a la prop `t` del componente. La capa corre bajo `continue-on-error: true` en CI |
-| E2E (Detox) | No se ejecutó. `detox` y `jest` no figuran en las dependencias del workspace; `e2e/jest.config.js`, referenciado por `.detoxrc.js`, no existe; el APK `androidTest` publicado contiene $4$ entradas ($8{,}518$ bytes) y ninguna clase Detox. El único spec no contiene aserciones de precio y se autentica solo como `standard_user` y `performance_glitch_user` |
-
-La interpretación de estos resultados — la tensión detección-vs-caracterización, las capas
-decaídas y el requisito de oráculos que implican — se difiere a la Sección 7.
-
-## 5. Evaluación: una semana de QA automatizada externa (RQ3)
+### 3.5 Método del estudio de caso: una semana de QA automatizada externa (RQ3)
 
 **Escenario.** Un harness externo de QA automatizada — suites de UI y API que abarcan
 múltiples mercados e idiomas en web y móvil, operado por un tercero y observable para los
@@ -330,13 +332,13 @@ reportes con hallazgos más una ronda de re-verificación. Cada hallazgo fue tri
 agente LLM (Claude, Anthropic) bajo reglas permanentes definidas por humanos y con puntos de
 control de decisión humana por lote, y cada ciclo produjo un documento de explicación durable
 y fechado en el momento del triage — antes de que este paper fuera concebido (caveats de
-procedencia documental: Sección 7).
+procedencia documental: Sección 5.2).
 
 **Diseño.** La evaluación se enmarcó como un estudio de caso retrospectivo embebido de caso
 único (Runeson & Höst, 2009; Yin, 2018): el caso es la semana de operación; las unidades
 embebidas son los hallazgos. Se eligió un diseño retrospectivo porque el triage ocurrió como
 trabajo de ingeniería normal, lo que elimina el sesgo de diseñar-para-publicar del proceso
-bajo estudio — al costo de las preocupaciones de auto-reporte declaradas en la Sección 7.
+bajo estudio — al costo de las preocupaciones de auto-reporte declaradas en la Sección 5.2.
 
 **Datos e inclusión.** Se triangularon tres fuentes de archivo: los seis documentos de
 explicación fechados (escritos en español), el historial de git (los commits de fix se citan
@@ -349,7 +351,7 @@ que el equipo reportante había descartado antes de la ventana, dos bugs que el 
 atribuyó al código del harness, y bugs hermanos del mismo patrón autodescubiertos en sweeps
 de fixes. Las dos primeras exclusiones eliminan no-bugs del denominador y por tanto sesgan
 *al alza* la tasa medida de bugs reales; la dirección se declara para que el lector pueda
-razonar sobre ella (Sección 7).
+razonar sobre ella (Sección 5.2).
 
 **Codificación.** Los hallazgos se codificaron mediante una pasada de extracción asistida por
 LLM sobre las fuentes en español y fueron revisados por un humano fila por fila contra el
@@ -365,7 +367,7 @@ se reporta al lado. La tabla completa de codificación se entrega como `findings
 (apéndice), que además registra el release en el que se publicaron los fixes de cada ciclo,
 porque $11$ bugs se arreglaron y cinco releases se publicaron *durante* la ventana (cuatro
 de ellos derivados del triage; el quinto, v1.1.6, fue trabajo concurrente de features) — las
-tasas por ciclo describen por tanto un artefacto en movimiento, una amenaza que la Sección 7
+tasas por ciclo describen por tanto un artefacto en movimiento, una amenaza que la Sección 5.2
 registra.
 
 **Protocolo bajo estudio.** El propio protocolo de triage — el objeto de la RQ3 — imponía
@@ -375,6 +377,25 @@ cualquier veredicto que exonerara a la app; los bugs confirmados con causa evide
 de código podían veredictarse por auditoría de código más medición dirigida. Exigía además
 fix-and-commit con hashes de conventional commits para los bugs confirmados, documentos de
 explicación durables para cada ciclo, y autorización humana explícita por push y por release.
+
+## 4. Resultados
+
+### 4.1 El ejemplar: el defecto sembrado de precios $0 a través de las cuatro capas
+
+Ninguna capa reportó un fallo atribuible al defecto sembrado — detección de $0/4$. Dos de
+las cuatro capas no llegaron a ejecutarse. Observaciones por capa:
+
+| Capa | Resultado observado (tal cual está) |
+|---|---|
+| Contrato (Schemathesis) | La colección falló antes de ejecutar caso alguno: la versión 3.25.1 lanza `SchemaError` sobre el documento OpenAPI 3.1.0 del backend ("currently not fully supported"). Independientemente, `price` no lleva restricción `minimum` en ninguno de los dos esquemas de respuesta (`Pizza`, `EnrichedCartItem`); un valor de $0$ es válido contra el esquema |
+| Integración de API (Vitest) | $46/46$ casos pasaron con el defecto activo. Dos casos assertan el defecto como comportamiento esperado de `problem_user`: `expect(p01.price).toBe(0)` y la URL de imagen rota (`tests/golden.test.ts`) |
+| Componentes (Cypress) | $14/15$ casos en $11$ specs pasaron. Cada spec se monta con datos de fixture (`price: 12.99`); ninguno emite una solicitud al backend. El único spec fallido (`ProductCard.cy.jsx`) lanzó `TypeError: t is not a function` al montar; el spec es anterior a la prop `t` del componente. La capa corre bajo `continue-on-error: true` en CI |
+| E2E (Detox) | No se ejecutó. `detox` y `jest` no figuran en las dependencias del workspace; `e2e/jest.config.js`, referenciado por `.detoxrc.js`, no existe; el APK `androidTest` publicado contiene $4$ entradas ($8{,}518$ bytes) y ninguna clase Detox. El único spec no contiene aserciones de precio y se autentica solo como `standard_user` y `performance_glitch_user` |
+
+La interpretación de estos resultados — la tensión detección-vs-caracterización, las capas
+decaídas y el requisito de oráculos que implican — se difiere a la Sección 5.
+
+### 4.2 Una semana de QA automatizada externa
 
 **El laboratorio como app bajo prueba.** 19 hallazgos; 11/19 bugs reales, todos arreglados y
 liberados (4 de los 6 ciclos produjeron un release). Tasa de bugs reales por ciclo: 6/8
@@ -405,48 +426,9 @@ Destacados:
   el harness externo inobservable, mientras que toda exoneración empírica del lado de la app
   sobrevivió.
 
-La interpretación de estos resultados se difiere a la Sección 7.
+La interpretación de estos resultados se difiere a la Sección 5.
 
-## 6. Guías de diseño para testabilidad (RQ4)
-
-Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
-
-1. **Pon los modos de fallo en las credenciales.** Las personas caos deterministas componen
-   ortogonalmente con cualquier otra dimensión de prueba y no requieren mutar el entorno.
-   *[Fundado en la historia de diseño, Sección 3.2.]* Trade-off (anticipado, aún no
-   observado): las personas son parte del contrato público; cambiar su comportamiento es un
-   cambio rompiente.
-2. **Haz de las reglas de mercado/i18n datos, no ramas.** Las tablas de reglas enumerables
-   convierten el cumplimiento en dimensiones de prueba recorribles. *[Fundado en la historia
-   de diseño, Sección 3.3; trade-off observado en la Sección 5: el drift entre la tabla de
-   reglas/copy y las plataformas es en sí una clase de bug.]*
-3. **Entrega puntos de entrada sancionados de inyección de estado — y trata sus efectos
-   secundarios como parte del diseño.** El setup O(1) elimina la parte más flaky de las
-   suites E2E *[fundado en la historia de diseño, Sección 3.4]*; el costo observado es que
-   los mismos bypasses median falsos positivos *[observado en la Sección 5]*. La mitad
-   prescriptiva — guardarraíles como rechazar `resetSession` a mitad de escenario, más
-   telemetría de uso — es diseño futuro propuesto: OmniPizza hoy solo incluye un guard
-   defensivo parcial y ninguna telemetría.
-4. **Versiona tu instrumentación.** Selectores, headers y formas de respuesta tratados como
-   API pública hacen durable la automatización. *[Fundado en el racional de diseño,
-   Sección 3.5; en la ventana de evaluación no ocurrió ningún episodio de renombre rompiente
-   que lo pusiera a prueba.]*
-5. **Prefiere estado reseteable; ancla el estado mutable de sesión al login.** Reinicio-como-
-   reset más el aislamiento de perfil por login eliminaron una carrera observada *[fundado en
-   la historia de diseño, Sección 3.6]*; donde quedan fixtures compartidos mutables, sus
-   remanentes imitan bugs deterministas de la app *[observado en la Sección 5]* — decide
-   deliberadamente qué hacer con cada clase de estado.
-6. **Haz el triage durable y falsable.** Documentos de explicación fechados que registran sus
-   propias retractaciones convierten el triage en datos auditables — y toda atribución sobre
-   un sistema que no puedes observar es una hipótesis para su dueño, no un veredicto.
-   *[Observado en la Sección 5: ambas explicaciones retractadas eran atribuciones que
-   cruzaban la frontera de observabilidad.]*
-7. **Lleva la semántica de aserción junto con los hallazgos.** Un desajuste
-   contains-vs-exact invirtió un veredicto; los contratos de aserción del harness deberían
-   viajar como metadatos con cada hallazgo reportado. *[Conjetura generalizada desde un único
-   incidente observado.]*
-
-## 7. Discusión, limitaciones y amenazas (discusión redactada; enumeración de amenazas)
+## 5. Discusión
 
 El número titular del ejemplar es pequeño pero afilado. Cero de cuatro capas marcaron un
 defecto cuyo ground truth era conocido y estaba confirmado en vivo. Los datos sugieren que
@@ -546,7 +528,46 @@ un sistema diseñado para ser testeable hacia sistemas que no lo son es, en el m
 casos, analítica. El sandbox mide lo que fue construido para exhibir. Esa circularidad aquí
 se declara, no se resuelve.
 
-**Amenazas a la validez (enumeración detallada — esquema).**
+### 5.1 Guías de diseño para testabilidad (RQ4)
+
+Patrones transferibles, cada uno etiquetado con la fuerza de su evidencia:
+
+1. **Pon los modos de fallo en las credenciales.** Las personas caos deterministas componen
+   ortogonalmente con cualquier otra dimensión de prueba y no requieren mutar el entorno.
+   *[Fundado en la historia de diseño, Sección 3.2.1.]* Trade-off (anticipado, aún no
+   observado): las personas son parte del contrato público; cambiar su comportamiento es un
+   cambio rompiente.
+2. **Haz de las reglas de mercado/i18n datos, no ramas.** Las tablas de reglas enumerables
+   convierten el cumplimiento en dimensiones de prueba recorribles. *[Fundado en la historia
+   de diseño, Sección 3.2.2; trade-off observado en la Sección 4.2: el drift entre la tabla de
+   reglas/copy y las plataformas es en sí una clase de bug.]*
+3. **Entrega puntos de entrada sancionados de inyección de estado — y trata sus efectos
+   secundarios como parte del diseño.** El setup O(1) elimina la parte más flaky de las
+   suites E2E *[fundado en la historia de diseño, Sección 3.2.3]*; el costo observado es que
+   los mismos bypasses propician falsos positivos *[observado en la Sección 4.2]*. La mitad
+   prescriptiva — guardarraíles como rechazar `resetSession` a mitad de escenario, más
+   telemetría de uso — es diseño futuro propuesto: OmniPizza hoy solo incluye un guard
+   defensivo parcial y ninguna telemetría.
+4. **Versiona tu instrumentación.** Selectores, headers y formas de respuesta tratados como
+   API pública hacen durable la automatización. *[Fundado en el racional de diseño,
+   Sección 3.2.4; en la ventana de evaluación no ocurrió ningún episodio de renombre rompiente
+   que lo pusiera a prueba.]*
+5. **Prefiere estado reseteable; ancla el estado mutable de sesión al login.** Reinicio-como-
+   reset más el aislamiento de perfil por login eliminaron una carrera observada *[fundado en
+   la historia de diseño, Sección 3.2.5]*; donde quedan fixtures compartidos mutables, sus
+   remanentes imitan bugs deterministas de la app *[observado en la Sección 4.2]* — decide
+   deliberadamente qué hacer con cada clase de estado.
+6. **Haz el triage durable y falsable.** Documentos de explicación fechados que registran sus
+   propias retractaciones convierten el triage en datos auditables — y toda atribución sobre
+   un sistema que no puedes observar es una hipótesis para su dueño, no un veredicto.
+   *[Observado en la Sección 4.2: ambas explicaciones retractadas eran atribuciones que
+   cruzaban la frontera de observabilidad.]*
+7. **Lleva la semántica de aserción junto con los hallazgos.** Un desajuste
+   contains-vs-exact invirtió un veredicto; los contratos de aserción del harness deberían
+   viajar como metadatos con cada hallazgo reportado. *[Conjetura generalizada desde un único
+   incidente observado.]*
+
+### 5.2 Amenazas a la validez (enumeración detallada — esquema)
 
 - Amenazas propias de un paper de artefacto: los autores construyeron la plataforma (la evidencia de
   adopción es exactamente un harness externo; las cuatro audiencias de la Sección 1 son
@@ -555,8 +576,8 @@ se declara, no se resuelve.
   clase de infraestructura); aún no existe un manifiesto de defectos sembrados legible por
   máquina (el pitch para constructores de herramientas depende de él; planificado como
   material suplementario); sostenibilidad archivística (los despliegues vivos corren en un free
-  tier — la Sección 8 se compromete a un snapshot archivado con commit fijado/DOI).
-- Amenazas de la evaluación (condensadas del instrumento de la Sección 5): documentos de
+  tier — la Sección 6 se compromete a un snapshot archivado con commit fijado/DOI).
+- Amenazas de la evaluación (condensadas del instrumento de la Sección 3.5): documentos de
   triage auto-reportados escritos por el propio agente que hizo el triage;
   investigador-como-participante; la validez del LLM como agente de triage como clase de amenaza
   propia; los fallos de triage registrados son una cota inferior (la cobertura de
@@ -583,12 +604,13 @@ se declara, no se resuelve.
   personas vs. los 5 / 7 actuales) — una advertencia para adoptantes de la plataforma y, en
   sí mismo, un fenómeno medible.
 - Frontera de alcance: una fila del catálogo se ejecutó como ejemplar de bajo costo
-  (Sección 4.1, 2026-07-23, instancia local en el snapshot fijado); las demás filas de la
-  Sección 4 están habilitadas, no ejecutadas — por diseño de este paper; candidatos para
+  (procedimiento 3.4, resultados 4.1; 2026-07-23, instancia local en el snapshot fijado);
+  las demás filas de la Sección 3.3 están habilitadas, no ejecutadas — por diseño de este
+  paper; candidatos para
   trabajo posterior. La generalizabilidad de las guías está acotada a un dominio (e-commerce)
   y un equipo.
 
-## 8. Conclusión y disponibilidad
+## 6. Conclusión y disponibilidad
 
 Un laboratorio es una promesa sobre el futuro, no un reporte sobre el pasado. La promesa que
 esta plataforma hace a sus audiencias es compatibilidad: personas, selectores, puntos de
@@ -685,7 +707,7 @@ editor/oficial) el 2026-07-23; la lista de reserva verificada vive en el índice
 ## Apéndice / material suplementario
 
 - **Hoja de datos de la plataforma (compañero obligatorio):** cada número de las Secciones
-  3–5 con su regla de conteo y el commit del snapshot fijado (operaciones de endpoint vs.
+  3–4 con su regla de conteo y el commit del snapshot fijado (operaciones de endpoint vs.
   paths; conteos de *ocurrencias* de selectores vs. IDs distintos; conteo de releases
   excluyendo tags legacy duplicados que difieren solo en mayúsculas/minúsculas; conteos de filas de la tabla de
   widgets).

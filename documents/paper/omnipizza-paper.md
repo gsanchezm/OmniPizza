@@ -1,13 +1,11 @@
 # OmniPizza: A Controlled Laboratory for Multi-Platform Test Automation
 
-> **Status:** base document (v0.4, 2026-07-23). Platform-centered framing (pivot from the
-> earlier triage-centered draft); the one-week QA triage study is the evaluation (Section 5).
-> Sections 3–6 are drafted (3.1, 4.1 and the Section 5 method blocks in full prose);
-> Sections 7 (discussion prose + threat enumeration) and 8 (conclusion) are drafted;
-> Section 1 is drafted (CARS moves + RQ and contribution lists); Section 2 and the Abstract
-> remain outlines.
-> All quantitative claims were adversarially fact-checked against the repository at the
-> pinned snapshot (Section 3.1); three claims refuted in review were corrected in this version.
+> **Status:** base document (v0.5, 2026-07-23). IMRaD structure: 1 Introduction (CARS) ·
+> 2 Related Work (outline) · 3 Methods (derivation, materials, instruments, exemplar
+> procedure, case-study method) · 4 Results · 5 Discussion (prose + guidelines + threat
+> enumeration) · 6 Conclusion & Availability. The Abstract and Section 2 remain outlines;
+> everything else is drafted prose. All quantitative claims were adversarially fact-checked
+> against the repository at the pinned snapshot (Section 3.1).
 >
 > **Working-title alternatives:**
 > - *Testability as a Product Feature: OmniPizza, an Open Multi-Market Testbed for QA Automation*
@@ -43,7 +41,8 @@
 
 Automated testing is how modern software teams buy confidence: continuous-integration
 systems execute suites at every change, and an ecosystem of tools — locator engines,
-contract checkers, accessibility scanners, and lately LLM-based agents (Wang et al., 2024) —
+contract checkers, accessibility scanners, and lately LLM-based testing tools (Wang et al.,
+2024) —
 competes to turn those executions into trustworthy verdicts. Progress in this field has
 always depended on shared objects of study. Researchers measure techniques against curated
 infrastructures and defect corpora (Do et al., 2005; Just et al., 2014); practitioners learn
@@ -55,11 +54,12 @@ The available objects of study pull in different directions, and none of them su
 everyday questions of multi-platform UI and API automation. Defect corpora are controlled
 but frozen: they package historical faults for offline scoring, not a running product a
 harness can exercise today. Production systems are live but unsafe and closed to inspection,
-and their failure signals are pervaded by nondeterminism (Memon et al., 2017; Parry et al.,
-2022). Demo applications occupy the safe middle and give up the hard parts: they tend to be
+and the signals obtained by testing them at scale are pervaded by nondeterminism (Memon et
+al., 2017; Parry et al., 2022). Demo applications occupy the safe middle and give up the hard parts: they tend to be
 single-platform or single-concern — SauceDemo's personas stop at a handful of web behaviors
 (Sauce Labs, n.d.); Juice Shop targets security alone (OWASP Foundation, n.d.) — and their
-testability machinery is undocumented, unversioned, and unstudied. What is missing is a
+testability machinery carries no compatibility contract — selectors and personas can change
+without notice — and has not been studied as a research object in its own right. What is missing is a
 system realistic enough for the pitfalls to matter, deterministic enough for claims to be
 checkable, and instrumented enough that the instrumentation itself can be examined: a
 controlled laboratory rather than a demo.
@@ -75,10 +75,10 @@ exemplar (RQ2), evaluate the platform under one week of external automated QA th
 retrospective case study (RQ3), and distill design-for-testability guidelines tagged by the
 strength of their evidence (RQ4). The laboratory is designed to serve four audiences —
 practitioners training against deliberately embedded pitfalls (viewport-dependent selectors,
-custom widgets, RTL, state races), tool builders needing a stable benchmark target with
+custom widgets, RTL, shared-fixture state), tool builders needing a stable benchmark target with
 documented seeded defects, researchers needing deterministic phenomena with archival capture
 of the triage side of the QA process, and educators needing a free, deployed, resettable
-curriculum — though adoption evidence to date is a single external harness (Section 7).
+curriculum — though adoption evidence to date is a single external harness (Section 5.2).
 
 The domain is deliberately mundane. Multi-market commerce exercises internationalization and
 right-to-left layout, per-market validation rules, currency and tax arithmetic, and checkout
@@ -89,26 +89,27 @@ domain training.
   - **RQ1 (descriptive design question).** What design mechanisms make a realistic
     multi-platform product function as a controlled testing laboratory — deterministic,
     controllable, observable — without ceasing to be realistic? *Evidence: the verified
-    artifact description, Section 3.*
+    artifact description, Sections 3.1–3.2.*
   - **RQ2 (capability/affordance question).** What testing-related properties is the platform
-    instrumented to measure? *Evidence: the affordance catalog, Section 4; one row
-    is executed as an exemplar (4.1), the QA-process row is exercised by Section 5, the rest
-    remain design claims.*
+    instrumented to measure? *Evidence: the affordance catalog, Section 3.3; one row
+    executed via the Section 3.4 procedure (results in Section 4.1), the QA-process row
+    exercised by Section 4.2, the rest remain design claims.*
   - **RQ3 (validation question).** How does the platform behave under real external
-    automated-QA use? *Evidence: the retrospective case study, Section 5 — an existence
-    proof from one deployment and one external harness.*
+    automated-QA use? *Evidence: the retrospective case study (method in Section 3.5, results in
+    Section 4.2) — an existence proof from one deployment and one external harness.*
   - **RQ4 (prescriptive question).** What transferable design-for-testability guidelines,
-    with what trade-offs, follow from the design and its evaluation? *Evidence: Section 6,
+    with what trade-offs, follow from the design and its evaluation? *Evidence: Section 5.1,
     each guideline tagged by evidence strength.*
 - Contributions (approved list):
   1. The platform, made available to the four audiences above: open, publicly deployed,
      reproducible (3 deployables, 5 markets / 6 languages incl. RTL, 7 deterministic chaos
      users, 20 `/api` operations under contract, heterogeneous test suites).
-  2. A design-pattern catalog for testability-first product design (Section 3).
-  3. A catalog of properties the laboratory is instrumented to measure or study (Section 4).
+  2. A design-pattern catalog for testability-first product design (Section 3.2).
+  3. A catalog of properties the laboratory is instrumented to measure or study (Section 3.3).
   4. Evaluation in real use: one week of external automated QA — 19 findings, a preliminary
-     8-class verdict classification, and instrumentation-mediated false positives (Section 5).
-  5. Design-for-testability guidelines tagged by evidence strength (Section 6).
+     8-class verdict classification, and instrumentation-mediated false positives
+     (Sections 3.5 and 4.2).
+  5. Design-for-testability guidelines tagged by evidence strength (Section 5.1).
 
 ## 2. Related Work (outline)
 
@@ -122,26 +123,27 @@ domain training.
 - Design for testability: controllability/observability as testability dimensions (Binder;
   Freedman) — OmniPizza operationalizes both as product features.
 - Flaky tests and test-failure noise (Luo et al.; industrial reports); false-positive triage;
-  test-fixture pollution — the phenomena Section 5 shows the laboratory generating.
+  test-fixture pollution — the phenomena Section 4.2 shows the laboratory generating.
 - LLMs in testing and triage; human-AI oversight (context for the evaluation's triage
   protocol).
 - Case-study and design-science methodology (Runeson & Höst; Yin; Wieringa).
 
-## 3. The OmniPizza Platform: Design Principles (RQ1)
+## 3. Methods
 
-Three deployables — FastAPI backend, React/Vite web, Expo/React Native mobile — plus test
-suites in and out of the app packages. The product surface is a complete ordering flow (login,
-catalog, pizza builder, checkout, order tracking, profile) over a catalog of 12 pizzas
-localized in 6 languages. Testability mechanisms are product features with the same
-compatibility guarantees as user features.
+The study combines two instruments joined by a low-cost executed exemplar: a design-science
+artifact description and a retrospective embedded case study. Research questions map to
+evidence as follows: RQ1 → the verified platform description (3.2); RQ2 → the
+instrumentation catalog (3.3), with one row executed via the procedure in 3.4 (results in
+4.1); RQ3 → the case-study method (3.5; results in 4.2); RQ4 → the guidelines derived in the
+discussion (5.1).
 
-### 3.1 How this description was derived and verified (method)
+### 3.1 Derivation and verification of the platform description
 
 The design rationale was reconstructed exclusively from dated archival sources — the in-repo
 product-requirements and design documents, the two atomic-testing guides, the QA-architecture
 document, and the git history ($209$ commits, 2026-02-07 → 2026-07-22) — rather than from the
 authors' recollection, so that every design claim traces to an artifact a reader can open.
-Descriptive accuracy was then enforced mechanically. Every quantitative claim in Sections 3–5
+Descriptive accuracy was then enforced mechanically. Every quantitative claim in Sections 3–4
 was verified against the repository — code and archival documents — at a pinned snapshot,
 commit `83b8ba4` (2026-07-22,
 the last product commit of the study window), by an adversarial fact-checking pass run
@@ -155,11 +157,19 @@ in the fact-sheet appendix, a required companion of this paper rather than optio
 Design principles are additionally labeled by provenance. Mechanisms stated as goals in the
 founding documents (chaos personas, market-as-data, atomic entry, selector contracts) are
 marked *ex-ante*; codifications of operational lessons — the per-login profile keying of
-Section 3.6, introduced mid-history to fix an observed login race, and a defensive deep-link
+Section 3.2.5, introduced mid-history to fix an observed login race, and a defensive deep-link
 guard — are marked *ex-post*. The labeling was adopted so the catalog does not present
 hindsight as foresight.
 
-### 3.2 Chaos-by-identity: failure modes travel in credentials
+### 3.2 Materials: the OmniPizza platform (RQ1)
+
+Three deployables — FastAPI backend, React/Vite web, Expo/React Native mobile — plus test
+suites in and out of the app packages. The product surface is a complete ordering flow (login,
+catalog, pizza builder, checkout, order tracking, profile) over a catalog of 12 pizzas
+localized in 6 languages. Testability mechanisms are product features with the same
+compatibility guarantees as user features.
+
+#### 3.2.1 Chaos-by-identity: failure modes travel in credentials
 
 Seven deterministic test users (shared password), each carrying a `behavior` claim in its JWT
 that the backend enforces server-side:
@@ -178,7 +188,7 @@ Because the failure mode is keyed to the *identity*, it composes orthogonally wi
 market, language, and platform — no environment flags, no server-side test configuration, and
 two tests using different personas never interfere.
 
-### 3.3 Multi-market complexity as data, not code
+#### 3.2.2 Multi-market complexity as data, not code
 
 One configuration table drives 5 markets (MX, US, CH, JP, SA): currency and conversion,
 decimal rules (JPY: 0 decimals), tax rates (8–16%), a market-specific required address field
@@ -188,7 +198,7 @@ additionally enforces the 5-digit US zip format. SA additionally exercises Arabi
 right-to-left layout. Market rules are therefore *enumerable test dimensions*: a test
 generator can walk the table instead of reverse-engineering branches.
 
-### 3.4 Atomic state injection: O(1) entry to any screen
+#### 3.2.3 Atomic state injection: O(1) entry to any screen
 
 Both platforms expose sanctioned bypasses that put a test *directly into* any target state
 instead of replaying the user journey:
@@ -201,10 +211,10 @@ instead of replaying the user journey:
   (`accessToken` bypasses login, `market`, `lang`, `resetSession`, `hydrateCart`), plus a
   Detox launch argument for market selection.
 
-The bypasses are load-bearing, versioned features — and Section 5 shows their cost: the same
-machinery, working exactly as designed, mediated false positives during real QA use.
+The bypasses are load-bearing, versioned features — and Section 4.2 shows their cost: the
+same machinery, working exactly as designed, mediated false positives during real QA use.
 
-### 3.5 Instrumentation contracts as versioned APIs
+#### 3.2.4 Instrumentation contracts as versioned APIs
 
 Every interactive element carries a stable selector (165 `data-testid` occurrences on web,
 114 `testID` on mobile, shared prefix convention); routes and response shapes are frozen. The
@@ -214,16 +224,16 @@ cart hydration — reject requests without an `X-Country-Code` header (HTTP 400)
 instead carries the market in its request body. Selector renames are treated as breaking
 changes — testability has the same compatibility discipline as a public API.
 
-### 3.6 Ephemeral state as isolation
+#### 3.2.5 Ephemeral state as isolation
 
 The backend persists everything in memory: restart = deterministic clean slate. Editable
 profile state is keyed to the login session (a per-login `sid` JWT claim), so concurrent
 sessions of the same shared test user get isolated profiles — an *ex-post* design lesson: the
 keying was introduced mid-history to fix an observed login race. The flip side, warm-instance
 state retention on shared fixtures, is deliberately kept: it generates exactly the
-shared-fixture phenomena that Section 5 studies.
+shared-fixture phenomena that Section 4.2 studies.
 
-### 3.7 A deliberately embedded automation curriculum
+#### 3.2.6 A deliberately embedded automation curriculum
 
 Real-world automation pitfalls are reproduced on purpose: viewport-dependent selector suffixes
 that switch at a responsive breakpoint, a deploy-guard key that silently wipes naively seeded
@@ -232,17 +242,19 @@ interactive widgets (9 on web, 11 on mobile: toasts, confirm modals, custom drop
 in-form payment flow, multi-part date pickers). Practicing against OmniPizza means meeting the
 pitfalls production apps contain by accident — here documented and stable.
 
-### 3.8 A reference test portfolio over one system
+#### 3.2.7 A reference test portfolio over one system
 
 Four heterogeneous test layers — from in-repo component tests to an external API suite —
 target the same product: schema-generated contract tests (Schemathesis, case count scales with
 the OpenAPI schema), 41 hand-written API integration cases including a golden characterization
-suite, 11 component-test specs, and platform E2E latency-resilience experiments. This enables
-like-for-like comparison of what each layer detects (executed as an exemplar in Section 4.1). The product requirements document additionally ships a 13-scenario
+suite (46 executed at runtime via parameterized expansion; fact-sheet counting rule),
+11 component-test specs, and platform E2E latency-resilience experiments. This enables
+like-for-like comparison of what each layer detects (procedure in Section 3.4; results in
+Section 4.1). The product requirements document additionally ships a 13-scenario
 negative-flow acceptance matrix (expected status codes and UI outcomes), usable directly as an
 oracle dataset.
 
-## 4. What the Laboratory Is Instrumented to Measure (RQ2)
+### 3.3 Instruments: what the laboratory is instrumented to measure (RQ2)
 
 Catalog format: dimension → instrument the platform provides → example measurement → status.
 This is an *affordance* catalog: rows are design claims about what studies the platform
@@ -255,14 +267,14 @@ enables, not executed results; the status column records which rows this paper e
 | Probabilistic-failure handling | `error_user` (checkout 500 at p = 0.5) | retry logic, error-UX consistency, test-retry policy behavior | affordance — not yet executed |
 | Accessibility detection | `a11y_glitch_user` (3 defect modes on catalog/cart calls) | recall of a11y tooling against known seeded defects | affordance — not yet executed |
 | Security detection | `security_glitch_user` (XSS payloads, info leaks, ownership bypass) | scanner recall against known seeded vulnerabilities | affordance — not yet executed |
-| i18n / RTL correctness | 6 languages incl. Arabic RTL; 5 market rule sets; cross-platform copy | cross-platform copy divergence; RTL layout checks; per-market validation coverage | exercised incidentally in Section 5 (copy-divergence findings) |
-| Test-setup cost and flake surface | atomic entry (3.4) vs. full journey to the same state | steps/time-to-state; which flakes disappear under atomic entry | affordance — not yet executed |
+| i18n / RTL correctness | 6 languages incl. Arabic RTL; 5 market rule sets; cross-platform copy | cross-platform copy divergence; RTL layout checks; per-market validation coverage | exercised incidentally in Section 4.2 (copy-divergence findings) |
+| Test-setup cost and flake surface | atomic entry (3.2.3) vs. full journey to the same state | steps/time-to-state; which flakes disappear under atomic entry | affordance — not yet executed |
 | Selector-strategy robustness | viewport-dependent suffixes, widget zoo, RTL | locator survival across viewports/languages | affordance — not yet executed |
-| QA process phenomena | deterministic replay + durable triage artifacts + public deployments | triage taxonomies, false-positive provenance, harness-artifact studies | exercised — Section 5 |
+| QA process phenomena | deterministic replay + durable triage artifacts + public deployments | triage taxonomies, false-positive provenance, harness-artifact studies | exercised — Section 4.2 |
 
-### 4.1 An executed exemplar: the seeded $0-price defect across the four layers
+### 3.4 Exemplar procedure: the seeded $0-price defect across the four layers
 
-To convert one catalog row from design claim into evidence, the Section 3.8 portfolio was
+To convert one catalog row from design claim into evidence, the Section 3.2.7 portfolio was
 executed **as-is** — no suite modified — against the seeded `problem_user` defect on
 2026-07-23, on a local instance at the pinned snapshot (backend served on port $8000$ with a
 fresh in-memory state; Vitest 4.0.18 via `npx vitest run`, with the repository-pinned
@@ -270,22 +282,9 @@ fresh in-memory state; Vitest 4.0.18 via `npx vitest run`, with the repository-p
 headless via `cypress run --component`; Schemathesis 3.25.1 under pytest 7.4.4 with
 `max_examples = 50` per endpoint). Ground truth was confirmed live before the runs: a
 `problem_user` login followed by a catalog fetch returned $12/12$ pizzas at price $0.0$ with
-the broken image URL.
+the broken image URL. Outcomes are reported in Section 4.1.
 
-No failure attributable to the seeded defect was reported by any layer — $0/4$ detection.
-Two of the four layers did not execute. Per-layer observations:
-
-| Layer | Observed outcome (as-is) |
-|---|---|
-| Contract (Schemathesis) | Collection failed before any case ran: version 3.25.1 raises `SchemaError` on the backend's OpenAPI 3.1.0 document ("currently not fully supported"). Independently, `price` carries no `minimum` constraint in either response schema (`Pizza`, `EnrichedCartItem`); a value of $0$ is schema-valid |
-| API integration (Vitest) | $46/46$ cases passed with the defect active. Two cases assert the defect as expected behavior for `problem_user`: `expect(p01.price).toBe(0)` and the broken-image URL (`tests/golden.test.ts`) |
-| Component (Cypress) | $14/15$ cases across $11$ specs passed. Every spec mounts against fixture data (`price: 12.99`); none issues a backend request. The one failing spec (`ProductCard.cy.jsx`) raised `TypeError: t is not a function` at mount; the spec predates the component's `t` prop. The layer runs under `continue-on-error: true` in CI |
-| E2E (Detox) | Did not execute. `detox` and `jest` are absent from the workspace's dependencies; `e2e/jest.config.js`, referenced by `.detoxrc.js`, does not exist; the released `androidTest` APK contains $4$ entries ($8{,}518$ bytes) and no Detox classes. The single spec contains no price assertion and authenticates only as `standard_user` and `performance_glitch_user` |
-
-Interpretation of these outcomes — the detection-vs-characterization tension, the decayed
-layers, and the oracle requirement they imply — is deferred to Section 7.
-
-## 5. Evaluation: One Week of External Automated QA (RQ3)
+### 3.5 Case-study method: one week of external automated QA (RQ3)
 
 **Setting.** An external automated QA harness — UI and API suites spanning multiple markets
 and languages on web and mobile, operated by a third party and observable to the authors only
@@ -294,13 +293,13 @@ through its reports — exercised the publicly deployed platform over one week
 re-verification round. Each finding was triaged by an LLM agent (Claude, Anthropic) under
 standing human-defined rules with per-batch human decision gates, and each cycle produced a
 durable, dated explanation document at triage time — before this paper was conceived
-(document-provenance caveats: Section 7).
+(document-provenance caveats: Section 5.2).
 
 **Design.** The evaluation was framed as a retrospective embedded single-case case study
 (Runeson & Höst, 2009; Yin, 2018): the case is the week of operation; the embedded units are
 the findings. A retrospective design was chosen because the triage occurred as normal
 engineering work, which removes design-for-publication bias from the process under study —
-at the cost of the self-report concerns disclosed in Section 7.
+at the cost of the self-report concerns disclosed in Section 5.2.
 
 **Data and inclusion.** Three archival sources were triangulated: the six dated explanation
 documents (written in Spanish), the git history (fix commits are cited by hash inside the
@@ -312,7 +311,7 @@ hindsight. Three exclusion rules yield $N = 19$: one item the reporting team had
 before the window, two bugs the report itself attributed to the harness's own code, and
 same-pattern sibling bugs self-discovered during fix sweeps. The first two exclusions remove
 non-bugs from the denominator and therefore bias the measured real-bug rate *upward*; the
-direction is stated so readers can reason about it (Section 7).
+direction is stated so readers can reason about it (Section 5.2).
 
 **Coding.** Findings were coded by an LLM-assisted extraction pass over the Spanish-language
 sources and reviewed by a human row by row against the quoted text; translation into English
@@ -326,7 +325,7 @@ initial verdicts (a cycle scored $3/3$ finally but $2/3$ initially) is reported 
 The full coding table ships as `findings.csv` (appendix), which also records the release
 each cycle's fixes shipped in, because $11$ bugs were fixed and five releases shipped
 *during* the window (four of them triage-driven; the fifth, v1.1.6, was concurrent feature
-work) — per-cycle rates therefore describe a moving artifact, a threat Section 7 records.
+work) — per-cycle rates therefore describe a moving artifact, a threat Section 5.2 records.
 
 **Protocol under study.** The triage protocol itself — the object of RQ3 — enforced
 empirical reproduction against the running system (API replay, seeded-state reproduction,
@@ -335,6 +334,25 @@ the app; confirmed bugs with self-evident code-level causes could be verdicted b
 plus targeted measurement. It further required fix-and-commit with conventional-commit hashes
 for confirmed bugs, durable explanation documents for every cycle, and explicit human
 authorization per push and release.
+
+## 4. Results
+
+### 4.1 The exemplar: the seeded $0-price defect across the four layers
+
+No failure attributable to the seeded defect was reported by any layer — $0/4$ detection.
+Two of the four layers did not execute. Per-layer observations:
+
+| Layer | Observed outcome (as-is) |
+|---|---|
+| Contract (Schemathesis) | Collection failed before any case ran: version 3.25.1 raises `SchemaError` on the backend's OpenAPI 3.1.0 document ("currently not fully supported"). Independently, `price` carries no `minimum` constraint in either response schema (`Pizza`, `EnrichedCartItem`); a value of $0$ is schema-valid |
+| API integration (Vitest) | $46/46$ cases passed with the defect active. Two cases assert the defect as expected behavior for `problem_user`: `expect(p01.price).toBe(0)` and the broken-image URL (`tests/golden.test.ts`) |
+| Component (Cypress) | $14/15$ cases across $11$ specs passed. Every spec mounts against fixture data (`price: 12.99`); none issues a backend request. The one failing spec (`ProductCard.cy.jsx`) raised `TypeError: t is not a function` at mount; the spec predates the component's `t` prop. The layer runs under `continue-on-error: true` in CI |
+| E2E (Detox) | Did not execute. `detox` and `jest` are absent from the workspace's dependencies; `e2e/jest.config.js`, referenced by `.detoxrc.js`, does not exist; the released `androidTest` APK contains $4$ entries ($8{,}518$ bytes) and no Detox classes. The single spec contains no price assertion and authenticates only as `standard_user` and `performance_glitch_user` |
+
+Interpretation of these outcomes — the detection-vs-characterization tension, the decayed
+layers, and the oracle requirement they imply — is deferred to Section 5.
+
+### 4.2 One week of external automated QA
 
 **The laboratory as app under test.** 19 findings; 11/19 real bugs, all fixed and shipped
 (4 of the 6 cycles produced a release). Real-bug rate per cycle: 6/8 (07-16) → 1/3 (07-18) →
@@ -363,41 +381,9 @@ reproducible. Highlights:
   both retracted explanations were attributions about the unobservable external harness, while
   every app-side empirical exoneration survived.
 
-Interpretation of these results is deferred to Section 7.
+Interpretation of these results is deferred to Section 5.
 
-## 6. Design-for-Testability Guidelines (RQ4)
-
-Transferable patterns, each tagged with the strength of its evidence:
-
-1. **Put failure modes in credentials.** Deterministic chaos personas compose orthogonally
-   with every other test dimension and need no environment mutation. *[Grounded in design
-   history, Section 3.2.]* Trade-off (anticipated, not yet observed): personas are part of the
-   public contract; changing their behavior is a breaking change.
-2. **Make market/i18n rules data, not branches.** Enumerable rule tables turn compliance into
-   walkable test dimensions. *[Grounded in design history, Section 3.3; trade-off observed in
-   Section 5: drift between rule table/copy and platforms is itself a bug class.]*
-3. **Ship sanctioned state-injection entry points — and treat their side effects as part of
-   the design.** O(1) setup removes the flakiest part of E2E suites *[grounded in design
-   history, Section 3.4]*; the observed cost is that the same bypasses mediate false positives
-   *[observed in Section 5]*. The prescriptive half — guardrails such as refusing
-   `resetSession` mid-scenario, plus usage telemetry — is proposed future design: OmniPizza
-   currently ships only a partial defensive guard and no telemetry.
-4. **Version your instrumentation.** Selectors, headers, and response shapes treated as a
-   public API make automation durable. *[Grounded in design rationale, Section 3.5; no
-   breaking-rename episode occurred in the evaluation window to test it.]*
-5. **Prefer resettable state; key mutable session state to the login.** Restart-as-reset plus
-   per-login profile isolation removed an observed race *[grounded in design history,
-   Section 3.6]*; where shared mutable fixtures remain, their leftovers mimic deterministic
-   app bugs *[observed in Section 5]* — decide per state class, deliberately.
-6. **Make triage durable and falsifiable.** Dated explanation documents that record their own
-   retractions turn triage into auditable data — and any attribution about a system you cannot
-   observe is a hypothesis for its owner, not a verdict. *[Observed in Section 5: both
-   retracted explanations were cross-boundary attributions.]*
-7. **Carry assertion semantics with findings.** A contains-vs-exact mismatch flipped a
-   verdict; harness assertion contracts should travel as metadata with each reported finding.
-   *[Conjecture generalized from a single observed incident.]*
-
-## 7. Discussion, Limitations & Threats (discussion drafted; threat enumeration)
+## 5. Discussion
 
 The exemplar's headline number is small but pointed. Zero of four layers flagged a defect
 whose ground truth was known and confirmed live. The data suggest that in a sandbox whose
@@ -487,7 +473,39 @@ version control only after the window closed. Generalization from a system desig
 testable toward systems that are not is analytic at best. The sandbox measures what it was
 built to exhibit. That circularity is disclosed here, not resolved.
 
-**Threats to validity (detailed enumeration — outline).**
+### 5.1 Design-for-testability guidelines (RQ4)
+
+Transferable patterns, each tagged with the strength of its evidence:
+
+1. **Put failure modes in credentials.** Deterministic chaos personas compose orthogonally
+   with every other test dimension and need no environment mutation. *[Grounded in design
+   history, Section 3.2.1.]* Trade-off (anticipated, not yet observed): personas are part of
+   the public contract; changing their behavior is a breaking change.
+2. **Make market/i18n rules data, not branches.** Enumerable rule tables turn compliance into
+   walkable test dimensions. *[Grounded in design history, Section 3.2.2; trade-off observed
+   in Section 4.2: drift between rule table/copy and platforms is itself a bug class.]*
+3. **Ship sanctioned state-injection entry points — and treat their side effects as part of
+   the design.** O(1) setup removes the flakiest part of E2E suites *[grounded in design
+   history, Section 3.2.3]*; the observed cost is that the same bypasses mediate false
+   positives *[observed in Section 4.2]*. The prescriptive half — guardrails such as refusing
+   `resetSession` mid-scenario, plus usage telemetry — is proposed future design: OmniPizza
+   currently ships only a partial defensive guard and no telemetry.
+4. **Version your instrumentation.** Selectors, headers, and response shapes treated as a
+   public API make automation durable. *[Grounded in design rationale, Section 3.2.4; no
+   breaking-rename episode occurred in the evaluation window to test it.]*
+5. **Prefer resettable state; key mutable session state to the login.** Restart-as-reset plus
+   per-login profile isolation removed an observed race *[grounded in design history,
+   Section 3.2.5]*; where shared mutable fixtures remain, their leftovers mimic deterministic
+   app bugs *[observed in Section 4.2]* — decide per state class, deliberately.
+6. **Make triage durable and falsifiable.** Dated explanation documents that record their own
+   retractions turn triage into auditable data — and any attribution about a system you cannot
+   observe is a hypothesis for its owner, not a verdict. *[Observed in Section 4.2: both
+   retracted explanations were cross-boundary attributions.]*
+7. **Carry assertion semantics with findings.** A contains-vs-exact mismatch flipped a
+   verdict; harness assertion contracts should travel as metadata with each reported finding.
+   *[Conjecture generalized from a single observed incident.]*
+
+### 5.2 Threats to validity (detailed enumeration — outline)
 
 - Artifact-paper threats: the authors built the platform (adoption evidence is exactly one
   external harness; the four audiences of Section 1 are intended, not demonstrated); sandbox
@@ -495,8 +513,8 @@ built to exhibit. That circularity is disclosed here, not resolved.
   phenomena; free-tier hosting inflates the infrastructure class); no machine-readable
   ground-truth manifest of seeded defects yet (the tool-builder pitch depends on it; planned
   as supplementary material); archival sustainability (live deployments sit on a free tier —
-  an archived snapshot with a pinned commit/DOI is committed to in Section 8).
-- Evaluation threats (condensed from the Section 5 instrument): self-reported triage documents
+  an archived snapshot with a pinned commit/DOI is committed to in Section 6).
+- Evaluation threats (condensed from the Section 3.5 instrument): self-reported triage documents
   written by the triaging agent; researcher-as-participant; LLM-as-triager validity as its own
   threat class; recorded triage failures are a lower bound (external re-verification coverage
   was asymmetric); N = 19 under stated inclusion rules whose exclusions bias the real-bug rate
@@ -517,12 +535,12 @@ built to exhibit. That circularity is disclosed here, not resolved.
 - Documentation drift as a user-facing hazard: parts of the in-repo product documentation
   predate the newest market and chaos users (they describe 4 markets / 5 personas vs. the
   current 5 / 7) — a caveat for platform adopters and itself a measurable phenomenon.
-- Scope boundary: one catalog row was executed as a low-cost exemplar (Section 4.1,
-  2026-07-23, local instance at the pinned snapshot); the remaining Section 4 rows are
-  enabled, not executed — by design of this paper; candidates for follow-up work. Guideline
+- Scope boundary: one catalog row was executed as a low-cost exemplar (procedure 3.4,
+  results 4.1; 2026-07-23, local instance at the pinned snapshot); the remaining Section 3.3
+  rows are enabled, not executed — by design of this paper; candidates for follow-up work. Guideline
   generalizability is bounded by one domain (e-commerce), one team.
 
-## 8. Conclusion & Availability
+## 6. Conclusion & Availability
 
 A laboratory is a promise about the future, not a report about the past. The promise this
 platform makes to its audiences is compatibility: personas, selectors, entry points, and
@@ -611,10 +629,10 @@ official page) on 2026-07-23; a verified reserve list is kept in the progress in
 
 ## Appendix / supplementary material
 
-- **Platform fact sheet (required companion):** every Section 3–5 number with its counting
+- **Platform fact sheet (required companion):** every Sections 3–4 number with its counting
   rule and the pinned snapshot commit (endpoint operations vs. paths; selector *occurrence*
-  counts vs. distinct IDs; release count excluding duplicate-case legacy tags; widget-table
-  row counts).
+  counts vs. distinct IDs; release count excluding legacy tags duplicated only by letter case;
+  widget-table row counts).
 - `findings.csv` — coding table of the 19 evaluation findings (verdict decomposition,
   confidence and instrumentation-mediated flags, and the release each cycle's fixes shipped
   in), with original-language excerpts.

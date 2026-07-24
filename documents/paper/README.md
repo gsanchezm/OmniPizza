@@ -16,6 +16,13 @@ paper publicable.
 caso. La plataforma es la contribución central; la semana de triage QA (19 hallazgos,
 2026-07-16 → 07-22) es la evaluación.
 
+> **Estructura (desde v0.5):** IMRyD — 1 Introducción (CARS) · 2 Trabajo relacionado ·
+> 3 Métodos (3.1 derivación, 3.2 materiales/plataforma con 3.2.1–3.2.7, 3.3 instrumentos,
+> 3.4 procedimiento del ejemplar, 3.5 método del estudio de caso) · 4 Resultados (4.1
+> ejemplar, 4.2 evaluación) · 5 Discusión (prosa + 5.1 guías + 5.2 amenazas) · 6 Conclusión.
+> Los números de sección de la tabla siguiente y del mapeo de referencias usan la numeración
+> PREVIA a v0.5 donde no se haya actualizado.
+
 ## Estado por sección
 
 | Sección | Contenido | Estado |
