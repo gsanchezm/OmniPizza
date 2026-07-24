@@ -60,14 +60,17 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 
 ## Figuras (plan en `figures-plan.md`)
 
-| # | Tipo | Qué visualiza | Ancla |
-|---|---|---|---|
-| 1 | Diagrama conceptual | Mapa operacional: instrumentos de controlabilidad/observabilidad + el cortocircuito del oráculo derivado (detection = 0) | Final de §2.1 |
-| 2 | Flowchart 3 carriles | Pipeline del estudio: descripción del artefacto (con back-edge de 3 refutaciones) · ejemplar · estudio de caso (con compuertas) | Apertura de §3 |
-| 3 | Barras apiladas + línea | Los 19 hallazgos por ciclo × clase final, tasa de bugs reales (final vs inicial), hatching de mediación por instrumentación, retractaciones y reversión | §4.2 (serie por ciclo) |
-| 4 | Diagrama de secuencia | Mecanismo del falso positivo mediado por instrumentación (F17: carrito huérfano + hidratación "as designed") | §4.2 (bullet de destacados) |
+| # | Tipo | Qué visualiza | Ancla | Producción |
+|---|---|---|---|---|
+| 1 | Diagrama conceptual | Mapa operacional + cortocircuito del oráculo derivado (detection = 0) | Final de §2.1 | IA (prompt en el plan) + corrección de labels |
+| 2 | Flowchart 3 carriles | Pipeline del estudio con compuertas y back-edge de 3 refutaciones | Apertura de §3 | IA (prompt) + corrección de labels |
+| 3 | Screenshots 2×2 | Superficie espejada web/móvil × US-en / SA-ar (RTL, `district`, `baksheesh`), con callouts de selectores | §3.2 | Captura determinista vía entrada atómica, v1.1.8 |
+| 4 | Screenshot evidencia | Catálogo de `problem_user`: $0.00 + imágenes rotas (UI + excerpt de API) — el ground truth del ejemplar | §3.4 (ref. desde 4.1) | Captura determinista (persona-keyed) |
+| 5 | Barras apiladas + línea | 19 hallazgos por ciclo × clase final, tasa final vs inicial, hatching de instrumentación, retractaciones/reversión | §4.2 | **Desde findings.csv — NO generar con IA** |
+| 6 | Diagrama de secuencia | Mecanismo del falso positivo F17 (carrito huérfano + hidratación "as designed") | §4.2 (destacados) | IA (prompt) + corrección de labels |
 
-Regla: toda cifra de una figura debe re-derivarse del fact sheet o de `findings.csv`.
+Reglas: toda cifra debe re-derivarse del fact sheet o `findings.csv`; los screenshots
+declaran su versión de captura; Mermaid como fallback si la IA no respeta los labels.
 
 ## Mapeo referencia → sección (guía para redactar)
 
