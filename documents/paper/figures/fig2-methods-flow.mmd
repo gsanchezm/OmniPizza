@@ -1,0 +1,41 @@
+%%{init: {"theme": "neutral", "flowchart": {"htmlLabels": true, "curve": "linear"}, "themeVariables": {"fontFamily": "Helvetica, Arial, sans-serif"}}}%%
+flowchart LR
+    subgraph LC["C · Case study"]
+        direction LR
+        C1["External harness reports<br/>5+1 cycles"] --> C2{"Reproduce-before-verdict"}
+        C2 --> C3{"Human decision gates"}
+        C3 --> C4["Dated explanation documents"]
+        C4 --> C5["Coding (4 attributes, human review)"]
+        C5 --> C6["findings.csv"]
+        C6 --> C7["Section 4.2"]
+    end
+
+    subgraph LB["B · Exemplar"]
+        direction LR
+        B1["Ground truth confirmed live<br/>12/12 at 0.0"] --> B2["Four suites executed as-is<br/>Schemathesis 3.25.1 · Vitest 4.0.18<br/>Cypress 15.11.0 · Detox"]
+        B2 --> B3["Per-layer outcomes"]
+        B3 --> B4["Section 4.1"]
+    end
+
+    subgraph LA["A · Artifact description"]
+        direction LR
+        A1["Archival sources"] --> A2["Drafting pass"]
+        A2 --> A3{"Adversarial fact-check<br/>@ snapshot 83b8ba4"}
+        A3 -- "3 claims refuted → corrected" --> A2
+        A3 --> A4["Fact sheet (counting rules)"]
+        A4 --> A5["Sections 3.2–3.3"]
+    end
+
+    A5 --> RES(["Results (4.1 / 4.2)"])
+    B4 --> RES
+    C7 --> RES
+    RES --> DISC["Discussion (guidelines by evidence strength)"]
+
+    classDef step fill:#e2e8f0,stroke:#475569,color:#0f172a;
+    classDef gate fill:#fff7e0,stroke:#b45309,color:#0f172a;
+    classDef lane fill:#f8fafc,stroke:#94a3b8,color:#0f172a;
+    classDef sink fill:#fde68a,stroke:#b45309,color:#0f172a;
+    class A1,A2,A4,A5,B1,B2,B3,B4,C1,C4,C5,C6,C7,DISC step
+    class A3,C2,C3 gate
+    class LA,LB,LC lane
+    class RES sink

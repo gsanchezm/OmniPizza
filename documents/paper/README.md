@@ -72,6 +72,17 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 Reglas: toda cifra debe re-derivarse del fact sheet o `findings.csv`; los screenshots
 declaran su versión de captura; Mermaid como fallback si la IA no respeta los labels.
 
+**Estado 2026-07-23** (producidas en `figures/`, verificación adversarial por figura):
+Fig 5 renderizada desde `findings.csv` con `fig5.py` + manifiesto `fig5-data.json`
+(verificador re-derivó todos los valores: sin discrepancias); Figs 1/2/6 renderizadas como
+versiones de trabajo Mermaid (fuentes `.mmd`; las versiones IA se generarán con los prompts
+de este plan); Fig 4 y paneles web A/C de Fig 3 capturados con Playwright contra el deploy
+público (snapshot `83b8ba4`, 2026-07-23; 3840×2400). Figs 1/2/4/5/6 insertadas en
+`Sánchez_Omnipizza.docx` (11 cuartillas). Pendiente: paneles móviles B/D de Fig 3
+(requiere dispositivo/emulador Android) y su compuesto 2×2. Hallazgo lateral del
+verificador: la URL de fallback de imagen rota en `ProductCard.jsx`
+(`500px-Pizza_on_stone.jpg`) hoy devuelve 404 en Wikimedia — candidato a triage aparte.
+
 ## Mapeo referencia → sección (guía para redactar)
 
 | Sección del paper | Referencias (autor, año) |

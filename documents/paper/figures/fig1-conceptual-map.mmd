@@ -1,0 +1,41 @@
+%%{init: {"theme": "neutral", "flowchart": {"htmlLabels": true, "curve": "linear"}, "themeVariables": {"fontFamily": "Helvetica, Arial, sans-serif"}}}%%
+flowchart TD
+    subgraph CTRL["Controllability instruments"]
+        direction LR
+        PERS["Controllability: chaos personas (JWT behavior claim)<br/>3.0 s delay · p = 0.5 checkout failure · 3×3 payload pool"]
+        INJ["Atomic state injection<br/>localStorage seeding · omnipizza:// deep-link params"]
+    end
+
+    subgraph PLAT["OmniPizza platform"]
+        PANN["3 deployables · 5 markets / 6 languages · in-memory state"]
+        SEED["Seeded behavior ($0-price defect)"]
+    end
+
+    subgraph OBS["Observability instruments"]
+        direction LR
+        SEL["Selector contract<br/>165 web / 114 mobile"]
+        HDR["Header rejections"]
+        ARC["Triage archive"]
+    end
+
+    MOBS(["Measurable observation"])
+    ORACLE["Derived test oracle (golden suite)"]
+
+    CTRL --> PLAT
+    PLAT --> OBS
+    OBS --> MOBS
+    SEED -. "derivation" .-> ORACLE
+    ORACLE -. "detection = 0" .-> MOBS
+
+    classDef block fill:#e2e8f0,stroke:#475569,color:#0f172a;
+    classDef lane fill:#f8fafc,stroke:#94a3b8,color:#0f172a;
+    classDef seeded fill:#fde68a,stroke:#b45309,color:#0f172a;
+    classDef amber fill:#fff7e0,stroke:#b45309,color:#0f172a;
+    classDef ann fill:none,stroke:none,color:#334155;
+    class PERS,INJ,SEL,HDR,ARC,MOBS block
+    class CTRL,OBS,PLAT lane
+    class SEED seeded
+    class ORACLE amber
+    class PANN ann
+    linkStyle 3 stroke:#b45309
+    linkStyle 4 stroke:#b45309
