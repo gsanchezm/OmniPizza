@@ -3,8 +3,9 @@
 > **Status:** base document (v0.5, 2026-07-23). IMRaD structure: 1 Introduction (CARS) ·
 > 2 Related Work (outline) · 3 Methods (derivation, materials, instruments, exemplar
 > procedure, case-study method) · 4 Results · 5 Discussion (prose + guidelines + threat
-> enumeration) · 6 Conclusion & Availability. The Abstract and Section 2 remain outlines;
-> everything else is drafted prose. All quantitative claims were adversarially fact-checked
+> enumeration) · 6 Conclusion & Availability. The Abstract and the related-work half of
+> Section 2 remain outlines (2.1, the theoretical framework, is drafted); everything else is
+> drafted prose. All quantitative claims were adversarially fact-checked
 > against the repository at the pinned snapshot (Section 3.1).
 >
 > **Working-title alternatives:**
@@ -111,7 +112,7 @@ domain training.
      (Sections 3.5 and 4.2).
   5. Design-for-testability guidelines tagged by evidence strength (Section 5.1).
 
-## 2. Related Work (outline)
+## 2. Related Work and Theoretical Framework (related work: outline)
 
 - Testing sandboxes and demo apps: SauceDemo (origin of the `problem_user` pattern — OmniPizza
   extends it to latency, probabilistic, a11y, and security personas), OWASP Juice Shop
@@ -127,6 +128,70 @@ domain training.
 - LLMs in testing and triage; human-AI oversight (context for the evaluation's triage
   protocol).
 - Case-study and design-science methodology (Runeson & Höst; Yin; Wieringa).
+
+### 2.1 Theoretical framework: an operational map
+
+Four theoretical lenses did load-bearing work in this study. Each is stated here only in
+the form in which it constrained the design, and each abstract concept is anchored to a
+variable that Sections 3–4 measure.
+
+**Testability as controllability plus observability** (Freedman, 1991; Binder, 1994). The
+lens holds that a system is testable to the degree that its state can be set and its
+behavior seen. In this study, controllability is operationalized as the chaos-persona
+mechanism and the atomic state-injection entry points: the `behavior` JWT claim with its
+fixed parameters — the $3.0\,\mathrm{s}$ delay, the $p = 0.5$ checkout failure (a persona
+design parameter, not a significance level), the $3 \times 3$ payload pool of
+Section 3.2.1 — and the sanctioned entry parameters of
+Section 3.2.3. Observability is operationalized as the selector contract (the $165$ web and
+$114$ mobile occurrences of Section 3.2.4), the required-header rejections, and the durable
+triage archive of Section 3.5. The lens dictated method, not just vocabulary: because both
+properties are claimed to be *engineered*, RQ1 is answered by an artifact description
+verified against code (Section 3.1) rather than by perception surveys, and the Section 3.3
+catalog enumerates instruments dimension by dimension. As a flow:
+$\text{persona} \xrightarrow{\text{JWT claim}} \text{deterministic fault}
+\xrightarrow{\text{selectors, archives}} \text{measurable observation}$.
+
+**The oracle problem, in derived form** (Weyuker, 1982; Barr et al., 2015). Barr et al.
+classify test oracles into specified, derived, implicit, and none; a characterization suite
+is a *derived test oracle* — it learns what to expect from the behavior it observes. For a
+sandbox whose defects are intentional, the lens yields a falsifiable prediction: if
+$\text{oracle} \leftarrow \text{behavior}$ and $\text{defect} \subseteq \text{behavior}$,
+the oracle certifies the defect and $\text{detection} = 0$. The exemplar procedure of
+Section 3.4 provides a direct test of this prediction — suites executed as-is, ground truth
+confirmed live ($12/12$ items at price $0.0$) before any run — and Section 4.1 reports the
+outcome for the derived-oracle layer alongside the other three layers' independent failure
+modes; the lens reading itself was applied at analysis time, per the ex-ante/ex-post
+discipline of Section 3.1. The abstract concept *ground truth* is operationalized today as the
+live-confirmed seeded state and, prospectively, as the machine-readable defect manifest
+(Section 5.2).
+
+**Effective false positives** (Sadowski et al., 2018). The abstract notion that a finding's
+usefulness is relative to its consumer is operationalized in the three-variable verdict
+decomposition of Section 3.5 — binary verdict, eight-class taxonomy, and a
+confidence-flagged root-cause narrative — plus the orthogonal `instrumentation-mediated`
+flag, all carried per finding in `findings.csv`. Misclassification prevalence (Herzig et
+al., 2013) motivated the separation: a single verdict variable would have conflated
+retraction with reversal, so the instrument distinguishes them by construction.
+
+**Design science with a case-study validation arm** (Hevner et al., 2004; Wieringa, 2014;
+Runeson & Höst, 2009; Yin, 2018). The platform is treated as a designed artifact validated
+in context: its rationale is reconstructed and provenance-labeled (Section 3.1), the context
+is one week of external automated QA, and the validation is a retrospective embedded case
+study whose triangulation requirement is met by three archival sources (Section 3.5). This
+lens set the epistemic ceiling in advance — analytic rather than statistical
+generalization — which is why the paper's claims are existence proofs, its guidelines carry
+evidence-strength tags (Section 5.1), and no inferential statistics appear anywhere.
+
+| Abstract concept | Operationalized as | Where |
+|---|---|---|
+| Controllability | persona `behavior` claim ($3.0\,\mathrm{s}$; $p = 0.5$; $3 \times 3$ payloads); atomic entry parameters | 3.2.1, 3.2.3 |
+| Observability | selector occurrences ($165$ web, $114$ mobile); required-header rejections; durable triage archive | 3.2.4, 3.5 |
+| Derived oracle | golden-suite assertions (e.g., `expect(p01.price).toBe(0)`) | 3.4, 4.1 |
+| Ground truth | live-confirmed seeded state ($12/12$ at $0.0$); planned defect manifest | 3.4, 5.2 |
+| Effective false positive | binary verdict, taxonomy class, and `instrumentation-mediated` flag as separate variables | 3.5, `findings.csv` |
+| Triangulation | three archival sources (explanation documents, git history, quoted QA reports) | 3.5 |
+| Treatment in context | deployed platform exercised by an external harness | 3.5, 4.2 |
+| Analytic generalization | evidence-strength tags on guidelines | 5.1 |
 
 ## 3. Methods
 
@@ -182,7 +247,7 @@ that the backend enforces server-side:
 | `performance_glitch_user` | fixed 3.0 s delay injected on the behavior-enabled endpoints (catalog fetch and checkout) |
 | `error_user` | checkout fails with HTTP 500 at p = 0.5 |
 | `a11y_glitch_user` | one accessibility defect mode per catalog/cart call, drawn from 3 modes; the wrong-language mode draws among the 6 supported languages |
-| `security_glitch_user` | XSS-seeded profile fields (3 fields × 3 payloads), internal-error message leaks at p = 0.5, order-ownership bypass |
+| `security_glitch_user` | XSS-seeded profile fields (one random pair per login from a 3-field × 3-payload pool), internal-error message leaks at p = 0.5, order-ownership bypass |
 
 Because the failure mode is keyed to the *identity*, it composes orthogonally with every
 market, language, and platform — no environment flags, no server-side test configuration, and
@@ -320,7 +385,11 @@ three variables — a binary verdict (app bug / not app bug), one of eight taxon
 and a root-cause narrative carrying a `confirmed` / `candidate` / `unidentified` confidence
 flag — because the corpus contains events a single verdict variable would conflate: two
 root-cause retractions that left binary verdicts standing, and one verdict reversal that
-flipped a binary verdict outright. All rates use final verdicts; the one divergence under
+flipped a binary verdict outright. A fourth coded attribute, the `instrumentation-mediated`
+flag, takes the values true / false / candidate and is set to true only when a sanctioned
+state-injection mechanism — cart hydration, `resetSession`, profile seeding — is the vehicle
+of the finding; harness usage patterns such as parallel logins do not qualify. All rates use
+final verdicts; the one divergence under
 initial verdicts (a cycle scored $3/3$ finally but $2/3$ initially) is reported alongside.
 The full coding table ships as `findings.csv` (appendix), which also records the release
 each cycle's fixes shipped in, because $11$ bugs were fixed and five releases shipped
@@ -391,9 +460,9 @@ defects are intentional, detection and characterization pull in opposite directi
 suite that watches the catalog most closely is precisely the one that certifies $0$ prices
 as correct. This reads as Weyuker's (1982) oracle problem in inverted form — an oracle
 exists and executes, but it is aligned with the defect rather than with the requirement.
-Barr et al. (2015) classify oracles by their source; a characterization suite is a derived
-oracle, and derivation is the vulnerability here, because it derives from behavior and the
-behavior is seeded. Where defect benchmarks treat curated faults as ground truth against
+Barr et al. (2015) classify test oracles into specified, derived, implicit, and none; a
+characterization suite is a derived test oracle, and derivation is the vulnerability here,
+because it derives from behavior and the behavior is seeded. Where defect benchmarks treat curated faults as ground truth against
 which detection is scored (Just et al., 2014; Do et al., 2005), a living sandbox apparently
 must maintain the opposite discipline: keeping at least one oracle blind to what the
 platform seeded. The planned defect manifest is that discipline made explicit.
@@ -633,9 +702,10 @@ official page) on 2026-07-23; a verified reserve list is kept in the progress in
   rule and the pinned snapshot commit (endpoint operations vs. paths; selector *occurrence*
   counts vs. distinct IDs; release count excluding legacy tags duplicated only by letter case;
   widget-table row counts).
-- `findings.csv` — coding table of the 19 evaluation findings (verdict decomposition,
-  confidence and instrumentation-mediated flags, and the release each cycle's fixes shipped
-  in), with original-language excerpts.
+- `findings.csv` — coding table of the 19 evaluation findings (verdict decomposition, a
+  confidence flag, the `instrumentation-mediated` flag with value set
+  true / false / candidate, and the release each cycle's fixes shipped in), with
+  original-language excerpts.
 - Machine-readable seeded-defect manifest (planned; required for the tool-builder use case).
 - Pointers to primary artifacts: `documents/explanation/EXPLANATION_qa_report_*.md`,
   `ATOMIC_WEB_TESTING.md`, `ATOMIC_MOBILE_TESTING.md`, `backend/constants.py`, fix commits by

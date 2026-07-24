@@ -29,7 +29,7 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 |---|---|---|
 | Abstract | Arco, números clave, claim de cierre | Outline |
 | 1. Introducción | Movimientos CARS (territorio/nicho/ocupación) + audiencias + RQ1–RQ4 + 5 contribuciones | **Redactada** |
-| 2. Related Work | Sandboxes, benchmarks de defectos, testabilidad, flaky/triage, LLMs, metodología | Outline — falta pasada de literatura |
+| 2. Trabajo relacionado y marco teórico | Related work (outline) + **2.1 marco teórico redactado**: mapa operacional (testabilidad, oráculo derivado, falsos positivos efectivos, design science) con tabla concepto→variable | Related work en esquema; 2.1 redactada |
 | 3. Principios de diseño (RQ1) | 3.1 método + 3.2–3.8 mecanismos (caos-por-identidad, mercado-como-datos, entrada atómica, contratos, estado efímero, currículum, portafolio) | **Redactado y verificado** (2 rondas adversariales) |
 | 4. Catálogo de medibilidad (RQ2) | 9 dimensiones con instrumento + medición + estado | **Redactado** — 8/9 filas son affordances no ejecutadas |
 | 5. Evaluación (RQ3) | Método autocontenido, veredictos (11/19), serie por ciclo, 8 clases, falsos positivos por instrumentación, modos de fallo del triage | **Redactado y verificado** |

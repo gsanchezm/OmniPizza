@@ -6,7 +6,8 @@
 > (CARS) · 2 Trabajo relacionado (esquema) · 3 Métodos (derivación, materiales, instrumentos,
 > procedimiento del ejemplar, método del estudio de caso) · 4 Resultados · 5 Discusión
 > (prosa + guías + enumeración de amenazas) · 6 Conclusión y disponibilidad. El Abstract y la
-> Sección 2 siguen en esquema; todo lo demás es prosa redactada. Todas las afirmaciones
+> mitad de trabajo relacionado de la Sección 2 siguen en esquema (la 2.1, el marco teórico,
+> está redactada); todo lo demás es prosa redactada. Todas las afirmaciones
 > cuantitativas pasaron verificación adversarial contra el repositorio en el snapshot fijado
 > (Sección 3.1).
 >
@@ -133,7 +134,7 @@ entrenamiento en el dominio.
      instrumentación (Secciones 3.5 y 4.2).
   5. Guías de diseño-para-testabilidad etiquetadas por fuerza de evidencia (Sección 5.1).
 
-## 2. Trabajo relacionado (esquema)
+## 2. Trabajo relacionado y marco teórico (trabajo relacionado: esquema)
 
 - Sandboxes y apps demo de testing: SauceDemo (origen del patrón `problem_user` — OmniPizza
   lo extiende a personas de latencia, probabilísticas, de a11y y de seguridad), OWASP Juice
@@ -151,6 +152,74 @@ entrenamiento en el dominio.
 - LLMs en testing y triage; supervisión humano-IA (contexto para el protocolo de triage de la
   evaluación).
 - Metodología de estudio de caso y design science (Runeson & Höst; Yin; Wieringa).
+
+### 2.1 Marco teórico: un mapa operacional
+
+Cuatro lentes teóricos hicieron trabajo estructural en este estudio. Cada uno se enuncia aquí
+solo en la forma en que restringió el diseño, y cada concepto abstracto queda anclado a una
+variable que las Secciones 3–4 miden.
+
+**La testabilidad como controlabilidad más observabilidad** (Freedman, 1991; Binder, 1994).
+El lente sostiene que un sistema es testeable en la medida en que su estado puede fijarse y
+su comportamiento verse. En este estudio, la controlabilidad se operacionaliza como el
+mecanismo de personas caos y los puntos de entrada de inyección atómica de estado: el claim
+JWT `behavior` con sus parámetros fijos — el retardo de $3.0\,\mathrm{s}$, el fallo de
+checkout con $p = 0.5$ (un parámetro de diseño de la persona, no un nivel de
+significancia), el pool de payloads $3 \times 3$ de la Sección 3.2.1 — y los
+parámetros de entrada sancionados de la Sección 3.2.3. La observabilidad se operacionaliza
+como el contrato de selectores (las $165$ ocurrencias web y $114$ móviles de la
+Sección 3.2.4), los rechazos por header obligatorio y el archivo durable de triage de la
+Sección 3.5. El lente dictó método, no solo vocabulario: como ambas propiedades se afirman
+*diseñadas*, la RQ1 se responde con una descripción de artefacto verificada contra el código
+(Sección 3.1) y no con encuestas de percepción, y el catálogo de la Sección 3.3 enumera
+instrumentos dimensión por dimensión. Como flujo:
+$\text{persona} \xrightarrow{\text{claim JWT}} \text{fallo determinista}
+\xrightarrow{\text{selectores, archivos}} \text{observación medible}$.
+
+**El problema del oráculo, en forma derivada** (Weyuker, 1982; Barr et al., 2015). Barr et
+al. clasifican los oráculos de prueba en especificados, derivados, implícitos y ninguno; una
+suite de caracterización es un *oráculo de prueba derivado* — aprende qué esperar del
+comportamiento que observa. Para un sandbox cuyos defectos son intencionales, el lente
+produce una predicción falsable: si $\text{oráculo} \leftarrow \text{comportamiento}$ y
+$\text{defecto} \subseteq \text{comportamiento}$, el oráculo certifica el defecto y
+$\text{detección} = 0$. El procedimiento del ejemplar de la Sección 3.4 provee una prueba
+directa de esta predicción — suites ejecutadas tal cual, ground truth confirmado en vivo
+($12/12$ ítems a precio $0.0$) antes de cualquier corrida — y la Sección 4.1 reporta el
+resultado para la capa del oráculo derivado junto a los modos de fallo independientes de las
+otras tres capas; la lectura del lente se aplicó en tiempo de análisis, conforme a la
+disciplina ex-ante/ex-post de la Sección 3.1. El concepto abstracto *ground truth* se operacionaliza hoy
+como el estado sembrado confirmado en vivo y, prospectivamente, como el manifiesto de
+defectos legible por máquina (Sección 5.2).
+
+**Falsos positivos efectivos** (Sadowski et al., 2018). La noción abstracta de que la
+utilidad de un hallazgo es relativa a su consumidor se operacionaliza en la descomposición
+del veredicto en tres variables de la Sección 3.5 — veredicto binario, taxonomía de ocho
+clases y narrativa de causa raíz con flag de confianza — más el flag ortogonal
+`instrumentation-mediated`, todos transportados por hallazgo en `findings.csv`. La
+prevalencia de misclasificación (Herzig et al., 2013) motivó la separación: una sola
+variable de veredicto habría confundido retractación con reversión, así que el instrumento
+las distingue por construcción.
+
+**Design science con un brazo de validación por estudio de caso** (Hevner et al., 2004;
+Wieringa, 2014; Runeson & Höst, 2009; Yin, 2018). La plataforma se trata como un artefacto
+diseñado y validado en contexto: su justificación se reconstruye y etiqueta por procedencia
+(Sección 3.1), el contexto es una semana de QA automatizada externa, y la validación es un
+estudio de caso retrospectivo embebido cuyo requisito de triangulación se cumple con tres
+fuentes de archivo (Sección 3.5). Este lente fijó el techo epistémico por adelantado —
+generalización analítica y no estadística — y por eso las afirmaciones del paper son pruebas
+de existencia, sus guías llevan etiquetas de fuerza de evidencia (Sección 5.1) y no aparece
+estadística inferencial en ninguna parte.
+
+| Concepto abstracto | Operacionalizado como | Dónde |
+|---|---|---|
+| Controlabilidad | claim `behavior` de las personas ($3.0\,\mathrm{s}$; $p = 0.5$; payloads $3 \times 3$); parámetros de entrada atómica | 3.2.1, 3.2.3 |
+| Observabilidad | ocurrencias de selectores ($165$ web, $114$ móvil); rechazos por header obligatorio; archivo durable de triage | 3.2.4, 3.5 |
+| Oráculo derivado | aserciones de la suite golden (p. ej., `expect(p01.price).toBe(0)`) | 3.4, 4.1 |
+| Ground truth | estado sembrado confirmado en vivo ($12/12$ a $0.0$); manifiesto de defectos planificado | 3.4, 5.2 |
+| Falso positivo efectivo | veredicto binario, clase de taxonomía y flag `instrumentation-mediated` como variables separadas | 3.5, `findings.csv` |
+| Triangulación | tres fuentes de archivo (documentos de explicación, historial de git, reportes QA citados) | 3.5 |
+| Tratamiento en contexto | plataforma desplegada ejercitada por un harness externo | 3.5, 4.2 |
+| Generalización analítica | etiquetas de fuerza de evidencia en las guías | 5.1 |
 
 ## 3. Métodos
 
@@ -210,7 +279,7 @@ Siete usuarios de prueba deterministas (contraseña compartida), cada uno con un
 | `performance_glitch_user` | retardo fijo de 3.0 s inyectado en los endpoints habilitados para behavior (obtención de catálogo y checkout) |
 | `error_user` | el checkout falla con HTTP 500 con p = 0.5 |
 | `a11y_glitch_user` | un modo de defecto de accesibilidad por llamada de catálogo/carrito, sorteado entre 3 modos; el modo de idioma-equivocado sortea entre los 6 idiomas soportados |
-| `security_glitch_user` | campos de perfil sembrados con XSS (3 campos × 3 payloads), fugas de mensajes de error internos con p = 0.5, bypass de propiedad de pedidos |
+| `security_glitch_user` | campos de perfil sembrados con XSS (un par aleatorio por login de un pool de 3 campos × 3 payloads), fugas de mensajes de error internos con p = 0.5, bypass de propiedad de pedidos |
 
 Como el modo de fallo va anclado a la *identidad*, compone ortogonalmente con cada mercado,
 idioma y plataforma — sin flags de entorno, sin configuración de prueba del lado del
@@ -361,7 +430,11 @@ veredicto binario (bug de la app / no bug de la app), una de ocho clases de taxo
 narrativa de causa raíz con flag de confianza `confirmed` / `candidate` / `unidentified` —
 porque el corpus contiene eventos que una sola variable de veredicto confundiría: dos
 retractaciones de causa raíz que dejaron en pie los veredictos binarios, y una reversión de veredicto que
-invirtió un veredicto binario por completo. Todas las tasas usan veredictos finales; la única
+invirtió un veredicto binario por completo. Un cuarto atributo codificado, el flag
+`instrumentation-mediated`, toma los valores true / false / candidate y se fija en true solo
+cuando un mecanismo sancionado de inyección de estado — hidratación de carrito,
+`resetSession`, sembrado de perfil — es el vehículo del hallazgo; los patrones de uso del
+harness, como logins en paralelo, no califican. Todas las tasas usan veredictos finales; la única
 divergencia bajo veredictos iniciales (un ciclo puntuó $3/3$ al final pero $2/3$ al inicio)
 se reporta al lado. La tabla completa de codificación se entrega como `findings.csv`
 (apéndice), que además registra el release en el que se publicaron los fixes de cada ciclo,
@@ -436,9 +509,9 @@ en un sandbox cuyos defectos son intencionales, la detección y la caracterizaci
 direcciones opuestas: la suite que vigila el catálogo más de cerca es precisamente la que
 certifica los precios de $0$ como correctos. Esto se lee como el problema del oráculo de
 Weyuker (1982) en forma invertida — un oráculo existe y se ejecuta, pero está alineado con
-el defecto y no con el requisito. Barr et al. (2015) clasifican los oráculos por su fuente;
-una suite de caracterización es un oráculo derivado, y la derivación es aquí la
-vulnerabilidad, porque deriva del comportamiento y el comportamiento está sembrado. Donde
+el defecto y no con el requisito. Barr et al. (2015) clasifican los oráculos de prueba en especificados, derivados, implícitos
+y ninguno; una suite de caracterización es un oráculo de prueba derivado, y la derivación es
+aquí la vulnerabilidad, porque deriva del comportamiento y el comportamiento está sembrado. Donde
 los benchmarks de defectos tratan las fallas curadas como ground truth contra el que se
 puntúa la detección (Just et al., 2014; Do et al., 2005), un laboratorio vivo aparentemente
 debe mantener la disciplina opuesta: conservar al menos un oráculo ciego a lo que la
@@ -712,8 +785,9 @@ editor/oficial) el 2026-07-23; la lista de reserva verificada vive en el índice
   excluyendo tags legacy duplicados que difieren solo en mayúsculas/minúsculas; conteos de filas de la tabla de
   widgets).
 - `findings.csv` — tabla de codificación de los 19 hallazgos de la evaluación (descomposición
-  del veredicto, flags de confianza y de mediación por instrumentación, y el release en que
-  se publicaron los fixes de cada ciclo), con extractos en el idioma original.
+  del veredicto, un flag de confianza, el flag `instrumentation-mediated` con conjunto de
+  valores true / false / candidate, y el release en que se publicaron los fixes de cada
+  ciclo), con extractos en el idioma original.
 - Manifiesto de defectos sembrados legible por máquina (planificado; requerido para el caso
   de uso de constructores de herramientas).
 - Punteros a artefactos primarios: `documents/explanation/EXPLANATION_qa_report_*.md`,
