@@ -275,15 +275,15 @@ leg = ax.legend(handles=handles, ncol=4, loc="lower center",
 
 fig.subplots_adjust(left=0.075, right=0.915, top=0.855, bottom=0.115)
 
-png = os.path.join(OUT_DIR, "fig5-findings-by-cycle.png")
-svg = os.path.join(OUT_DIR, "fig5-findings-by-cycle.svg")
+png = os.path.join(OUT_DIR, "fig6-findings-by-cycle.png")
+svg = os.path.join(OUT_DIR, "fig6-findings-by-cycle.svg")
 fig.savefig(png, dpi=600, facecolor="white")
 fig.savefig(svg, facecolor="white")
 
 # --------------------------------------------------- verification manifest --
 manifest = {
     "source": "documents/paper/findings.csv",
-    "figure": "fig5-findings-by-cycle",
+    "figure": "fig6-findings-by-cycle",
     "class_order": CLASSES,
     "palette": PALETTE,
     "grayscale_luma_by_class": {c: round(luma(PALETTE[c]), 1) for c in CLASSES},
@@ -317,7 +317,7 @@ manifest = {
                      "final_rate_07_21": 1.0},
     },
 }
-with open(os.path.join(OUT_DIR, "fig5-data.json"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT_DIR, "fig6-data.json"), "w", encoding="utf-8") as f:
     json.dump(manifest, f, indent=2)
 
 print("OK — all assertions passed")

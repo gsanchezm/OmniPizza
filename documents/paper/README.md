@@ -72,16 +72,20 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 Reglas: toda cifra debe re-derivarse del fact sheet o `findings.csv`; los screenshots
 declaran su versión de captura; Mermaid como fallback si la IA no respeta los labels.
 
-**Estado 2026-07-23** (producidas en `figures/`, verificación adversarial por figura):
-Fig 5 renderizada desde `findings.csv` con `fig5.py` + manifiesto `fig5-data.json`
-(verificador re-derivó todos los valores: sin discrepancias); Figs 1/2/6 renderizadas como
-versiones de trabajo Mermaid (fuentes `.mmd`; las versiones IA se generarán con los prompts
-de este plan); Fig 4 y paneles web A/C de Fig 3 capturados con Playwright contra el deploy
-público (snapshot `83b8ba4`, 2026-07-23; 3840×2400). Figs 1/2/4/5/6 insertadas en
-`Sánchez_Omnipizza.docx` (11 cuartillas). Pendiente: paneles móviles B/D de Fig 3
-(requiere dispositivo/emulador Android) y su compuesto 2×2. Hallazgo lateral del
-verificador: la URL de fallback de imagen rota en `ProductCard.jsx`
-(`500px-Pizza_on_stone.jpg`) hoy devuelve 404 en Wikimedia — candidato a triage aparte.
+**Estado 2026-07-24** — TODAS las figuras producidas. El artículo en extenso
+(`Sánchez_Omnipizza.docx`) usa numeración propia de **7 figuras** (se agregó el punto de
+entrada/login a petición del usuario): 1 mapa conceptual (PlantUML), 2 pipeline (PlantUML),
+3 login web+móvil (nueva), 4 superficie espejada 2×2, 5 ground truth `problem_user`,
+6 gráfica de hallazgos (matplotlib desde `findings.csv`, `fig6.py`), 7 secuencia F17
+(PlantUML). Fuentes PlantUML en `figures/*.puml` (los `.mmd` Mermaid quedan como fallback
+histórico). Paneles móviles capturados en Z Flip real (APK v1.1.8, 2026-07-24, deep links
+atómicos); web con Playwright (snapshot `83b8ba4`, 2026-07-23). Docx: formato APA 7 en
+figuras/tablas (número en negrita → título en cursiva → imagen/tabla → *Note.*; tablas solo
+con líneas horizontales), Arial 12 (título en TNR), instituciones al pie de la página 1,
+referencias a 2 columnas, 11 cuartillas. Hallazgos laterales para triage aparte: (a) URL de
+fallback de imagen rota en `ProductCard.jsx` (`500px-Pizza_on_stone.jpg`) devuelve 404 en
+Wikimedia; (b) el resumen de pedido del checkout web SA muestra numerales arábigo-índicos
+(١٤٢٫٤٢) donde móvil muestra occidentales (142.42) — divergencia web/móvil visible en Fig 4.
 
 ## Mapeo referencia → sección (guía para redactar)
 

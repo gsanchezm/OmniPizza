@@ -1,0 +1,41 @@
+@startuml fig1-conceptual-map
+' Figure 1 — Operational map of the theoretical framework
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam dpi 220
+skinparam shadowing false
+skinparam rectangleBorderColor #546E7A
+skinparam rectangleBackgroundColor #ECEFF1
+skinparam rectangleFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowFontSize 12
+
+rectangle "**Controllability instruments**" as CTRL #F5F7F8 {
+  rectangle "Chaos personas (JWT //behavior// claim)\n3.0 s delay · p = 0.5 checkout failure · 3×3 payload pool" as PERSONAS
+  rectangle "Atomic state injection\nlocalStorage seeding · omnipizza:// deep-link params" as ATOMIC
+}
+
+rectangle "**OmniPizza platform**\n3 deployables · 5 markets / 6 languages · in-memory state" as PLAT #F5F7F8 {
+  rectangle "Seeded behavior ($0-price defect)" as SEED #FFE0B2
+}
+
+rectangle "**Observability instruments**" as OBS #F5F7F8 {
+  rectangle "Selector contract\n165 web / 114 mobile" as SEL
+  rectangle "Header rejections" as HDR
+  rectangle "Triage archive" as ARCH
+}
+
+rectangle "Measurable observation" as MEAS #DCE775
+rectangle "Derived test oracle (golden suite)" as ORACLE #FFE0B2
+
+PERSONAS -down-> PLAT
+ATOMIC -down-> PLAT
+PLAT -down-> SEL
+PLAT -down-> HDR
+PLAT -down-> ARCH
+SEL -down-> MEAS
+HDR -down-> MEAS
+ARCH -down-> MEAS
+SEED .right[#E65100].> ORACLE : derivation
+ORACLE .down[#E65100].> MEAS : **detection = 0**
+@enduml

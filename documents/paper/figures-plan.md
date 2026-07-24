@@ -1,5 +1,12 @@
 # Figures Plan — OmniPizza paper (v0.5)
 
+> **Nota de numeración (2026-07-24):** el artículo en extenso (`Sánchez_Omnipizza.docx`)
+> usa una numeración de **7 figuras** — se insertó una nueva Figura 3 (punto de entrada:
+> login web+móvil, `fig3-entry-point.png`), desplazando las figuras 3–6 de este plan a
+> 4–7. Las figuras 1, 2 y 7 del artículo están renderizadas con PlantUML
+> (`figures/*.puml`), que sustituyó a Mermaid como fallback preferido. Este plan conserva
+> la numeración original de 6 figuras para el preprint.
+
 Six figures, numbered by order of appearance. Production paths:
 
 - **Figures 1, 2, 6 (diagrams):** AI image generation using the prompts below. Caveat:

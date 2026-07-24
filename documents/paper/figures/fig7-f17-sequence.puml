@@ -1,0 +1,38 @@
+@startuml fig7-f17-sequence
+' Figure 7 — Mechanism of an instrumentation-mediated false positive (F17)
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam dpi 220
+skinparam shadowing false
+skinparam sequenceParticipantBackgroundColor #ECEFF1
+skinparam sequenceParticipantBorderColor #546E7A
+skinparam sequenceLifeLineBorderColor #90A4AE
+skinparam sequenceDividerBackgroundColor #ECEFF1
+skinparam noteBackgroundColor #F5F5F5
+skinparam noteBorderColor #999999
+skinparam ArrowColor #37474F
+skinparam sequenceMessageAlign center
+
+participant "Earlier test" as E
+participant "Backend\n(warm in-memory DB)" as B
+participant "Harness session" as H
+participant "Checkout page" as C
+participant "Triage" as T
+
+E -> B : POST /api/cart (shared standard_user)
+activate B #FFE0B2
+note right of B : orphan cart persists
+
+== later, same day ==
+
+H -> B : login (shared standard_user)
+C -> C : local cart empty
+C -> B : GET /api/cart — sanctioned hydration, working as designed
+B --> C : orphan cart
+C -> H : UI shows pre-selected item
+H -> T : finding filed
+deactivate B
+
+note over T : control account empty · same-day backend timestamp\nlocal-leak hypothesis falsified
+note over T #FFE0B2 : **verdict: shared-fixture state · instrumentation-mediated = true**
+@enduml

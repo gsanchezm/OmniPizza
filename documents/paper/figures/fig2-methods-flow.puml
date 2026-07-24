@@ -1,0 +1,51 @@
+@startuml fig2-methods-flow
+' Figure 2 — Study pipeline (three lanes joined at Results)
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam dpi 220
+skinparam shadowing false
+skinparam ActivityBackgroundColor #ECEFF1
+skinparam ActivityBorderColor #546E7A
+skinparam ActivityDiamondBackgroundColor #FFE0B2
+skinparam ActivityDiamondBorderColor #E65100
+skinparam ArrowColor #37474F
+skinparam ActivityFontSize 13
+skinparam SwimlaneTitleFontSize 14
+
+|A · Artifact description|
+start
+:Archival sources
+(docs + git history, 209 commits);
+repeat :Drafting pass;
+backward:3 claims refuted → corrected;
+repeat while (Adversarial fact-check\n@ snapshot 83b8ba4) is (refuted) not (verified)
+:Fact sheet (counting rules);
+
+|B · Exemplar|
+:Ground truth confirmed live
+(12/12 at 0.0);
+:Four suites executed as-is
+Schemathesis 3.25.1 · Vitest 4.0.18
+Cypress 15.11.0 · Detox;
+:Per-layer outcomes;
+
+|C · Case study|
+:External harness reports
+(5+1 cycles);
+if (Reproduce before verdict?) then (yes)
+  :Empirical reproduction
+  (API replay · device · axe-core);
+else (code-audit path)
+endif
+if (Human decision gates) then (approved)
+  :Dated explanation documents;
+endif
+:Coding (4 attributes, human review);
+:findings.csv;
+
+|B · Exemplar|
+:Results (4.1 / 4.2);
+:Discussion
+(guidelines by evidence strength);
+stop
+@enduml
