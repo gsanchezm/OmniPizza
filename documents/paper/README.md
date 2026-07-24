@@ -27,7 +27,7 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 
 | Sección | Contenido | Estado |
 |---|---|---|
-| Abstract | Arco, números clave, claim de cierre | Outline |
+| Abstract | 210 palabras, estructura 10/10/20/40/20 (contexto→brecha→método→resultados→impacto), alta densidad léxica | **Redactado** |
 | 1. Introducción | Movimientos CARS (territorio/nicho/ocupación) + audiencias + RQ1–RQ4 + 5 contribuciones | **Redactada** |
 | 2. Trabajo relacionado y marco teórico | Related work (outline) + **2.1 marco teórico redactado**: mapa operacional (testabilidad, oráculo derivado, falsos positivos efectivos, design science) con tabla concepto→variable | Related work en esquema; 2.1 redactada |
 | 3. Principios de diseño (RQ1) | 3.1 método + 3.2–3.8 mecanismos (caos-por-identidad, mercado-como-datos, entrada atómica, contratos, estado efímero, currículum, portafolio) | **Redactado y verificado** (2 rondas adversariales) |

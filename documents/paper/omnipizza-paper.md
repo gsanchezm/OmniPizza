@@ -3,9 +3,9 @@
 > **Status:** base document (v0.5, 2026-07-23). IMRaD structure: 1 Introduction (CARS) ·
 > 2 Related Work (outline) · 3 Methods (derivation, materials, instruments, exemplar
 > procedure, case-study method) · 4 Results · 5 Discussion (prose + guidelines + threat
-> enumeration) · 6 Conclusion & Availability. The Abstract and the related-work half of
-> Section 2 remain outlines (2.1, the theoretical framework, is drafted); everything else is
-> drafted prose. All quantitative claims were adversarially fact-checked
+> enumeration) · 6 Conclusion & Availability. Only the related-work half of Section 2
+> remains an outline (2.1, the theoretical framework, is drafted); everything else,
+> including the Abstract, is drafted prose. All quantitative claims were adversarially fact-checked
 > against the repository at the pinned snapshot (Section 3.1).
 >
 > **Working-title alternatives:**
@@ -19,24 +19,27 @@
 
 ---
 
-## Abstract (outline)
+## Abstract
 
-- Pitch: practicing, benchmarking, and studying test automation needs a system that is
-  realistic enough to matter and controlled enough to measure — production apps are neither
-  safe nor deterministic; existing sandboxes are single-platform or single-concern.
-- OmniPizza: an open, publicly deployed pizza-ordering product (FastAPI backend, React web,
-  Expo/React Native mobile) built so that testability is a product feature: 7 deterministic
-  chaos users whose failure modes travel in the JWT, 5 data-driven markets / 6 languages
-  including Arabic RTL, atomic state-injection entry to any screen, and versioned
-  instrumentation contracts (165 web + 114 mobile stable-selector occurrences).
-- Evaluation: one week of real external automated-QA use (19 findings, 6 triage cycles)
-  provides initial evidence for the laboratory in both roles — app under test and generator of
-  study-able QA phenomena — including false positives mediated by the test-enabling
-  instrumentation itself.
-- Output: a design-pattern catalog for testability, a catalog of what the laboratory is
-  instrumented to measure — one row executed as an exemplar: the seeded $0-price defect goes
-  undetected by all four existing test layers as-is (Section 4.1) — and design-for-testability
-  guidelines tagged by evidence strength.
+Test-automation research and practice depend on shared objects of study, yet CI-scale
+signals are pervaded by nondeterministic failures and triage noise. Existing objects
+diverge: defect corpora are frozen for offline scoring, production systems resist
+inspection, and demo applications carry no versioned testability contracts. OmniPizza is an
+open, publicly deployed multi-platform laboratory (FastAPI, React, React Native) whose
+controllability and observability are engineered features: credential-keyed chaos personas,
+data-driven market/i18n rules, atomic state injection, and versioned selector contracts. A
+snapshot-verified artifact description is combined with one executed exemplar and a
+retrospective embedded case study of a week of external automated QA. The seeded $0-price
+defect evaded all four test layers ($0/4$): two layers were non-executable (schema drift;
+absent tooling), component tests mounted fixtures only, and the golden characterization
+suite passed $46/46$ asserting the defect as expected behavior — an inverted derived test
+oracle. Of $N = 19$ external findings, $11$ were real defects; the eight non-bugs spread
+across an eight-class verdict taxonomy with two instrumentation-mediated false positives,
+and LLM-assisted triage logged two retractions — both cross-boundary attributions — and one
+verdict reversal. The laboratory, coding table, and fact sheet are public;
+design-for-testability guidelines carry evidence-strength tags. Living benchmarks need
+defect-blind oracles and machine-readable ground truth; in AI-assisted triage, evidence
+discipline outweighs model choice.
 
 ## 1. Introduction
 

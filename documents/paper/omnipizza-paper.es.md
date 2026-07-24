@@ -5,9 +5,9 @@
 > ante cualquier discrepancia, prevalece el original. Estructura IMRyD: 1 Introducción
 > (CARS) · 2 Trabajo relacionado (esquema) · 3 Métodos (derivación, materiales, instrumentos,
 > procedimiento del ejemplar, método del estudio de caso) · 4 Resultados · 5 Discusión
-> (prosa + guías + enumeración de amenazas) · 6 Conclusión y disponibilidad. El Abstract y la
-> mitad de trabajo relacionado de la Sección 2 siguen en esquema (la 2.1, el marco teórico,
-> está redactada); todo lo demás es prosa redactada. Todas las afirmaciones
+> (prosa + guías + enumeración de amenazas) · 6 Conclusión y disponibilidad. Solo la mitad
+> de trabajo relacionado de la Sección 2 sigue en esquema (la 2.1, el marco teórico, está
+> redactada); todo lo demás, incluido el Resumen, es prosa redactada. Todas las afirmaciones
 > cuantitativas pasaron verificación adversarial contra el repositorio en el snapshot fijado
 > (Sección 3.1).
 >
@@ -24,27 +24,30 @@
 
 ---
 
-## Resumen (esquema)
+## Resumen
 
-- Pitch: practicar, hacer benchmarking y estudiar la automatización de pruebas requieren un
-  sistema lo bastante realista para ser relevante y lo bastante controlado para poder medir —
-  las apps de producción no son ni seguras ni deterministas; los sandboxes existentes son
-  monoplataforma o de un solo ámbito.
-- OmniPizza: un producto abierto de pedidos de pizza, desplegado públicamente (backend
-  FastAPI, web React, móvil Expo/React Native), construido para que la testabilidad sea una
-  funcionalidad del producto: 7 usuarios caos deterministas cuyos modos de fallo viajan en el
-  JWT, 5 mercados data-driven / 6 idiomas incluido árabe RTL, entrada por inyección atómica de
-  estado a cualquier pantalla, y contratos de instrumentación versionados (165 ocurrencias de
-  selectores estables en web + 114 en móvil).
-- Evaluación: una semana de uso real por QA automatizada externa (19 hallazgos, 6 ciclos de
-  triage) aporta evidencia inicial del laboratorio en sus dos papeles — app bajo prueba y
-  generador de fenómenos QA estudiables — incluidos falsos positivos mediados por la propia
-  instrumentación de testing.
-- Salida: un catálogo de patrones de diseño para testabilidad, un catálogo de lo que el
-  laboratorio está instrumentado para medir — con una fila ejecutada como ejemplar: el
-  defecto sembrado de precios $0 pasa sin detección por las cuatro capas de prueba existentes
-  tal cual están (Sección 4.1) — y guías de diseño-para-testabilidad etiquetadas por fuerza
-  de evidencia.
+La investigación y la práctica de la automatización de pruebas dependen de objetos de
+estudio compartidos, pero las señales a escala de CI están permeadas de fallos no
+deterministas y ruido de triage. Los objetos existentes divergen: los corpus de defectos
+están congelados para puntuación offline, los sistemas de producción resisten la inspección,
+y las aplicaciones demo no llevan contratos de testabilidad versionados. OmniPizza es un
+laboratorio multiplataforma abierto y desplegado públicamente (FastAPI, React, React Native)
+cuya controlabilidad y observabilidad son funcionalidades diseñadas: personas caos ancladas
+a credenciales, reglas de mercado/i18n como datos, inyección atómica de estado y contratos
+de selectores versionados. Una descripción de artefacto verificada contra un snapshot se
+combina con un ejemplar ejecutado y un estudio de caso retrospectivo embebido de una semana
+de QA automatizada externa. El defecto sembrado de precios $0 evadió las cuatro capas de
+prueba ($0/4$): dos capas no fueron ejecutables (drift de esquema; tooling ausente), los
+tests de componentes montaron solo fixtures, y la suite golden de caracterización pasó
+$46/46$ assertando el defecto como comportamiento esperado — un oráculo de prueba derivado
+invertido. De $N = 19$ hallazgos externos, $11$ fueron defectos reales; los ocho no-bugs se
+repartieron en una taxonomía de veredictos de ocho clases con dos falsos positivos mediados
+por la instrumentación, y el triage asistido por LLM registró dos retractaciones — ambas
+atribuciones que cruzaban la frontera — y una reversión de veredicto. El laboratorio, la
+tabla de codificación y el fact sheet son públicos; las guías de diseño-para-testabilidad
+llevan etiquetas de fuerza de evidencia. Los benchmarks vivos necesitan oráculos ciegos al
+defecto y ground truth legible por máquina; en el triage asistido por IA, la disciplina de
+evidencia pesa más que la elección de modelo.
 
 ## 1. Introducción
 
