@@ -117,6 +117,12 @@ localization); Hou et al. 2024 (LLM4SE SLR); Anvik et al. 2006; Zimmermann et al
    Opcional futuro: hacer ejecutable la capa Detox (deps + jest.config + build instrumentado)
    y correrla en dispositivo físico.
 6. Redactar Results/Discussion/Conclusion en prosa completa.
+6b. ~~Formatos del congreso~~ — hecho (2026-07-23): resumen corto en
+   `Sánchez_Investigación.docx` (resumen ES 250 palabras + abstract EN) y artículo en
+   extenso 100% en inglés en `Sánchez_Omnipizza.docx` (plantilla 2026: I–IV + referencias
+   APA 7, 3 tablas, 6 placeholders de figuras, 32 referencias citadas-únicamente, 9
+   cuartillas de texto). Ambos fuera del repo, en `Documents\publicaciones\Omnipizza\`;
+   respaldos `*_FORMATO_ORIGINAL.docx`. Pendiente: insertar imágenes en los placeholders.
 7. Al publicar: snapshot archivado + manifiesto de defectos + extractos en idioma original
    para findings.csv + citas web con snapshot/tag pineado y log de verificación de
    referencias inspeccionable (diferidos de la auditoría; ver `audit-response.md`).
