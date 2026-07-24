@@ -1,11 +1,10 @@
 # OmniPizza: A Controlled Laboratory for Multi-Platform Test Automation
 
 > **Status:** base document (v0.5, 2026-07-23). IMRaD structure: 1 Introduction (CARS) ·
-> 2 Related Work (outline) · 3 Methods (derivation, materials, instruments, exemplar
+> 2 Related Work & Theoretical Framework · 3 Methods (derivation, materials, instruments, exemplar
 > procedure, case-study method) · 4 Results · 5 Discussion (prose + guidelines + threat
-> enumeration) · 6 Conclusion & Availability. Only the related-work half of Section 2
-> remains an outline (2.1, the theoretical framework, is drafted); everything else,
-> including the Abstract, is drafted prose. All quantitative claims were adversarially fact-checked
+> enumeration) · 6 Conclusion & Availability. Every section is drafted prose — no outlines
+> remain. All quantitative claims were adversarially fact-checked
 > against the repository at the pinned snapshot (Section 3.1).
 >
 > **Working-title alternatives:**
@@ -115,22 +114,51 @@ domain training.
      (Sections 3.5 and 4.2).
   5. Design-for-testability guidelines tagged by evidence strength (Section 5.1).
 
-## 2. Related Work and Theoretical Framework (related work: outline)
+## 2. Related Work and Theoretical Framework
 
-- Testing sandboxes and demo apps: SauceDemo (origin of the `problem_user` pattern — OmniPizza
-  extends it to latency, probabilistic, a11y, and security personas), OWASP Juice Shop
-  (security training), TodoMVC / RealWorld (implementation benchmarks, not testing
-  laboratories).
-- Defect benchmarks (Defects4J, BugsJS): curated *historical defects* for tool evaluation —
-  contrast with a *living* laboratory of seeded, deterministic, currently-reproducible failure
-  modes plus process capture.
-- Design for testability: controllability/observability as testability dimensions (Binder;
-  Freedman) — OmniPizza operationalizes both as product features.
-- Flaky tests and test-failure noise (Luo et al.; industrial reports); false-positive triage;
-  test-fixture pollution — the phenomena Section 4.2 shows the laboratory generating.
-- LLMs in testing and triage; human-AI oversight (context for the evaluation's triage
-  protocol).
-- Case-study and design-science methodology (Runeson & Höst; Yin; Wieringa).
+Purpose-built demo applications are the nearest relatives. SauceDemo introduced the
+deterministic test persona — `problem_user` — as a teaching device (Sauce Labs, n.d.);
+OmniPizza extends the pattern to latency, probabilistic-failure, accessibility, and security
+personas, and moves enforcement server-side into the credential. OWASP Juice Shop seeds real
+vulnerabilities for security training (OWASP Foundation, n.d.), a single-concern cousin of
+the `security_glitch` persona. TodoMVC standardizes one application across many
+implementations (TasteJS, n.d.) — a benchmark of frameworks, not of testing. None of the
+three versions its testability machinery or captures the QA process it hosts.
+
+Defect benchmarks approach ground truth from the opposite direction. Defects4J packages
+historical Java faults for controlled tool evaluation (Just et al., 2014), BugsJS does the
+same for JavaScript (Gyimesi et al., 2019), and the SIR infrastructure argued early for
+shared experimental artifacts (Do et al., 2005). These corpora are deliberately frozen;
+OmniPizza is deliberately live — its seeded failure modes are reproducible against a running
+deployment, and the surrounding process (findings, verdicts, retractions) is archived as
+data. The cost of liveness, Section 4.1 shows, is that ground truth must be actively
+defended from the suites that characterize it.
+
+A third strand engineers testability and its instruments. The controllability/observability
+tradition (Freedman, 1991; Binder, 1994) is operationalized here as product features
+(Section 2.1). Robust-locator work such as Robula+ treats selector fragility as an
+algorithmic problem (Leotta et al., 2016); OmniPizza treats it as a contractual one — stable
+selectors versioned like an API — while deliberately embedding the fragility
+(viewport-dependent suffixes) that such algorithms target. Internationalization presentation
+failures have dedicated detectors (Alameer et al., 2016); the laboratory supplies the
+multi-market, RTL-inclusive surface to exercise them, with WCAG success criteria (Campbell
+et al., 2024) and axe-core (Deque Systems, 2026) anchoring the accessibility dimension.
+
+The phenomena the evaluation generates each have literatures of their own: flaky tests and
+CI noise (Luo et al., 2014; Memon et al., 2017; Parry et al., 2022); static-analysis false
+positives and their developer reception (Bessey et al., 2010; Johnson et al., 2013;
+Sadowski et al., 2018); test-state pollution and its isolation remedies (Zhang et al., 2014;
+Gyori et al., 2015; Bell & Kaiser, 2014); and bug-report quality, misclassification, and
+duplicate triage (Bettenburg et al., 2008; Herzig et al., 2013; Runeson et al., 2007).
+Section 5 engages each where the data touch it. The novelty claimed here is not any single
+phenomenon but a platform on which all of them are deterministic, reproducible, and
+archived.
+
+Finally, the study sits in two methodological currents — LLM-assisted testing and triage
+under human oversight (Wang et al., 2024; Kang et al., 2023; Fan et al., 2023; Amershi et
+al., 2019) and design-science artifacts validated by case study (Hevner et al., 2004;
+Wieringa, 2014; Runeson & Höst, 2009; Yin, 2018) — both applied as operational constraints
+in Section 2.1 rather than rehearsed here.
 
 ### 2.1 Theoretical framework: an operational map
 
@@ -660,44 +688,157 @@ archived snapshot (pinned commit, DOI) will accompany the preprint.
 
 ## References
 
-APA 7. All 35 entries verified against their canonical records (DOI resolution or publisher /
-official page) on 2026-07-23; a verified reserve list is kept in the progress index.
+APA 7, hanging indents (approximated in this source; applied at typesetting). The list is
+restricted to the 36 works cited in the text; every entry was verified against its
+canonical record (DOI resolution or publisher / official page) on 2026-07-23. A verified
+reserve list is kept in the progress index.
 
-- Alameer, A., Mahajan, S., & Halfond, W. G. J. (2016). Detecting and localizing internationalization presentation failures in web applications. In *2016 IEEE International Conference on Software Testing, Verification and Validation (ICST)* (pp. 202–212). IEEE. https://doi.org/10.1109/ICST.2016.36
-- Amershi, S., Weld, D., Vorvoreanu, M., Fourney, A., Nushi, B., Collisson, P., Suh, J., Iqbal, S., Bennett, P. N., Inkpen, K., Teevan, J., Kikin-Gil, R., & Horvitz, E. (2019). Guidelines for human-AI interaction. In *Proceedings of the 2019 CHI Conference on Human Factors in Computing Systems (CHI '19)* (Paper 3, pp. 1–13). ACM. https://doi.org/10.1145/3290605.3300233
-- Barr, E. T., Harman, M., McMinn, P., Shahbaz, M., & Yoo, S. (2015). The oracle problem in software testing: A survey. *IEEE Transactions on Software Engineering*, *41*(5), 507–525. https://doi.org/10.1109/TSE.2014.2372785
-- Basiri, A., Behnam, N., de Rooij, R., Hochstein, L., Kosewski, L., Reynolds, J., & Rosenthal, C. (2016). Chaos engineering. *IEEE Software*, *33*(3), 35–41. https://doi.org/10.1109/MS.2016.60
-- Bell, J., & Kaiser, G. (2014). Unit test virtualization with VMVM. In *Proceedings of the 36th International Conference on Software Engineering (ICSE 2014)* (pp. 550–561). ACM. https://doi.org/10.1145/2568225.2568248
-- Bessey, A., Block, K., Chelf, B., Chou, A., Fulton, B., Hallem, S., Henri-Gros, C., Kamsky, A., McPeak, S., & Engler, D. (2010). A few billion lines of code later: Using static analysis to find bugs in the real world. *Communications of the ACM*, *53*(2), 66–75. https://doi.org/10.1145/1646353.1646374
-- Bettenburg, N., Just, S., Schröter, A., Weiss, C., Premraj, R., & Zimmermann, T. (2008). What makes a good bug report? In *Proceedings of the 16th ACM SIGSOFT International Symposium on Foundations of Software Engineering (FSE-16)* (pp. 308–318). ACM. https://doi.org/10.1145/1453101.1453146
-- Binder, R. V. (1994). Design for testability in object-oriented systems. *Communications of the ACM*, *37*(9), 87–101. https://doi.org/10.1145/182987.184077
-- Campbell, A., Adams, C., Bradley Montgomery, R., Cooper, M., & Kirkpatrick, A. (Eds.). (2024). *Web Content Accessibility Guidelines (WCAG) 2.2* (W3C Recommendation, 12 December 2024). World Wide Web Consortium. https://www.w3.org/TR/2024/REC-WCAG22-20241212/
-- Deque Systems. (2026). *axe-core: Accessibility engine for automated Web UI testing* [Computer software]. GitHub. Retrieved July 23, 2026, from https://github.com/dequelabs/axe-core
-- Do, H., Elbaum, S., & Rothermel, G. (2005). Supporting controlled experimentation with testing techniques: An infrastructure and its potential impact. *Empirical Software Engineering*, *10*(4), 405–435. https://doi.org/10.1007/s10664-005-3861-2
-- Fan, A., Gokkaya, B., Harman, M., Lyubarskiy, M., Sengupta, S., Yoo, S., & Zhang, J. M. (2023). Large language models for software engineering: Survey and open problems. In *2023 IEEE/ACM International Conference on Software Engineering: Future of Software Engineering (ICSE-FoSE)* (pp. 31–53). IEEE. https://doi.org/10.1109/ICSE-FoSE59343.2023.00008
-- Freedman, R. S. (1991). Testability of software components. *IEEE Transactions on Software Engineering*, *17*(6), 553–564. https://doi.org/10.1109/32.87281
-- Gyimesi, P., Vancsics, B., Stocco, A., Mazinanian, D., Beszédes, Á., Ferenc, R., & Mesbah, A. (2019). BugsJS: A benchmark of JavaScript bugs. In *2019 12th IEEE Conference on Software Testing, Validation and Verification (ICST)* (pp. 90–101). IEEE. https://doi.org/10.1109/ICST.2019.00019
-- Gyori, A., Shi, A., Hariri, F., & Marinov, D. (2015). Reliable testing: Detecting state-polluting tests to prevent test dependency. In *Proceedings of the 2015 International Symposium on Software Testing and Analysis (ISSTA 2015)* (pp. 223–233). ACM. https://doi.org/10.1145/2771783.2771793
-- Herzig, K., Just, S., & Zeller, A. (2013). It's not a bug, it's a feature: How misclassification impacts bug prediction. In *Proceedings of the 35th International Conference on Software Engineering (ICSE 2013)* (pp. 392–401). IEEE. https://doi.org/10.1109/ICSE.2013.6606585
-- Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, *28*(1), 75–106. https://doi.org/10.2307/25148625
-- Johnson, B., Song, Y., Murphy-Hill, E., & Bowdidge, R. (2013). Why don't software developers use static analysis tools to find bugs? In *Proceedings of the 35th International Conference on Software Engineering (ICSE 2013)* (pp. 672–681). IEEE. https://doi.org/10.1109/ICSE.2013.6606613
-- Just, R., Jalali, D., & Ernst, M. D. (2014). Defects4J: A database of existing faults to enable controlled testing studies for Java programs. In *Proceedings of the 2014 International Symposium on Software Testing and Analysis* (pp. 437–440). ACM. https://doi.org/10.1145/2610384.2628055
-- Kang, S., Yoon, J., & Yoo, S. (2023). Large language models are few-shot testers: Exploring LLM-based general bug reproduction. In *2023 IEEE/ACM 45th International Conference on Software Engineering (ICSE)* (pp. 2312–2323). IEEE. https://doi.org/10.1109/ICSE48619.2023.00194
-- Leotta, M., Stocco, A., Ricca, F., & Tonella, P. (2016). Robula+: An algorithm for generating robust XPath locators for web testing. *Journal of Software: Evolution and Process*, *28*(3), 177–204. https://doi.org/10.1002/smr.1771
-- Luo, Q., Hariri, F., Eloussi, L., & Marinov, D. (2014). An empirical analysis of flaky tests. In *Proceedings of the 22nd ACM SIGSOFT International Symposium on Foundations of Software Engineering* (pp. 643–653). ACM. https://doi.org/10.1145/2635868.2635920
-- Memon, A., Gao, Z., Nguyen, B., Dhanda, S., Nickell, E., Siemborski, R., & Micco, J. (2017). Taming Google-scale continuous testing. In *2017 IEEE/ACM 39th International Conference on Software Engineering: Software Engineering in Practice Track (ICSE-SEIP)* (pp. 233–242). IEEE. https://doi.org/10.1109/ICSE-SEIP.2017.16
-- OWASP Foundation. (n.d.). *OWASP Juice Shop*. Retrieved July 23, 2026, from https://owasp.org/www-project-juice-shop/
-- Parry, O., Kapfhammer, G. M., Hilton, M., & McMinn, P. (2022). A survey of flaky tests. *ACM Transactions on Software Engineering and Methodology*, *31*(1), 1–74. https://doi.org/10.1145/3476105
-- Runeson, P., Alexandersson, M., & Nyholm, O. (2007). Detection of duplicate defect reports using natural language processing. In *Proceedings of the 29th International Conference on Software Engineering (ICSE '07)* (pp. 499–510). IEEE. https://doi.org/10.1109/ICSE.2007.32
-- Runeson, P., & Höst, M. (2009). Guidelines for conducting and reporting case study research in software engineering. *Empirical Software Engineering*, *14*(2), 131–164. https://doi.org/10.1007/s10664-008-9102-8
-- Sadowski, C., Aftandilian, E., Eagle, A., Miller-Cushon, L., & Jaspan, C. (2018). Lessons from building static analysis tools at Google. *Communications of the ACM*, *61*(4), 58–66. https://doi.org/10.1145/3188720
-- Sauce Labs. (n.d.). *Swag Labs (Sauce Labs sample application)* [Demo web application]. Retrieved July 23, 2026, from https://www.saucedemo.com/
-- Vahabzadeh, A., Milani Fard, A., & Mesbah, A. (2015). An empirical study of bugs in test code. In *2015 IEEE International Conference on Software Maintenance and Evolution (ICSME)* (pp. 101–110). IEEE. https://doi.org/10.1109/ICSM.2015.7332456
-- Wang, J., Huang, Y., Chen, C., Liu, Z., Wang, S., & Wang, Q. (2024). Software testing with large language models: Survey, landscape, and vision. *IEEE Transactions on Software Engineering*, *50*(4), 911–936. https://doi.org/10.1109/TSE.2024.3368208
-- Weyuker, E. J. (1982). On testing non-testable programs. *The Computer Journal*, *25*(4), 465–470. https://doi.org/10.1093/comjnl/25.4.465
-- Wieringa, R. J. (2014). *Design science methodology for information systems and software engineering*. Springer. https://doi.org/10.1007/978-3-662-43839-8
-- Yin, R. K. (2018). *Case study research and applications: Design and methods* (6th ed.). SAGE Publications.
-- Zhang, S., Jalali, D., Wuttke, J., Muşlu, K., Lam, W., Ernst, M. D., & Notkin, D. (2014). Empirically revisiting the test independence assumption. In *Proceedings of the 2014 International Symposium on Software Testing and Analysis (ISSTA 2014)* (pp. 385–396). ACM. https://doi.org/10.1145/2610384.2610404
+Alameer, A., Mahajan, S., & Halfond, W. G. J. (2016). Detecting and localizing
+    internationalization presentation failures in web applications. In *2016 IEEE International
+    Conference on Software Testing, Verification and Validation (ICST)* (pp. 202–212). IEEE.
+    https://doi.org/10.1109/ICST.2016.36
+
+Amershi, S., Weld, D., Vorvoreanu, M., Fourney, A., Nushi, B., Collisson, P., Suh, J., Iqbal,
+    S., Bennett, P. N., Inkpen, K., Teevan, J., Kikin-Gil, R., & Horvitz, E. (2019). Guidelines
+    for human-AI interaction. In *Proceedings of the 2019 CHI Conference on Human Factors in
+    Computing Systems (CHI '19)* (Paper 3, pp. 1–13). ACM.
+    https://doi.org/10.1145/3290605.3300233
+
+Barr, E. T., Harman, M., McMinn, P., Shahbaz, M., & Yoo, S. (2015). The oracle problem in
+    software testing: A survey. *IEEE Transactions on Software Engineering*, *41*(5), 507–525.
+    https://doi.org/10.1109/TSE.2014.2372785
+
+Basiri, A., Behnam, N., de Rooij, R., Hochstein, L., Kosewski, L., Reynolds, J., & Rosenthal, C.
+    (2016). Chaos engineering. *IEEE Software*, *33*(3), 35–41.
+    https://doi.org/10.1109/MS.2016.60
+
+Bell, J., & Kaiser, G. (2014). Unit test virtualization with VMVM. In *Proceedings of the 36th
+    International Conference on Software Engineering (ICSE 2014)* (pp. 550–561). ACM.
+    https://doi.org/10.1145/2568225.2568248
+
+Bessey, A., Block, K., Chelf, B., Chou, A., Fulton, B., Hallem, S., Henri-Gros, C., Kamsky, A.,
+    McPeak, S., & Engler, D. (2010). A few billion lines of code later: Using static analysis to
+    find bugs in the real world. *Communications of the ACM*, *53*(2), 66–75.
+    https://doi.org/10.1145/1646353.1646374
+
+Bettenburg, N., Just, S., Schröter, A., Weiss, C., Premraj, R., & Zimmermann, T. (2008). What
+    makes a good bug report? In *Proceedings of the 16th ACM SIGSOFT International Symposium on
+    Foundations of Software Engineering (FSE-16)* (pp. 308–318). ACM.
+    https://doi.org/10.1145/1453101.1453146
+
+Binder, R. V. (1994). Design for testability in object-oriented systems. *Communications of the
+    ACM*, *37*(9), 87–101. https://doi.org/10.1145/182987.184077
+
+Campbell, A., Adams, C., Bradley Montgomery, R., Cooper, M., & Kirkpatrick, A. (Eds.). (2024).
+    *Web Content Accessibility Guidelines (WCAG) 2.2* (W3C Recommendation, 12 December 2024).
+    World Wide Web Consortium. https://www.w3.org/TR/2024/REC-WCAG22-20241212/
+
+Deque Systems. (2026). *axe-core: Accessibility engine for automated Web UI testing* [Computer
+    software]. GitHub. Retrieved July 23, 2026, from https://github.com/dequelabs/axe-core
+
+Do, H., Elbaum, S., & Rothermel, G. (2005). Supporting controlled experimentation with testing
+    techniques: An infrastructure and its potential impact. *Empirical Software Engineering*,
+    *10*(4), 405–435. https://doi.org/10.1007/s10664-005-3861-2
+
+Fan, A., Gokkaya, B., Harman, M., Lyubarskiy, M., Sengupta, S., Yoo, S., & Zhang, J. M. (2023).
+    Large language models for software engineering: Survey and open problems. In *2023 IEEE/ACM
+    International Conference on Software Engineering: Future of Software Engineering
+    (ICSE-FoSE)* (pp. 31–53). IEEE. https://doi.org/10.1109/ICSE-FoSE59343.2023.00008
+
+Freedman, R. S. (1991). Testability of software components. *IEEE Transactions on Software
+    Engineering*, *17*(6), 553–564. https://doi.org/10.1109/32.87281
+
+Gyimesi, P., Vancsics, B., Stocco, A., Mazinanian, D., Beszédes, Á., Ferenc, R., & Mesbah, A.
+    (2019). BugsJS: A benchmark of JavaScript bugs. In *2019 12th IEEE Conference on Software
+    Testing, Validation and Verification (ICST)* (pp. 90–101). IEEE.
+    https://doi.org/10.1109/ICST.2019.00019
+
+Gyori, A., Shi, A., Hariri, F., & Marinov, D. (2015). Reliable testing: Detecting
+    state-polluting tests to prevent test dependency. In *Proceedings of the 2015 International
+    Symposium on Software Testing and Analysis (ISSTA 2015)* (pp. 223–233). ACM.
+    https://doi.org/10.1145/2771783.2771793
+
+Herzig, K., Just, S., & Zeller, A. (2013). It's not a bug, it's a feature: How misclassification
+    impacts bug prediction. In *Proceedings of the 35th International Conference on Software
+    Engineering (ICSE 2013)* (pp. 392–401). IEEE. https://doi.org/10.1109/ICSE.2013.6606585
+
+Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems
+    research. *MIS Quarterly*, *28*(1), 75–106. https://doi.org/10.2307/25148625
+
+Johnson, B., Song, Y., Murphy-Hill, E., & Bowdidge, R. (2013). Why don't software developers use
+    static analysis tools to find bugs? In *Proceedings of the 35th International Conference on
+    Software Engineering (ICSE 2013)* (pp. 672–681). IEEE.
+    https://doi.org/10.1109/ICSE.2013.6606613
+
+Just, R., Jalali, D., & Ernst, M. D. (2014). Defects4J: A database of existing faults to enable
+    controlled testing studies for Java programs. In *Proceedings of the 2014 International
+    Symposium on Software Testing and Analysis* (pp. 437–440). ACM.
+    https://doi.org/10.1145/2610384.2628055
+
+Kang, S., Yoon, J., & Yoo, S. (2023). Large language models are few-shot testers: Exploring
+    LLM-based general bug reproduction. In *2023 IEEE/ACM 45th International Conference on
+    Software Engineering (ICSE)* (pp. 2312–2323). IEEE.
+    https://doi.org/10.1109/ICSE48619.2023.00194
+
+Leotta, M., Stocco, A., Ricca, F., & Tonella, P. (2016). Robula+: An algorithm for generating
+    robust XPath locators for web testing. *Journal of Software: Evolution and Process*,
+    *28*(3), 177–204. https://doi.org/10.1002/smr.1771
+
+Luo, Q., Hariri, F., Eloussi, L., & Marinov, D. (2014). An empirical analysis of flaky tests. In
+    *Proceedings of the 22nd ACM SIGSOFT International Symposium on Foundations of Software
+    Engineering* (pp. 643–653). ACM. https://doi.org/10.1145/2635868.2635920
+
+Memon, A., Gao, Z., Nguyen, B., Dhanda, S., Nickell, E., Siemborski, R., & Micco, J. (2017).
+    Taming Google-scale continuous testing. In *2017 IEEE/ACM 39th International Conference on
+    Software Engineering: Software Engineering in Practice Track (ICSE-SEIP)* (pp. 233–242).
+    IEEE. https://doi.org/10.1109/ICSE-SEIP.2017.16
+
+OWASP Foundation. (n.d.). *OWASP Juice Shop*. Retrieved July 23, 2026, from
+    https://owasp.org/www-project-juice-shop/
+
+Parry, O., Kapfhammer, G. M., Hilton, M., & McMinn, P. (2022). A survey of flaky tests. *ACM
+    Transactions on Software Engineering and Methodology*, *31*(1), 1–74.
+    https://doi.org/10.1145/3476105
+
+Runeson, P., Alexandersson, M., & Nyholm, O. (2007). Detection of duplicate defect reports using
+    natural language processing. In *Proceedings of the 29th International Conference on
+    Software Engineering (ICSE '07)* (pp. 499–510). IEEE. https://doi.org/10.1109/ICSE.2007.32
+
+Runeson, P., & Höst, M. (2009). Guidelines for conducting and reporting case study research in
+    software engineering. *Empirical Software Engineering*, *14*(2), 131–164.
+    https://doi.org/10.1007/s10664-008-9102-8
+
+Sadowski, C., Aftandilian, E., Eagle, A., Miller-Cushon, L., & Jaspan, C. (2018). Lessons from
+    building static analysis tools at Google. *Communications of the ACM*, *61*(4), 58–66.
+    https://doi.org/10.1145/3188720
+
+Sauce Labs. (n.d.). *Swag Labs (Sauce Labs sample application)* [Demo web application].
+    Retrieved July 23, 2026, from https://www.saucedemo.com/
+
+TasteJS. (n.d.). *TodoMVC: Helping you select an MV\* framework*. Retrieved July 23, 2026, from
+    https://todomvc.com/
+
+Vahabzadeh, A., Milani Fard, A., & Mesbah, A. (2015). An empirical study of bugs in test code.
+    In *2015 IEEE International Conference on Software Maintenance and Evolution (ICSME)* (pp.
+    101–110). IEEE. https://doi.org/10.1109/ICSM.2015.7332456
+
+Wang, J., Huang, Y., Chen, C., Liu, Z., Wang, S., & Wang, Q. (2024). Software testing with large
+    language models: Survey, landscape, and vision. *IEEE Transactions on Software Engineering*,
+    *50*(4), 911–936. https://doi.org/10.1109/TSE.2024.3368208
+
+Weyuker, E. J. (1982). On testing non-testable programs. *The Computer Journal*, *25*(4),
+    465–470. https://doi.org/10.1093/comjnl/25.4.465
+
+Wieringa, R. J. (2014). *Design science methodology for information systems and software
+    engineering*. Springer. https://doi.org/10.1007/978-3-662-43839-8
+
+Yin, R. K. (2018). *Case study research and applications: Design and methods* (6th ed.). SAGE
+    Publications.
+
+Zhang, S., Jalali, D., Wuttke, J., Muşlu, K., Lam, W., Ernst, M. D., & Notkin, D. (2014).
+    Empirically revisiting the test independence assumption. In *Proceedings of the 2014
+    International Symposium on Software Testing and Analysis (ISSTA 2014)* (pp. 385–396). ACM.
+    https://doi.org/10.1145/2610384.2610404
 
 ## Appendix / supplementary material
 

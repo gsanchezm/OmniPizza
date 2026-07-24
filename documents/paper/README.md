@@ -29,14 +29,14 @@ caso. La plataforma es la contribución central; la semana de triage QA (19 hall
 |---|---|---|
 | Abstract | 210 palabras, estructura 10/10/20/40/20 (contexto→brecha→método→resultados→impacto), alta densidad léxica | **Redactado** |
 | 1. Introducción | Movimientos CARS (territorio/nicho/ocupación) + audiencias + RQ1–RQ4 + 5 contribuciones | **Redactada** |
-| 2. Trabajo relacionado y marco teórico | Related work (outline) + **2.1 marco teórico redactado**: mapa operacional (testabilidad, oráculo derivado, falsos positivos efectivos, design science) con tabla concepto→variable | Related work en esquema; 2.1 redactada |
+| 2. Trabajo relacionado y marco teórico | 5 párrafos de related work (sandboxes, benchmarks, testabilidad/instrumentos, fenómenos, corrientes metodológicas) + 2.1 marco teórico (mapa operacional) | **Redactada completa** |
 | 3. Principios de diseño (RQ1) | 3.1 método + 3.2–3.8 mecanismos (caos-por-identidad, mercado-como-datos, entrada atómica, contratos, estado efímero, currículum, portafolio) | **Redactado y verificado** (2 rondas adversariales) |
 | 4. Catálogo de medibilidad (RQ2) | 9 dimensiones con instrumento + medición + estado | **Redactado** — 8/9 filas son affordances no ejecutadas |
 | 5. Evaluación (RQ3) | Método autocontenido, veredictos (11/19), serie por ciclo, 8 clases, falsos positivos por instrumentación, modos de fallo del triage | **Redactado y verificado** |
 | 6. Guías (RQ4) | 7 guías etiquetadas por fuerza de evidencia | **Redactado** |
 | 7. Discusión / amenazas | 6 párrafos de discusión con fricción de citas (verificadas vía web) + párrafo íntegro de limitaciones; enumeración de amenazas como detalle | **Discusión redactada**; enumeración en esquema |
 | 8. Conclusión y disponibilidad | Implicaciones (sin resumen) + vía destrabada: ablación de protocolo dentro de la plataforma | **Redactada** |
-| Referencias | 35 en APA 7 (29 peer-reviewed + 2 libros + 4 oficiales) | **Completadas** — cada una verificada contra DOI/página del editor (2026-07-23) |
+| Referencias | 36 en APA 7 con sangría francesa (29 peer-reviewed + 2 libros + 5 oficiales; +TasteJS desde la reserva); lista restringida a obras citadas — verificado 36/36 citadas, 0 huérfanas | **Completadas y verificadas** |
 
 ## Material suplementario comprometido
 
