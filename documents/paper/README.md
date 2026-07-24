@@ -118,4 +118,5 @@ localization); Hou et al. 2024 (LLM4SE SLR); Anvik et al. 2006; Zimmermann et al
    y correrla en dispositivo físico.
 6. Redactar Results/Discussion/Conclusion en prosa completa.
 7. Al publicar: snapshot archivado + manifiesto de defectos + extractos en idioma original
-   para findings.csv.
+   para findings.csv + citas web con snapshot/tag pineado y log de verificación de
+   referencias inspeccionable (diferidos de la auditoría; ver `audit-response.md`).

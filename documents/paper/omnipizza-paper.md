@@ -42,11 +42,10 @@ discipline outweighs model choice.
 
 ## 1. Introduction
 
-Automated testing is how modern software teams buy confidence: continuous-integration
-systems execute suites at every change, and an ecosystem of tools — locator engines,
-contract checkers, accessibility scanners, and lately LLM-based testing tools (Wang et al.,
-2024) —
-competes to turn those executions into trustworthy verdicts. Progress in this field has
+Modern software teams rely on automated tests in continuous integration to decide whether a
+change is safe to ship. Around those suites, tools for locators, contracts, accessibility,
+and lately LLM-assisted testing (Wang et al., 2024) compete to make the resulting signals
+easier to trust. Progress in this field has
 always depended on shared objects of study. Researchers measure techniques against curated
 infrastructures and defect corpora (Do et al., 2005; Just et al., 2014); practitioners learn
 and calibrate against demo systems; and a design tradition running from Freedman (1991) and
@@ -58,13 +57,13 @@ everyday questions of multi-platform UI and API automation. Defect corpora are c
 but frozen: they package historical faults for offline scoring, not a running product a
 harness can exercise today. Production systems are live but unsafe and closed to inspection,
 and the signals obtained by testing them at scale are pervaded by nondeterminism (Memon et
-al., 2017; Parry et al., 2022). Demo applications occupy the safe middle and give up the hard parts: they tend to be
-single-platform or single-concern — SauceDemo's personas stop at a handful of web behaviors
-(Sauce Labs, n.d.); Juice Shop targets security alone (OWASP Foundation, n.d.) — and their
-testability machinery carries no compatibility contract — selectors and personas can change
-without notice — and has not been studied as a research object in its own right. What is missing is a
-system realistic enough for the pitfalls to matter, deterministic enough for claims to be
-checkable, and instrumented enough that the instrumentation itself can be examined: a
+al., 2017; Parry et al., 2022). Demo applications occupy the safe middle but narrow the problem: SauceDemo's personas stop
+at a handful of web behaviors (Sauce Labs, n.d.), and Juice Shop targets security alone
+(OWASP Foundation, n.d.). Their testability machinery carries no compatibility contract —
+selectors and personas can change without notice — and has not been studied as a research
+object in its own right. What is missing is a
+running system realistic enough for the pitfalls to matter and deterministic enough for
+claims to be checkable, with test instrumentation that can itself be examined — a
 controlled laboratory rather than a demo.
 
 This paper proposes such a laboratory and examines what one week of real use reveals about
@@ -76,12 +75,12 @@ versioned like public APIs. We describe the design mechanisms and their provenan
 catalog what the platform is instrumented to measure and execute one catalog row as an
 exemplar (RQ2), evaluate the platform under one week of external automated QA through a
 retrospective case study (RQ3), and distill design-for-testability guidelines tagged by the
-strength of their evidence (RQ4). The laboratory is designed to serve four audiences —
-practitioners training against deliberately embedded pitfalls (viewport-dependent selectors,
-custom widgets, RTL, shared-fixture state), tool builders needing a stable benchmark target with
-documented seeded defects, researchers needing deterministic phenomena with archival capture
-of the triage side of the QA process, and educators needing a free, deployed, resettable
-curriculum — though adoption evidence to date is a single external harness (Section 5.2).
+strength of their evidence (RQ4). The laboratory is designed for four audiences: practitioners training against deliberately
+embedded pitfalls (viewport-dependent selectors, custom widgets, RTL, shared-fixture state);
+tool builders needing a stable benchmark target with documented seeded defects; researchers
+needing deterministic phenomena with archival capture of the triage side of the QA process;
+and educators needing a free, deployed, resettable curriculum. Adoption evidence to date is
+narrower than that list: a single external harness (Section 5.2).
 
 The domain is deliberately mundane. Multi-market commerce exercises internationalization and
 right-to-left layout, per-market validation rules, currency and tax arithmetic, and checkout
@@ -429,7 +428,7 @@ work) — per-cycle rates therefore describe a moving artifact, a threat Section
 
 **Protocol under study.** The triage protocol itself — the object of RQ3 — enforced
 empirical reproduction against the running system (API replay, seeded-state reproduction,
-on-device reproduction via `adb`, in-page axe-core runs) before any verdict that exonerated
+on-device reproduction via `adb`, in-page axe-core 4.9.1 runs) before any verdict that exonerated
 the app; confirmed bugs with self-evident code-level causes could be verdicted by code audit
 plus targeted measurement. It further required fix-and-commit with conventional-commit hashes
 for confirmed bugs, durable explanation documents for every cycle, and explicit human
@@ -547,8 +546,8 @@ distribution. Sauce Labs' `problem_user` demonstrated the persona pattern's teac
 (Sauce Labs, n.d.); the extension here is breadth — latency, probabilistic failure,
 accessibility, security — and server-side enforcement through the JWT.
 
-The triage results speak to the LLM-in-testing literature more cautiously than that
-literature sometimes speaks of itself. Kang et al. (2023) demonstrate that LLMs can reproduce
+The triage results support a narrower claim than much of the LLM-in-testing literature
+advances. Kang et al. (2023) demonstrate that LLMs can reproduce
 reported bugs from their reports; Wang et al. (2024) map LLM use across the testing
 lifecycle; Fan et al. (2023) flag hallucination and the need for oversight as open problems.
 Our week of triage is consistent with all three, and it is plausible that the protocol, not
@@ -566,15 +565,15 @@ The continuity is the pattern, not the tooling: automation proposes, evidence di
 The limitations are substantial, and they are worth stating plainly. This is one case — one
 purpose-built sandbox, one week, one external harness, nineteen findings — numbers that
 support existence claims and nothing stronger, which is why no inferential statistics appear
-anywhere in this paper. The authors built the platform, defined the triage rules, supervised
-the triage, and now evaluate all three; case-study methodology files this under participant
+anywhere in this paper. We built the platform, defined the triage rules, supervised the
+triage, and now evaluate all three; case-study methodology files this under participant
 observation with its attendant bias (Runeson & Höst, 2009; Yin, 2018), only partly mitigated
-by the archival trail and the adversarial fact-checking of every count. The verdict
+by the archival trail and the adversarial fact-checking of every count. Our verdict
 classification was induced post hoc from the same nineteen findings it organizes, by a
 single coder pipeline, with several classes at $n = 1$; recorded triage failures are a lower
-bound because external re-verification coverage was asymmetric. The artifact moved during
-the window — eleven fixes, five releases — and three of the six source documents entered
-version control only after the window closed. Generalization from a system designed to be
+bound because external re-verification coverage was asymmetric. Eleven fixes and five
+releases shipped during the window, so the artifact itself moved; three of the six source
+documents entered version control only after it closed. Generalization from a system designed to be
 testable toward systems that are not is analytic at best. The sandbox measures what it was
 built to exhibit. That circularity is disclosed here, not resolved.
 
