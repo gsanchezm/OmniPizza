@@ -127,7 +127,7 @@ three versions its testability machinery or captures the QA process it hosts.
 
 Defect benchmarks approach ground truth from the opposite direction. Defects4J packages
 historical Java faults for controlled tool evaluation (Just et al., 2014), BugsJS does the
-same for JavaScript (Gyimesi et al., 2019), and the SIR infrastructure argued early for
+same for JavaScript (Gyimesi et al., 2019), and the SIR infrastructure made the early case for
 shared experimental artifacts (Do et al., 2005). These corpora are deliberately frozen;
 OmniPizza is deliberately live — its seeded failure modes are reproducible against a running
 deployment, and the surrounding process (findings, verdicts, retractions) is archived as
@@ -188,7 +188,7 @@ is a *derived test oracle* — it learns what to expect from the behavior it obs
 sandbox whose defects are intentional, the lens yields a falsifiable prediction: if
 $\text{oracle} \leftarrow \text{behavior}$ and $\text{defect} \subseteq \text{behavior}$,
 the oracle certifies the defect and $\text{detection} = 0$. The exemplar procedure of
-Section 3.4 provides a direct test of this prediction — suites executed as-is, ground truth
+Section 3.4 puts this prediction to a direct test — suites executed as-is, ground truth
 confirmed live ($12/12$ items at price $0.0$) before any run — and Section 4.1 reports the
 outcome for the derived-oracle layer alongside the other three layers' independent failure
 modes; the lens reading itself was applied at analysis time, per the ex-ante/ex-post
@@ -250,7 +250,7 @@ widget count) were refuted against the code and corrected. Each surviving count 
 what is counted, what is excluded, and the command that reproduces the number — consolidated
 in the fact-sheet appendix, a required companion of this paper rather than optional material.
 
-Design principles are additionally labeled by provenance. Mechanisms stated as goals in the
+Design principles carry a second label: provenance. Mechanisms stated as goals in the
 founding documents (chaos personas, market-as-data, atomic entry, selector contracts) are
 marked *ex-ante*; codifications of operational lessons — the per-login profile keying of
 Section 3.2.5, introduced mid-history to fix an observed login race, and a defensive deep-link
@@ -290,8 +290,7 @@ One configuration table drives 5 markets (MX, US, CH, JP, SA): currency and conv
 decimal rules (JPY: 0 decimals), tax rates (8–16%), a market-specific required address field
 (`colonia` / `zip_code` / `plz` / `prefectura` / `district`), and a localized tip field name
 (`propina` / `tip` / `trinkgeld` / `chip` / `baksheesh`). A model-level validation rule
-additionally enforces the 5-digit US zip format. SA additionally exercises Arabic
-right-to-left layout. Market rules are therefore *enumerable test dimensions*: a test
+additionally enforces the 5-digit US zip format. SA adds Arabic right-to-left layout. Market rules are therefore *enumerable test dimensions*: a test
 generator can walk the table instead of reverse-engineering branches.
 
 #### 3.2.3 Atomic state injection: O(1) entry to any screen
@@ -307,8 +306,9 @@ instead of replaying the user journey:
   (`accessToken` bypasses login, `market`, `lang`, `resetSession`, `hydrateCart`), plus a
   Detox launch argument for market selection.
 
-The bypasses are load-bearing, versioned features — and Section 4.2 shows their cost: the
-same machinery, working exactly as designed, mediated false positives during real QA use.
+The bypasses are load-bearing, versioned features — and Section 4.2 itemizes their cost:
+the same machinery, working exactly as designed, mediated false positives during real QA
+use.
 
 #### 3.2.4 Instrumentation contracts as versioned APIs
 
@@ -506,7 +506,12 @@ plausible that the non-blocking setting, adopted to keep noise out of the merge 
 exactly as intended and still produced rot: Sadowski et al. (2018) argue that developers
 discount findings they perceive as non-actionable, and a permanently ignorable suite is the
 limit case of non-actionability. The mechanism that protects trunk velocity also silences
-the smoke alarm.
+the smoke alarm. Executing even the nominally healthy layers was not tidy: on the study
+machine, the pinned Cypress binary twice failed to unpack through its own installer and had
+to be downloaded and extracted by hand before the component suite would start, and a
+planned run of the E2E layer on a physical Android device was mooted the moment the missing
+tooling surfaced. The friction of merely reviving decayed layers is, we found, part of
+their cost.
 
 The evaluation's non-bug findings sit at a recognizable rate but an unfamiliar address.
 Eight of nineteen findings ($8/19$) were, under final verdicts, not application bugs —
@@ -543,7 +548,7 @@ distribution. Sauce Labs' `problem_user` demonstrated the persona pattern's teac
 accessibility, security — and server-side enforcement through the JWT.
 
 The triage results speak to the LLM-in-testing literature more cautiously than that
-literature sometimes speaks of itself. Kang et al. (2023) show that LLMs can reproduce
+literature sometimes speaks of itself. Kang et al. (2023) demonstrate that LLMs can reproduce
 reported bugs from their reports; Wang et al. (2024) map LLM use across the testing
 lifecycle; Fan et al. (2023) flag hallucination and the need for oversight as open problems.
 Our week of triage is consistent with all three, and it is plausible that the protocol, not

@@ -214,8 +214,8 @@ suite de caracterización es un *oráculo de prueba derivado* — aprende qué e
 comportamiento que observa. Para un sandbox cuyos defectos son intencionales, el lente
 produce una predicción falsable: si $\text{oráculo} \leftarrow \text{comportamiento}$ y
 $\text{defecto} \subseteq \text{comportamiento}$, el oráculo certifica el defecto y
-$\text{detección} = 0$. El procedimiento del ejemplar de la Sección 3.4 provee una prueba
-directa de esta predicción — suites ejecutadas tal cual, ground truth confirmado en vivo
+$\text{detección} = 0$. El procedimiento del ejemplar de la Sección 3.4 somete esta predicción
+a prueba directa — suites ejecutadas tal cual, ground truth confirmado en vivo
 ($12/12$ ítems a precio $0.0$) antes de cualquier corrida — y la Sección 4.1 reporta el
 resultado para la capa del oráculo derivado junto a los modos de fallo independientes de las
 otras tres capas; la lectura del lente se aplicó en tiempo de análisis, conforme a la
@@ -281,7 +281,7 @@ superviviente lleva una regla de conteo explícita — qué se cuenta, qué se e
 comando que reproduce el número — consolidada en el apéndice de hoja de datos, compañero
 obligatorio de este paper y no material opcional.
 
-Los principios de diseño se etiquetan además por procedencia. Los mecanismos declarados como
+Los principios de diseño llevan una segunda etiqueta: la procedencia. Los mecanismos declarados como
 metas en los documentos fundacionales (personas caos, mercado-como-datos, entrada atómica,
 contratos de selectores) se marcan *ex-ante*; las codificaciones de lecciones operativas —
 el anclaje del perfil al login de la Sección 3.2.5, introducido a mitad de la historia para
@@ -324,8 +324,7 @@ reglas de decimales (JPY: 0 decimales), tasas de impuesto (8–16%), un campo de
 obligatorio específico del mercado (`colonia` / `zip_code` / `plz` / `prefectura` /
 `district`) y un nombre localizado para el campo de propina (`propina` / `tip` / `trinkgeld`
 / `chip` / `baksheesh`). Una regla de validación a nivel de modelo impone además el formato
-de 5 dígitos del zip de US. SA ejercita adicionalmente el layout árabe de derecha a
-izquierda. Las reglas de mercado son, por tanto, *dimensiones de prueba enumerables*: un
+de 5 dígitos del zip de US. SA suma el layout árabe de derecha a izquierda. Las reglas de mercado son, por tanto, *dimensiones de prueba enumerables*: un
 generador de tests puede recorrer la tabla en lugar de hacer ingeniería inversa de ramas.
 
 #### 3.2.3 Inyección atómica de estado: entrada O(1) a cualquier pantalla
@@ -341,9 +340,9 @@ estado objetivo en lugar de repetir el recorrido del usuario:
   (`accessToken` evita el login, `market`, `lang`, `resetSession`, `hydrateCart`), más un
   argumento de lanzamiento de Detox para la selección de mercado.
 
-Los bypasses son funcionalidades versionadas y estructurales — y la Sección 4.2 muestra su
-costo: la misma maquinaria, funcionando exactamente como fue diseñada, propició falsos positivos
-durante el uso real de QA.
+Los bypasses son funcionalidades versionadas y estructurales — y la Sección 4.2 desglosa su
+costo: la misma maquinaria, funcionando exactamente como fue diseñada, propició falsos
+positivos durante el uso real de QA.
 
 #### 3.2.4 Contratos de instrumentación como APIs versionadas
 
@@ -558,7 +557,12 @@ para mantener el ruido fuera del camino del merge, funcionara exactamente como s
 y aun así produjera rot: Sadowski et al. (2018) argumentan que los desarrolladores descartan
 los hallazgos que perciben como no accionables, y una suite permanentemente ignorable es el
 caso límite de la no accionabilidad. El mecanismo que protege la velocidad del trunk también
-silencia la alarma de humo.
+silencia la alarma de humo. Ejecutar incluso las capas nominalmente sanas no fue pulcro: en
+la máquina del estudio, el binario pineado de Cypress falló dos veces al desempacarse con su
+propio instalador y hubo que descargarlo y extraerlo a mano antes de que la suite de
+componentes arrancara, y una corrida planeada de la capa E2E en un dispositivo Android
+físico quedó cancelada en el momento en que afloró el tooling ausente. La fricción de
+apenas revivir capas decaídas es, encontramos, parte de su costo.
 
 Los hallazgos no-bug de la evaluación caen en una tasa reconocible pero en una ubicación
 poco familiar. Ocho de diecinueve hallazgos ($8/19$) no eran, bajo veredictos finales, bugs de
@@ -600,7 +604,7 @@ fallo probabilístico, accesibilidad, seguridad — y la imposición del lado de
 través del JWT.
 
 Los resultados del triage hablan a la literatura de LLMs-en-testing con más cautela de la
-que esa literatura a veces usa para hablar de sí misma. Kang et al. (2023) muestran que los
+que esa literatura a veces usa para hablar de sí misma. Kang et al. (2023) demuestran que los
 LLMs pueden reproducir bugs a partir de sus reportes; Wang et al. (2024) mapean el uso de
 LLMs a lo largo del ciclo de testing; Fan et al. (2023) señalan la alucinación y la
 necesidad de supervisión como problemas abiertos. Nuestra semana de triage es consistente

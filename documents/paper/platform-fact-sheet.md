@@ -84,6 +84,10 @@ Environment: local backend (`python main.py`, port 8000) at product snapshot `83
 (working tree product-code-identical); fresh in-memory state; suites run **as-is**, unmodified.
 Contract layer executed with Schemathesis 3.25.1 under pytest 7.4.4 (`tests/requirements.txt`),
 Hypothesis `max_examples = 50` per endpoint with a 5000 ms deadline (`tests/test_contract.py:19-23`).
+Execution provenance: the pinned Cypress 15.11.0 binary failed to unpack through its own
+installer twice on the study machine and was installed by manual download and extraction
+into the version cache before the component layer would run (referenced by the Section 5
+discussion's messy-execution note in the paper).
 
 | Step / layer | Command | Outcome |
 |---|---|---|
