@@ -157,7 +157,7 @@ curl -X POST http://localhost:8000/api/checkout \
   }'
 ```
 
-`propina`, `tip`, `trinkgeld`, and `chip` are **percentage values**, not fixed amounts.
+`propina`, `tip`, `trinkgeld`, `chip`, and `baksheesh` are **percentage values**, not fixed amounts.
 
 `payment_method` is optional and accepts `"card"` (default) or `"cash"`. Card details from the UI are never sent — only the method.
 
