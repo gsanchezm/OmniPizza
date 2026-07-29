@@ -143,8 +143,7 @@
               Release APK ready to sideload on any Android device or emulator.
             </p>
             <ul>
-              <li class="list-item"><code>omnipizza-release.apk</code> &mdash; install via adb</li>
-              <li class="list-item"><code>omnipizza-debug-androidTest.apk</code> &mdash; for Appium instrumented runs</li>
+              <li class="list-item"><code>omnipizza-release.apk</code> &mdash; install via adb; also the Appium target</li>
             </ul>
             <pre style="margin-top:0.75rem;font-size:0.78rem;"><code>adb install omnipizza-release.apk</code></pre>
           </div>
@@ -257,6 +256,8 @@
               <li class="list-item"><strong>problem_user:</strong> $0 prices + broken images</li>
               <li class="list-item"><strong>performance_glitch_user:</strong> API delay (~3s)</li>
               <li class="list-item"><strong>error_user:</strong> Random checkout error (~50%)</li>
+              <li class="list-item"><strong>a11y_glitch_user:</strong> Random a11y defect per call</li>
+              <li class="list-item"><strong>security_glitch_user:</strong> XSS profile + IDOR + leaks</li>
             </ul>
           </div>
           <div class="feature-split-image">
@@ -286,7 +287,7 @@
         <div class="feature-split">
           <div class="feature-split-text">
             <h3>Multi-platform & Rotatable</h3>
-            <p>OmniPizza was built to be fully responsive. It comes with a <strong>React PWA web app</strong> and an <strong>Expo React Native iOS app</strong>.</p>
+            <p>OmniPizza was built to be fully responsive. It comes with a <strong>React PWA web app</strong> and an <strong>Expo React Native app for Android and iOS</strong>.</p>
             <ul>
               <li class="list-item"><strong>Stable Selectors:</strong> All interactive elements include <code>data-testid</code> attributes uniformly across platforms.</li>
               <li class="list-item"><strong>UI-only Payment form:</strong> Credit Card data is completely decoupled from backend, purely for UI testing.</li>
@@ -374,8 +375,8 @@
         </div>
 
         <h3 style="margin-top: 3rem">Required Request Headers</h3>
-        <pre class="code-window" data-title="api/request-headers.http"><code><span class="tok-key">X-Country-Code</span>: <span class="tok-val">MX | US | CH | JP</span>
-<span class="tok-key">X-Language</span>: <span class="tok-val">en | es | de | fr | ja</span>
+        <pre class="code-window" data-title="api/request-headers.http"><code><span class="tok-key">X-Country-Code</span>: <span class="tok-val">MX | US | CH | JP | SA</span>
+<span class="tok-key">X-Language</span>: <span class="tok-val">en | es | de | fr | ja | ar</span>
 <span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span> <span class="tok-comment">(after login)</span></code></pre>
 
         <h3 style="margin-top: 3rem">Session Setup Routes</h3>
@@ -508,7 +509,7 @@
             (<code>pnpm build:android</code>) is a standard Expo artifact,
             <code>allowBackup</code>-hardened and pinned to <code>minSdkVersion 29</code>,
             ready to feed into a local MobSF instance. It's still signed with the debug
-            keystore by design — the APK is a GitHub Release artifact for Appium/Detox and
+            keystore by design — the APK is a GitHub Release artifact for Appium and
             sideloading, not a Play Store binary, so that specific finding is an accepted
             (not fixed) part of the surface. See the 2026-07-16 QA triage in
             <code>documents/explanation/</code> for the full rationale.
