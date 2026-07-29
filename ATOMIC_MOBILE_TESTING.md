@@ -167,13 +167,30 @@ The pattern for each atomic test:
    xcrun simctl openurl booted \
      "omnipizza://checkout?market=MX&lang=es&hydrateCart=true"
 
-3. Assert
-   // WebdriverIO / Appium — "~" is the accessibility-id selector, which
-   // resolves the testID on both platforms (content-desc on Android,
-   // accessibility id on iOS).
+3. Assert (WebdriverIO / Appium)
+   // Locator rule — testID is the stable handle on BOTH platforms:
+   //   Android: testID  -> resource-id          -> UiSelector().resourceId("<testID>")
+   //   iOS:     testID  -> accessibility id     -> "~<testID>"
+   // There is no single selector string that covers both, because "~" resolves
+   // the accessibility id, and on Android that is content-desc — which qa.ts
+   // fills with the *localized visible text* (accessibilityLabel), not the id.
+
+   // Android
+   await $('android=new UiSelector().resourceId("screen-checkout")').waitForDisplayed();
+   await $('android=new UiSelector().resourceId("text-section-summary")').waitForDisplayed();
+
+   // iOS
    await $("~screen-checkout").waitForDisplayed();
    await $("~text-section-summary").waitForDisplayed();
 ```
+
+> **Don't generalize `~` to Android.** `$("~screen-checkout")` happens to work there
+> only because `CheckoutScreen.tsx:282` sets `accessibilityLabel="screen-checkout"`
+> raw, so that node's content-desc coincides with its id. `text-section-summary` is
+> built with `getReadableTextProps("text-section-summary", t("yourOrder"))`
+> (`CheckoutScreen.tsx:659`), so its Android content-desc is "Your Order" / "Tu
+> pedido" and `~text-section-summary` matches nothing. `resourceId(<testID>)` works
+> for **every** node on Android, raw-label or readable-label — prefer it there.
 
 ### Flow example — Checkout atomic test (MX market)
 
@@ -350,8 +367,11 @@ handle auth errors through their own existing fallback UIs.
 ## Interactive widgets (for UI automation practice)
 
 Hand-rolled widgets that expose extra element types. Mobile follows the `qa.ts`
-`btn-`/`modal-`/`view-`/`text-`/`input-` convention (helpers set both content-desc and
-resource-id on Android).
+`btn-`/`modal-`/`view-`/`text-`/`input-` convention. Locate every id below by
+**`testID`** — Android `resource-id`, iOS accessibility id (see §6 step 3 for the
+exact locator syntax). `accessibilityLabel` is **not** a second copy of the id: for
+nodes built with `getReadableTextProps`/`getReadableControlProps` it carries the
+localized visible text, so an Android content-desc (`~`) lookup will miss them.
 
 | Widget | Where | Key testIDs | Technique |
 |--------|-------|-------------|-----------|
