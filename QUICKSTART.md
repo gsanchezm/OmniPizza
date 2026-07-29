@@ -4,6 +4,11 @@
 
 ### Setup Inicial
 
+> **Opción 2 (Local Development) requiere Python 3.11 o 3.12.**
+> `pydantic==2.5.3` no publica wheels para CPython 3.13+; con un intérprete
+> más nuevo la instalación intenta compilar desde fuente y falla. Verificar
+> con `python --version`.
+
 ```bash
 # Clonar el repositorio
 git clone <repository-url>

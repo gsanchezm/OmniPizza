@@ -301,6 +301,10 @@ Current supporting docs live here:
 
 ### Backend
 
+> **Requires Python 3.11 or 3.12.** `pydantic==2.5.3` does not publish wheels
+> for CPython 3.13+; with a newer interpreter, installation tries to compile
+> from source and fails. Check with `python --version`.
+
 ```bash
 cd backend
 python3 -m venv venv
