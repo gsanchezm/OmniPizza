@@ -1,0 +1,23 @@
+node_modules
+dist
+
+# IDEs
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing
+coverage
+cypress/screenshots
+cypress/videos
+
+.git
+.gitignore
+Dockerfile
+.dockerignore
