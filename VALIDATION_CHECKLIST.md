@@ -114,19 +114,29 @@
 
 ### Hooks de Automatización
 
-#### Web (data-testid) — convención actual: prefijos `btn-`, `input-`, `text-`, `card-`
+#### Web (data-testid) — convención actual: ids fijos en kebab-case, **sin** los prefijos `btn-`/`input-`/`card-` (esos son de mobile). Tres reglas conviven:
 
-- [x] `input-username`, `input-password`, `btn-login`
-- [x] `btn-logout`
-- [x] `card-pizza-{id}`, `btn-add-to-cart`
-- [x] `full-name`, `address`, `phone`, `colonia` (MX), `zip-code` (US/MX), `plz` (CH)
+1. **Ids fijos** en kebab-case (`colonia`, `payment-method-card`, `order-total`).
+2. **Sufijo de viewport:** `tid(base)` (`frontend/src/hooks/useResponsive.js:19`) devuelve `` `${base}-desktop` `` cuando `window.innerWidth >= 768` y `` `${base}-responsive` `` por debajo. Los testids que abajo aparecen como `-{desktop|responsive}` **nunca existen en su forma desnuda**: hay que consultar el sufijo que corresponde al viewport bajo prueba, o filtrar por prefijo (`[data-testid^="address-"]`).
+3. **Prefijo `mobile-`** en el Navbar web, para los controles duplicados dentro del menú hamburguesa. Es una convención propia del Navbar web y no tiene relación con la app React Native.
+
+- [x] Login: `username-{desktop|responsive}`, `password-{desktop|responsive}`, `login-button-{desktop|responsive}` + fijos `screen-login`, `toggle-password`, `market-{code}`, `login-error`, `user-{username}`
+- [x] Navbar: `logout-btn` (barra desktop) y `mobile-logout-btn` (menú hamburguesa)
+- [x] Catálogo: `screen-catalog`, `pizza-card-{id}-{desktop|responsive}`, `pizza-name-{id}-{desktop|responsive}`, `add-to-cart-{id}-{desktop|responsive}`, `search-pizza-{desktop|responsive}` + fijos `pizza-image-{id}`, `pizza-price-{id}`, `pizza-description-{id}`
+- [x] Agregar al carrito son **dos pasos**: `add-to-cart-{id}-{desktop|responsive}` sólo abre el modal customizador; el ítem se agrega con `confirm-add-to-cart` (tallas `size-{small|medium|large|family}`, toppings `topping-{id}`, cierre `customizer-close`)
+- [x] Checkout dirección: `address-{desktop|responsive}`, `full-name-{desktop|responsive}`, `phone-{desktop|responsive}` + fijos `colonia` (MX), `zip-code` (MX/US/CH/JP) y `district` (SA)
+- [x] El mismo id `zip-code` sirve a MX/US/CH/JP: cada campo vive detrás de un guard `countryCode === "XX"`, así que sólo uno está en el DOM a la vez. **No existen testids de input `plz` ni `prefectura`** — sólo etiquetas (`label-zip-code`, `label-prefectura`)
 - [x] `payment-method-card`, `payment-method-cash`, `payment-method-paypal`
 - [x] `order-summary-title`, `order-tip-0` / `5` / `10` / `15`, `order-total`
+- [x] Confirmar la orden son **dos pasos**: `place-order-btn-{desktop|responsive}` abre `confirm-order-modal`; la orden se envía con `confirm-order-yes` (o se aborta con `confirm-order-cancel`)
 
-#### Mobile (testID / accessibilityLabel) — same naming convention
+#### Mobile (testID / accessibilityLabel) — convención propia: prefijos `screen-`, `btn-`, `input-`, `text-`, `card-`, `nav-`. Sin sufijo de viewport (no aplica `tid()`)
 
-- [x] `screen-checkout`, `screen-catalog`, `screen-pizza-builder`, `screen-order-success`
-- [x] `input-username`, `input-password`, `btn-login`
+- [x] `screen-login`, `screen-catalog`, `screen-checkout`, `screen-pizza-builder`, `screen-order-success`
+- [x] `input-username`, `input-password`, `btn-login`, `btn-market-{code}`, `btn-user-{id}`
+- [x] `nav-logout` (y `nav-catalog` / `nav-checkout` / `nav-profile`) en la barra inferior
+- [x] `card-pizza-{id}`, `btn-add-pizza-{id}` (botón de la card), `input-search-pizza`
+- [x] Igual que en web, agregar es en dos pasos: `btn-add-pizza-{id}` abre el Pizza Builder y el ítem se agrega con `btn-add-to-cart`
 - [x] `btn-tip-0` / `5` / `10` / `15`, `text-subtotal-value`, `text-tax-value`, `text-total-value`
 - [x] `btn-payment-card`, `btn-payment-cash`, `btn-payment-paypal`
 
