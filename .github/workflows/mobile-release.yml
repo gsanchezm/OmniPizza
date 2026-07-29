@@ -60,13 +60,9 @@ jobs:
       - name: Build Release APK
         run: cd android && ./gradlew assembleRelease
 
-      - name: Build Android Test APK
-        run: cd android && ./gradlew assembleAndroidTest
-
-      - name: Rename APKs
+      - name: Rename APK
         run: |
           mv android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/omnipizza-release.apk
-          mv android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v7
@@ -74,7 +70,6 @@ jobs:
           name: OmniPizza-Android
           path: |
             frontend-mobile/android/app/build/outputs/apk/release/omnipizza-release.apk
-            frontend-mobile/android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk
 
   build-ios:
     name: Build iOS Simulator App

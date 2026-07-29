@@ -88,12 +88,18 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | `checkout` | `hydrateCart=true` | Clears local cart so screen fetches from backend |
 | any | `accessToken=<jwt>` | Injects auth token — combine with `hydrateCart=true` to bypass login UI entirely |
 
-### Detox launch argument (not a deep-link param)
+### `detoxCountryCode` launch argument (not a deep-link param)
 
-`detoxCountryCode` is a **Detox launch arg** (`launchArgs: { detoxCountryCode: "MX" }`),
-read in `frontend-mobile/src/api/client.ts`. It overrides the `X-Country-Code` request
-header for the session. It does **not** appear in the URL and is not parsed by
-`useDeepLinkParams`.
+`frontend-mobile/src/api/client.ts` reads an optional `detoxCountryCode` **launch
+argument** via `NativeModules.ExpoLaunchArguments` (falling back to
+`NativeModules.LaunchArguments`), and when present it overrides the `X-Country-Code`
+request header for the whole session. It does **not** appear in the URL and is not
+parsed by `useDeepLinkParams`.
+
+The name is a vestige: the repo no longer ships a Detox setup (it never had working
+instrumented-test wiring), and the launch-arg reader is kept only because the published
+APK depends on it. Prefer the `market=` deep-link param — it is the supported way to set
+the market and it also updates the UI language.
 
 > **Default market:** the mobile store defaults to **`US`** (`useAppStore.ts`), whereas
 > the web store defaults to `MX`. Seed `market=` explicitly for cross-platform parity.

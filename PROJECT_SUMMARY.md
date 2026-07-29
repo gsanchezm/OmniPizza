@@ -61,7 +61,7 @@
 - ✅ Ejecutar con `pytest test_contract.py -v`
 
 **Mobile**:
-- ✅ Configuración Detox en `frontend-mobile/.detoxrc.js` + experimentos en `frontend-mobile/e2e/`
+- ✅ Sin runner e2e dentro del repo: la cobertura móvil se ejecuta desde el harness externo (Appium) contra el APK/`.app` publicado, usando los deep links `omnipizza://` (ver `ATOMIC_MOBILE_TESTING.md`)
 
 ### 4. Infraestructura ✅
 **Archivos de configuración**:

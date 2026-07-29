@@ -17,7 +17,6 @@ Pre-built binaries are published as GitHub Releases via the `Build Mobile Apps` 
 | Platform | Artifact | How to install |
 |----------|----------|---------------|
 | **Android** | `omnipizza-release.apk` | `adb install omnipizza-release.apk` |
-| **Android (test)** | `omnipizza-debug-androidTest.apk` | For instrumented test runners (Appium) |
 | **iOS Simulator** | `OmniPizza-Simulator.zip` → `OmniPizza.app` | `xcrun simctl install booted OmniPizza.app` |
 
 **[→ Download latest release](https://github.com/gsanchezm/OmniPizza/releases/latest)**  

@@ -17,7 +17,6 @@
     "start:online": "expo start",
     "prebuild": "expo prebuild --clean",
     "build:android": "cd android && ./gradlew assembleRelease",
-    "build:android:test": "cd android && ./gradlew assembleAndroidTest",
     "build:ios:simulator": "cd ios && pod install && xcodebuild -workspace OmniPizza.xcworkspace -scheme OmniPizza -configuration Release -sdk iphonesimulator -derivedDataPath build"
   },
   "dependencies": {

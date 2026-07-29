@@ -101,5 +101,4 @@ The project makes heavy use of:
 | :--- | :--- | :--- |
 | Web E2E | Playwright | `addInitScript` → seed cart via API → `page.goto('/checkout')` |
 | Mobile E2E | Appium / WebdriverIO | Seed cart via API → `deepLink('omnipizza://checkout?hydrateCart=true&accessToken=<jwt>')` |
-| Mobile E2E | Detox | `device.launchApp({ launchArgs: { detoxCountryCode: 'MX' } })` |
 | API | Vitest / Postman / Gatling | Direct HTTP against `omnipizza-backend.onrender.com` |

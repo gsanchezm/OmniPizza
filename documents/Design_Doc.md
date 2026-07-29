@@ -115,4 +115,4 @@ graph TD
 *   **API Integration Tests**: TypeScript tests using Vitest validate auth, catalog, checkout flows (all 5 markets), user behaviors, and debug endpoints (`tests/api.test.ts`).
 *   **Contract Tests (Legacy)**: Schemathesis validates API compliance against the OpenAPI spec.
 *   **Frontend Component Tests**: GitHub Actions workflow runs Cypress component tests on the React web application for every PR modifying the frontend.
-*   **Mobile CI**: GitHub Actions workflow uses Expo prebuild and native build tools (Gradle/xcodebuild) to build Android APKs (Release & androidTest) and an iOS Simulator `.app` zip, with release asset uploads via `softprops/action-gh-release@v2`.
+*   **Mobile CI**: GitHub Actions workflow uses Expo prebuild and native build tools (Gradle/xcodebuild) to build the Android release APK and an iOS Simulator `.app` zip, with release asset uploads via `softprops/action-gh-release@v2`.

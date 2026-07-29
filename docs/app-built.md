@@ -7,8 +7,7 @@ This document describes the current mobile build pipeline for OmniPizza. The mob
 The current workflow produces the following artifacts:
 
 1.  **Android**:
-    - `omnipizza-release.apk` — Universal APK for real devices & emulators
-    - `omnipizza-debug-androidTest.apk` — Instrumented test APK for device farm testing (Espresso/Appium)
+    - `omnipizza-release.apk` — Universal APK for real devices & emulators; Appium drives this APK directly, so it also covers UI automation
 2.  **iOS** (simulator only — see [Distribution vs. automation](#distribution-vs-automation-why-ios-is-simulator-only)):
     - `OmniPizza-Simulator.zip` — Simulator build for Appium / iOS Simulator (no signing required)
     - No `.ipa` is produced. iOS physical-device / store distribution is intentionally out of scope.
@@ -25,7 +24,7 @@ Two different build **purposes** — the same codebase and `testID`s serve both:
 Key facts behind this decision:
 
 - **iOS has no APK equivalent.** You cannot hand someone a `.ipa` to install like an Android APK, so "anyone downloads it" is an Android-only capability in this project.
-- **Automation never targets an App Store binary.** Appium drives iOS via XCUITest / WebDriverAgent, which must *launch* the app with test state (deep links, the `detoxCountryCode` launch arg, session reset). That only works on a build the harness controls — the **simulator build** (or a dev/ad-hoc build on a real device). The store binary is for end users, not QA.
+- **Automation never targets an App Store binary.** Appium drives iOS via XCUITest / WebDriverAgent, which must *launch* the app with test state (deep links, launch arguments, session reset). That only works on a build the harness controls — the **simulator build** (or a dev/ad-hoc build on a real device). The store binary is for end users, not QA.
 - **`testID` / `accessibilityLabel` exist in every build** (Release included — React Native does not strip them), so Appium Inspector sees the object tree on the simulator build.
 - **Real-device iOS automation is possible** (dev/ad-hoc signed build + WDA) with an Apple Developer account, but is **out of scope** here — the Simulator build covers the automation need.
 
@@ -54,7 +53,7 @@ We use **Expo Prebuild** to generate the native Android and iOS projects on-the-
 
 ## 2. Android Build Strategy
 
-We use Gradle to build both the release APK and the androidTest APK.
+We use Gradle to build the release APK.
 
 ### Release APK
 
@@ -64,18 +63,19 @@ cd android && ./gradlew assembleRelease
 
 - **Output**: `android/app/build/outputs/apk/release/omnipizza-release.apk` (renamed from app-release.apk)
 
-### Test APK (for device farms)
+### No instrumented-test APK
 
-```bash
-cd android && ./gradlew assembleAndroidTest
-```
-
-- **Output**: `android/app/build/outputs/apk/androidTest/debug/omnipizza-debug-androidTest.apk` (renamed from app-debug-androidTest.apk)
-- This APK is used for running instrumented UI tests on platforms like Sauce Labs, similar to `mda-androidTest-*.apk` in the Sauce Labs releases.
+The pipeline used to also run `./gradlew assembleAndroidTest` and publish an
+`omnipizza-debug-androidTest.apk`. It was removed (2026-07-29): the Expo-prebuilt
+`android/` project has no `src/androidTest/`, no `androidTestImplementation`
+dependencies and no instrumentation runner, so the task only ever produced a stub APK
+with **no test classes** — a misleading artifact for anyone adopting this
+repo. Appium drives `omnipizza-release.apk` directly (UIAutomator2 reads the
+accessibility tree on a release build), so nothing is lost.
 
 ### Signing
 
-- Uses the default debug keystore — `expo prebuild`'s generated `android/build.gradle` wires the `release` build type to `signingConfigs.debug` out of the box, and nothing in this workflow overrides it. **This is an accepted-by-design gap, not a pending TODO**: `omnipizza-release.apk` is published as a GitHub Release artifact for Appium/Detox and manual sideloading, not to Play Store or another real storefront, so "production must not ship a debug cert" (a real MobSF finding, see the 2026-07-16 QA triage) doesn't apply to this distribution model. If that ever changes, wiring a real release keystore would mean adding a `signingConfigs.release` block via `expo-build-properties` (or a prebuild patch) and decoding a base64 keystore from GitHub Secrets before `assembleRelease` — generating and safeguarding that production key is a deliberate, hard-to-reverse decision that hasn't been made.
+- Uses the default debug keystore — `expo prebuild`'s generated `android/build.gradle` wires the `release` build type to `signingConfigs.debug` out of the box, and nothing in this workflow overrides it. **This is an accepted-by-design gap, not a pending TODO**: `omnipizza-release.apk` is published as a GitHub Release artifact for Appium and manual sideloading, not to Play Store or another real storefront, so "production must not ship a debug cert" (a real MobSF finding, see the 2026-07-16 QA triage) doesn't apply to this distribution model. If that ever changes, wiring a real release keystore would mean adding a `signingConfigs.release` block via `expo-build-properties` (or a prebuild patch) and decoding a base64 keystore from GitHub Secrets before `assembleRelease` — generating and safeguarding that production key is a deliberate, hard-to-reverse decision that hasn't been made.
 - `minSdkVersion` is pinned to **29** (Android 10) via the `expo-build-properties` plugin config in `frontend-mobile/app.json` (was left at Expo's SDK default of 24/Android 7.0 before the 2026-07-16 QA triage flagged it — MobSF's own recommendation was ">= API 29").
 - `android.allowBackup` is set to `false` in `frontend-mobile/app.json` (was unset → defaulted to `true`, letting anyone with `adb`/USB debugging extract app data).
 
@@ -127,8 +127,7 @@ The workflow builds artifacts first and then creates a GitHub Release for the pr
 3. Android build on `ubuntu-latest`:
    - JDK 17
    - `./gradlew assembleRelease`
-   - `./gradlew assembleAndroidTest`
-   - rename artifacts to `omnipizza-release.apk` and `omnipizza-debug-androidTest.apk`
+   - rename the artifact to `omnipizza-release.apk`
 4. iOS simulator build on `macos-latest`:
    - `pod install`
    - `xcodebuild` simulator build
@@ -157,8 +156,7 @@ The final GitHub Release will contain:
 
 | Asset                             | Platform | Use Case                               |
 | --------------------------------- | -------- | -------------------------------------- |
-| `omnipizza-release.apk`           | Android  | Install on real devices & emulators    |
-| `omnipizza-debug-androidTest.apk` | Android  | Run instrumented tests on device farms |
+| `omnipizza-release.apk`           | Android  | Install on real devices & emulators; also the Appium target |
 | `OmniPizza-Simulator.zip`         | iOS      | Run on iOS Simulator / Appium testing  |
 
 ---
@@ -170,7 +168,6 @@ Available scripts in `frontend-mobile/package.json`:
 ```bash
 pnpm prebuild            # Generate native projects
 pnpm build:android       # Build Android release APK
-pnpm build:android:test  # Build Android test APK
 pnpm build:ios:simulator # Build iOS simulator app
 ```
 
@@ -182,5 +179,5 @@ pnpm build:ios:simulator # Build iOS simulator app
 - Android release signing still uses the current Gradle setup; production signing secrets are not documented here yet.
 - Real-device iOS `.ipa` output is **intentionally out of scope** — iOS is simulator-only (see "Distribution vs. automation"). iOS has no public `.ipa` sideload, and Appium automates the simulator build, not a store binary.
 - There is no XCUITest runner artifact in the current pipeline.
-- `omnipizza-debug-androidTest.apk` is currently a minimal stub (~7 KB): the Expo-prebuilt `android/` project has no Detox/instrumented-test wiring, so it contains no real instrumented tests. Appium drives the release APK directly.
+- There is no instrumented-test APK either. Releases up to and including v1.1.8 shipped an `omnipizza-debug-androidTest.apk`, but it was a minimal stub (~7 KB) with no test classes — the Expo-prebuilt `android/` project has no `src/androidTest/` and no instrumented-test wiring, so `assembleAndroidTest` only ever succeeded against an empty source set. The step was dropped from the workflow on 2026-07-29; Appium drives the release APK directly.
 - **`gradle.properties` append gotcha (hit on v1.1.4, fixed):** the "Disable PNG Crunching" step does `echo "..." >> android/gradle.properties`, but `expo prebuild`'s generated file doesn't always end in a trailing newline — whichever config-plugin property gets written last (e.g. `expo-build-properties`'s `minSdkVersion`) can leave the file without one. A bare `>>` then concatenates onto that same line instead of appending a new one (e.g. `android.minSdkVersion=29android.enablePngCrunchInReleaseBuilds=false`), which Gradle fails to parse. The workflow now `printf`s a leading `\n` before the property to make the append safe regardless of the file's trailing-newline state.
