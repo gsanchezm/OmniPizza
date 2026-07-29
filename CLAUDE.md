@@ -120,7 +120,7 @@ Every interactive element exposes a stable `data-testid` (web) or `testID` (mobi
 ## CI
 
 - `.github/workflows/frontend-component-tests.yml` — Cypress component tests on PRs touching `frontend/**`, `continue-on-error: true` (non-blocking).
-- `.github/workflows/mobile-release.yml` — `workflow_dispatch` only, builds Android release/test APKs and iOS simulator `.app`, publishes to GitHub Releases.
+- `.github/workflows/mobile-release.yml` — `workflow_dispatch` only, builds Android release APK and iOS simulator `.app`, publishes to GitHub Releases.
 
 ## Conventional Commits
 
