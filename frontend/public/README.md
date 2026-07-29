@@ -138,21 +138,21 @@ python main.py
 ### Web
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Optional (local backend):
 ```bash
 # macOS/Linux
-VITE_API_URL=http://localhost:8000 npm run dev
+VITE_API_URL=http://localhost:8000 pnpm dev
 ```
 
 ### Mobile
 ```bash
 cd frontend-mobile
-npm install
-npm start
+pnpm install
+pnpm start
 ```
 
 Mobile uses the Render API by default (no .env required).  

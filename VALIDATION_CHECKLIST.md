@@ -100,7 +100,7 @@
 #### 3. Burger Menu / Navbar
 - [x] Visible en web (mobile/desktop)
 - [x] Menú hamburguesa en mobile
-- [x] Selector de país
+- [ ] Selector de país (removido: el mercado se elige en el Login)
 - [x] Perfil de usuario
 - [x] Logout funcional
 
@@ -238,7 +238,7 @@
 - [ ] Login con standard_user
 - [ ] Login con locked_out_user (debe fallar)
 - [ ] Ver catálogo en MX
-- [ ] Cambiar país a US
+- [ ] Iniciar sesión eligiendo US en el Login (no hay cambio de mercado en sesión)
 - [ ] Agregar pizzas al carrito
 - [ ] Checkout en MX con colonia
 - [ ] Checkout en US con zip_code

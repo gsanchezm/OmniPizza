@@ -12,6 +12,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Env files — never bake secrets into the image via `COPY . .`
+.env*
+
 # Testing
 coverage
 cypress/screenshots

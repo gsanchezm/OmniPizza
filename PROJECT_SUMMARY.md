@@ -214,7 +214,7 @@ omnipizza/
 
 ### Para Testing Manual
 - ✅ Selector de usuarios pre-configurado
-- ✅ Cambio de país en tiempo real
+- ✅ Selección de mercado e idioma en el Login
 - ✅ Validaciones visibles
 - ✅ Mensajes de error claros
 

@@ -142,9 +142,9 @@ The pattern for each atomic test:
 
 ```
 1. API setup
-   POST /api/auth/login                → get token
-   POST /api/market   (header)         → set X-Country-Code
-   POST /api/cart     { items: [...] } → seed cart
+   POST /api/auth/login                    → get token
+   POST /api/store/market { country_code } → set the session market
+   POST /api/cart         { items: [...] } → seed cart
 
 2. Deep link
    driver.execute("mobile: deepLink", {
@@ -168,8 +168,11 @@ The pattern for each atomic test:
      "omnipizza://checkout?market=MX&lang=es&hydrateCart=true"
 
 3. Assert
-   await expect(element(by.id("screen-checkout"))).toBeVisible();
-   await expect(element(by.id("text-section-summary"))).toBeVisible();
+   // WebdriverIO / Appium — "~" is the accessibility-id selector, which
+   // resolves the testID on both platforms (content-desc on Android,
+   // accessibility id on iOS).
+   await $("~screen-checkout").waitForDisplayed();
+   await $("~text-section-summary").waitForDisplayed();
 ```
 
 ### Flow example — Checkout atomic test (MX market)
