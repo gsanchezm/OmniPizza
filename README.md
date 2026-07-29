@@ -202,14 +202,15 @@ Checkout in both web and mobile uses:
 
 ### Payment (UI simulation)
 
-Checkout supports two selectable payment methods:
+Checkout supports three selectable payment methods:
 
 - **Credit Card** — Displays a full card form (Cardholder Name, Card Number, Expiry, CVV). Card details are **UI-only** and are **not sent** to the backend.
 - **Cash on Delivery** — Hides the card form; order is placed without card details.
+- **PayPal** — Reveals an emulated PayPal login form. Demo only: it does not place the order, and nothing entered there is sent to the backend.
 
-Only the selected method (`payment_method: "card" | "cash"`) is sent to `POST /api/checkout` — never the card details themselves.
+Only the selected method (`payment_method: "card" | "cash" | "paypal"`) is sent to `POST /api/checkout` — never the card details themselves.
 
-The payment method toggle uses `data-testid="payment-card"` and `data-testid="payment-cash"` on web, and `accessibilityLabel`/`testID` `btn-payment-card` and `btn-payment-cash` on mobile.
+The payment method toggle uses `data-testid="payment-method-card"`, `data-testid="payment-method-cash"` and `data-testid="payment-method-paypal"` on web, and `accessibilityLabel`/`testID` `btn-payment-card`, `btn-payment-cash` and `btn-payment-paypal` on mobile.
 
 ### Checkout totals
 

@@ -120,7 +120,7 @@
 - [x] `btn-logout`
 - [x] `card-pizza-{id}`, `btn-add-to-cart`
 - [x] `full-name`, `address`, `phone`, `colonia` (MX), `zip-code` (US/MX), `plz` (CH)
-- [x] `payment-card`, `payment-cash`
+- [x] `payment-method-card`, `payment-method-cash`, `payment-method-paypal`
 - [x] `order-summary-title`, `order-tip-0` / `5` / `10` / `15`, `order-total`
 
 #### Mobile (testID / accessibilityLabel) — same naming convention
@@ -128,7 +128,7 @@
 - [x] `screen-checkout`, `screen-catalog`, `screen-pizza-builder`, `screen-order-success`
 - [x] `input-username`, `input-password`, `btn-login`
 - [x] `btn-tip-0` / `5` / `10` / `15`, `text-subtotal-value`, `text-tax-value`, `text-total-value`
-- [x] `btn-payment-card`, `btn-payment-cash`
+- [x] `btn-payment-card`, `btn-payment-cash`, `btn-payment-paypal`
 
 ## IV-B. Session Setup & Cart Hydration
 
