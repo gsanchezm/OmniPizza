@@ -16,10 +16,10 @@
 - ✅ `Dockerfile` - Imagen Docker para despliegue
 
 **Funcionalidades**:
-- ✅ 5 usuarios de prueba con comportamientos específicos
+- ✅ 7 usuarios de prueba con comportamientos específicos
 - ✅ Autenticación JWT
 - ✅ Validación de header X-Country-Code obligatorio
-- ✅ Soporte multi-país (MX, US, CH, JP)
+- ✅ Soporte multi-país (MX, US, CH, JP, SA)
 - ✅ Conversión de precios por moneda
 - ✅ Validaciones específicas por país
 - ✅ Endpoints de caos (/api/debug/)
@@ -53,7 +53,7 @@
 
 **Stack principal: Vitest (TypeScript)**
 - ✅ Tests de integración API en `tests/api.test.ts`
-- ✅ Auth, catálogo, checkout (todos los mercados MX/US/CH/JP), behaviors de usuario, debug
+- ✅ Auth, catálogo, checkout (todos los mercados MX/US/CH/JP/SA), behaviors de usuario, debug
 - ✅ Ejecutar con `pnpm test` desde `tests/`
 
 **Stack legacy: Schemathesis (Python)**
@@ -82,8 +82,8 @@
 
 - **Plataformas**: 3 deployables (Backend FastAPI, Web React/Vite, Mobile Expo/RN) + suite de tests
 - **Endpoints API**: 15+ (`/api/auth`, `/api/countries`, `/api/pizzas`, `/api/checkout`, `/api/orders`, `/api/debug`, `/api/store/market`, `/api/cart`, `/api/session*`)
-- **Países soportados**: 4 (MX/US/CH/JP)
-- **Usuarios de prueba**: 5 (standard, locked_out, problem, performance_glitch, error)
+- **Países soportados**: 5 (MX/US/CH/JP/SA)
+- **Usuarios de prueba**: 7 (standard, locked_out, problem, performance_glitch, error, a11y_glitch, security_glitch)
 - **Pantallas mobile**: 6 (Login, Catalog, PizzaBuilder, Checkout, OrderSuccess, Profile)
 
 ## 🎯 Características Destacadas
@@ -161,6 +161,8 @@ Después de iniciar:
 | problem_user | pizza123 | 🐛 UI rota |
 | performance_glitch_user | pizza123 | ⏱️ Delay 3s |
 | error_user | pizza123 | 💥 Errores aleatorios |
+| a11y_glitch_user | pizza123 | ♿ Defecto de accesibilidad por llamada (3 modos) |
+| security_glitch_user | pizza123 | 🔓 Perfil con XSS, IDOR de órdenes, errores con fuga interna |
 
 ## 🌍 Países Soportados
 
@@ -170,6 +172,7 @@ Después de iniciar:
 | USA | US | $ USD | zip_code | 8% (Sales Tax) |
 | Suiza | CH | CHF | plz | 8.1% (VAT) |
 | Japón | JP | ¥ JPY | prefectura | 10% (Consumption Tax) |
+| Arabia Saudita | SA | ر.س SAR | district | 15% (VAT) |
 
 ## 📂 Estructura del Proyecto
 

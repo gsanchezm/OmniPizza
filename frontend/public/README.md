@@ -36,6 +36,8 @@ Users select market on the **login** screen (web + mobile) before entering the a
 | problem_user | pizza123 | $0 prices + broken images |
 | performance_glitch_user | pizza123 | API delay (~3s) |
 | error_user | pizza123 | Random checkout error (~50%) |
+| a11y_glitch_user | pizza123 | One accessibility defect per catalog/cart call (3 modes) |
+| security_glitch_user | pizza123 | Seeded XSS profile, order IDOR, leaky checkout errors |
 
 ### 2) Markets (currency + checkout rules)
 | Market | Currency | Required fields | Optional fields | Tax | Notes |
@@ -44,6 +46,7 @@ Users select market on the **login** screen (web + mobile) before entering the a
 | US | USD | `zip_code` | `tip` | `8%` | Tip percentages via `tip` |
 | CH | CHF | `plz` | `trinkgeld` | `8.1%` | Language toggle **DE/FR** |
 | JP | JPY | `prefectura` | `chip` | `10%` | No decimals |
+| SA | SAR | `district` | `baksheesh` | `15%` | Arabic (ar), right-to-left layout |
 
 Checkout uses localized `delivery_fee` from `/api/countries` plus tip percentages `0/5/10/15`, with `0%` selected by default in web and mobile.
 
@@ -54,6 +57,7 @@ Checkout uses localized `delivery_fee` from `/api/countries` plus tip percentage
   - **US → English (en)**
   - **CH → German (de)** (toggle to **French (fr)**)
   - **JP → Japanese (ja)**
+  - **SA → Arabic (ar)** (right-to-left layout)
 - After login, market is not changeable from navbar/menu.
 
 ### 4) Pizza Configurator (Web modal + Mobile PizzaBuilderScreen)
@@ -94,8 +98,8 @@ When adding a pizza, the user can customize:
 ## API Overview
 
 ### Headers used by Web/Mobile
-- `X-Country-Code: MX | US | CH | JP`
-- `X-Language: en | es | de | fr | ja`
+- `X-Country-Code: MX | US | CH | JP | SA`
+- `X-Language: en | es | de | fr | ja | ar`
 - `Authorization: Bearer <token>` (after login)
 
 ### Main endpoints

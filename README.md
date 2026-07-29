@@ -123,8 +123,8 @@ Raw OpenAPI specification (useful for contract testing tools).
 
 Most endpoints rely on request headers to simulate multi-market behavior:
 
-- `X-Country-Code: MX | US | CH | JP`
-- `X-Language: en | es | de | fr | ja`
+- `X-Country-Code: MX | US | CH | JP | SA`
+- `X-Language: en | es | de | fr | ja | ar`
 - `Authorization: Bearer <token>` (after login)
 
 These headers are automatically sent by the **Web** and **Mobile** clients.
@@ -171,6 +171,8 @@ If the backend cart is empty or the request fails, the frontend falls back to th
 | problem_user            | pizza123 | $0 prices + broken images    |
 | performance_glitch_user | pizza123 | API delay (~3s)              |
 | error_user              | pizza123 | Random checkout error (~50%) |
+| a11y_glitch_user        | pizza123 | Random a11y defect per call  |
+| security_glitch_user    | pizza123 | XSS profile + IDOR + leaks   |
 
 ### Markets (pricing + checkout rules)
 
@@ -180,6 +182,7 @@ If the backend cart is empty or the request fails, the frontend falls back to th
 | US     | USD      | `zip_code`      | `tip`           | `8%` sales tax | `tip` percentage |
 | CH     | CHF      | `plz`           | `trinkgeld`     | `8.1%` VAT | `trinkgeld` percentage |
 | JP     | JPY      | `prefectura`    | `chip`          | `10%` consumption tax | `chip` percentage |
+| SA     | SAR      | `district`      | `baksheesh`     | `15%` VAT | `baksheesh` percentage |
 
 Checkout in both web and mobile uses:
 
@@ -195,6 +198,7 @@ Checkout in both web and mobile uses:
   - **US → English (en)**
   - **CH → German (de)** (with toggle to **French (fr)**)
   - **JP → Japanese (ja)**
+  - **SA → Arabic (ar)** (right-to-left layout)
 - After login, market is no longer changeable from app navigation.
 
 ### Payment (UI simulation)
@@ -242,7 +246,7 @@ The app supports deep linking via the `omnipizza://` scheme, enabling external a
 | `omnipizza://order-success?orderId=<id>` | Order Success screen |
 | `omnipizza://profile` | Profile screen |
 
-Universal params supported on all routes: `market` (US/MX/CH/JP), `lang` (`de` or `fr`, applies only when market is CH; other markets derive language from the market), `resetSession=true`, `accessToken=<jwt>` (injects auth token, bypasses login UI).
+Universal params supported on all routes: `market` (US/MX/CH/JP/SA), `lang` (`de` or `fr`, applies only when market is CH; other markets derive language from the market), `resetSession=true`, `accessToken=<jwt>` (injects auth token, bypasses login UI).
 
 See [ATOMIC_MOBILE_TESTING.md](./ATOMIC_MOBILE_TESTING.md) for the full reference and automation integration guide.
 

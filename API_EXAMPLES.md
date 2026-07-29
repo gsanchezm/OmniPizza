@@ -433,7 +433,7 @@ Response:
   "environment": "production",
   "total_orders": 42,
   "test_users": ["standard_user", "locked_out_user", ...],
-  "supported_countries": ["MX", "US", "CH", "JP"]
+  "supported_countries": ["MX", "US", "CH", "JP", "SA"]
 }
 ```
 

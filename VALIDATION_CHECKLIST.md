@@ -17,7 +17,7 @@
 ## II. Usuarios Pre-definidos
 
 ### Implementación
-- [x] 5 usuarios hardcodeados en `constants.py`
+- [x] 7 usuarios hardcodeados en `constants.py`
 - [x] Sistema de autenticación JWT en `auth.py`
 - [x] Endpoint `/api/auth/login` funcional
 - [x] Endpoint `/api/auth/users` para listar usuarios
@@ -31,6 +31,8 @@
 | problem_user | pizza123 | Imágenes rotas, precios $0 | ✅ |
 | performance_glitch_user | pizza123 | Delay 3s en API | ✅ |
 | error_user | pizza123 | Error 500 aleatorio | ✅ |
+| a11y_glitch_user | pizza123 | Defecto de accesibilidad por llamada (3 modos) | ✅ |
+| security_glitch_user | pizza123 | Perfil con XSS, IDOR de órdenes, fuga de error interno | ✅ |
 
 ## III. Arquitectura Multi-Mercado
 
@@ -38,7 +40,7 @@
 - [x] Middleware implementado en `middleware.py`
 - [x] Validación obligatoria del header
 - [x] Error 400 si no se envía
-- [x] Soporte para MX, US, CH, JP
+- [x] Soporte para MX, US, CH, JP, SA
 
 ### Lógica por País
 
@@ -69,6 +71,13 @@
 - [x] Campo requerido: `prefectura`
 - [x] Campo opcional: `chip`
 - [x] Impuestos: 10%
+
+#### 🇸🇦 Arabia Saudita (SA)
+- [x] Moneda: ر.س SAR
+- [x] Campo requerido: `district`
+- [x] Campo opcional: `baksheesh`
+- [x] Impuestos: 15% (VAT)
+- [x] Idioma árabe (ar) con layout RTL
 
 ## IV. Requisitos de las Pantallas
 
@@ -184,7 +193,7 @@
 - [x] **Vitest API tests (TypeScript)** — `tests/api.test.ts` (primary)
 - [x] Contract Tests con Schemathesis — `tests/test_contract.py` (legacy)
 - [x] Tests de validación de schema
-- [x] Tests de flujo completo por mercado (MX/US/CH/JP)
+- [x] Tests de flujo completo por mercado (MX/US/CH/JP/SA)
 - [x] Tests de comportamientos de usuario
 - [x] Tests de endpoints de caos
 - [x] `tests/README.md` con documentación

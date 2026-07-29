@@ -33,6 +33,8 @@ graph TD
 *   **Chaos Implementations**: Inspects the user's `behavior` claim from the JWT to dynamically inject faults:
     *   **Middleware (`apply_user_behavior`)**: Injects latency (`time.sleep`) for `performance_glitch_user`.
     *   **Database (`database.py`)**: Modifies response data (prices = 0) for `problem_user` and injects HTTP 500 errors for `error_user` upon order creation.
+    *   **Accessibility (`a11y_glitch_user`)**: Each catalog/cart response carries one accessibility defect, chosen per call from `missing_name`, `wrong_lang` or `extreme_text`.
+    *   **Security (`security_glitch_user`)**: Login seeds the profile with an unsanitized XSS payload, order detail is served without an ownership check (IDOR), and checkout errors leak internal detail.
 
 ### 3.3. API Structure
 *   **`/api/auth`**: `login`, `users`.
@@ -110,7 +112,7 @@ graph TD
 *   **Docker**: Used for consistent local development and as the deployment artifact format.
 
 ### 7.2. Continuous Integration
-*   **API Integration Tests**: TypeScript tests using Vitest validate auth, catalog, checkout flows (all 4 markets), user behaviors, and debug endpoints (`tests/api.test.ts`).
+*   **API Integration Tests**: TypeScript tests using Vitest validate auth, catalog, checkout flows (all 5 markets), user behaviors, and debug endpoints (`tests/api.test.ts`).
 *   **Contract Tests (Legacy)**: Schemathesis validates API compliance against the OpenAPI spec.
 *   **Frontend Component Tests**: GitHub Actions workflow runs Cypress component tests on the React web application for every PR modifying the frontend.
 *   **Mobile CI**: GitHub Actions workflow uses Expo prebuild and native build tools (Gradle/xcodebuild) to build Android APKs (Release & androidTest) and an iOS Simulator `.app` zip, with release asset uploads via `softprops/action-gh-release@v2`.

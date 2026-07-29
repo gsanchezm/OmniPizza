@@ -90,7 +90,7 @@ The project makes heavy use of:
 *   **`data-testid` / `testID` / `accessibilityLabel`**: Unified stable selector convention across web and mobile. Prefixes: `btn-`, `input-`, `text-`, `view-`, `img-`, `card-`, `screen-`. Mobile text-bearing controls also expose readable accessibility values so Appium/XCUITest `getText()` returns visible text instead of only the identifier.
 *   **Cypress Frontend Component Tests**: Reliably test individual React web components in isolation (`frontend/cypress/component/`).
 *   **Chaos Middleware**: Custom code to inject faults (latency, errors) for testing robustness.
-*   **Vitest API Tests** (`tests/api.test.ts`): TypeScript integration tests covering auth, catalog, checkout (all 4 markets), user behaviors, and debug endpoints.
+*   **Vitest API Tests** (`tests/api.test.ts`): TypeScript integration tests covering auth, catalog, checkout (all 5 markets), user behaviors, and debug endpoints.
 *   **Schemathesis** (legacy): Python-based contract tests validating API against OpenAPI spec.
 *   **Atomic Web Testing** (`ATOMIC_WEB_TESTING.md`): Pattern for opening any web route directly via Playwright `addInitScript` + `localStorage` injection after API cart seeding. No full user journey required.
 *   **Atomic Mobile Testing** (`ATOMIC_MOBILE_TESTING.md`): Pattern for opening any mobile screen directly via `omnipizza://` deep links (`adb` / `xcrun simctl`) after API cart seeding. Supported by the `useDeepLinkParams` hook and React Navigation `linking` config.

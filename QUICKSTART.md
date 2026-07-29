@@ -53,13 +53,14 @@ Usa cualquiera de estos usuarios con password `pizza123`:
 3. **problem_user** - Imágenes rotas y precios en $0
 4. **performance_glitch_user** - Delay de 3 segundos en todas las llamadas
 5. **error_user** - 50% de probabilidad de error 500 en checkout
+6. **a11y_glitch_user** - Un defecto de accesibilidad distinto en cada llamada a catálogo/carrito (3 modos)
+7. **security_glitch_user** - Perfil sembrado con XSS, detalle de orden sin validar dueño (IDOR) y errores de checkout con detalles internos
 
 ### Flujo de Prueba Básico
 
-1. **Login**: Selecciona un usuario de prueba
+1. **Login**: Selecciona un usuario de prueba y el mercado (MX, US, CH, JP, SA). El mercado se elige aquí: ya no hay selector dentro de la app
 2. **Catálogo**: Navega y agrega pizzas al carrito
-3. **Cambio de país**: Prueba con MX, US, CH, JP
-4. **Checkout**: Completa el formulario (campos cambian según país)
+3. **Checkout**: Completa el formulario (campos cambian según el mercado)
 
 ### Validaciones por País
 
@@ -69,6 +70,7 @@ Usa cualquiera de estos usuarios con password `pizza123`:
 | US   | zip_code       | 5 dígitos | 8%     |
 | CH   | plz            | texto   | 8.1%     |
 | JP   | prefectura     | texto   | 10%      |
+| SA   | district       | texto   | 15%      |
 
 Las propinas ahora son porcentuales por mercado:
 
@@ -76,6 +78,7 @@ Las propinas ahora son porcentuales por mercado:
 - US: `tip`
 - CH: `trinkgeld`
 - JP: `chip`
+- SA: `baksheesh`
 - Opciones visuales en web y móvil: `0%`, `5%`, `10%`, `15%`
 - Default seleccionado: `0%`
 

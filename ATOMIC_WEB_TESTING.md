@@ -53,10 +53,12 @@ report.
 | Username | Behavior |
 |---|---|
 | `standard_user` | Normal login and checkout flow |
-| `locked_out_user` | Login always returns 401 ("Sorry, this user has been locked out") |
+| `locked_out_user` | Login always returns 403 ("Sorry, this user has been locked out") |
 | `problem_user` | Catalog renders $0 prices and broken images |
 | `performance_glitch_user` | Every API call has a ~3s artificial delay |
 | `error_user` | `POST /api/checkout` returns a 500 error ~50% of the time |
+| `a11y_glitch_user` | Every catalog/cart call injects one accessibility defect, picked per call from 3 modes (`missing_name`, `wrong_lang`, `extreme_text`) |
+| `security_glitch_user` | Profile seeded with an unsanitized XSS payload, order detail served without an ownership check (IDOR), and checkout errors that leak internal detail |
 
 ---
 

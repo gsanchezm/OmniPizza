@@ -164,7 +164,7 @@ class ErrorResponse(BaseModel):
 # Test Setup Models
 class TestMarketRequest(BaseModel):
     """Set the active market on the per-user test session."""
-    country_code: CountryCode = Field(..., description="MX | US | CH | JP")
+    country_code: CountryCode = Field(..., description="MX | US | CH | JP | SA")
 
 class TestCartSetupRequest(BaseModel):
     """Replace the per-user cart. Cart is per-user, not per-market — this
