@@ -94,25 +94,32 @@ export default function Flag({ code, size = 28, className = "", title }) {
 
   if (!shape) {
     // Unknown market — fall back to a neutral disc with the code, never crash.
+    // Kept as inline SVG (like every mapped shape below) so sizing goes through
+    // the svg width/height attributes instead of a CSS style attribute — this
+    // avoids depending on 'unsafe-inline' in the style-src CSP directive.
     return (
-      <span
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 36 36"
+        role="img"
+        aria-label={title || `${upper} flag`}
         data-testid={`flag-${upper}`}
         className={className}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          background: "#2A2A2A",
-          color: "#fff",
-          fontSize: size * 0.36,
-          fontWeight: 700,
-        }}
       >
-        {upper}
-      </span>
+        <circle cx="18" cy="18" r="18" fill="#2A2A2A" />
+        <text
+          x="18"
+          y="18"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="#ffffff"
+          fontSize="13"
+          fontWeight="700"
+        >
+          {upper}
+        </text>
+      </svg>
     );
   }
 

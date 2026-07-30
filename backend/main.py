@@ -34,6 +34,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Security headers on every response. Strict-Transport-Security is a no-op over
+# plain HTTP (browsers only honor it on HTTPS responses), so it's safe to send
+# unconditionally rather than gating on settings.environment.
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+    return response
+
 app.include_router(test_api_router)
 app.include_router(auth_router)
 app.include_router(catalog_router)

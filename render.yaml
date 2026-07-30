@@ -61,6 +61,7 @@ services:
           connect-src 'self' https://omnipizza-backend.onrender.com;
           object-src 'none';
           base-uri 'self';
+          form-action 'self';
           frame-ancestors 'none';
     autoDeploy: true
 

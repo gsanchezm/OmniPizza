@@ -768,8 +768,7 @@ export default function Checkout() {
                           <select
                             aria-labelledby="field-card-expiry-label"
                             data-testid="card-expiry-month"
-                            style={{ colorScheme: "dark" }}
-                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors [color-scheme:dark]"
                             value={form.card_expiry_month}
                             onChange={(e) =>
                               setForm((p) => ({
@@ -793,8 +792,7 @@ export default function Checkout() {
                           <select
                             aria-labelledby="field-card-expiry-label"
                             data-testid="card-expiry-year"
-                            style={{ colorScheme: "dark" }}
-                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
+                            className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors [color-scheme:dark]"
                             value={form.card_expiry_year}
                             onChange={(e) =>
                               setForm((p) => ({

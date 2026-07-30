@@ -131,8 +131,7 @@ export default function Profile() {
                id="field-profile-birthday"
                type="date"
                data-testid="profile-birthday"
-               style={{ colorScheme: 'dark' }}
-               className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium"
+               className="w-full bg-[#0F0F0F] border border-[#2A2A2A] rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition-all font-medium [color-scheme:dark]"
                value={birthday}
                onChange={(e)=>setProfile({birthday:e.target.value})}
              />
