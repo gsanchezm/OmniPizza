@@ -126,7 +126,7 @@ export default function OrderSuccess() {
                {order && (
                    <div className="mt-8 border-t border-[#2A2A2A] pt-6">
                         <div className="flex justify-between items-center mb-4">
-                           <h3 data-testid="order-details-label" className="text-gray-400 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h3>
+                           <h2 data-testid="order-details-label" className="text-gray-400 text-xs font-bold tracking-widest uppercase">{t('orderDetails')}</h2>
                            <span data-testid="order-id" className="text-white font-mono text-sm">#{order.order_id}</span>
                        </div>
                        <div className="flex justify-between items-center">

@@ -33,7 +33,7 @@ function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
        {/* Checkered pattern overlay at bottom (optional flair) */}
        
        <div className="flex-1 flex flex-col items-center text-center mt-2 px-2">
-          <h3 data-testid={tid ? tid(`pizza-name-${pizza.id}`) : `pizza-name-${pizza.id}`} className="text-xl font-extrabold text-white mb-1 group-hover:text-[#FF5722] transition-colors line-clamp-1">{pizza.name}</h3>
+          <h2 data-testid={tid ? tid(`pizza-name-${pizza.id}`) : `pizza-name-${pizza.id}`} className="text-xl font-extrabold text-white mb-1 group-hover:text-[#FF5722] transition-colors line-clamp-1">{pizza.name}</h2>
           <p data-testid={`pizza-description-${pizza.id}`} className="text-xs text-gray-400 line-clamp-2 mb-4 h-8">{pizza.description}</p>
           
           <div className="mt-auto w-full flex items-center justify-between">
