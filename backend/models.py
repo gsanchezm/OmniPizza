@@ -62,10 +62,12 @@ class CartItem(BaseModel):
     quantity: int = Field(ge=1, le=10)
     size: str = "small"
     toppings: List[str] = Field(default_factory=list)
+    item_id: Optional[str] = None
 
 
 class EnrichedCartItem(BaseModel):
     pizza_id: str
+    item_id: str
     name: str
     size: str
     quantity: int

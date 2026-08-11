@@ -84,6 +84,44 @@ describe('Profile session isolation', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Cart session isolation (parallel-login leak fix)
+// ---------------------------------------------------------------------------
+describe('Cart session isolation', () => {
+  it('keeps two concurrent logins for the same user on separate carts', async () => {
+    // Session A: seed a cart with one item.
+    const tokenA = await login('standard_user');
+    await axios.post(
+      `${API_URL}/api/cart`,
+      { items: [{ pizza_id: 'p01', quantity: 1, size: 'small' }] },
+      { headers: { Authorization: `Bearer ${tokenA}` } },
+    );
+
+    // Session B: a second, concurrent login for the same username seeds a
+    // DIFFERENT cart. Before the session_id migration, both logins share one
+    // username-keyed cart, so this POST silently overwrites Session A's.
+    const tokenB = await login('standard_user');
+    await axios.post(
+      `${API_URL}/api/cart`,
+      { items: [{ pizza_id: 'p02', quantity: 2, size: 'large' }] },
+      { headers: { Authorization: `Bearer ${tokenB}` } },
+    );
+
+    // Session A's cart must still show its own item, untouched by Session B.
+    const cartA = await axios.get(`${API_URL}/api/cart`, {
+      headers: authHeaders(tokenA, 'MX'),
+    });
+    expect(cartA.data.cart_items).toHaveLength(1);
+    expect(cartA.data.cart_items[0].pizza_id).toBe('p01');
+
+    const cartB = await axios.get(`${API_URL}/api/cart`, {
+      headers: authHeaders(tokenB, 'MX'),
+    });
+    expect(cartB.data.cart_items).toHaveLength(1);
+    expect(cartB.data.cart_items[0].pizza_id).toBe('p02');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Pizzas endpoint – requires headers
 // ---------------------------------------------------------------------------
 describe('GET /api/pizzas validation', () => {

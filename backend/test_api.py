@@ -19,8 +19,8 @@ logger = logging.getLogger("omnipizza.test_api")
 router = APIRouter()
 
 
-def _session_response(username: str) -> TestSessionStateResponse:
-    session = db.get_test_session(username)
+def _session_response(username: str, session_id: str) -> TestSessionStateResponse:
+    session = db.get_test_session(session_id)
     return TestSessionStateResponse(
         username=username,
         country_code=session["country_code"],
@@ -35,10 +35,11 @@ def _session_response(username: str) -> TestSessionStateResponse:
     tags=["Store"],
     summary="Set the user's active market (atomic test setup)",
     description=(
-        "Sets `country_code` on the per-user test session. The session is "
-        "**per-user, not per-(user, market)** — switching markets here does NOT "
-        "clear or partition the cart. To replace the cart, call `POST /api/cart` "
-        "or `POST /api/session/reset` separately."
+        "Sets `country_code` on the current login session. The session is "
+        "**per-login-session (keyed by the JWT `sid` claim), not per-(user, "
+        "market)** — switching markets here does NOT clear or partition the "
+        "cart. To replace the cart, call `POST /api/cart` or "
+        "`POST /api/session/reset` separately."
     ),
 )
 async def set_market(
@@ -46,9 +47,10 @@ async def set_market(
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
-    db.set_test_market(username, request.country_code)
+    session_id = current_user["session_id"]
+    db.set_test_market(session_id, request.country_code)
     logger.info("session_api.set_market user=%s country=%s", username, request.country_code.value)
-    return _session_response(username)
+    return _session_response(username, session_id)
 
 
 @router.post(
@@ -57,10 +59,15 @@ async def set_market(
     tags=["Cart"],
     summary="Seed the user's cart (atomic test setup)",
     description=(
-        "Replaces the per-user cart with the supplied items. "
-        "**The cart is per-user, not per-market** — this endpoint does not read "
-        "the `X-Country-Code` header and does not change the session's market. "
-        "Use `POST /api/store/market` to set the market, and `GET /api/cart` "
+        "Replaces the current login session's cart with the supplied items. "
+        "**The cart is per-login-session (keyed by the JWT `sid` claim), not "
+        "per-username or per-market** — this endpoint does not read the "
+        "`X-Country-Code` header and does not change the session's market. "
+        "Two concurrent logins for the same username (e.g. two market "
+        "scenarios run in parallel) get isolated carts. Each seeded line gets "
+        "a stable `item_id` (server-generated unless you supply your own), "
+        "addressable via `PUT`/`DELETE /api/cart/items/{item_id}`. Use "
+        "`POST /api/store/market` to set the market, and `GET /api/cart` "
         "(which does require `X-Country-Code`) to read the cart enriched with "
         "market-specific pricing/currency."
     ),
@@ -70,9 +77,10 @@ async def seed_cart(
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
-    db.set_test_cart(username, [item.dict() for item in request.items])
+    session_id = current_user["session_id"]
+    db.set_test_cart(session_id, [item.dict() for item in request.items])
     logger.info("session_api.seed_cart user=%s item_count=%d", username, len(request.items))
-    return _session_response(username)
+    return _session_response(username, session_id)
 
 
 @router.get("/api/cart", response_model=CartResponse, tags=["Cart"])
@@ -82,13 +90,14 @@ async def get_cart(
     x_language: Optional[str] = Header(None),
 ):
     username = current_user["username"]
+    session_id = current_user["session_id"]
     behavior = current_user.get("behavior", "standard")
     if hasattr(behavior, "value"):
         behavior = behavior.value
 
     cc = CountryCode(country_code)
-    session = db.get_test_session(username)
-    enriched = db.get_enriched_cart(username, cc, behavior, x_language)
+    session = db.get_test_session(session_id)
+    enriched = db.get_enriched_cart(session_id, cc, behavior, x_language)
 
     return CartResponse(
         username=username,
@@ -137,10 +146,11 @@ async def reset_state(
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
-    db.reset_test_session(username)
-    db.reset_user_profile(current_user["session_id"], username)
+    session_id = current_user["session_id"]
+    db.reset_test_session(session_id)
+    db.reset_user_profile(session_id, username)
     logger.info("session_api.reset_state user=%s", username)
-    return _session_response(username)
+    return _session_response(username, session_id)
 
 
 @router.get("/api/session", response_model=TestSessionStateResponse, tags=["Session"])
@@ -148,4 +158,5 @@ async def get_state(
     current_user: dict = Depends(get_current_user),
 ):
     username = current_user["username"]
-    return _session_response(username)
+    session_id = current_user["session_id"]
+    return _session_response(username, session_id)

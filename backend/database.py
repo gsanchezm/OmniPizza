@@ -136,16 +136,15 @@ class InMemoryDB:
             profile[key] = value
         return profile
 
-    def _ensure_session(self, username: str) -> Dict[str, Any]:
-        session = self.sessions.get(username)
+    def _ensure_session(self, session_id: str) -> Dict[str, Any]:
+        session = self.sessions.get(session_id)
         if session is None:
             session = {
-                "username": username,
                 "country_code": CountryCode.MX.value,
                 "cart_items": [],
                 "updated_at": datetime.utcnow(),
             }
-            self.sessions[username] = session
+            self.sessions[session_id] = session
         return session
 
     def create_order(self, order_data: Dict[str, Any]) -> str:
@@ -162,32 +161,35 @@ class InMemoryDB:
     def get_user_orders(self, username: str) -> List[Dict[str, Any]]:
         return [order for order in self.orders.values() if order.get("username") == username]
 
-    def set_test_market(self, username: str, country_code: CountryCode) -> Dict[str, Any]:
-        session = self._ensure_session(username)
+    def set_test_market(self, session_id: str, country_code: CountryCode) -> Dict[str, Any]:
+        session = self._ensure_session(session_id)
         session["country_code"] = country_code.value
         session["updated_at"] = datetime.utcnow()
         return session
 
-    def set_test_cart(self, username: str, items: List[Dict[str, Any]]) -> Dict[str, Any]:
-        session = self._ensure_session(username)
-        session["cart_items"] = [item.copy() for item in items]
+    def set_test_cart(self, session_id: str, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+        session = self._ensure_session(session_id)
+        session["cart_items"] = [
+            {**item, "item_id": item.get("item_id") or f"ITEM-{uuid.uuid4().hex[:8].upper()}"}
+            for item in items
+        ]
         session["updated_at"] = datetime.utcnow()
         return session
 
-    def reset_test_session(self, username: str) -> None:
-        self.sessions.pop(username, None)
+    def reset_test_session(self, session_id: str) -> None:
+        self.sessions.pop(session_id, None)
 
-    def get_test_session(self, username: str) -> Dict[str, Any]:
-        return self._ensure_session(username)
+    def get_test_session(self, session_id: str) -> Dict[str, Any]:
+        return self._ensure_session(session_id)
 
     def get_enriched_cart(
         self,
-        username: str,
+        session_id: str,
         country_code: CountryCode,
         behavior: str = "standard",
         language: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        session = self._ensure_session(username)
+        session = self._ensure_session(session_id)
         cart_items = session["cart_items"]
 
         country_config = COUNTRY_CONFIG[country_code]
@@ -219,6 +221,7 @@ class InMemoryDB:
 
             enriched.append({
                 "pizza_id": item["pizza_id"],
+                "item_id": item.get("item_id"),
                 "name": name,
                 "size": item.get("size", "small"),
                 "quantity": item["quantity"],
