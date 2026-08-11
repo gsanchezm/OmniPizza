@@ -259,6 +259,8 @@ test("checkout renders API-seeded cart for MX", async ({ page, request }) => {
 });
 ```
 
+Individual lines can be adjusted after seeding via `PUT`/`DELETE /api/cart/items/{item_id}`, without reseeding the whole cart — see `API_EXAMPLES.md`.
+
 ### Profile atomic test
 
 ```javascript
@@ -535,6 +537,8 @@ not via URL params.
 **Exception:** `/order-success?orderId=<id>` is read by the page and calls
 `GET /api/orders/{id}` to populate `lastOrder` in the Zustand store. This avoids
 hardcoding the order shape into test fixtures — the backend is the source of truth.
+
+`PATCH /api/orders/{id}` (`{"status": "cancelled"}`) is also available for testing order-cancellation UI states, subject to the same ownership rules as the GET.
 
 ### Cart hydration guard
 

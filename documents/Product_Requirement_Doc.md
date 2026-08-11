@@ -104,6 +104,9 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * `GET /api/cart` — returns enriched cart joined with catalog (name, price, image, currency). Requires `Authorization` + `X-Country-Code`.
 * Both web and mobile **Checkout screens fetch `GET /api/cart` on mount when the local cart is empty**, hydrating the UI automatically from backend state. This is the primary mechanism for cart state injection in atomic tests.
 * The hydration guard (`items.length > 0`) ensures normal shopping flows are never disrupted.
+* `PUT /api/cart/items/{item_id}` — upsert one cart line; creates if `item_id` is new, replaces if it exists. Requires `Authorization` only (no `X-Country-Code`).
+* `DELETE /api/cart/items/{item_id}` — removes one cart line. `404` if `item_id` doesn't exist in the caller's session.
+* Cart state (and market) is keyed by the login's JWT `sid` claim, not by username — concurrent logins for the same test user get isolated carts.
 
 ### 6.8 Profile
 * Profile captures `fullName`, `address`, `phone`, and `notes`.
@@ -130,6 +133,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * `404` if order ID does not exist.
 * `403` if order exists but belongs to another user.
 * `200` for owner — response shape is canonical `OrderSummary` (identical to `POST /api/checkout`), so clients can rehydrate `lastOrder` from any known order ID.
+* `PATCH /api/orders/{order_id}` — cancels an order (`{"status": "cancelled"}`). Only `pending` orders can be cancelled (`409` otherwise). Ownership rules match `GET /api/orders/{order_id}`: `403` if not owned, except `security_glitch_user` (deliberate IDOR bypass). `404` if the order doesn't exist.
 
 ### 6.11 Order Success UX
 * After successful checkout, user sees order-success/tracking UI.
@@ -170,12 +174,15 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 | `GET /api/auth/profile` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/countries` | No | none | `200` list | - |
 | `GET /api/pizzas` | Yes | `Authorization`, `X-Country-Code` | `200` | `400`, `401` |
-| `POST /api/cart` | Yes | `Authorization`, `X-Country-Code` | `200` seeded cart | `400`, `401` |
+| `POST /api/cart` | Yes | `Authorization` | `200` seeded cart | `400`, `401` |
 | `GET /api/cart` | Yes | `Authorization`, `X-Country-Code` | `200` enriched cart | `401` |
 | `POST /api/store/market` | Yes | `Authorization` | `200` | `400`, `401` |
 | `POST /api/checkout` | Yes | `Authorization` | `200` order summary | `400`, `401`, `500` |
 | `GET /api/orders` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/orders/{id}` | Yes | `Authorization` | `200` | `401`, `403`, `404` |
+| `PUT /api/cart/items/{item_id}` | Yes | `Authorization` | `200` upserted cart | `401` |
+| `DELETE /api/cart/items/{item_id}` | Yes | `Authorization` | `200` updated cart | `401`, `404` |
+| `PATCH /api/orders/{order_id}` | Yes | `Authorization` | `200` order summary | `401`, `403`, `404`, `409` |
 | `GET /api/session` | Yes | `Authorization` | `200` | `401` |
 | `POST /api/session/reset` | Yes | `Authorization` | `200` | `401` |
 | `GET /api/debug/latency-spike` | No | none | `200` | - |
