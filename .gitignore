@@ -72,3 +72,6 @@ cypress/videos/
 
 # Release notes (kept locally, not tracked)
 /release-notes
+
+# Local git worktrees (subagent-driven-development isolation)
+/.worktrees
