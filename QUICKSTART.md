@@ -149,6 +149,8 @@ curl -X POST http://localhost:8000/api/cart \
 
 Both web and mobile checkout screens call `GET /api/cart` on load and populate the cart store from the backend response.
 
+Individual lines can also be adjusted without reseeding the whole cart: `PUT /api/cart/items/{item_id}` (create or replace one line) and `DELETE /api/cart/items/{item_id}` (remove one line). See `API_EXAMPLES.md` for full examples.
+
 ### API Integration Tests (Vitest — primary)
 
 ```bash

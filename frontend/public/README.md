@@ -109,6 +109,7 @@ When adding a pizza, the user can customize:
 - `POST /api/checkout`
 - `GET /api/orders`
 - `GET /api/orders/{order_id}`
+- `PATCH /api/orders/{order_id}` — cancel a pending order
 
 ---
 

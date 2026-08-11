@@ -81,7 +81,7 @@
 ## 📊 Estadísticas del Proyecto
 
 - **Plataformas**: 3 deployables (Backend FastAPI, Web React/Vite, Mobile Expo/RN) + suite de tests
-- **Endpoints API**: 15+ (`/api/auth`, `/api/countries`, `/api/pizzas`, `/api/checkout`, `/api/orders`, `/api/debug`, `/api/store/market`, `/api/cart`, `/api/session*`)
+- **Endpoints API**: 20+ (`/api/auth`, `/api/countries`, `/api/pizzas`, `/api/checkout`, `/api/orders` [incl. `PATCH` cancel], `/api/debug`, `/api/store/market`, `/api/cart` [incl. `PUT`/`DELETE /items/{item_id}`], `/api/session*`)
 - **Países soportados**: 5 (MX/US/CH/JP/SA)
 - **Usuarios de prueba**: 7 (standard, locked_out, problem, performance_glitch, error, a11y_glitch, security_glitch)
 - **Pantallas mobile**: 6 (Login, Catalog, PizzaBuilder, Checkout, OrderSuccess, Profile)
