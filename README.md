@@ -130,11 +130,13 @@ These headers are automatically sent by the **Web** and **Mobile** clients.
 
 ### Session Setup Endpoints
 
-Atomic state setup endpoints exist for external automation runners (Playwright/Appium/Gatling).
+Atomic state setup endpoints exist for external automation runners (Playwright/Appium/Gatling). The session (market + cart) is keyed by the current login's JWT `sid` claim, not by username — two concurrent logins for the same test user get isolated carts.
 
 - `POST /api/store/market`
-- `POST /api/cart` — seed cart items (pizza_id, quantity, size)
-- `GET /api/cart` — retrieve enriched cart (joined with pizza catalog: name, price, image, currency)
+- `POST /api/cart` — seed cart items (pizza_id, quantity, size); each line gets an `item_id` (server-generated unless you supply your own)
+- `GET /api/cart` — retrieve enriched cart (joined with pizza catalog: name, price, image, currency), including `item_id` per line
+- `PUT /api/cart/items/{item_id}` — create or replace one cart line (upsert)
+- `DELETE /api/cart/items/{item_id}` — remove one cart line
 - `POST /api/session/reset`
 - `GET /api/session`
 
@@ -156,6 +158,11 @@ Both web and mobile checkout screens automatically fetch `GET /api/cart` on load
 4. The frontend fetches `GET /api/cart` and hydrates the cart from backend state
 
 If the backend cart is empty or the request fails, the frontend falls back to the existing client-side cart.
+
+### Order Management
+
+- `GET /api/orders` / `GET /api/orders/{order_id}` — order history and detail (existing)
+- `PATCH /api/orders/{order_id}` — cancel a `pending` order (`{"status": "cancelled"}`). Returns `409` if the order isn't `pending`, `404` if it doesn't exist, `403` if it belongs to another user (except `security_glitch_user`, which bypasses ownership by design).
 
 ---
 
