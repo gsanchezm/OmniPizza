@@ -6,7 +6,9 @@
 
 **Architecture:** No storage engine change — everything builds on the existing `InMemoryDB` dict. Two independent backend tracks (cart-item endpoints in `test_api.py`/`database.py`, order cancellation in `checkout.py`/`database.py`) touch disjoint methods in shared files, so they run in parallel worktrees; a third, purely-textual track updates documentation from the fixed contract below, in parallel with both. A final sequential task merges all three and runs the full test suite against the integrated backend.
 
-**Tech Stack:** Python 3.11 / FastAPI / Pydantic 2 (backend), TypeScript / Vitest / axios (`tests/api.test.ts`), Schemathesis (`tests/test_contract.py`, schema-driven — needs no new code to cover new endpoints), curl (manual verification where the design spec deliberately excludes automated coverage).
+**Tech Stack:** Python 3.11 / FastAPI / Pydantic 2 (backend), TypeScript / Vitest / axios (`tests/api.test.ts`), Schemathesis (`tests/test_contract.py`, schema-driven — needs no new *test* code to cover new endpoints, but needed a small API-compatibility fix, see Task 2), curl (manual verification where the design spec deliberately excludes automated coverage).
+
+**Environment note (this machine only, not project policy):** the pinned `backend/requirements.txt` versions fail to build here (no prebuilt `pydantic-core` wheel for the installed Python 3.14, and building from source errors out). The existing `backend/venv` in the main repo checkout already has newer, working, unpinned versions installed and is known-good (verified: 46/46 `tests/api.test.ts`/`golden.test.ts` pass through it). Every worktree below reuses that one venv by absolute path — `C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe` — rather than creating a fresh one. Run backend commands as `<that path> main.py` from each worktree's own `backend/` directory; imports resolve correctly since Python uses the script's own directory, not the venv's location.
 
 **Design spec:** `docs/superpowers/specs/2026-08-11-cart-order-verbs-design.md` — read it first; this plan implements it exactly, including its two corrections (no persistence migration; cart-item endpoints get contract-test coverage only, not hand-written Vitest, per the existing `tests/README.md` boundary).
 
@@ -22,24 +24,29 @@
 
 ## Worktree / Track Assignment
 
-Use `superpowers:using-git-worktrees` to create three isolated worktrees before starting Tasks 1, 3, and 5 respectively (one worktree per track below). Tracks A and B touch `backend/models.py` and `backend/database.py` in disjoint classes/methods — expect a clean merge. Track C only reads this plan, not the code, so it has no file overlap with A or B at all.
+Use `superpowers:using-git-worktrees` to create three isolated worktrees before starting Tasks 1, 4, and 6 respectively (one worktree per track below, at the first task in each). Tracks A and B touch `backend/models.py` and `backend/database.py` in disjoint classes/methods — expect a clean merge. Track C only reads this plan, not the code, so it has no file overlap with A or B at all.
 
 | Track | Tasks | Suggested worktree | Depends on |
 |---|---|---|---|
-| A — Cart items | 1, 2 | `../omnipizza-cart-items` | nothing |
-| B — Order cancellation | 3, 4 | `../omnipizza-order-cancel` | nothing |
-| C — Documentation | 5, 6, 7 | `../omnipizza-verb-docs` | nothing (writes from this plan's fixed contract, not from A/B's code) |
-| Integration | 8 | main worktree | A + B + C all merged |
+| A — Cart items | 1, 2, 3 | `../omnipizza-cart-items` | nothing |
+| B — Order cancellation | 4, 5 | `../omnipizza-order-cancel` | nothing |
+| C — Documentation | 6, 7, 8 | `../omnipizza-verb-docs` | nothing (writes from this plan's fixed contract, not from A/B's code) |
+| Integration | 9 | main worktree | A + B + C all merged |
+
+Task 2 (Schemathesis 4.x compatibility + documenting every existing endpoint's real error responses) rides in Track A's worktree between Tasks 1 and 3, since Task 3 is the first task that needs `test_contract.py` working and needs `backend/response_docs.py` to exist — but Task 2 itself only touches `tests/test_contract.py`, `backend/response_docs.py`, and the `responses=` kwarg on existing endpoints across `auth.py`/`catalog.py`/`checkout.py`/`test_api.py`, none of which overlaps with Task 1's or Task 3's actual cart logic.
 
 ## File Structure
 
 | File | Responsibility |
 |---|---|
+| `backend/response_docs.py` | New (Task 2). Shared `AUTH_RESPONSES`/`COUNTRY_HEADER_RESPONSES` OpenAPI `responses=` fragments, imported by every existing authenticated endpoint so Schemathesis stops flagging their real error codes as undocumented. |
+| `backend/routers/auth.py`, `backend/routers/catalog.py` | Gain `responses=` on their existing endpoints (Task 2) — no behavior change, additive OpenAPI metadata only. |
 | `backend/models.py` | Pydantic schemas. Gains `item_id` on `CartItem`/`EnrichedCartItem`, `status` on `OrderSummary`, new `OrderStatusUpdate`. |
 | `backend/database.py` | `InMemoryDB`. Session methods (`_ensure_session`, `set_test_market`, `set_test_cart`, `reset_test_session`, `get_test_session`, `get_enriched_cart`) move from `username`- to `session_id`-keying; gains `upsert_cart_item`, `remove_cart_item`, `cancel_order`. |
-| `backend/test_api.py` | Atomic test-setup router. Existing handlers switch to `session_id`; gains `PUT`/`DELETE /api/cart/items/{item_id}`. |
-| `backend/routers/checkout.py` | Orders router. `checkout()`/`get_order()` expose `status`; gains `PATCH /api/orders/{order_id}`. |
+| `backend/test_api.py` | Atomic test-setup router. Existing handlers switch to `session_id` and gain `responses=` (Task 2); gains `PUT`/`DELETE /api/cart/items/{item_id}` (Task 3). |
+| `backend/routers/checkout.py` | Orders router. Gains `responses=` on its 3 existing endpoints (Task 2). `checkout()`/`get_order()` expose `status` (Task 4); gains `PATCH /api/orders/{order_id}` (Task 5); all three converge on one `_order_summary()` helper instead of three inline `OrderSummary(...)` constructions. |
 | `tests/api.test.ts` | Gains: cart session-isolation regression test, `OrderSummary.status` exposure test, 5 `PATCH /api/orders` cases. |
+| `tests/test_contract.py` | Schemathesis 3.x → 4.x API compatibility fix (Task 2) — this machine's environment can only install 4.x; unrelated to the new feature, discovered during pre-flight. |
 | `README.md`, `index.html`, `API_EXAMPLES.md` | Primary living API docs — full endpoint lists + examples. |
 | `CLAUDE.md`, `tests/README.md`, `PROJECT_SUMMARY.md`, `QUICKSTART.md`, `frontend/public/README.md` | Secondary living reference docs — smaller mentions/lists. |
 | `documents/Product_Requirement_Doc.md`, `ATOMIC_WEB_TESTING.md`, `ATOMIC_MOBILE_TESTING.md` | Spec table + atomic-testing guides — table rows / brief mentions. |
@@ -392,7 +399,331 @@ upcoming per-line PUT/DELETE endpoints."
 
 ---
 
-## Task 2: `PUT`/`DELETE /api/cart/items/{item_id}`
+## Task 2: Fix `tests/test_contract.py` for Schemathesis 4.x, and document every endpoint's real error responses
+
+**Why this task exists:** discovered during pre-flight, unrelated to the cart/order feature. `requirements.txt` pins `schemathesis==3.25.1`, but that version can't build on this machine (Python 3.14, no prebuilt `pydantic-core` wheel for the pinned `pydantic` it needs, and building from source fails). The version that *does* install cleanly here, 4.24.3, renamed `schemathesis.from_uri` and changed `schema.parametrize()` to take no filter arguments. Fixing just that (Steps 1-3) makes the file loadable and runnable again, but a full run then surfaces a second, deeper, also-pre-existing problem: FastAPI only auto-documents the response codes it can prove from type hints (the declared `response_model`'s success code, and `422` for request-body/query validation). Every `raise HTTPException(...)` inside a handler or a dependency (`require_country_header`'s `400`, `get_current_user`'s `401`, every endpoint's own `403`/`404`/`409`/`500`) is real, reachable app behavior that the auto-generated OpenAPI schema never mentions — so Schemathesis's `UndefinedStatusCode` check flags nearly every authenticated endpoint. Both problems were verified live (schemathesis 4.24.3 + pytest 9.1.1, installed into the borrowed venv) before writing this task: the rename fix alone still left 20 of 29 tests failing, all `UndefinedStatusCode` except one unrelated `KeyError` in a hand-written test and one Hypothesis-vs-stdlib `UnicodeEncodeError` (see Step 8's note).
+
+**Files:**
+- Modify: `tests/test_contract.py`
+- Create: `backend/response_docs.py`
+- Modify: `backend/routers/auth.py`, `backend/routers/catalog.py`, `backend/routers/checkout.py`, `backend/test_api.py` (add `responses=` to existing endpoints only — Task 3 and Task 5 add `responses=` to the two new endpoint families themselves, as part of writing them, not here)
+
+**Interfaces:**
+- Produces: `backend/response_docs.py` exports `AUTH_RESPONSES: dict` (`{401: {...}}`) and `COUNTRY_HEADER_RESPONSES: dict` (`{400: {...}}`), imported by every router that needs them.
+
+- [ ] **Step 1: Confirm it's currently broken**
+
+```bash
+cd tests
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pip install -q schemathesis pytest
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pytest test_contract.py -v -k test_api_contract
+```
+Expected: collection ERROR — `AttributeError: module 'schemathesis' has no attribute 'from_uri'`. (The backend doesn't need to be running yet for this step; the error happens before any request is made.)
+
+- [ ] **Step 2: Fix the schema loader**
+
+In `tests/test_contract.py`, replace:
+
+```python
+schema = schemathesis.from_uri(f"{API_BASE_URL}/api/openapi.json")
+```
+
+with:
+
+```python
+schema = schemathesis.openapi.from_url(f"{API_BASE_URL}/api/openapi.json")
+```
+
+- [ ] **Step 3: Fix the three filtered `parametrize()` calls**
+
+`schema.parametrize()` no longer accepts `endpoint=`/`method=` kwargs in 4.x — filter first with `schema.include(...)`, then call `.parametrize()` on the filtered schema. The unfiltered `@schema.parametrize()` on `test_api_contract` (no arguments) is correct already and needs no change.
+
+Replace:
+
+```python
+@schema.parametrize(endpoint="/api/auth/login", method="POST")
+```
+
+with:
+
+```python
+@schema.include(path="/api/auth/login", method="POST").parametrize()
+```
+
+Replace:
+
+```python
+@schema.parametrize(endpoint="/api/pizzas", method="GET")
+```
+
+with:
+
+```python
+@schema.include(path="/api/pizzas", method="GET").parametrize()
+```
+
+Replace:
+
+```python
+@schema.parametrize(endpoint="/api/checkout", method="POST")
+```
+
+with:
+
+```python
+@schema.include(path="/api/checkout", method="POST").parametrize()
+```
+
+- [ ] **Step 4: Confirm the rename alone isn't enough**
+
+```bash
+cd ../backend
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" main.py &
+```
+Wait a few seconds for startup, then:
+
+```bash
+cd ../tests
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pytest test_contract.py -v
+```
+Expected: most `test_api_contract[...]` cases FAIL with `UndefinedStatusCode` (e.g. "Received: 401, Documented: 200, 422"). This confirms the second problem before fixing it — Steps 5-9 fix it.
+
+- [ ] **Step 5: Create the shared response-doc fragments**
+
+Create `backend/response_docs.py`:
+
+```python
+"""Shared OpenAPI `responses=` fragments, so FastAPI's generated schema
+documents every status code a dependency or handler can actually return.
+Without these, Schemathesis's contract test (tests/test_contract.py)
+flags any code the schema doesn't list as undocumented, even though the
+app returns it by design — e.g. every authenticated endpoint returning
+401 for a missing or invalid token."""
+
+AUTH_RESPONSES = {401: {"description": "Missing or invalid Authorization bearer token"}}
+COUNTRY_HEADER_RESPONSES = {400: {"description": "Missing or invalid X-Country-Code header"}}
+```
+
+- [ ] **Step 6: Add `responses=` to `backend/routers/auth.py`'s 4 endpoints**
+
+Add the import:
+
+```python
+from response_docs import AUTH_RESPONSES
+```
+
+`login` has no auth dependency (you're logging in), so its codes are hand-written, not from `AUTH_RESPONSES`. Replace:
+
+```python
+@router.post("/api/auth/login", response_model=LoginResponse, tags=["Authentication"])
+```
+
+with:
+
+```python
+@router.post(
+    "/api/auth/login",
+    response_model=LoginResponse,
+    tags=["Authentication"],
+    responses={
+        401: {"description": "Invalid username or password"},
+        403: {"description": "User is locked out"},
+    },
+)
+```
+
+The other 3 endpoints in this file all depend on `get_current_user` only — same mechanical addition each time. Replace:
+
+```python
+@router.get("/api/auth/profile", response_model=UserProfile, tags=["Authentication"])
+```
+
+with:
+
+```python
+@router.get(
+    "/api/auth/profile",
+    response_model=UserProfile,
+    tags=["Authentication"],
+    responses={**AUTH_RESPONSES},
+)
+```
+
+Add `responses={**AUTH_RESPONSES},` as a new line inside the `@router.get("/api/users/me/profile", ...)` decorator's argument list (it already spans multiple lines — add the new line after `summary=...,`, before the closing `)`), and the same inside `@router.patch("/api/users/me/profile", ...)`. Both follow the exact pattern shown above — one new kwarg line, no other changes.
+
+- [ ] **Step 7: Add `responses=` to `backend/routers/catalog.py`'s `GET /api/pizzas`**
+
+Add the import:
+
+```python
+from response_docs import AUTH_RESPONSES, COUNTRY_HEADER_RESPONSES
+```
+
+Replace:
+
+```python
+@router.get("/api/pizzas", response_model=PizzaResponse, tags=["Pizzas"])
+```
+
+with:
+
+```python
+@router.get(
+    "/api/pizzas",
+    response_model=PizzaResponse,
+    tags=["Pizzas"],
+    responses={**AUTH_RESPONSES, **COUNTRY_HEADER_RESPONSES, 500: {"description": "Unexpected server error"}},
+)
+```
+
+(`GET /api/countries` has no auth dependency and no raised exceptions — leave it unchanged.)
+
+- [ ] **Step 8: Add `responses=` to `backend/routers/checkout.py`'s 3 existing endpoints**
+
+Add to the existing models/constants imports:
+
+```python
+from response_docs import AUTH_RESPONSES
+```
+
+Replace:
+
+```python
+@router.post("/api/checkout", response_model=OrderSummary, tags=["Orders"])
+```
+
+with:
+
+```python
+@router.post(
+    "/api/checkout",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        **AUTH_RESPONSES,
+        400: {"description": "Missing a market-required checkout field"},
+        500: {"description": "Random chaos error (error_user/security_glitch_user)"},
+    },
+)
+```
+
+Replace:
+
+```python
+@router.get("/api/orders", tags=["Orders"])
+```
+
+with:
+
+```python
+@router.get("/api/orders", tags=["Orders"], responses={**AUTH_RESPONSES})
+```
+
+Replace:
+
+```python
+@router.get("/api/orders/{order_id}", response_model=OrderSummary, tags=["Orders"])
+```
+
+with:
+
+```python
+@router.get(
+    "/api/orders/{order_id}",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        **AUTH_RESPONSES,
+        403: {"description": "Order belongs to another user"},
+        404: {"description": "Order not found"},
+    },
+)
+```
+
+- [ ] **Step 9: Add `responses=` to `backend/test_api.py`'s 6 existing endpoints**
+
+Add to the existing imports:
+
+```python
+from response_docs import AUTH_RESPONSES, COUNTRY_HEADER_RESPONSES
+```
+
+`set_market`, `seed_cart`, `seed_profile`, `reset_state` each depend on `get_current_user` only and each already have a multi-line decorator (from Task 1's docstring updates, for `set_market`/`seed_cart`) or their original one (`seed_profile`, `reset_state`) — add `responses={**AUTH_RESPONSES},` as a new line in each, same placement pattern as Step 6's multi-line examples (a new kwarg line before the closing `)`).
+
+Replace:
+
+```python
+@router.get("/api/cart", response_model=CartResponse, tags=["Cart"])
+```
+
+with:
+
+```python
+@router.get(
+    "/api/cart",
+    response_model=CartResponse,
+    tags=["Cart"],
+    responses={**AUTH_RESPONSES, **COUNTRY_HEADER_RESPONSES},
+)
+```
+
+Replace:
+
+```python
+@router.get("/api/session", response_model=TestSessionStateResponse, tags=["Session"])
+```
+
+with:
+
+```python
+@router.get(
+    "/api/session",
+    response_model=TestSessionStateResponse,
+    tags=["Session"],
+    responses={**AUTH_RESPONSES},
+)
+```
+
+- [ ] **Step 10: Restart the backend and run the full contract suite**
+
+```bash
+cd ../backend
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" main.py &
+```
+Wait a few seconds, then:
+
+```bash
+cd ../tests
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pytest test_contract.py -v
+```
+Expected: no `UndefinedStatusCode` failures. Two pre-existing, unrelated issues may still appear and are **not** this task's job to fix:
+- `test_locked_out_user_behavior` — a hand-written test asserting `response.json()["detail"]`, but this app's exception handler (`main.py`) reshapes errors to `{"error": ..., "status_code": ..., "timestamp": ...}`. Pre-existing mismatch, unrelated to schemathesis versioning or undocumented status codes.
+- An occasional `UnicodeEncodeError` from Python's own `http.client` when Hypothesis fuzzes unusual unicode into a header value — a test-tooling/stdlib interaction, not an app defect, and not guaranteed to reproduce on every run (depends on Hypothesis's random seed).
+
+If any `UndefinedStatusCode` failure remains, find which endpoint it's on and add the missing code to that endpoint's `responses=` (same pattern as Steps 6-9) before moving on — don't leave a real gap in the audit.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add tests/test_contract.py backend/response_docs.py backend/routers/auth.py backend/routers/catalog.py backend/routers/checkout.py backend/test_api.py
+git commit -m "fix: schemathesis 4.x compatibility + document real error responses
+
+schemathesis.from_uri and schema.parametrize(endpoint=, method=) were
+removed/changed in 4.x; both pre-existing breakages on this machine,
+unrelated to the cart/order feature, surfaced during this plan's
+pre-flight check.
+
+Also adds responses= to every existing endpoint so FastAPI's generated
+OpenAPI schema documents the error codes each one actually returns
+(401 from get_current_user, 400 from require_country_header, and each
+endpoint's own explicit HTTPException raises) — previously undocumented,
+which is what made most of test_contract.py's schema-driven checks fail
+regardless of the schemathesis version."
+```
+
+---
+
+## Task 3: `PUT`/`DELETE /api/cart/items/{item_id}`
 
 **Files:**
 - Modify: `backend/database.py` (add `upsert_cart_item`, `remove_cart_item`)
@@ -453,7 +784,10 @@ from models import (
     TestSessionStateResponse,
     UserProfileDetails,
 )
+from response_docs import AUTH_RESPONSES
 ```
+
+(`AUTH_RESPONSES` comes from Task 2, which runs before this one in this same worktree — `backend/response_docs.py` already exists and `test_api.py`'s other 6 endpoints already import from it by the time this task runs.)
 
 - [ ] **Step 3: Add the two endpoints**
 
@@ -472,6 +806,7 @@ Add after the existing `get_cart` handler (before `seed_profile`):
         "Does not read `X-Country-Code`; use `GET /api/cart` for enriched, "
         "priced items."
     ),
+    responses={**AUTH_RESPONSES},
 )
 async def put_cart_item(
     item_id: str,
@@ -490,6 +825,7 @@ async def put_cart_item(
     response_model=TestSessionStateResponse,
     tags=["Cart"],
     summary="Remove one cart line (atomic test setup)",
+    responses={**AUTH_RESPONSES, 404: {"description": "item_id not found in the caller's session"}},
 )
 async def delete_cart_item(
     item_id: str,
@@ -550,10 +886,11 @@ curl -s -o /dev/null -w "%{http_code}\n" -X DELETE http://localhost:8000/api/car
 
 - [ ] **Step 6: Run the Schemathesis contract test to confirm auto-coverage picked up the new routes**
 
+Requires Task 2's `test_contract.py` fix to already be in place (it should be — Task 2 runs before this one in Track A). Use the same borrowed venv as the rest of this plan (see the "Environment note" near the top):
+
 ```bash
 cd tests
-pip install -r requirements.txt   # first time only
-pytest test_contract.py -v -k test_api_contract
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pytest test_contract.py -v -k test_api_contract
 ```
 Expected: PASS, and the verbose output lists `PUT /api/cart/items/{item_id}` and `DELETE /api/cart/items/{item_id}` among the tested cases.
 
@@ -572,7 +909,7 @@ tests/README.md already documents for POST/GET /api/cart)."
 
 ---
 
-## Task 3: Expose `status` on `OrderSummary`
+## Task 4: Expose `status` on `OrderSummary`
 
 **Files:**
 - Modify: `backend/models.py:129-141` (`OrderSummary`)
@@ -712,17 +1049,21 @@ returned. Additive field, needed by the upcoming PATCH cancel endpoint."
 
 ---
 
-## Task 4: `PATCH /api/orders/{order_id}` — cancel a pending order
+## Task 5: `PATCH /api/orders/{order_id}` — cancel a pending order
 
 **Files:**
 - Modify: `backend/models.py` (new `OrderStatusUpdate`)
 - Modify: `backend/database.py` (new `cancel_order`)
-- Modify: `backend/routers/checkout.py` (import + new endpoint)
+- Modify: `backend/routers/checkout.py` (import + shared `_order_summary()` helper + new endpoint)
 - Test: `tests/api.test.ts`
 
 **Interfaces:**
-- Consumes: `OrderSummary` (Task 3), `db.get_order(order_id)` (existing).
-- Produces: `db.cancel_order(order_id) -> Optional[Dict[str, Any]]`, `OrderStatusUpdate.status: Literal["cancelled"]`.
+- Consumes: `OrderSummary` (Task 4), `db.get_order(order_id)` (existing).
+- Produces: `db.cancel_order(order_id) -> Optional[Dict[str, Any]]`, `OrderStatusUpdate.status: Literal["cancelled"]`, `_order_summary(order, currency_symbol) -> OrderSummary` (module-private helper in `checkout.py`).
+
+**Note on `responses=`:** Step 7 below documents this endpoint's error codes as a literal inline dict, not an import from `backend/response_docs.py`. That file is real (Task 2 creates it) but lives in Track A's worktree — this task runs in Track B's separate worktree, which won't have it until Task 9 merges both. A 4-line literal dict here is a smaller, more localized duplication than the 14-line `OrderSummary` block Step 5 just eliminated, and resolving it would mean either an awkward cross-worktree file dependency or deferring this endpoint's contract-test coverage to after the merge — not worth it for one dict.
+
+**Pre-flight note:** before this task existed, `checkout()` and `get_order()` each independently built an identical 14-line `OrderSummary(...)` construction — that's already a pre-existing duplication. This task's new endpoint would be a third copy of the same block, which is exactly the kind of thing a code reviewer flags on principle once something repeats three times. Step 5 below extracts a shared helper and refactors the two existing endpoints to use it *before* writing the new one, so all three converge on one implementation instead of three.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -868,18 +1209,73 @@ Add directly after `get_order`:
         return order
 ```
 
-- [ ] **Step 5: Add the PATCH endpoint to `checkout.py`**
+- [ ] **Step 5: Extract the shared `_order_summary()` helper and refactor the two existing endpoints to use it**
 
-Update the models import line at the top of `backend/routers/checkout.py`:
+In `backend/routers/checkout.py`, update the models import line:
 
 ```python
 from models import CheckoutRequest, OrderSummary, OrderStatusUpdate
 ```
 
-Add the endpoint after `get_order`:
+Add this module-level helper directly after the imports, before `router = APIRouter()`:
 
 ```python
-@router.patch("/api/orders/{order_id}", response_model=OrderSummary, tags=["Orders"])
+def _order_summary(order: dict, currency_symbol: str) -> OrderSummary:
+    return OrderSummary(
+        order_id=order["order_id"],
+        status=order["status"],
+        subtotal=order["subtotal"],
+        delivery_fee=order["delivery_fee"],
+        tax_rate=order["tax_rate"],
+        tip_percentage=order["tip_percentage"],
+        tax=order["tax"],
+        tip=order["tip"],
+        total=order["total"],
+        currency=order["currency"],
+        currency_symbol=currency_symbol,
+        items=order["items"],
+        timestamp=order["timestamp"]
+    )
+```
+
+Replace the `return OrderSummary(...)` at the end of `checkout()` (the one Task 4 added `status=order["status"]` to) with:
+
+```python
+    return _order_summary(order, country_config["currency_symbol"])
+```
+
+Replace the `return OrderSummary(...)` at the end of `get_order()` the same way:
+
+```python
+    return _order_summary(order, country_config["currency_symbol"])
+```
+
+Both functions already compute a local `country_config` before this return line — leave that computation as-is, only the final `return` changes.
+
+- [ ] **Step 6: Restart the backend and run the full suite to confirm the refactor changed no behavior**
+
+```bash
+cd tests
+npx vitest run
+```
+Expected: all PASS (in particular the Task 4 "OrderSummary status field" test and every `Golden:` case, since `_order_summary()` produces byte-identical output to the inline construction it replaced).
+
+- [ ] **Step 7: Add the PATCH endpoint, using the helper**
+
+Add after `get_order`:
+
+```python
+@router.patch(
+    "/api/orders/{order_id}",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        401: {"description": "Missing or invalid Authorization bearer token"},
+        403: {"description": "Order belongs to another user"},
+        404: {"description": "Order not found"},
+        409: {"description": "Order is not in pending status"},
+    },
+)
 async def cancel_order(
     order_id: str,
     request: OrderStatusUpdate,
@@ -913,24 +1309,12 @@ async def cancel_order(
     order = db.cancel_order(order_id)
     country_config = COUNTRY_CONFIG[CountryCode(order["country_code"])]
 
-    return OrderSummary(
-        order_id=order["order_id"],
-        status=order["status"],
-        subtotal=order["subtotal"],
-        delivery_fee=order["delivery_fee"],
-        tax_rate=order["tax_rate"],
-        tip_percentage=order["tip_percentage"],
-        tax=order["tax"],
-        tip=order["tip"],
-        total=order["total"],
-        currency=order["currency"],
-        currency_symbol=country_config["currency_symbol"],
-        items=order["items"],
-        timestamp=order["timestamp"]
-    )
+    return _order_summary(order, country_config["currency_symbol"])
 ```
 
-- [ ] **Step 6: Restart the backend and run the tests again**
+- [ ] **Step 8: Run the tests written in Step 1**
+
+They were written before any of Steps 3-7 existed (correct TDD order: test first). Steps 5-6 (helper extraction) landed between "write the test" and "make it pass" only because the helper needed to prove itself against the *existing* two endpoints first — that's a legitimate mid-flight refactor, not a reason to re-write the test. Run:
 
 ```bash
 cd tests
@@ -938,7 +1322,7 @@ npx vitest run api.test.ts -t "PATCH /api/orders"
 ```
 Expected: all 5 PASS.
 
-- [ ] **Step 7: Run the full suite**
+- [ ] **Step 9: Run the full suite**
 
 ```bash
 cd tests
@@ -946,7 +1330,7 @@ npx vitest run
 ```
 Expected: all PASS.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
 git add backend/models.py backend/database.py backend/routers/checkout.py tests/api.test.ts
@@ -955,12 +1339,14 @@ git commit -m "feat: add PATCH /api/orders/{order_id} to cancel pending orders
 Single supported transition (pending -> cancelled), 409 otherwise. Reuses
 the same ownership check as GET /api/orders/{order_id}, including the
 security_glitch_user IDOR bypass, so the chaos behavior stays consistent
-across both endpoints."
+across both endpoints. Extracts _order_summary() out of checkout()/
+get_order(), which independently duplicated the same 14-line construction
+before this — a third inline copy would have been one too many."
 ```
 
 ---
 
-## Task 5: Primary docs — `README.md`, `index.html`, `API_EXAMPLES.md`
+## Task 6: Primary docs — `README.md`, `index.html`, `API_EXAMPLES.md`
 
 **Files:**
 - Modify: `README.md` (`### Session Setup Endpoints` section, ~line 131-147)
@@ -1118,7 +1504,7 @@ the curl reference in API_EXAMPLES.md. Also corrects two now-stale
 
 ---
 
-## Task 6: Secondary reference docs
+## Task 7: Secondary reference docs
 
 **Files:**
 - Modify: `CLAUDE.md`
@@ -1194,7 +1580,7 @@ git commit -m "docs: sync secondary reference docs with the new verbs and sid ke
 
 ---
 
-## Task 7: PRD + atomic-testing guides
+## Task 8: PRD + atomic-testing guides
 
 **Files:**
 - Modify: `documents/Product_Requirement_Doc.md` (§6.7.1, §6.10, and the endpoint table)
@@ -1282,19 +1668,19 @@ Also corrects a pre-existing inaccuracy in the PRD endpoint table (POST
 
 ---
 
-## Task 8: Integration
+## Task 9: Integration
 
-**Files:** none new — merges Tasks 1-7 and verifies the result.
+**Files:** none new — merges Tasks 1-8 and verifies the result.
 
 - [ ] **Step 1: Merge all three tracks**
 
-Merge the Track A, B, and C branches/worktrees into the integration branch (or `main`, per whatever the executor's branch strategy is), resolving any conflicts in `backend/models.py`/`backend/database.py` — expected to be clean (Task 1/2 touch cart-related classes/methods, Task 3/4 touch order-related ones).
+Merge the Track A (Tasks 1, 2, 3), Track B (Tasks 4, 5), and Track C (Tasks 6, 7, 8) branches/worktrees into the integration branch (or `main`, per whatever the executor's branch strategy is), resolving any conflicts in `backend/models.py`/`backend/database.py` — expected to be clean (Tasks 1/3 touch cart-related classes/methods, Tasks 4/5 touch order-related ones). `backend/response_docs.py` (Task 2, Track A) and `backend/routers/checkout.py`'s literal `responses=` dict on the PATCH endpoint (Task 5, Track B — see that task's note on why it isn't an import) coexist without conflict; no action needed to reconcile them.
 
 - [ ] **Step 2: Restart the backend on the merged code**
 
 ```bash
 cd backend
-python main.py
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" main.py &
 ```
 
 - [ ] **Step 3: Run the full Vitest suite**
@@ -1303,19 +1689,19 @@ python main.py
 cd tests
 npx vitest run
 ```
-Expected: all PASS, including every test added in Tasks 1, 3, and 4.
+Expected: all PASS, including every test added in Tasks 1, 4, and 5.
 
 - [ ] **Step 4: Run the Schemathesis contract suite**
 
 ```bash
 cd tests
-pytest test_contract.py -v
+"C:\Users\gilsa\Documents\Repos\OmniPizza\backend\venv\Scripts\python.exe" -m pytest test_contract.py -v
 ```
-Expected: all PASS, including auto-generated cases against `PUT`/`DELETE /api/cart/items/{item_id}` and `PATCH /api/orders/{order_id}`.
+Expected: no `UndefinedStatusCode` failures anywhere, including the new `PUT`/`DELETE /api/cart/items/{item_id}` and `PATCH /api/orders/{order_id}` cases (their own `responses=` were written in Tasks 3 and 5). The two pre-existing, unrelated exceptions noted in Task 2 Step 10 (`test_locked_out_user_behavior`'s `detail`-vs-`error` key mismatch, and the occasional Hypothesis-unicode `UnicodeEncodeError`) are still not this plan's job to fix — confirm they're the *only* remaining failures, if any.
 
-- [ ] **Step 5: Replay Task 2's manual curl sequence against the merged build**
+- [ ] **Step 5: Replay Task 3's manual curl sequence against the merged build**
 
-Re-run all six commands from Task 2 Step 5. Confirms the cart-item endpoints still behave correctly after merging with Track B's changes to `backend/database.py`.
+Re-run all six commands from Task 3 Step 5. Confirms the cart-item endpoints still behave correctly after merging with Track B's changes to `backend/database.py`.
 
 - [ ] **Step 6: Spot-check the docs against final behavior**
 
