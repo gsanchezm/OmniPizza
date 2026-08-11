@@ -13,6 +13,7 @@ from models import (
     TestSessionStateResponse,
     UserProfileDetails,
 )
+from response_docs import AUTH_RESPONSES, COUNTRY_HEADER_RESPONSES, MALFORMED_BODY_RESPONSES
 
 logger = logging.getLogger("omnipizza.test_api")
 
@@ -41,6 +42,7 @@ def _session_response(username: str, session_id: str) -> TestSessionStateRespons
         "cart. To replace the cart, call `POST /api/cart` or "
         "`POST /api/session/reset` separately."
     ),
+    responses={**AUTH_RESPONSES, **MALFORMED_BODY_RESPONSES},
 )
 async def set_market(
     request: TestMarketRequest,
@@ -71,6 +73,7 @@ async def set_market(
         "(which does require `X-Country-Code`) to read the cart enriched with "
         "market-specific pricing/currency."
     ),
+    responses={**AUTH_RESPONSES, **MALFORMED_BODY_RESPONSES},
 )
 async def seed_cart(
     request: TestCartSetupRequest,
@@ -83,7 +86,12 @@ async def seed_cart(
     return _session_response(username, session_id)
 
 
-@router.get("/api/cart", response_model=CartResponse, tags=["Cart"])
+@router.get(
+    "/api/cart",
+    response_model=CartResponse,
+    tags=["Cart"],
+    responses={**AUTH_RESPONSES, **COUNTRY_HEADER_RESPONSES},
+)
 async def get_cart(
     current_user: dict = Depends(get_current_user),
     country_code: str = Depends(require_country_header),
@@ -120,6 +128,7 @@ async def get_cart(
         "not read `X-Country-Code`. Use `POST /api/session/reset` to clear the "
         "profile back to the empty default."
     ),
+    responses={**AUTH_RESPONSES, **MALFORMED_BODY_RESPONSES},
 )
 async def seed_profile(
     request: TestProfileSeedRequest,
@@ -141,6 +150,7 @@ async def seed_profile(
         "profile to the deterministic empty default. Use to undo any leaked "
         "state before a test."
     ),
+    responses={**AUTH_RESPONSES},
 )
 async def reset_state(
     current_user: dict = Depends(get_current_user),
@@ -153,7 +163,12 @@ async def reset_state(
     return _session_response(username, session_id)
 
 
-@router.get("/api/session", response_model=TestSessionStateResponse, tags=["Session"])
+@router.get(
+    "/api/session",
+    response_model=TestSessionStateResponse,
+    tags=["Session"],
+    responses={**AUTH_RESPONSES},
+)
 async def get_state(
     current_user: dict = Depends(get_current_user),
 ):

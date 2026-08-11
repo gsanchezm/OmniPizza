@@ -5,12 +5,22 @@ from models import CheckoutRequest, OrderSummary
 from constants import COUNTRY_CONFIG, CountryCode, SECURITY_GLITCH_LEAK_MESSAGES
 from middleware import apply_user_behavior, get_current_user
 from database import db
+from response_docs import AUTH_RESPONSES
 
 router = APIRouter()
 
 # ==================== CHECKOUT ENDPOINT ====================
 
-@router.post("/api/checkout", response_model=OrderSummary, tags=["Orders"])
+@router.post(
+    "/api/checkout",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        **AUTH_RESPONSES,
+        400: {"description": "Missing a market-required checkout field"},
+        500: {"description": "Random chaos error (error_user/security_glitch_user)"},
+    },
+)
 async def checkout(
     request: CheckoutRequest,
     current_user: dict = Depends(apply_user_behavior)
@@ -110,13 +120,22 @@ async def checkout(
         timestamp=order["timestamp"]
     )
 
-@router.get("/api/orders", tags=["Orders"])
+@router.get("/api/orders", tags=["Orders"], responses={**AUTH_RESPONSES})
 async def get_orders(current_user: dict = Depends(get_current_user)):
     """Get order history for current user"""
     orders = db.get_user_orders(current_user["username"])
     return {"orders": orders}
 
-@router.get("/api/orders/{order_id}", response_model=OrderSummary, tags=["Orders"])
+@router.get(
+    "/api/orders/{order_id}",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        **AUTH_RESPONSES,
+        403: {"description": "Order belongs to another user"},
+        404: {"description": "Order not found"},
+    },
+)
 async def get_order(
     order_id: str,
     current_user: dict = Depends(get_current_user)

@@ -5,6 +5,7 @@ from models import PizzaResponse, CountryInfo
 from constants import COUNTRY_CONFIG, CURRENCY_RATES, CountryCode
 from middleware import require_country_header, apply_user_behavior
 from database import db, convert_usd_amount
+from response_docs import AUTH_RESPONSES, COUNTRY_HEADER_RESPONSES
 
 router = APIRouter()
 
@@ -39,7 +40,12 @@ async def get_countries():
 
 # ==================== PIZZA CATALOG ENDPOINTS ====================
 
-@router.get("/api/pizzas", response_model=PizzaResponse, tags=["Pizzas"])
+@router.get(
+    "/api/pizzas",
+    response_model=PizzaResponse,
+    tags=["Pizzas"],
+    responses={**AUTH_RESPONSES, **COUNTRY_HEADER_RESPONSES, 500: {"description": "Unexpected server error"}},
+)
 async def get_pizzas(
     country_code: str = Depends(require_country_header),
     current_user: dict = Depends(apply_user_behavior),
