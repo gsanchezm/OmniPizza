@@ -380,12 +380,22 @@
 <span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span> <span class="tok-comment">(after login)</span></code></pre>
 
         <h3 style="margin-top: 3rem">Session Setup Routes</h3>
-        <pre class="code-window" data-title="backend/session-routes.http"><code><span class="tok-method">POST</span> <span class="tok-path">/api/store/market</span>
-<span class="tok-method">POST</span> <span class="tok-path">/api/cart</span>          <span class="tok-comment"># seed cart items</span>
-<span class="tok-method">GET</span>  <span class="tok-path">/api/cart</span>          <span class="tok-comment"># enriched cart (+ X-Country-Code)</span>
-<span class="tok-method">POST</span> <span class="tok-path">/api/session/reset</span>
-<span class="tok-method">GET</span>  <span class="tok-path">/api/session</span>
-<span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span> <span class="tok-comment">(reuse app token)</span></code></pre>
+        <pre class="code-window" data-title="backend/session-routes.http"><code><span class="tok-method">POST</span>   <span class="tok-path">/api/store/market</span>
+<span class="tok-method">POST</span>   <span class="tok-path">/api/cart</span>                     <span class="tok-comment"># seed cart items</span>
+<span class="tok-method">GET</span>    <span class="tok-path">/api/cart</span>                     <span class="tok-comment"># enriched cart (+ X-Country-Code)</span>
+<span class="tok-method">PUT</span>    <span class="tok-path">/api/cart/items/{item_id}</span>     <span class="tok-comment"># create/replace one line</span>
+<span class="tok-method">DELETE</span> <span class="tok-path">/api/cart/items/{item_id}</span>     <span class="tok-comment"># remove one line</span>
+<span class="tok-method">POST</span>   <span class="tok-path">/api/session/reset</span>
+<span class="tok-method">GET</span>    <span class="tok-path">/api/session</span>
+<span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span> <span class="tok-comment">(reuse app token)</span>
+<span class="tok-comment"># Session is keyed by the login's JWT "sid" claim — concurrent logins for</span>
+<span class="tok-comment"># the same username get isolated carts.</span></code></pre>
+
+        <h3 style="margin-top: 3rem">Order Management Routes</h3>
+        <pre class="code-window" data-title="backend/order-routes.http"><code><span class="tok-method">GET</span>   <span class="tok-path">/api/orders</span>
+<span class="tok-method">GET</span>   <span class="tok-path">/api/orders/{order_id}</span>
+<span class="tok-method">PATCH</span> <span class="tok-path">/api/orders/{order_id}</span>        <span class="tok-comment"># cancel: {"status": "cancelled"}, pending only</span>
+<span class="tok-key">Authorization</span>: <span class="tok-val">Bearer &lt;token&gt;</span></code></pre>
       </section>
 
       <section id="get-started">

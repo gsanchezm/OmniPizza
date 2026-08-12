@@ -284,6 +284,7 @@ Response (200):
 ```json
 {
   "order_id": "ORDER-A1B2C3D4",
+  "status": "pending",
   "subtotal": 12.99,
   "delivery_fee": 2.0,
   "tax_rate": 0.08,
@@ -299,6 +300,38 @@ Response (200):
 ```
 
 Errors: `404` if the order does not exist; `403` if it belongs to a different user.
+
+### Cancel Order
+
+Only `pending` orders can be cancelled.
+
+```bash
+curl -X PATCH http://localhost:8000/api/orders/ORDER-A1B2C3D4 \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "cancelled"}'
+```
+
+Response (200):
+```json
+{
+  "order_id": "ORDER-A1B2C3D4",
+  "status": "cancelled",
+  "subtotal": 12.99,
+  "delivery_fee": 2.0,
+  "tax_rate": 0.08,
+  "tip_percentage": 0.0,
+  "tax": 1.04,
+  "tip": 0.0,
+  "total": 16.03,
+  "currency": "USD",
+  "currency_symbol": "$",
+  "items": [...],
+  "timestamp": "2026-04-18T10:30:00"
+}
+```
+
+Errors: `404` if the order doesn't exist; `403` if it belongs to another user (except `security_glitch_user`); `409` if the order isn't `pending` (e.g. already cancelled).
 
 ## Session Setup Endpoints
 
@@ -347,7 +380,7 @@ curl -X POST http://localhost:8000/api/cart \
 
 > `size` is optional (defaults to `"small"`). Valid values: `small`, `medium`, `large`, `family`.
 
-> **The cart is per-user, not per-market.** `POST /api/cart` does **not** read `X-Country-Code` and does **not** change the session's market — use `POST /api/store/market` (above) to switch markets. `GET /api/cart` does require `X-Country-Code` because it enriches items with market-specific pricing/currency.
+> **The cart is per-login-session, not per-username or per-market.** `POST /api/cart` does **not** read `X-Country-Code` and does **not** change the session's market — use `POST /api/store/market` (above) to switch markets. `GET /api/cart` does require `X-Country-Code` because it enriches items with market-specific pricing/currency. Two concurrent logins for the same username get isolated carts.
 
 ### Get Cart (Enriched)
 
@@ -366,6 +399,7 @@ Response:
   "country_code": "US",
   "cart_items": [
     {
+      "item_id": "ITEM-A1B2C3D4",
       "pizza_id": "p02",
       "name": "Pepperoni",
       "size": "large",
@@ -382,6 +416,28 @@ Response:
 ```
 
 > Both web and mobile checkout screens automatically call this endpoint on load to hydrate the cart from backend state. This enables E2E test frameworks to inject cart state via `POST /api/cart` then navigate directly to checkout.
+
+### Update One Cart Line
+
+Upsert — creates the line if `item_id` is new, replaces it if it already exists.
+
+```bash
+curl -X PUT http://localhost:8000/api/cart/items/ITEM-A1B2C3D4 \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"pizza_id": "p01", "quantity": 3, "size": "large"}'
+```
+
+Response: same shape as `POST /api/store/market` / `POST /api/cart` (`TestSessionStateResponse` — the whole session, not just the one line).
+
+### Remove One Cart Line
+
+```bash
+curl -X DELETE http://localhost:8000/api/cart/items/ITEM-A1B2C3D4 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Errors: `404` if `item_id` isn't in the caller's session.
 
 ### Read Current Session State
 

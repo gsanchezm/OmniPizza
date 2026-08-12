@@ -79,6 +79,8 @@ can be reached atomically by ID instead of requiring a full `Pizza` object.
 | `resetSession` | `true` | Logs out, clears cart, navigates to Login (takes priority; other params are skipped this URL) |
 | `orderId` | order id | Fires `GET /api/orders/{id}` → `lastOrder`. **Processed on ANY route**, not only `order-success` |
 
+`PATCH /api/orders/{id}` (`{"status": "cancelled"}`) is also available for testing order-cancellation states, subject to the same ownership rules as the GET.
+
 ### Route-specific params
 
 | Route | Param | Effect |
@@ -211,6 +213,8 @@ adb shell am start -W -a android.intent.action.VIEW \
   -d "omnipizza://checkout?market=MX&lang=es&hydrateCart=true&accessToken=$TOKEN" \
   com.omnipizza.app
 ```
+
+Individual lines can be adjusted after seeding via `PUT`/`DELETE /api/cart/items/{item_id}`, without reseeding the whole cart — see `API_EXAMPLES.md`.
 
 ---
 

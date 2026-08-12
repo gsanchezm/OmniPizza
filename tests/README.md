@@ -50,7 +50,7 @@ API_BASE_URL=http://your-api-host:8000 pnpm test
 ### Atomic setup endpoints (external runners only)
 
 Atomic setup orchestration is implemented outside this repository (for example in Playwright/Appium/Gatling projects).
-This `tests/` package does not call the session setup endpoints directly (`/api/store/market`, `/api/cart`, `/api/session`, `/api/session/reset`).
+This `tests/` package does not call the session setup endpoints directly (`/api/store/market`, `/api/cart`, `/api/cart/items/{item_id}` [PUT/DELETE], `/api/session`, `/api/session/reset`) — with one exception: a regression test for cart session-isolation (see "What is Tested" below) exercises `POST`/`GET /api/cart` directly, since that's core business-logic correctness (two logins must not share a cart), not atomic-setup mechanics. Contract coverage for the setup endpoints themselves comes from the schema-driven Schemathesis test in `test_contract.py`.
 Those endpoints authenticate with the same bearer token returned by `/api/auth/login`.
 
 #### Cart hydration flow
@@ -73,6 +73,8 @@ External runners can inject cart state via the API and let the frontend pick it 
 | `E2E Flow: Standard User` | Full flow: Login → Get Pizzas → Checkout → Verify Order |
 | `Country Specific Logic` | US requires `zip_code`, CH requires `plz`, JP requires `prefectura`, SA requires `district`; validates rejection without and acceptance with valid fields |
 | `Debug Endpoints` | Latency spike, CPU load (fibonacci), and metrics endpoints |
+| `PATCH /api/orders/{order_id}` | Cancellation: pending→cancelled (200), already-cancelled (409), wrong owner (403, except `security_glitch_user` bypass), unknown id (404) |
+| `Cart session isolation` | Two concurrent logins for the same username get isolated carts (regression test for the session_id-keying fix) |
 
 ## Test Coverage
 
