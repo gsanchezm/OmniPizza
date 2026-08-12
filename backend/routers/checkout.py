@@ -97,6 +97,7 @@ async def checkout(
     
     return OrderSummary(
         order_id=order["order_id"],
+        status=order["status"],
         subtotal=order["subtotal"],
         delivery_fee=order["delivery_fee"],
         tax_rate=order["tax_rate"],
@@ -141,6 +142,7 @@ async def get_order(
 
     return OrderSummary(
         order_id=order["order_id"],
+        status=order["status"],
         subtotal=order["subtotal"],
         delivery_fee=order["delivery_fee"],
         tax_rate=order["tax_rate"],

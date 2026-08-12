@@ -527,3 +527,36 @@ describe('Atomic Profile Setup', () => {
     expect(got.data.notes).toBe('');
   });
 });
+
+// ---------------------------------------------------------------------------
+// OrderSummary status field
+// ---------------------------------------------------------------------------
+describe('OrderSummary status field', () => {
+  it('checkout and order-detail responses include status: "pending"', async () => {
+    const token = await login('standard_user');
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'MX'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+
+    const checkoutRes = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'MX',
+        items: [{ pizza_id: pizzaId, quantity: 1 }],
+        name: 'QA Bot',
+        address: '123 Test Street',
+        phone: '5551234567',
+        colonia: 'Roma Norte',
+      },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    );
+    expect(checkoutRes.status).toBe(200);
+    expect(checkoutRes.data.status).toBe('pending');
+
+    const orderRes = await axios.get(`${API_URL}/api/orders/${checkoutRes.data.order_id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(orderRes.data.status).toBe('pending');
+  });
+});

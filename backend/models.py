@@ -128,6 +128,7 @@ class CheckoutRequest(BaseModel):
 
 class OrderSummary(BaseModel):
     order_id: str
+    status: str
     subtotal: float
     delivery_fee: float
     tax_rate: float
