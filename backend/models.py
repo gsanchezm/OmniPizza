@@ -130,6 +130,7 @@ class CheckoutRequest(BaseModel):
 
 class OrderSummary(BaseModel):
     order_id: str
+    status: str
     subtotal: float
     delivery_fee: float
     tax_rate: float
@@ -141,6 +142,10 @@ class OrderSummary(BaseModel):
     currency_symbol: str
     items: List[Dict[str, Any]]
     timestamp: datetime
+
+class OrderStatusUpdate(BaseModel):
+    """PATCH /api/orders/{order_id} body — cancellation is the only supported transition."""
+    status: Literal["cancelled"]
 
 # Country Info Model
 class CountryInfo(BaseModel):

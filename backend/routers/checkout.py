@@ -1,11 +1,28 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
 import random
-from models import CheckoutRequest, OrderSummary
+from models import CheckoutRequest, OrderSummary, OrderStatusUpdate
 from constants import COUNTRY_CONFIG, CountryCode, SECURITY_GLITCH_LEAK_MESSAGES
 from middleware import apply_user_behavior, get_current_user
 from database import db
 from response_docs import AUTH_RESPONSES
+
+def _order_summary(order: dict, currency_symbol: str) -> OrderSummary:
+    return OrderSummary(
+        order_id=order["order_id"],
+        status=order["status"],
+        subtotal=order["subtotal"],
+        delivery_fee=order["delivery_fee"],
+        tax_rate=order["tax_rate"],
+        tip_percentage=order["tip_percentage"],
+        tax=order["tax"],
+        tip=order["tip"],
+        total=order["total"],
+        currency=order["currency"],
+        currency_symbol=currency_symbol,
+        items=order["items"],
+        timestamp=order["timestamp"]
+    )
 
 router = APIRouter()
 
@@ -104,21 +121,8 @@ async def checkout(
 
     order_id = db.create_order(order_data)
     order = db.get_order(order_id)
-    
-    return OrderSummary(
-        order_id=order["order_id"],
-        subtotal=order["subtotal"],
-        delivery_fee=order["delivery_fee"],
-        tax_rate=order["tax_rate"],
-        tip_percentage=order["tip_percentage"],
-        tax=order["tax"],
-        tip=order["tip"],
-        total=order["total"],
-        currency=order["currency"],
-        currency_symbol=country_config["currency_symbol"],
-        items=order["items"],
-        timestamp=order["timestamp"]
-    )
+
+    return _order_summary(order, country_config["currency_symbol"])
 
 @router.get("/api/orders", tags=["Orders"], responses={**AUTH_RESPONSES})
 async def get_orders(current_user: dict = Depends(get_current_user)):
@@ -158,17 +162,50 @@ async def get_order(
 
     country_config = COUNTRY_CONFIG[CountryCode(order["country_code"])]
 
-    return OrderSummary(
-        order_id=order["order_id"],
-        subtotal=order["subtotal"],
-        delivery_fee=order["delivery_fee"],
-        tax_rate=order["tax_rate"],
-        tip_percentage=order["tip_percentage"],
-        tax=order["tax"],
-        tip=order["tip"],
-        total=order["total"],
-        currency=order["currency"],
-        currency_symbol=country_config["currency_symbol"],
-        items=order["items"],
-        timestamp=order["timestamp"]
-    )
+    return _order_summary(order, country_config["currency_symbol"])
+
+@router.patch(
+    "/api/orders/{order_id}",
+    response_model=OrderSummary,
+    tags=["Orders"],
+    responses={
+        401: {"description": "Missing or invalid Authorization bearer token"},
+        403: {"description": "Order belongs to another user"},
+        404: {"description": "Order not found"},
+        409: {"description": "Order is not in pending status"},
+    },
+)
+async def cancel_order(
+    order_id: str,
+    request: OrderStatusUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Cancel an order. The only supported transition is pending -> cancelled;
+    any other current status returns 409. Ownership check mirrors
+    GET /api/orders/{order_id}, including the security_glitch_user IDOR
+    bypass — same deliberate chaos behavior, now on two endpoints instead
+    of one."""
+    order = db.get_order(order_id)
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order {order_id} not found"
+        )
+
+    if order["username"] != current_user["username"] and current_user["behavior"] != "security_glitch":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+
+    if order["status"] != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Order already {order['status']}, cannot cancel"
+        )
+
+    order = db.cancel_order(order_id)
+    country_config = COUNTRY_CONFIG[CountryCode(order["country_code"])]
+
+    return _order_summary(order, country_config["currency_symbol"])
