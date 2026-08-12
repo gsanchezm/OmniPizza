@@ -75,6 +75,7 @@ External runners can inject cart state via the API and let the frontend pick it 
 | `Debug Endpoints` | Latency spike, CPU load (fibonacci), and metrics endpoints |
 | `PATCH /api/orders/{order_id}` | Cancellation: pending→cancelled (200), already-cancelled (409), wrong owner (403, except `security_glitch_user` bypass), unknown id (404) |
 | `Cart session isolation` | Two concurrent logins for the same username get isolated carts (regression test for the session_id-keying fix) |
+| `OrderSummary status field` | Checkout and order-detail responses include `status: "pending"` on a fresh order |
 
 ## Test Coverage
 

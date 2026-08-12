@@ -5,7 +5,7 @@ from models import CheckoutRequest, OrderSummary, OrderStatusUpdate
 from constants import COUNTRY_CONFIG, CountryCode, SECURITY_GLITCH_LEAK_MESSAGES
 from middleware import apply_user_behavior, get_current_user
 from database import db
-from response_docs import AUTH_RESPONSES
+from response_docs import AUTH_RESPONSES, MALFORMED_BODY_RESPONSES
 
 def _order_summary(order: dict, currency_symbol: str) -> OrderSummary:
     return OrderSummary(
@@ -169,7 +169,8 @@ async def get_order(
     response_model=OrderSummary,
     tags=["Orders"],
     responses={
-        401: {"description": "Missing or invalid Authorization bearer token"},
+        **AUTH_RESPONSES,
+        **MALFORMED_BODY_RESPONSES,
         403: {"description": "Order belongs to another user"},
         404: {"description": "Order not found"},
         409: {"description": "Order is not in pending status"},

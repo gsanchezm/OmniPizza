@@ -170,11 +170,11 @@ class ErrorResponse(BaseModel):
 
 # Test Setup Models
 class TestMarketRequest(BaseModel):
-    """Set the active market on the per-user test session."""
+    """Set the active market on the caller's test session (keyed by login sid, not username)."""
     country_code: CountryCode = Field(..., description="MX | US | CH | JP | SA")
 
 class TestCartSetupRequest(BaseModel):
-    """Replace the per-user cart. Cart is per-user, not per-market — this
+    """Replace the caller's cart. Cart is scoped to the login session, not the market — this
     request body has no country_code field and `X-Country-Code` is ignored
     by `POST /api/cart`. Use `POST /api/store/market` to switch markets."""
     items: List[CartItem] = Field(..., min_items=1)

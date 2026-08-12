@@ -194,10 +194,12 @@ async def seed_profile(
     "/api/session/reset",
     response_model=TestSessionStateResponse,
     tags=["Session"],
-    summary="Reset the user's session AND profile to a clean slate",
+    summary="Reset the caller's session AND profile to a clean slate",
     description=(
-        "Clears the per-user session (market + cart) and resets the editable "
-        "profile to the deterministic empty default. Use to undo any leaked "
+        "Clears the caller's own session (market + cart) and resets the editable "
+        "profile to the deterministic empty default. Session and profile are both "
+        "keyed by the caller's login (sid), not by username, so this has no effect "
+        "on other concurrent logins for the same username. Use to undo any leaked "
         "state before a test."
     ),
     responses={**AUTH_RESPONSES},

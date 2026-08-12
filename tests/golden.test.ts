@@ -27,7 +27,7 @@ async function findOrderById(token: string, orderId: string): Promise<any> {
   return order;
 }
 
-// POST /api/cart seeds the per-user cart (auth only, no country header).
+// POST /api/cart seeds the caller's session cart (auth only, no country header).
 async function seedCart(token: string, items: unknown[]): Promise<void> {
   await axios.post(
     `${API_URL}/api/cart`,
