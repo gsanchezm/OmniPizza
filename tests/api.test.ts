@@ -560,3 +560,111 @@ describe('OrderSummary status field', () => {
     expect(orderRes.data.status).toBe('pending');
   });
 });
+
+// ---------------------------------------------------------------------------
+// PATCH /api/orders/{order_id} — cancellation
+// ---------------------------------------------------------------------------
+describe('PATCH /api/orders/{order_id}', () => {
+  async function placeOrder(token: string): Promise<string> {
+    const catalog = await axios.get(`${API_URL}/api/pizzas`, {
+      headers: authHeaders(token, 'MX'),
+    });
+    const pizzaId = catalog.data.pizzas[0].id;
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'MX',
+        items: [{ pizza_id: pizzaId, quantity: 1 }],
+        name: 'QA Bot',
+        address: '123 Test Street',
+        phone: '5551234567',
+        colonia: 'Roma Norte',
+      },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    );
+    return res.data.order_id;
+  }
+
+  it('cancels a pending order', async () => {
+    const token = await login('standard_user');
+    const orderId = await placeOrder(token);
+
+    const res = await axios.patch(
+      `${API_URL}/api/orders/${orderId}`,
+      { status: 'cancelled' },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    expect(res.status).toBe(200);
+    expect(res.data.status).toBe('cancelled');
+    expect(res.data.order_id).toBe(orderId);
+  });
+
+  it('rejects cancelling an already-cancelled order with 409', async () => {
+    const token = await login('standard_user');
+    const orderId = await placeOrder(token);
+    await axios.patch(
+      `${API_URL}/api/orders/${orderId}`,
+      { status: 'cancelled' },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    try {
+      await axios.patch(
+        `${API_URL}/api/orders/${orderId}`,
+        { status: 'cancelled' },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(409);
+    }
+  });
+
+  it("rejects cancelling another user's order with 403", async () => {
+    const ownerToken = await login('standard_user');
+    const orderId = await placeOrder(ownerToken);
+
+    const otherToken = await login('problem_user');
+    try {
+      await axios.patch(
+        `${API_URL}/api/orders/${orderId}`,
+        { status: 'cancelled' },
+        { headers: { Authorization: `Bearer ${otherToken}` } },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(403);
+    }
+  });
+
+  it('lets security_glitch_user cancel any order (deliberate IDOR bypass)', async () => {
+    const ownerToken = await login('standard_user');
+    const orderId = await placeOrder(ownerToken);
+
+    const glitchToken = await login('security_glitch_user');
+    const res = await axios.patch(
+      `${API_URL}/api/orders/${orderId}`,
+      { status: 'cancelled' },
+      { headers: { Authorization: `Bearer ${glitchToken}` } },
+    );
+    expect(res.status).toBe(200);
+    expect(res.data.status).toBe('cancelled');
+  });
+
+  it('returns 404 for an unknown order_id', async () => {
+    const token = await login('standard_user');
+    try {
+      await axios.patch(
+        `${API_URL}/api/orders/ORDER-DOESNOTEXIST`,
+        { status: 'cancelled' },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError;
+      expect(error.response?.status).toBe(404);
+    }
+  });
+});

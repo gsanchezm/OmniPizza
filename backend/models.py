@@ -141,6 +141,10 @@ class OrderSummary(BaseModel):
     items: List[Dict[str, Any]]
     timestamp: datetime
 
+class OrderStatusUpdate(BaseModel):
+    """PATCH /api/orders/{order_id} body — cancellation is the only supported transition."""
+    status: Literal["cancelled"]
+
 # Country Info Model
 class CountryInfo(BaseModel):
     code: str

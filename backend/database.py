@@ -159,6 +159,12 @@ class InMemoryDB:
     def get_order(self, order_id: str) -> Dict[str, Any]:
         return self.orders.get(order_id)
 
+    def cancel_order(self, order_id: str) -> Optional[Dict[str, Any]]:
+        order = self.orders.get(order_id)
+        if order is not None:
+            order["status"] = "cancelled"
+        return order
+
     def get_user_orders(self, username: str) -> List[Dict[str, Any]]:
         return [order for order in self.orders.values() if order.get("username") == username]
 
