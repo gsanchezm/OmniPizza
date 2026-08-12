@@ -319,6 +319,7 @@ describe('Golden: cart enrichment (GET /api/cart)', () => {
     expect(res.data.cart_items).toEqual([
       {
         pizza_id: 'p01',
+        item_id: expect.stringMatching(/^ITEM-[0-9A-F]{8}$/),
         name: 'Margarita',
         size: 'small',
         quantity: 2,
@@ -341,6 +342,7 @@ describe('Golden: cart enrichment (GET /api/cart)', () => {
     expect(res.data.cart_items).toEqual([
       {
         pizza_id: 'p01',
+        item_id: expect.stringMatching(/^ITEM-[0-9A-F]{8}$/),
         name: 'マルゲリータ',
         size: 'small',
         quantity: 2,
@@ -363,6 +365,7 @@ describe('Golden: cart enrichment (GET /api/cart)', () => {
     expect(res.data.cart_items).toEqual([
       {
         pizza_id: 'p01',
+        item_id: expect.stringMatching(/^ITEM-[0-9A-F]{8}$/),
         name: 'Margarita',
         size: 'small',
         quantity: 2,

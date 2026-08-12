@@ -11,12 +11,22 @@ from constants import TEST_USERS, SECURITY_GLITCH_PROFILE_FIELDS, SECURITY_GLITC
 from auth import authenticate_user, create_access_token
 from middleware import get_current_user
 from database import db
+from response_docs import AUTH_RESPONSES, MALFORMED_BODY_RESPONSES
 
 router = APIRouter()
 
 # ==================== AUTH ENDPOINTS ====================
 
-@router.post("/api/auth/login", response_model=LoginResponse, tags=["Authentication"])
+@router.post(
+    "/api/auth/login",
+    response_model=LoginResponse,
+    tags=["Authentication"],
+    responses={
+        **MALFORMED_BODY_RESPONSES,
+        401: {"description": "Invalid username or password"},
+        403: {"description": "User is locked out"},
+    },
+)
 async def login(request: LoginRequest):
     """
     Authenticate user with predefined test credentials
@@ -75,7 +85,12 @@ async def get_test_users():
         for user in TEST_USERS.values()
     ]
 
-@router.get("/api/auth/profile", response_model=UserProfile, tags=["Authentication"])
+@router.get(
+    "/api/auth/profile",
+    response_model=UserProfile,
+    tags=["Authentication"],
+    responses={**AUTH_RESPONSES},
+)
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile"""
     return UserProfile(
@@ -90,6 +105,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     response_model=UserProfileDetails,
     tags=["User Profile"],
     summary="Get the editable profile for the authenticated user",
+    responses={**AUTH_RESPONSES},
 )
 async def get_user_profile(current_user: dict = Depends(get_current_user)):
     profile = db.get_user_profile(current_user["session_id"], current_user["username"])
@@ -101,6 +117,7 @@ async def get_user_profile(current_user: dict = Depends(get_current_user)):
     response_model=UserProfileDetails,
     tags=["User Profile"],
     summary="Update the editable profile for the authenticated user",
+    responses={**AUTH_RESPONSES, **MALFORMED_BODY_RESPONSES},
 )
 async def patch_user_profile(
     patch: UserProfileUpdate,

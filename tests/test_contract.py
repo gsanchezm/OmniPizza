@@ -12,7 +12,7 @@ from hypothesis import settings, Phase
 API_BASE_URL = "http://localhost:8000"
 
 # Load the OpenAPI schema from the running API
-schema = schemathesis.from_uri(f"{API_BASE_URL}/api/openapi.json")
+schema = schemathesis.openapi.from_url(f"{API_BASE_URL}/api/openapi.json")
 
 
 @schema.parametrize()
@@ -38,7 +38,7 @@ def test_api_contract(case):
     case.validate_response(response)
 
 
-@schema.parametrize(endpoint="/api/auth/login", method="POST")
+@schema.include(path="/api/auth/login", method="POST").parametrize()
 def test_auth_login_contract(case):
     """Test authentication endpoint specifically"""
     response = case.call()
@@ -51,7 +51,7 @@ def test_auth_login_contract(case):
         assert "behavior" in response.json()
 
 
-@schema.parametrize(endpoint="/api/pizzas", method="GET")
+@schema.include(path="/api/pizzas", method="GET").parametrize()
 def test_pizzas_requires_country_header(case):
     """Test that pizzas endpoint requires X-Country-Code header"""
     # Test without header (should fail)
@@ -61,7 +61,7 @@ def test_pizzas_requires_country_header(case):
         assert response.status_code == 400
 
 
-@schema.parametrize(endpoint="/api/checkout", method="POST")
+@schema.include(path="/api/checkout", method="POST").parametrize()
 def test_checkout_validation(case):
     """Test checkout endpoint validations"""
     response = case.call()
