@@ -1,11 +1,12 @@
 import logging
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from typing import Optional
 
 from constants import CountryCode
 from database import db
 from middleware import get_current_user, require_country_header
 from models import (
+    CartItem,
     CartResponse,
     TestCartSetupRequest,
     TestMarketRequest,
@@ -113,6 +114,55 @@ async def get_cart(
         cart_items=enriched,
         updated_at=session["updated_at"],
     )
+
+
+@router.put(
+    "/api/cart/items/{item_id}",
+    response_model=TestSessionStateResponse,
+    tags=["Cart"],
+    summary="Create or replace one cart line (atomic test setup)",
+    description=(
+        "Upsert semantics: if `item_id` isn't in the caller's session yet, a "
+        "new line is created; if it is, that line is fully replaced. Any "
+        "`item_id` in the request body is ignored — the URL is authoritative. "
+        "Does not read `X-Country-Code`; use `GET /api/cart` for enriched, "
+        "priced items."
+    ),
+    responses={**AUTH_RESPONSES, **MALFORMED_BODY_RESPONSES},
+)
+async def put_cart_item(
+    item_id: str,
+    request: CartItem,
+    current_user: dict = Depends(get_current_user),
+):
+    username = current_user["username"]
+    session_id = current_user["session_id"]
+    db.upsert_cart_item(session_id, item_id, request.dict(exclude={"item_id"}))
+    logger.info("session_api.put_cart_item user=%s item_id=%s", username, item_id)
+    return _session_response(username, session_id)
+
+
+@router.delete(
+    "/api/cart/items/{item_id}",
+    response_model=TestSessionStateResponse,
+    tags=["Cart"],
+    summary="Remove one cart line (atomic test setup)",
+    responses={**AUTH_RESPONSES, 404: {"description": "item_id not found in the caller's session"}},
+)
+async def delete_cart_item(
+    item_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    username = current_user["username"]
+    session_id = current_user["session_id"]
+    removed = db.remove_cart_item(session_id, item_id)
+    if not removed:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Cart item {item_id} not found",
+        )
+    logger.info("session_api.delete_cart_item user=%s item_id=%s", username, item_id)
+    return _session_response(username, session_id)
 
 
 @router.post(

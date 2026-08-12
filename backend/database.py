@@ -176,6 +176,29 @@ class InMemoryDB:
         session["updated_at"] = datetime.utcnow()
         return session
 
+    def upsert_cart_item(self, session_id: str, item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
+        session = self._ensure_session(session_id)
+        stored = {**item, "item_id": item_id}
+        items = session["cart_items"]
+        for i, existing in enumerate(items):
+            if existing.get("item_id") == item_id:
+                items[i] = stored
+                break
+        else:
+            items.append(stored)
+        session["updated_at"] = datetime.utcnow()
+        return stored
+
+    def remove_cart_item(self, session_id: str, item_id: str) -> bool:
+        session = self._ensure_session(session_id)
+        items = session["cart_items"]
+        filtered = [i for i in items if i.get("item_id") != item_id]
+        if len(filtered) == len(items):
+            return False
+        session["cart_items"] = filtered
+        session["updated_at"] = datetime.utcnow()
+        return True
+
     def reset_test_session(self, session_id: str) -> None:
         self.sessions.pop(session_id, None)
 
