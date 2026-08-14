@@ -868,9 +868,10 @@ export default function Checkout() {
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="you@example.com"
                         value={paypalForm.email}
-                        onChange={(e) =>
-                          setPaypalForm((p) => ({ ...p, email: e.target.value }))
-                        }
+                        onChange={(e) => {
+                          setPaypalForm((p) => ({ ...p, email: e.target.value }));
+                          setPaypalConnected(false);
+                        }}
                       />
                     </div>
                     <div>
@@ -884,18 +885,23 @@ export default function Checkout() {
                         className="w-full px-4 py-4 rounded-xl bg-[#1F1F1F] border border-[#333] text-white focus:outline-none focus:border-[#FF5722] transition-colors"
                         placeholder="••••••••"
                         value={paypalForm.password}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setPaypalForm((p) => ({
                             ...p,
                             password: e.target.value,
-                          }))
-                        }
+                          }));
+                          setPaypalConnected(false);
+                        }}
                       />
                     </div>
                     <button
                       type="button"
                       data-testid="paypal-login-btn"
-                      onClick={() => setPaypalConnected(true)}
+                      onClick={() =>
+                        setPaypalConnected(
+                          !!paypalForm.email.trim() && !!paypalForm.password.trim()
+                        )
+                      }
                       className="w-full bg-[#0070BA] hover:bg-[#005EA6] text-white font-bold py-4 rounded-2xl transition-colors"
                     >
                       {t("paypalLoginBtn")}

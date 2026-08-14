@@ -1,15 +1,15 @@
 # Triage del reporte de bugs QA — 2026-08-13 (localización)
 
-> **Fuente:** 1 hallazgo pegado por el usuario en el chat (sin archivo `BUG_*.md`), reportado como
-> reproducido de forma idéntica en web desktop, web responsive y Android.
+> **Fuente:** 2 hallazgos pegados por el usuario en el chat (sin archivo `BUG_*.md`).
 
 ## Resumen
 
 | # | Área | Mercado | Veredicto |
 |---|------|---------|-----------|
 | 1 | Estado de tracking (Order Success) | SA/ar | **No es un bug de código nuevo — es la recurrencia de una decisión de copy de 2026-07-21/22 que nunca se resolvió por mérito, solo por logística de release. Decisión pendiente para el usuario (sección 6).** |
+| 2 | Sub-formulario de PayPal (Checkout) | Todos | **La diferencia de validación entre plataformas que reportan sí es real y confirmada por código (era 100% decorativa, no bloqueaba la orden en ninguna). El usuario eligió Opción B (sección 11) — web ahora valida igual que mobile. Aplicado.** |
 
-Sin cambios de código en este triage.
+Cambio de código: hallazgo 2, Opción B aplicada en `frontend/src/pages/Checkout.jsx` (ver sección 11).
 
 ---
 
@@ -123,3 +123,76 @@ veredicto binario.
 No hay un equipo externo de traducciones en este proyecto — OmniPizza es un sandbox de pruebas de
 un solo mantenedor (ver [[omnipizza-harness-is-ours]]: el harness de QA externo tampoco es de
 terceros, es del mismo usuario). La decisión de la sección 6 le corresponde al dueño del repo.
+
+---
+
+## Hallazgo 2 — Sub-formulario de PayPal en Checkout
+
+> **El reporte:** cobertura actual de su framework de automatización — el radio button de PayPal ya
+> tiene locators escritos, pero el sub-formulario completo (email, password, botón login,
+> confirmación) todavía no se ejercita en sus tests. Además: "el comportamiento difiere por
+> plataforma — mobile exige ambos campos no vacíos y resetea la confirmación al editar; web
+> confirma sin validar nada. Un caso negativo... pasaría en mobile pero fallaría en web si se
+> escribe como un solo escenario compartido."
+>
+> (Aclaración del usuario: "cero locators" se refería a la cobertura de su framework de
+> automatización, no a que la app carezca de `data-testid`/`testID` — no aplica como hallazgo
+> sobre la app y se omite del análisis.)
+
+### 8. El dato más importante primero: esto no bloquea la orden en ninguna plataforma
+
+Antes de diseñar cualquier escenario sobre esto: `paypalConnected` (web) / `paypalLoggedIn`
+(mobile) **no se referencian en ningún otro lugar del archivo** más que para pintar el badge
+"✓ Conectado" — no en el botón de enviar (`disabled={loading}` en ambas plataformas, sin más
+condiciones — `frontend/src/pages/Checkout.jsx:1101`,
+`frontend-mobile/src/screens/CheckoutScreen.tsx:850`), no en la validación de formulario
+(`frontend-mobile/src/features/checkout/useCases/validateCheckoutForm.ts` no menciona `paypal` en
+absoluto), y no en el payload (`payment_method` es el único dato de pago que sale hacia el
+backend). Los comentarios del propio código lo dicen explícitamente: `// PayPal demo form —
+client-side only, never sent to the backend.` (`Checkout.jsx:218`) y `// Emulated (demo) PayPal
+login — client-side only, never placed on the order.` (`CheckoutScreen.tsx:157`). Se puede
+seleccionar PayPal, no tocar el sub-formulario en absoluto, y completar la orden igual — en las
+dos plataformas. Cualquier escenario tipo "no se puede ordenar sin iniciar sesión en PayPal"
+sería incorrecto en ambas.
+
+### 9. Diferencia de validación entre plataformas — confirmada, es real
+
+| | Web (`Checkout.jsx`) | Mobile (`CheckoutScreen.tsx`) |
+|---|---|---|
+| Click "Log in" con campos vacíos | `onClick={() => setPaypalConnected(true)}` (898) — **confirma sin validar nada** | `onPress={() => setPaypalLoggedIn(!!paypalEmail.trim() && !!paypalPassword.trim())}` (561) — **exige ambos campos no vacíos (trimmed)** |
+| Editar un campo tras confirmar | `onChange` solo actualiza `paypalForm` (871-873, 887-892) — **no resetea la confirmación** | `onChange` llama `setPaypalLoggedIn(false)` en ambos campos (536-537, 552-553) — **resetea la confirmación** |
+
+Exactamente como describe el reporte. Un escenario negativo compartido (campos vacíos → sin
+confirmación) pasaría en mobile y fallaría en web — el reporte tiene razón en no escribirlo como
+un único escenario cross-platform.
+
+### 10. Por qué esto no se corrigió aquí sin preguntar
+
+Ambos archivos etiquetan explícitamente este sub-formulario como una simulación ("demo form" /
+"Emulated (demo) PayPal login") — no representa una integración real de PayPal ni gatea nada. En
+un sandbox deliberadamente diseñado para tener comportamientos "chaos" con propósito (personas
+como `problem_user`/`error_user`/`a11y_glitch_user`), no se puede asumir desde el código que esta
+asimetría sea deriva accidental y no una variación sembrada a propósito — y "cuál plataforma es
+más correcta" no es una pregunta con respuesta objetiva cuando el control no simula nada real.
+Alinear el comportamiento además invertiría la convención [[omnipizza-web-is-base]] (aquí sería
+"mobile" el que dicta el comportamiento de "web"), la misma tensión ya señalada en el Hallazgo 1 —
+y esa convención ya se invirtió una vez por conveniencia (sección 4) y generó un reporte repetido
+tres semanas después. No se repite ese patrón sin que el usuario lo decida explícitamente esta vez.
+
+### 11. Decisión del usuario: Opción B, aplicada
+
+- ~~Opción A — dejar como está.~~
+- **Opción B — alinear web a mobile. APLICADA.** `frontend/src/pages/Checkout.jsx`:
+  - El botón `paypal-login-btn` ahora valida `!!paypalForm.email.trim() && !!paypalForm.password.trim()`
+    antes de confirmar (antes: `setPaypalConnected(true)` incondicional).
+  - Los `onChange` de `paypal-email` y `paypal-password` ahora también llaman
+    `setPaypalConnected(false)`, reseteando la confirmación al editar cualquiera de los dos campos
+    — igual que mobile.
+  - Sin cambios en `frontend-mobile` (ya tenía el comportamiento objetivo) ni en el payload/backend
+    (el campo sigue siendo puramente decorativo, nunca se envía). No requiere release mobile.
+  - Verificado con `npx vite build` (dentro de `frontend/`): build limpio, sin errores.
+
+### 12. Higiene
+
+Solo lectura de código para el diagnóstico; el fix de la sección 11 es una edición mínima y
+localizada (3 handlers en el mismo componente), sin tocar estado de sesión/carrito compartido.
