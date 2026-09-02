@@ -29,6 +29,7 @@ services:
       && pnpm install --frozen-lockfile
       && export VITE_APP_RELEASE=$RENDER_GIT_COMMIT
       && pnpm build
+      && printf '{"commit":"%s","built_at":"%s"}' "$RENDER_GIT_COMMIT" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/version.json
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL

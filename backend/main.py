@@ -10,6 +10,7 @@ from routers.auth import router as auth_router
 from routers.catalog import router as catalog_router
 from routers.checkout import router as checkout_router
 from routers.debug_chaos import router as debug_chaos_router
+from routers.meta import router as meta_router
 
 # Prometheus metrics
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
@@ -49,6 +50,7 @@ app.include_router(auth_router)
 app.include_router(catalog_router)
 app.include_router(checkout_router)
 app.include_router(debug_chaos_router)
+app.include_router(meta_router)
 
 # Root endpoint
 @app.get("/")
