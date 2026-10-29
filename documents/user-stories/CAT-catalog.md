@@ -41,7 +41,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Given an `X-Language` value outside that set (for example `xx`), then the English text is returned.
 3. Given the catalog, each of the 12 pizzas has a non-empty name and description in all six languages.
 
-**Evidence**: `backend/routers/catalog.py:43-79`, `backend/database.py:43-48` (default language table and `_resolve_language`), `backend/database.py:51-54` (`_translate_field`), `backend/database.py:268-307` (`get_catalog`, translation at 292-293), `backend/constants.py:154-335` (localized dicts). Live (HEAD): `xx` returns "Margherita" for SA; all 12 pizzas have six languages (python check on `PIZZA_CATALOG`).
+**Evidence**: `backend/routers/catalog.py:43-79`, `backend/database.py:54-59` (default language table and `_resolve_language`), `backend/database.py:62-65` (`_translate_field`), `backend/database.py:279-318` (`get_catalog`, translation at 303-304), `backend/constants.py:154-335` (localized dicts). Live (HEAD): `xx` returns "Margherita" for SA; all 12 pizzas have six languages (python check on `PIZZA_CATALOG`).
 **Notes**: When `X-Language` is omitted, this endpoint returns English even for MX, JP and SA; see US-MKT-004-API (Found). The translation helpers moved into `database.py` in 4a15f41 (2026-07-12).
 
 ---
@@ -340,7 +340,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Given any other user, prices are converted from USD as normal.
 3. Given `problem_user`, `GET /api/cart` also returns price 0 and the broken image for each line (code read only; not run live).
 
-**Evidence**: `backend/database.py:296-300` (catalog: test at 296, price at 297, image at 298, other users converted at 299-300); `backend/database.py:244-246` (cart branch); `backend/constants.py:34-39` (user description). Live (HEAD): MX `p01` returns price 0.0 with the broken URL.
+**Evidence**: `backend/database.py:307-311` (catalog: test at 307, price at 308, image at 309, other users converted at 310-311); `backend/database.py:255-257` (cart branch); `backend/constants.py:34-39` (user description). Live (HEAD): MX `p01` returns price 0.0 with the broken URL.
 **Notes**: On web the broken URL is hidden behind the generic photo (`ProductCard.jsx:28`), so the visible symptom is $0 with a stock picture. On mobile it is the placeholder tile (`MobileProductCard.tsx:20-33`).
 
 ---

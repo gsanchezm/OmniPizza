@@ -35,12 +35,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-05-22 · Commit: ae064c6
 
 **Acceptance criteria**
-1. Given a login, when `GET /api/users/me/profile` is called, then the response carries `username`, `premium` (true by default), `full_name`, `phone`, `address`, `notes` and `birthday` (`backend/routers/auth.py:103-112`; `backend/database.py:93-106`; verified defaults).
-2. Given a `PATCH` with some fields, when it is applied, then only the sent fields change and a `null` value is ignored rather than clearing the field (`backend/routers/auth.py:115-131`; `backend/database.py:111-117`; verified: a `null` `full_name` left `Ana` in place).
+1. Given a login, when `GET /api/users/me/profile` is called, then the response carries `username`, `premium` (true by default), `full_name`, `phone`, `address`, `notes` and `birthday` (`backend/routers/auth.py:103-112`; `backend/database.py:104-117`; verified defaults).
+2. Given a `PATCH` with some fields, when it is applied, then only the sent fields change and a `null` value is ignored rather than clearing the field (`backend/routers/auth.py:115-131`; `backend/database.py:122-128`; verified: a `null` `full_name` left `Ana` in place).
 3. Given a `PATCH` with `premium`, when it is applied, then the request is accepted (200) and `premium` stays `true`, because `UserProfileUpdate` has no `premium` field (`backend/models.py:34-40`; verified).
 4. Given a non-string value such as `full_name: 12345`, when it is patched, then the response is 422 (verified).
 
-**Evidence**: `backend/routers/auth.py:103-131`, `backend/models.py:23-40`, `backend/database.py:93-117`
+**Evidence**: `backend/routers/auth.py:103-131`, `backend/models.py:23-40`, `backend/database.py:104-128`
 **Notes**: Drift: the brief lists `premium` among the PATCH fields, but the code does not accept it on PATCH. `premium` can be seeded through `POST /api/profile` (`backend/models.py:200`; US-PRF-006-API). Profile state is keyed by the login's `sid` (US-AUTH-004-API).
 
 ---
@@ -168,10 +168,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: ebeacd3
 
 **Acceptance criteria**
-1. Given checkout mounts, when the form initialises, then name, address and phone are taken from the profile store (`frontend/src/pages/Checkout.jsx:190-196`).
-2. Given checkout's pre-fill, when it runs, then notes and birthday are not used; checkout pre-fills three fields only (`frontend/src/pages/Checkout.jsx:190-196`).
+1. Given checkout mounts, when the form initialises, then name, address and phone are taken from the profile store (`frontend/src/pages/Checkout.jsx:185-191`).
+2. Given checkout's pre-fill, when it runs, then notes and birthday are not used; checkout pre-fills three fields only (`frontend/src/pages/Checkout.jsx:185-191`).
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:190-196`, `frontend/src/pages/Profile.jsx:19`, `frontend/src/store.js:238-251`
+**Evidence**: `frontend/src/pages/Checkout.jsx:185-191`, `frontend/src/pages/Profile.jsx:19`, `frontend/src/store.js:238-251`
 **Notes**: The store is filled only by the Profile page's `loadProfile` (`frontend/src/pages/Profile.jsx:19`) and by the local cache `omnipizza-profile` (`frontend/src/store.js:249`). So a profile seeded through the API and then opened directly in checkout does not pre-fill until the Profile page has loaded it, and logout clears the cache (US-PRF-008-WEB). Mobile's in-memory profile survives logout (US-PRF-008-MOB).
 
 ---
@@ -184,10 +184,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: ebeacd3
 
 **Acceptance criteria**
-1. Given checkout mounts, when the form initialises, then name, address and phone are read from the in-memory profile (`frontend-mobile/src/screens/CheckoutScreen.tsx:71,140-142`).
+1. Given checkout mounts, when the form initialises, then name, address and phone are read from the in-memory profile (`frontend-mobile/src/screens/CheckoutScreen.tsx:66,135-137`).
 2. Given checkout, when it runs, then it does not call `loadProfile`; only the Profile screen does (`frontend-mobile/src/screens/ProfileScreen.tsx:65`).
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:71,140-142`, `frontend-mobile/src/screens/ProfileScreen.tsx:65`, `frontend-mobile/src/store/useAppStore.ts:96,120-130`
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:66,135-137`, `frontend-mobile/src/screens/ProfileScreen.tsx:65`, `frontend-mobile/src/store/useAppStore.ts:96,120-130`
 **Notes**: The in-memory profile is refreshed only when the Profile screen mounts, and it survives logout (US-PRF-008-MOB). Code read; the pre-fill was not run on a device.
 
 ---
@@ -251,12 +251,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-05-30 · Commit: 124b268
 
 **Acceptance criteria**
-1. Given `POST /api/profile` with some fields, when it runs, then the caller's profile is replaced by the defaults with those fields overlaid; unsent fields revert to their defaults (`backend/test_api.py:168-190`; `backend/database.py:127-137`; verified: `full_name` set, `premium` false, other fields empty).
+1. Given `POST /api/profile` with some fields, when it runs, then the caller's profile is replaced by the defaults with those fields overlaid; unsent fields revert to their defaults (`backend/test_api.py:168-190`; `backend/database.py:138-148`; verified: `full_name` set, `premium` false, other fields empty).
 2. Given `POST /api/session/reset`, when it runs, then the caller's market becomes MX, the cart is emptied and the profile returns to defaults (`backend/test_api.py:193-215`; verified).
 3. Neither endpoint reads `X-Country-Code` (`backend/test_api.py:168-215`; the handlers depend only on `get_current_user`).
 
-**Evidence**: `backend/test_api.py:168-215`, `backend/database.py:119-137,208-209`, `backend/models.py:189-200`
-**Notes**: The reset sets the market to MX, the default for a fresh session (`backend/database.py:143`), not US. The login form's US default applies only at the next sign-in (`frontend/src/pages/Login.jsx:80`).
+**Evidence**: `backend/test_api.py:168-215`, `backend/database.py:130-148,219-220`, `backend/models.py:189-200`
+**Notes**: The reset sets the market to MX, the default for a fresh session (`backend/database.py:154`), not US. The login form's US default applies only at the next sign-in (`frontend/src/pages/Login.jsx:80`).
 
 ---
 
@@ -314,7 +314,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Expected: logout clears the profile held for the previous user. Current: `logout` sets token, cart items, last order, country info and language, and leaves `profile` untouched (`frontend-mobile/src/store/useAppStore.ts:120-130`; default profile at `useAppStore.ts:96`).
-2. Consequence: after logout and a login as another user, checkout can pre-fill name, address and phone from the previous user's in-memory profile until the Profile screen is opened (`frontend-mobile/src/screens/CheckoutScreen.tsx:140-142`).
+2. Consequence: after logout and a login as another user, checkout can pre-fill name, address and phone from the previous user's in-memory profile until the Profile screen is opened (`frontend-mobile/src/screens/CheckoutScreen.tsx:135-137`).
 
-**Evidence**: `frontend-mobile/src/store/useAppStore.ts:96,120-130`, `frontend-mobile/src/screens/CheckoutScreen.tsx:140-142`
+**Evidence**: `frontend-mobile/src/store/useAppStore.ts:96,120-130`, `frontend-mobile/src/screens/CheckoutScreen.tsx:135-137`
 **Notes**: Code read only; not reproduced on a device or in a test run.

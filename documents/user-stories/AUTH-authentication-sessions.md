@@ -210,11 +210,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Given two logins of `standard_user`, when each token is decoded, then each carries its own `sid` (`backend/routers/auth.py:60-63`; verified: the two sids differ).
-2. Given session A saves a profile name, when session B reads its profile, then the name is empty (`backend/database.py:93-117`; verified).
-3. Given session A sets market JP and a cart, when session B reads its session, then B is still MX with an empty cart (`backend/database.py:139-148,170-183`; verified).
+2. Given session A saves a profile name, when session B reads its profile, then the name is empty (`backend/database.py:104-128`; verified).
+3. Given session A sets market JP and a cart, when session B reads its session, then B is still MX with an empty cart (`backend/database.py:150-159,181-194`; verified).
 4. `POST /api/store/market` changes only the caller's market and leaves the cart as it was (`backend/test_api.py:34-56`). The clients clear the cart on market change (`frontend/src/store.js:120`; `frontend-mobile/src/store/useAppStore.ts:101-106`), so server and client disagree on this.
 
-**Evidence**: `backend/routers/auth.py:52-63`, `backend/database.py:93-117,139-148,170-183`, `backend/test_api.py:34-56`
+**Evidence**: `backend/routers/auth.py:52-63`, `backend/database.py:104-128,150-159,181-194`, `backend/test_api.py:34-56`
 **Notes**: The profile was keyed by `sid` in 82d1b74 (2026-07-17); cart and market were keyed by `sid` in b407760 (2026-08-11). Verified in-process with a scratch script; no server started.
 
 ---

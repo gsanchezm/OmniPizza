@@ -52,7 +52,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 5. Confirm sends size, toppings and unit price to the page, which adds the line.
 
 **Evidence**: `frontend/src/constants/pizza.js:1-22` (sizes), `frontend/src/constants/pizza.js:24-164` (23 toppings in four groups), `frontend/src/utils/pizzaPricing.js:9-21` (`usdToLocalCeil`, `computeUnitPrice`), `frontend/src/components/PizzaCustomizerModal.jsx:68-69,105-118,128-135,195-216,218-264,278,283-290`, `frontend/src/pages/Catalog.jsx:52-67`.
-**Notes**: The backend recomputes the order total at checkout with the same rule (`backend/database.py:309-349`). Live: MX `p01` medium with two toppings gives subtotal 316.97 (227.97 + 53 + 2 x 18). Edit mode reuses this modal (US-CART-013-WEB). 13 of the 23 topping images are `placehold.co` URLs (`frontend/src/constants/pizza.js`).
+**Notes**: The backend recomputes the order total at checkout with the same rule (`backend/database.py:320-360`). Live: MX `p01` medium with two toppings gives subtotal 316.97 (227.97 + 53 + 2 x 18). Edit mode reuses this modal (US-CART-013-WEB). 13 of the 23 topping images are `placehold.co` URLs (`frontend/src/constants/pizza.js`).
 
 ---
 
@@ -71,7 +71,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 4. Toppings are capped at 10.
 5. Confirm adds the configured item, goes back, and shows the added-to-cart toast.
 
-**Evidence**: `frontend-mobile/src/screens/CatalogScreen.tsx:31-36`; `frontend-mobile/src/components/MobileProductCard.tsx:44-50`; `frontend-mobile/src/constants/pizza.ts:1-6` (sizes); `frontend-mobile/src/pizzaOptions.ts:3-51` (four topping groups); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:24-42` (`computeUnitPrice`), `:101-108` (size and toppings state), `:117-124` (cap), `:126-143` (confirm; add call at 140, toast at 141), `:365-370` (`view-estimated-total`).
+**Evidence**: `frontend-mobile/src/screens/CatalogScreen.tsx:31-36`; `frontend-mobile/src/components/MobileProductCard.tsx:44-50`; `frontend-mobile/src/constants/pizza.ts:1-6` (sizes); `frontend-mobile/src/pizzaOptions.ts:3-51` (four topping groups); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:25-43` (`computeUnitPrice`), `:96-103` (size and toppings state), `:112-119` (cap), `:121-138` (confirm; add call at 135, toast at 136), `:360-365` (`view-estimated-total`).
 **Notes**: `computeUnitPrice` is duplicated in the screen rather than shared with the web utility; the formula is the same. Mobile has no image for 13 of 23 toppings (text only); `pizzaOptions.ts` has 10 `require(` images.
 
 ---
@@ -106,7 +106,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. The signature is built by one shared helper for add, hydration and edit.
 3. A different configuration creates a new line with its own unit price.
 
-**Evidence**: `frontend-mobile/src/store/useAppStore.ts:134-167` (`addConfiguredItem`; merge at 139-148); `frontend-mobile/src/features/checkout/useCases/applyCartItemEdit.ts:4-6` (`cartItemSignature`); `frontend-mobile/src/screens/CheckoutScreen.tsx:117` (hydration uses the helper).
+**Evidence**: `frontend-mobile/src/store/useAppStore.ts:134-167` (`addConfiguredItem`; merge at 139-148); `frontend-mobile/src/features/checkout/useCases/applyCartItemEdit.ts:4-6` (`cartItemSignature`); `frontend-mobile/src/screens/CheckoutScreen.tsx:112` (hydration uses the helper).
 
 ---
 
@@ -124,7 +124,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. The endpoint does not read `X-Country-Code`.
 4. Quantity is limited to 1-10 by the cart model. Live: a `PUT` with quantity 11 returns 422, using the same model.
 
-**Evidence**: `backend/test_api.py:59-87` (`seed_cart`; docstring 63-76 states that the header is not read), `backend/database.py:176-183` (`set_test_cart`), `backend/models.py:60-65` (`CartItem`; quantity at line 62).
+**Evidence**: `backend/test_api.py:59-87` (`seed_cart`; docstring 63-76 states that the header is not read), `backend/database.py:187-194` (`set_test_cart`), `backend/models.py:60-65` (`CartItem`; quantity at line 62).
 **Notes**: Live (HEAD): `POST /api/cart` returned the line with a generated `ITEM-...` id.
 
 ---
@@ -144,7 +144,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 4. Each line includes `toppings`, `[]` when there are none (live on HEAD: `['pepperoni', 'mozzarella']` returned).
 5. `X-Language` is optional; when it is omitted, names use the market language (code read; not run live).
 
-**Evidence**: `backend/test_api.py:90-116` (`get_cart`; `x_language` at 99); `backend/middleware.py:10-17`; `backend/database.py:214-265` (`get_enriched_cart`; unknown-id skip at 236-237; toppings at 256); `backend/database.py:46-48` (default language); `backend/models.py:68-79` (`EnrichedCartItem`; `toppings` at 73).
+**Evidence**: `backend/test_api.py:90-116` (`get_cart`; `x_language` at 99); `backend/middleware.py:10-17`; `backend/database.py:225-276` (`get_enriched_cart`; unknown-id skip at 247-248; toppings at 267); `backend/database.py:57-59` (default language); `backend/models.py:68-79` (`EnrichedCartItem`; `toppings` at 73).
 **Notes**: Before bbbd4ed the response had no `toppings` field, so a cart seeded with toppings hydrated without them. Commit 91d036c documents the toppings field in the endpoint's response shape.
 
 ---
@@ -163,7 +163,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. `DELETE /api/cart/items/{item_id}` returns 404 "Cart item <id> not found" for an unknown id. Live: confirmed.
 4. Both return the session state and neither reads `X-Country-Code`.
 
-**Evidence**: `backend/test_api.py:119-142` (`put_cart_item`; docstring 124-130; body `item_id` excluded at 140), `backend/test_api.py:145-165` (`delete_cart_item`; 404 at 159-163), `backend/database.py:185-206` (`upsert_cart_item`, `remove_cart_item`).
+**Evidence**: `backend/test_api.py:119-142` (`put_cart_item`; docstring 124-130; body `item_id` excluded at 140), `backend/test_api.py:145-165` (`delete_cart_item`; 404 at 159-163), `backend/database.py:196-217` (`upsert_cart_item`, `remove_cart_item`).
 **Notes**: Web and mobile never call these endpoints (grep at HEAD: only `GET /api/cart`), so client edits stay local until checkout.
 
 ---
@@ -182,7 +182,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. Two logins for the same user get separate carts. Live: after one login added a line, a second login saw 0 lines while the first kept 1.
 4. A new login starts with an empty cart.
 
-**Evidence**: `backend/routers/auth.py:53-62` (comment at 53-54; `sid` at 60, claim at 62); `backend/middleware.py:47-50` (`session_id` from the `sid` claim); `backend/database.py:139-148` (`_ensure_session`).
+**Evidence**: `backend/routers/auth.py:53-62` (comment at 53-54; `sid` at 60, claim at 62); `backend/middleware.py:47-50` (`session_id` from the `sid` claim); `backend/database.py:150-159` (`_ensure_session`).
 **Notes**: The profile was keyed by `sid` earlier, in 82d1b74 (2026-07-17).
 
 ---
@@ -201,7 +201,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. The docstring states this is deliberate: switching does not clear or partition the cart.
 4. Contrast: web and mobile clear the cart on market change (US-CART-016-WEB, US-CART-017-MOB), so an API-driven switch mid-cart leaves a different state than the UI.
 
-**Evidence**: `backend/test_api.py:34-56` (`set_market`; docstring 39-45), `backend/database.py:170-174` (`set_test_market`).
+**Evidence**: `backend/test_api.py:34-56` (`set_market`; docstring 39-45), `backend/database.py:181-185` (`set_test_market`).
 
 ---
 
@@ -219,7 +219,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. Given a `pizza_id` that is not in the catalog, checkout counts it as 0 with no error. Live: subtotal 0.0 for `p99`.
 4. Checkout validates only the market-required fields, not sizes, toppings or ids.
 
-**Evidence**: `backend/models.py:60-65` (`size` is a free string at 63; `toppings` has no maximum at 64); `backend/database.py:337-342` (`SIZE_UPCHARGE_USD.get(size_key, 0)`; toppings counted), `backend/database.py:327-329` (unknown ids skipped); `backend/routers/checkout.py:74-83` (required-field check only), `:85-91` (totals); `frontend/src/components/PizzaCustomizerModal.jsx:115` and `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:121` (the client-side cap).
+**Evidence**: `backend/models.py:60-65` (`size` is a free string at 63; `toppings` has no maximum at 64); `backend/database.py:348-353` (`SIZE_UPCHARGE_USD.get(size_key, 0)`; toppings counted), `backend/database.py:338-340` (unknown ids skipped); `backend/routers/checkout.py:74-83` (required-field check only), `:85-91` (totals); `frontend/src/components/PizzaCustomizerModal.jsx:115` and `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:116` (the client-side cap).
 **Notes**: The UI cannot produce these lines; they are reachable only through the API. The code has no rule that rejects them.
 
 ---
@@ -293,7 +293,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. No mobile screen or component calls `setQty`. Checked at HEAD: the only matches are the type declaration (line 70) and the definition (line 180).
 3. The checkout line controls are Edit and Remove only, so a customer changes a quantity by removing the line and adding the pizza again.
 
-**Evidence**: `frontend-mobile/src/store/useAppStore.ts:70,180-184` (declaration and definition); `frontend-mobile/src/screens/CheckoutScreen.tsx:696-716` (Edit and Remove only); `git grep setQty` at HEAD.
+**Evidence**: `frontend-mobile/src/store/useAppStore.ts:70,180-184` (declaration and definition); `frontend-mobile/src/screens/CheckoutScreen.tsx:691-711` (Edit and Remove only); `git grep setQty` at HEAD.
 **Notes**: Web has +/- in the sidebar (US-CART-011-WEB). Related: US-CART-019-MOB.
 
 ---
@@ -310,7 +310,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 1. Checkout shows a Remove control per line that removes that line by its id.
 2. In the sidebar, `−` at quantity 1 removes the line.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:975-981` (Remove button, `removeItem(it.id)` at 977); `frontend/src/store.js:208` (`removeItem`); `frontend/src/components/CartSidebar.jsx:92-96`; `frontend/src/store.js:215-218`.
+**Evidence**: `frontend/src/pages/Checkout.jsx:970-976` (Remove button, `removeItem(it.id)` at 972); `frontend/src/store.js:208` (`removeItem`); `frontend/src/components/CartSidebar.jsx:92-96`; `frontend/src/store.js:215-218`.
 **Notes**: The Remove test id uses the pizza id (US-CART-015-WEB).
 
 ---
@@ -327,7 +327,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 1. The Remove control (`btn-remove-item-{id}`) removes that line from the local cart by its id.
 2. Removal is local only; no cart API call is made.
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:714-716` (Remove calls `removeCartItem(item.id)`); `frontend-mobile/src/store/useAppStore.ts:169-170` (`removeCartItem`).
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:709-711` (Remove calls `removeCartItem(item.id)`); `frontend-mobile/src/store/useAppStore.ts:169-170` (`removeCartItem`).
 
 ---
 
@@ -345,7 +345,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. If another line already has the new signature, the quantities are added and the edited line is removed.
 4. Otherwise the line is updated in place with the new signature, configuration and unit price.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:966-974` (Edit button and handler), `:1182-1186` (modal with `initialConfig`), `:1187-1196` (price), `:1197-1220` (merge or update); `frontend/src/components/PizzaCustomizerModal.jsx:68-69,75-79` (prefill from `initialConfig`).
+**Evidence**: `frontend/src/pages/Checkout.jsx:961-969` (Edit button and handler), `:1177-1181` (modal with `initialConfig`), `:1182-1191` (price), `:1192-1215` (merge or update); `frontend/src/components/PizzaCustomizerModal.jsx:68-69,75-79` (prefill from `initialConfig`).
 **Notes**: The Edit test id uses the pizza id (US-CART-015-WEB).
 
 ---
@@ -363,7 +363,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Confirm in edit mode calls `editCartItem`, which calls `applyCartItemEdit`.
 3. If another line has the new signature, quantities add up and the edited line goes away; otherwise the line is updated in place with the new signature and price.
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:696-712` (Edit navigates at 699); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:135-137` (edit branch); `frontend-mobile/src/store/useAppStore.ts:177-178` (`editCartItem`); `frontend-mobile/src/features/checkout/useCases/applyCartItemEdit.ts:13-34` (merge at 22-29; in-place update at 31-33).
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:691-707` (Edit navigates at 694); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:130-132` (edit branch); `frontend-mobile/src/store/useAppStore.ts:177-178` (`editCartItem`); `frontend-mobile/src/features/checkout/useCases/applyCartItemEdit.ts:13-34` (merge at 22-29; in-place update at 31-33).
 **Notes**: Before 09a49fc the Edit button had an empty handler; the builder already supported edit mode.
 
 ---
@@ -382,7 +382,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. Toppings from the response are kept and priced.
 4. A failed request leaves the local cart as it is.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:126-181` (effect; empty-cart guard 135; fetch 137; mapping 141-170; toppings 143 and 165; price 157; signature 161; `setState` 173; error path 175-177).
+**Evidence**: `frontend/src/pages/Checkout.jsx:121-176` (effect; empty-cart guard 135; fetch 137; mapping 141-170; toppings 143 and 165; price 157; signature 161; `setState` 173; error path 175-177).
 **Notes**: Before bbbd4ed the toppings were hard-coded to `[]` (commit body).
 
 ---
@@ -401,7 +401,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. Toppings are kept and priced.
 4. A failure keeps the local cart; hydration reruns when the token changes.
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:77-137` (effect; guard 86; fetch 88; toppings 94; price 112-113; signature 117; `setState` 129; catch 131-133; token dependency 137); `frontend-mobile/src/services/cart.service.ts:7` (`toppings?` on `EnrichedCartItem`).
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:72-132` (effect; guard 86; fetch 88; toppings 94; price 112-113; signature 117; `setState` 129; catch 131-133; token dependency 137); `frontend-mobile/src/services/cart.service.ts:7` (`toppings?` on `EnrichedCartItem`).
 
 ---
 
@@ -418,7 +418,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Two lines of the same pizza with different sizes or toppings therefore share those selectors, so automation cannot address one of them.
 3. Each hydrated line has its own generated id, which these selectors do not use. Mobile keys the same controls by line id.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:966` (Edit `data-testid`), `:976` (Remove `data-testid`), `:160` (line id); `frontend/src/components/CartSidebar.jsx:72,92,99` (sidebar test ids also use `pizza_id`); `frontend-mobile/src/screens/CheckoutScreen.tsx:706,716` (mobile uses `item.id`).
+**Evidence**: `frontend/src/pages/Checkout.jsx:961` (Edit `data-testid`), `:971` (Remove `data-testid`), `:155` (line id); `frontend/src/components/CartSidebar.jsx:72,92,99` (sidebar test ids also use `pizza_id`); `frontend-mobile/src/screens/CheckoutScreen.tsx:701,711` (mobile uses `item.id`).
 **Notes**: Code read only; not reproduced in a browser.
 
 ---
@@ -506,7 +506,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 1. Web: once 10 toppings are selected, unselected toppings are disabled and dimmed; selected toppings stay enabled.
 2. Mobile: the same condition disables the option, dims it to 0.5 opacity and sets `accessibilityState.disabled`.
 
-**Evidence**: `frontend/src/components/PizzaCustomizerModal.jsx:111-118,239-240` (disabled and `opacity-40 cursor-not-allowed`); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:292-304` (disabled, opacity 0.5, accessibility state).
+**Evidence**: `frontend/src/components/PizzaCustomizerModal.jsx:111-118,239-240` (disabled and `opacity-40 cursor-not-allowed`); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:287-299` (disabled, opacity 0.5, accessibility state).
 **Notes**: The cap is enforced in the UI only (US-CART-008-API).
 
 ---

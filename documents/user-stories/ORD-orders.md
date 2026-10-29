@@ -2,7 +2,7 @@
 
 Order history and detail, cancellation of pending orders, the `OrderSummary` contract shared by every order endpoint, and the order-success screen (confirmation, simulated tracking, and atomic `orderId` hydration for QA). Covers `backend/routers/checkout.py` (order routes), `frontend/src/pages/OrderSuccess.jsx` and `frontend-mobile/src/screens/OrderSuccessScreen.tsx`.
 
-**Conventions.** `path:line` refers to this branch after the 2026-10-28 merge of `US-and-Improvements` (which brings `origin/main` and the 2026-10-28 fixes). Line numbers were recomputed from the merge's hunks and spot-checked against the merged files. Fixes dated 2026-10-28 are cited with their commit sha. "Probe" means an in-process `fastapi.testclient.TestClient` run against this checkout on 2026-10-28 (no server, no port). Order data is stored per username (`backend/database.py:167-168`), not per login session.
+**Conventions.** `path:line` refers to this branch after the 2026-10-28 merge of `US-and-Improvements` (which brings `origin/main` and the 2026-10-28 fixes). Line numbers were recomputed from the merge's hunks and spot-checked against the merged files. Fixes dated 2026-10-28 are cited with their commit sha. "Probe" means an in-process `fastapi.testclient.TestClient` run against this checkout on 2026-10-28 (no server, no port). Order data is stored per username (`backend/database.py:178-179`), not per login session.
 
 | ID | Title | Layer | Status |
 |---|---|---|---|
@@ -33,9 +33,9 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **Acceptance criteria**
 1. Given a valid bearer token, when `GET /api/orders` is called, then the response is 200 with `{"orders": [...]}` (`backend/routers/checkout.py:127-131`; probe).
 2. Given no token, when the endpoint is called, then the response is 401 (probe).
-3. Given the rows, then only orders whose `username` equals the caller are returned (`backend/database.py:167-168`; code reading, not probed across users).
+3. Given the rows, then only orders whose `username` equals the caller are returned (`backend/database.py:178-179`; code reading, not probed across users).
 
-**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:167-168`, `frontend/src/services/order.service.js:5`, `frontend-mobile/src/services/order.service.ts:4-11`
+**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:178-179`, `frontend/src/services/order.service.js:5`, `frontend-mobile/src/services/order.service.ts:4-11`
 **Notes**: No web or mobile screen calls this endpoint. `getOrders` is defined in `frontend/src/services/order.service.js:5` with no caller, and the mobile service has no list method. The rows are not `OrderSummary` (US-ORD-010-API). PRD §6.10 (`documents/Product_Requirement_Doc.md:131`) states the scoping rule.
 
 ### US-ORD-002-API · Order detail with ownership checks
@@ -50,7 +50,7 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 3. Given an unknown id, when it is requested, then the response is 404 with `error` "Order <id> not found" (`backend/routers/checkout.py:149-155`; probe).
 4. Given no token, then the response is 401 (`backend/routers/checkout.py:138`, `AUTH_RESPONSES`).
 
-**Evidence**: `backend/routers/checkout.py:133-165`, `backend/database.py:158-159`
+**Evidence**: `backend/routers/checkout.py:133-165`, `backend/database.py:169-170`
 **Notes**: Matches PRD §6.10 (`documents/Product_Requirement_Doc.md:132-135`) and NF-ORDER-001 (403) and NF-ORDER-002 (404). Ownership is checked against `username`, so two logins for the same user see the same orders.
 
 ### US-ORD-003-API · Order detail and cancel bypass for security_glitch_user (IDOR fixture)
@@ -74,13 +74,13 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 - Done on: 2026-08-11 · Commit: c60f824
 
 **Acceptance criteria**
-1. Given a pending order owned by the caller, when `PATCH /api/orders/{id}` is called with `{"status": "cancelled"}`, then the response is 200 with `status` "cancelled" (probe; `backend/routers/checkout.py:203-212`, `backend/database.py:161-165`).
+1. Given a pending order owned by the caller, when `PATCH /api/orders/{id}` is called with `{"status": "cancelled"}`, then the response is 200 with `status` "cancelled" (probe; `backend/routers/checkout.py:203-212`, `backend/database.py:172-176`).
 2. Given an order that is already cancelled, when cancel is called again, then the response is 409 with "Order already cancelled, cannot cancel" (probe; `backend/routers/checkout.py:203-207`).
 3. Given a body whose `status` is anything other than "cancelled", then the response is 422 (probe; `backend/models.py:147-149`).
 4. Given another user's order, then 403; given an unknown id, then 404 (probe; `backend/routers/checkout.py:189-201`).
 
-**Evidence**: `backend/routers/checkout.py:167-212`, `backend/models.py:147-149`, `backend/database.py:161-165`
-**Notes**: Only pending → cancelled is supported (PRD §6.10, `documents/Product_Requirement_Doc.md:136`). API-only: no web or mobile code calls PATCH or `cancelOrder`, so a customer cannot cancel from the apps today. Status "pending" is set at creation (`backend/database.py:154`); no other transition exists.
+**Evidence**: `backend/routers/checkout.py:167-212`, `backend/models.py:147-149`, `backend/database.py:172-176`
+**Notes**: Only pending → cancelled is supported (PRD §6.10, `documents/Product_Requirement_Doc.md:136`). API-only: no web or mobile code calls PATCH or `cancelOrder`, so a customer cannot cancel from the apps today. Status "pending" is set at creation (`backend/database.py:165`); no other transition exists.
 
 ### US-ORD-005-API · One OrderSummary contract for every order endpoint
 **As a** QA engineer **I want** checkout, order detail and cancel to return the same order shape **so that** one parser can read every order response.
@@ -118,11 +118,11 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 - Status: Done
 
 **Acceptance criteria**
-1. Given a placed order, when the success screen opens, then the order id is shown (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:163-167`), with subtotal, delivery fee, tax, tip and total rows (`:169-187`).
+1. Given a placed order, when the success screen opens, then the order id is shown (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:161-165`), with subtotal, delivery fee, tax, tip and total rows (`:167-185`).
 2. Given logout, then the last order is cleared (`frontend-mobile/src/store/useAppStore.ts:120-130`, `lastOrder: null` at `:124`).
-3. Given no last order, then the details block is not rendered (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:163`, conditional on `lastOrder`).
+3. Given no last order, then the details block is not rendered (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:161`, conditional on `lastOrder`).
 
-**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:23,163-187`, `frontend-mobile/src/store/useAppStore.ts:120-130`
+**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:24,161-185`, `frontend-mobile/src/store/useAppStore.ts:120-130`
 **Notes**: The mobile screen shows totals but no per-item rows. The store is not persisted, so a relaunch clears the order (`frontend-mobile/src/store/useAppStore.ts`, no persist).
 
 ### US-ORD-007-WEB · Hydrate the success screen from `?orderId=` (atomic entry)
@@ -173,12 +173,12 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 - Status: Done
 
 **Acceptance criteria**
-1. Given the success screen, then a live-tracking label, a map placeholder and a pulse overlay are shown (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:41-68`).
-2. Given any order, then the title "Out for delivery", "Expected arrival: 8:45 PM" and "15-20" are fixed text (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:92-97`).
+1. Given the success screen, then a live-tracking label, a map placeholder and a pulse overlay are shown (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:39-66`).
+2. Given any order, then the title "Out for delivery", "Expected arrival: 8:45 PM" and "15-20" are fixed text (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:90-95`).
 3. The courier tag reads the literal "CARLOS" (`:83`), the rating is the literal "4.9 ★" (`:114`), and the name comes from `getCourierProfile` (`:26`, `:120`), which returns "Carlos R." (`frontend-mobile/src/features/orderSuccess/useCases/getCourierProfile.ts:3`).
-4. The chat and call buttons have no `onPress` (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:126-141`).
+4. The chat and call buttons have no `onPress` (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:124-139`).
 
-**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:26,41-68,83,92-97,114,120,126-141`, `frontend-mobile/src/features/orderSuccess/useCases/getCourierProfile.ts:1-7`
+**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:27,39-66,81,90-95,112,118,124-139`, `frontend-mobile/src/features/orderSuccess/useCases/getCourierProfile.ts:1-7`
 **Notes**: Simulated by design (PRD §6.11). The tag "CARLOS" and the name "Carlos R." are two strings for one courier; cosmetic.
 
 ### US-ORD-009-WEB · Order details list shows placeholder rows and wrong currency
@@ -205,7 +205,7 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 2. The list declares no `response_model`, so the row schema is absent from OpenAPI (`backend/routers/checkout.py:127-131`).
 3. `customer_info` (name, address, phone) appears in list rows, but no field of that kind exists on `OrderSummary` (`backend/models.py:132-145`). The detail endpoint does not return it.
 
-**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:167-168`, `backend/models.py:132-145`
+**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:178-179`, `backend/models.py:132-145`
 **Notes**: Found, and not changed by the merge. The PRD does not state a list shape (`documents/Product_Requirement_Doc.md:131`), so this is an inconsistency, not a contract violation. Owner-only data.
 
 ### US-ORD-011-WEB · `?orderId=` shows no error state for 403 or 404

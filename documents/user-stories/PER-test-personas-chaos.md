@@ -32,11 +32,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: 38b8848
 
 **Acceptance criteria**
-1. Given `standard_user`, when it logs in and calls catalog or checkout, then no delay or random error is injected (`backend/constants.py:21-27`; `backend/middleware.py:57-58` sleeps only for `performance_glitch`; `backend/database.py:362-365` returns true only for `error` and `security_glitch`).
-2. Given `standard_user`, when the US catalog is requested, then each price is the market's converted price and the image is the catalogue image (verified: first item 12.99 USD with a Wikimedia image; `backend/database.py:296-300`).
+1. Given `standard_user`, when it logs in and calls catalog or checkout, then no delay or random error is injected (`backend/constants.py:21-27`; `backend/middleware.py:57-58` sleeps only for `performance_glitch`; `backend/database.py:373-376` returns true only for `error` and `security_glitch`).
+2. Given `standard_user`, when the US catalog is requested, then each price is the market's converted price and the image is the catalogue image (verified: first item 12.99 USD with a Wikimedia image; `backend/database.py:307-311`).
 3. Given `standard_user`, when the error check runs, then it never fires (verified: 200 calls, none true).
 
-**Evidence**: `backend/constants.py:21-27`, `backend/database.py:296-300,362-365`, `backend/middleware.py:52-60`
+**Evidence**: `backend/constants.py:21-27`, `backend/database.py:307-311,373-376`, `backend/middleware.py:52-60`
 **Notes**: The description reads "Usuario normal, flujo sin errores" (`backend/constants.py:26`).
 
 ---
@@ -66,11 +66,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: 38b8848
 
 **Acceptance criteria**
-1. Given `problem_user`, when `GET /api/pizzas` is called, then every price is `0.0` and every image is `https://broken-image-url.com/404.jpg` (`backend/database.py:296-298`; verified 0.0 and the broken URL).
-2. Given `problem_user`, when the cart is returned, then each line's `price` is `0.0` and its `image` is the broken URL (`backend/database.py:244-246`).
-3. Given any other persona, when the catalogue is requested, then the normal price and image are used (`backend/database.py:299-300`).
+1. Given `problem_user`, when `GET /api/pizzas` is called, then every price is `0.0` and every image is `https://broken-image-url.com/404.jpg` (`backend/database.py:307-309`; verified 0.0 and the broken URL).
+2. Given `problem_user`, when the cart is returned, then each line's `price` is `0.0` and its `image` is the broken URL (`backend/database.py:255-257`).
+3. Given any other persona, when the catalogue is requested, then the normal price and image are used (`backend/database.py:310-311`).
 
-**Evidence**: `backend/database.py:244-246,296-300`
+**Evidence**: `backend/database.py:255-257,307-311`
 **Notes**: Both clients mask the broken image with a stock fallback (US-PER-003-WEB, US-PER-003-MOB); only the $0 price reaches the user.
 
 ---
@@ -132,11 +132,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: 38b8848
 
 **Acceptance criteria**
-1. Given `error_user`, when `POST /api/checkout` is called, then with probability 0.5 the response is 500 with `error` = `Random checkout error triggered for testing purposes`, before any order is created (`backend/routers/checkout.py:62-72`; `backend/database.py:362-365`; verified about 0.50 over 2000 calls).
-2. Given any other persona, when checkout is called, then the random failure never fires (`backend/database.py:362-365`).
-3. Given `error_user`, when catalogue or cart endpoints are called, then the random failure does not fire (`backend/database.py:362-365` is called only from checkout, `backend/routers/checkout.py:63`).
+1. Given `error_user`, when `POST /api/checkout` is called, then with probability 0.5 the response is 500 with `error` = `Random checkout error triggered for testing purposes`, before any order is created (`backend/routers/checkout.py:62-72`; `backend/database.py:373-376`; verified about 0.50 over 2000 calls).
+2. Given any other persona, when checkout is called, then the random failure never fires (`backend/database.py:373-376`).
+3. Given `error_user`, when catalogue or cart endpoints are called, then the random failure does not fire (`backend/database.py:373-376` is called only from checkout, `backend/routers/checkout.py:63`).
 
-**Evidence**: `backend/routers/checkout.py:62-72`, `backend/database.py:362-365`
+**Evidence**: `backend/routers/checkout.py:62-72`, `backend/database.py:373-376`
 **Notes**: Clients show a generic failure text instead of this message (US-PER-005-WEB, US-PER-005-MOB).
 
 ---
@@ -149,10 +149,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: Unverified (origin not pinpointed; present at HEAD)
 
 **Acceptance criteria**
-1. Given a failed checkout request, when it fails, then the page shows the translated `checkoutFailed` text (`frontend/src/pages/Checkout.jsx:336`).
+1. Given a failed checkout request, when it fails, then the page shows the translated `checkoutFailed` text (`frontend/src/pages/Checkout.jsx:331`).
 2. Given the response body, when the failure is handled, then the server's `error` text is not read or shown (no `response.data` read in `Checkout.jsx`; grep).
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:319,336`
+**Evidence**: `frontend/src/pages/Checkout.jsx:314,331`
 **Notes**: The message "Random checkout error..." never reaches the UI on web.
 
 ---
@@ -165,10 +165,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: Unverified (origin not pinpointed; present at HEAD)
 
 **Acceptance criteria**
-1. Given a failed checkout request, when the catch runs, then the error text is the translated `checkoutFailed` string (`frontend-mobile/src/screens/CheckoutScreen.tsx:248-249`).
-2. Given the failure, when it is caught, then the error object is not inspected, so the server's `error` text is not shown (`CheckoutScreen.tsx:248`).
+1. Given a failed checkout request, when the catch runs, then the error text is the translated `checkoutFailed` string (`frontend-mobile/src/screens/CheckoutScreen.tsx:243-244`).
+2. Given the failure, when it is caught, then the error object is not inspected, so the server's `error` text is not shown (`CheckoutScreen.tsx:243`).
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:248-249`
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:243-244`
 **Notes**: Same behaviour as the web client.
 
 ---
@@ -181,12 +181,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-07-19 · Commit: bf90477
 
 **Acceptance criteria**
-1. Given `a11y_glitch_user`, when `GET /api/pizzas` or `GET /api/cart` is called, then one mode from `missing_name`, `wrong_lang` and `extreme_text` is chosen per call and applied to every line of that response (`backend/database.py:231,281`; `backend/constants.py:69`).
-2. Given `missing_name`, when a name is rendered, then the name is blank and the description is unchanged (`backend/database.py:64-65`; verified: a blank name appeared in the sample).
-3. Given `wrong_lang`, when a name is rendered, then the text is taken from another language present on the item (`backend/database.py:67-72`; `backend/constants.py:70`). Given `extreme_text`, when a name is rendered, then it repeats 15 times (`backend/database.py:74-75`; verified repeated names in the sample).
-4. Given any other persona, when it calls the same endpoints, then no defect is added (`backend/database.py:239,288`).
+1. Given `a11y_glitch_user`, when `GET /api/pizzas` or `GET /api/cart` is called, then one mode from `missing_name`, `wrong_lang` and `extreme_text` is chosen per call and applied to every line of that response (`backend/database.py:242,292`; `backend/constants.py:69`).
+2. Given `missing_name`, when a name is rendered, then the name is blank and the description is unchanged (`backend/database.py:75-76`; verified: a blank name appeared in the sample).
+3. Given `wrong_lang`, when a name is rendered, then the text is taken from another language present on the item (`backend/database.py:78-83`; `backend/constants.py:70`). Given `extreme_text`, when a name is rendered, then it repeats 15 times (`backend/database.py:85-86`; verified repeated names in the sample).
+4. Given any other persona, when it calls the same endpoints, then no defect is added (`backend/database.py:250,299`).
 
-**Evidence**: `backend/database.py:57-77,231,239-240,281,288-290`, `backend/constants.py:66-70`
+**Evidence**: `backend/database.py:68-88,242,250-251,292,299-301`, `backend/constants.py:66-70`
 **Notes**: Clients have no handling for these defects; they render as-is. Over 60 catalogue calls, six distinct first-item names appeared, including the blank name and the repeated text.
 
 ---
@@ -219,9 +219,9 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 **Acceptance criteria**
 1. Given the seeded payload, when the Profile page renders it, then it appears as text in the header and the input values (`frontend/src/pages/Profile.jsx:77,107-113,133-139`).
 2. Given the web client source, when it is searched for raw HTML sinks, then no `innerHTML` or `dangerouslySetInnerHTML` is found (grep of `frontend/src`).
-3. Given the payload in the address, when checkout pre-fills the form, then it is set as a field value (`frontend/src/pages/Checkout.jsx:194-196`), not as markup.
+3. Given the payload in the address, when checkout pre-fills the form, then it is set as a field value (`frontend/src/pages/Checkout.jsx:189-191`), not as markup.
 
-**Evidence**: `frontend/src/pages/Profile.jsx:77,107-113,133-139`, `frontend/src/pages/Checkout.jsx:194-196`
+**Evidence**: `frontend/src/pages/Profile.jsx:77,107-113,133-139`, `frontend/src/pages/Checkout.jsx:189-191`
 **Notes**: Code read only; not run in a browser.
 
 ---

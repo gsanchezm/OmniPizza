@@ -167,8 +167,8 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 - Done on: 2026-02-07 · Commit: 38b8848
 
 **Acceptance criteria**
-1. Given the process starts, then orders and sessions live in plain dictionaries on the `InMemoryDB` instance (`backend/database.py:85-90`).
-2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:367`).
+1. Given the process starts, then orders and sessions live in plain dictionaries on the `InMemoryDB` instance (`backend/database.py:96-101`).
+2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:378`).
 3. Given a restart, then no state is recovered; there is no persistence layer in the repo.
 4. Given Render, the blueprint comment states the same design (`render.yaml:69-70`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:277`).
 
@@ -414,7 +414,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 **Acceptance criteria**
 1. Given the document, then `<html lang="en">` is set in the base page (`frontend/index.html:2`) and the language follows the authenticated market at runtime (`frontend/src/App.jsx:31-32`).
 2. Given a toast, then it is a `role="status"` live region with `aria-live="polite"` (`frontend/src/components/Toast.jsx:21-22`).
-3. Given a login or checkout error, then it is a `role="alert"` with `aria-live="assertive"` (`frontend/src/pages/Login.jsx:225`, `frontend/src/pages/Checkout.jsx:374-375`).
+3. Given a login or checkout error, then it is a `role="alert"` with `aria-live="assertive"` (`frontend/src/pages/Login.jsx:225`, `frontend/src/pages/Checkout.jsx:369-370`).
 4. Given mobile controls, then they carry a readable `accessibilityLabel` and the bottom navigation items are `accessibilityRole="tab"` (`frontend-mobile/src/utils/qa.ts:58-72`, `frontend-mobile/src/components/BottomNavBar.tsx:55-60`).
 
 **Evidence**: as cited; commit cf8d2c9 stat (30 files).
@@ -506,4 +506,4 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given legacy hooks, then `frontend-mobile/src/hooks/usePizzas.ts` and `useRTL.ts` remain.
 
 **Evidence**: `frontend-mobile/src/features/*` (file list), `frontend-mobile/src/hooks/usePizzas.ts`.
-**Notes**: Mirrors US-PLT-024-WEB; screens still call services directly in places (for example `CheckoutScreen.tsx:88` calls `cartService`).
+**Notes**: Mirrors US-PLT-024-WEB; screens still call services directly in places (for example `CheckoutScreen.tsx:83` calls `cartService`).

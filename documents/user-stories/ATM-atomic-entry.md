@@ -88,7 +88,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given `country_code` in lowercase (`"sa"`), then the response is 422 with a `{"detail": [...]}` enum error (verified in TestClient); the header `X-Country-Code` is case-insensitive, so the two inputs disagree.
 4. Given an invalid body value (`"ZZ"`), then the response is 422 with the allowed values listed (verified).
 
-**Evidence**: `backend/test_api.py:34-56`, `backend/database.py:170-174`, `backend/models.py:173-175` (enum body field), `backend/middleware.py:19-21` (header upper-cased), `backend/test_api.py:40-45` (docstring: market does not clear cart).
+**Evidence**: `backend/test_api.py:34-56`, `backend/database.py:181-185`, `backend/models.py:173-175` (enum body field), `backend/middleware.py:19-21` (header upper-cased), `backend/test_api.py:40-45` (docstring: market does not clear cart).
 **Notes**: Observed under the venv's fastapi 0.139.0 / starlette 1.3.1, not the pins in `backend/requirements.txt:1`. The PRD §13.7 mobile example passes `lang=es`, which the app ignores (see US-ATM-002-MOB).
 
 ---
@@ -159,7 +159,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given `DELETE /api/cart/items/{item_id}` for an unknown id, then 404 with `{"error":"Cart item <id> not found", "status_code":404, ...}` (verified).
 4. Given a second login for the same user, then its cart is isolated, because the cart is keyed by the JWT `sid` (`backend/routers/auth.py:60`).
 
-**Evidence**: `backend/test_api.py:59-87` (POST), `:119-142` (PUT), `:145-165` (DELETE), `backend/database.py:176-183`, `:185-206`, `backend/routers/auth.py:60`.
+**Evidence**: `backend/test_api.py:59-87` (POST), `:119-142` (PUT), `:145-165` (DELETE), `backend/database.py:187-194`, `:196-217`, `backend/routers/auth.py:60`.
 **Notes**: The `sid` keying is commit b407760 (2026-08-11). The read side and its shape gap are US-ATM-004-API.
 
 ---
@@ -174,10 +174,10 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 **Acceptance criteria**
 1. Expected: each enriched item carries the seeded `toppings`. Actual (fixed by bbbd4ed, 2026-10-28, now on this branch): `EnrichedCartItem` has the `toppings` field and `get_enriched_cart` copies it; a line seeded with `toppings: ["t1"]` comes back with `["t1"]` (verified on the merged tree).
 2. Expected: an unknown `pizza_id` is rejected or flagged. Actual: `POST /api/cart` accepts `p99` (200) and `GET /api/cart` silently omits it (verified on the merged tree: the response lists only the known line).
-3. Web and mobile hydration now read the toppings and price them (`frontend/src/pages/Checkout.jsx:143`, `:157`; `frontend-mobile/src/screens/CheckoutScreen.tsx:94`, `:112-113`).
+3. Web and mobile hydration now read the toppings and price them (`frontend/src/pages/Checkout.jsx:138`, `:152`; `frontend-mobile/src/screens/CheckoutScreen.tsx:89`, `:107-108`).
 4. The PRD (`documents/Product_Requirement_Doc.md:103`) and `API_EXAMPLES.md:406` list `toppings` in the GET item shape (91d036c, 2026-10-28).
 
-**Evidence**: `backend/models.py:68-79` (`EnrichedCartItem`, toppings at `:73`), `backend/database.py:236-237` (skip of unknown pizzas), `:251-263` (fields emitted, toppings at `:256`), `backend/test_api.py:90-116` (GET handler), `frontend/src/pages/Checkout.jsx:143`, `frontend-mobile/src/screens/CheckoutScreen.tsx:94`.
+**Evidence**: `backend/models.py:68-79` (`EnrichedCartItem`, toppings at `:73`), `backend/database.py:247-248` (skip of unknown pizzas), `:262-274` (fields emitted, toppings at `:267`), `backend/test_api.py:90-116` (GET handler), `frontend/src/pages/Checkout.jsx:138`, `frontend-mobile/src/screens/CheckoutScreen.tsx:89`.
 **Notes**: Before the merge, `GET /api/cart` lacked toppings while the state-injection endpoints returned them (`TestSessionStateResponse`). The golden net pins `toppings: []` for three seeded lines (`tests/golden.test.ts:325`, `:349`, `:373`). The gap left is AC 2.
 
 ---
@@ -195,7 +195,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given the local cart already has items, then no request is sent (normal shopping flow wins).
 4. Given the request fails, then the local cart is left unchanged.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:125-181` (effect), `:135` (skip guard), `:137` (request), `:143` (toppings read), `:157` (price with toppings), `:175-177` (fallback); `frontend/src/services/cart.service.js:4`.
+**Evidence**: `frontend/src/pages/Checkout.jsx:120-176` (effect), `:130` (skip guard), `:132` (request), `:138` (toppings read), `:152` (price with toppings), `:170-172` (fallback); `frontend/src/services/cart.service.js:4`.
 **Notes**: Toppings are read from the response since bbbd4ed (US-ATM-004-API). Logout clears the cart and the last order since 60774e3 (2026-10-28, on this branch): `frontend/src/store.js:56-61`.
 
 ---
@@ -213,8 +213,8 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given the token arrives late (deep link), then the hydration effect re-runs because it depends on `[token]`.
 4. Given `market` and `hydrateCart` in one URL, then `market` runs first and clears the cart, and `hydrateCart` then has no conflict.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:109-112`, `frontend-mobile/src/screens/CheckoutScreen.tsx:77-137` (`:86` skip, `:88` request, `:94` toppings, `:112-113` toppings price, `:129` set, `:137` deps), `frontend-mobile/src/store/useAppStore.ts:101-106`.
-**Notes**: Toppings are read at `CheckoutScreen.tsx:94` and priced at `:112-113` since bbbd4ed (US-ATM-004-API). Hydration failures are swallowed (`:131-133`).
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:109-112`, `frontend-mobile/src/screens/CheckoutScreen.tsx:72-132` (`:81` skip, `:83` request, `:89` toppings, `:107-108` toppings price, `:124` set, `:132` deps), `frontend-mobile/src/store/useAppStore.ts:101-106`.
+**Notes**: Toppings are read at `CheckoutScreen.tsx:89` and priced at `:107-108` since bbbd4ed (US-ATM-004-API). Hydration failures are swallowed (`:126-128`).
 
 ---
 
@@ -230,7 +230,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 2. Given `POST /api/session/reset`, then the cart is emptied, the market returns to the default and the editable profile is cleared (verified: cart `[]`, country `MX`, `full_name` empty).
 3. Given two logins for the same user, then the reset affects only the caller's session, because both session and profile are keyed by `sid`.
 
-**Evidence**: `backend/test_api.py:193-229`, `backend/database.py:208-212`, `backend/routers/auth.py:60`.
+**Evidence**: `backend/test_api.py:193-229`, `backend/database.py:219-223`, `backend/routers/auth.py:60`.
 **Notes**: The reset endpoint is the server-side counterpart of the mobile `resetSession` param (US-ATM-006-MOB); the mobile param does not call the API.
 
 ---
@@ -265,7 +265,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 2. Given the call, then `X-Country-Code` is not read (market-independent).
 3. Given `POST /api/session/reset`, then the profile returns to the empty default (verified).
 
-**Evidence**: `backend/test_api.py:168-190`, `backend/models.py:189-195` (`TestProfileSeedRequest`), `backend/database.py:119-135` (reset and seed methods).
+**Evidence**: `backend/test_api.py:168-190`, `backend/models.py:189-195` (`TestProfileSeedRequest`), `backend/database.py:130-146` (reset and seed methods).
 **Notes**: Endpoint is missing from PRD §8 (`documents/Product_Requirement_Doc.md:168-191`) and from the CLAUDE.md description of `test_api.router`.
 
 ---
@@ -284,8 +284,8 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 4. Given the pizza is not found or the catalog fails, then the builder stays mounted empty and does not navigate away.
 5. Given a deep link, then toppings cannot be set: only `initialConfig` provides them.
 
-**Evidence**: `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:71-108` (params, lookup, size, toppings), `:85-98` (fetch and fallbacks), `frontend-mobile/src/navigation/linking.ts:51-57` (alias), `frontend-mobile/src/navigation/types.ts:7-31` (params; no toppings deep-link key).
-**Notes**: The web app has no builder route; the web builder is a modal on the catalog (`frontend/src/components/PizzaCustomizerModal.jsx`), so this is mobile only. Since 09a49fc (2026-10-28, on this branch), Checkout's Edit button opens this screen in `mode: "edit"` (`frontend-mobile/src/screens/CheckoutScreen.tsx:699-706`) and saves through `editCartItem` (`frontend-mobile/src/screens/PizzaBuilderScreen.tsx:135-136`).
+**Evidence**: `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:66-103` (params, lookup, size, toppings), `:80-93` (fetch and fallbacks), `frontend-mobile/src/navigation/linking.ts:51-57` (alias), `frontend-mobile/src/navigation/types.ts:7-31` (params; no toppings deep-link key).
+**Notes**: The web app has no builder route; the web builder is a modal on the catalog (`frontend/src/components/PizzaCustomizerModal.jsx`), so this is mobile only. Since 09a49fc (2026-10-28, on this branch), Checkout's Edit button opens this screen in `mode: "edit"` (`frontend-mobile/src/screens/CheckoutScreen.tsx:694-701`) and saves through `editCartItem` (`frontend-mobile/src/screens/PizzaBuilderScreen.tsx:130-131`).
 
 ---
 
@@ -320,7 +320,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given the path `order-success`, then the route maps to `OrderSuccess` (screen name `OrderSuccess`).
 4. Given no token, then the request fails and the hook logs it only in `__DEV__`. A 401 on an authenticated request is handled by the response interceptor (US-ATM-010-MOB AC 4).
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:119-130`, `frontend-mobile/src/navigation/linking.ts:44`, `frontend-mobile/src/navigation/types.ts:38-42`, `frontend-mobile/src/screens/OrderSuccessScreen.tsx:40`.
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:119-130`, `frontend-mobile/src/navigation/linking.ts:44`, `frontend-mobile/src/navigation/types.ts:38-42`, `frontend-mobile/src/screens/OrderSuccessScreen.tsx:38`.
 **Notes**: Token ordering: `accessToken` is applied before `orderId` (`useDeepLinkParams.ts:88-92` then `:119`).
 
 ---
@@ -356,7 +356,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given a failed catalog or hydration call, then the screen stays mounted; errors are caught.
 4. Given a 401 on an authenticated request (a token is set), then the app logs out and resets the stack to Login (`frontend-mobile/src/api/client.ts:53-64`, `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`). Given a 401 with no token (a login attempt), then the screen stays and renders its own error.
 
-**Evidence**: `frontend-mobile/App.tsx:83-88` (screens; `initialRouteName` at `:80`), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:94-98`, `frontend-mobile/src/screens/CheckoutScreen.tsx:131-133`, `frontend-mobile/src/api/client.ts:36-51` (request interceptor), `:53-64` (response interceptor), `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`.
+**Evidence**: `frontend-mobile/App.tsx:83-88` (screens; `initialRouteName` at `:80`), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:89-93`, `frontend-mobile/src/screens/CheckoutScreen.tsx:126-128`, `frontend-mobile/src/api/client.ts:36-51` (request interceptor), `:53-64` (response interceptor), `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`.
 **Notes**: 401 handling is c55c5c5 (2026-10-28), now on this branch. `navigationRef` moved to `src/navigation/navigationRef.ts` so the API client can navigate without importing `App.tsx`; `App.tsx:15` imports it and `:23` re-exports it. The "no auth guard" statement above concerns screen access only.
 
 ---
@@ -387,9 +387,9 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 - Done on: 2026-02-25 · Commit: 37082da (accessibilityLabel and testID across elements)
 
 **Acceptance criteria**
-1. Given a root screen, then its id is `screen-<name>` (`frontend-mobile/src/screens/CheckoutScreen.tsx:285`, `LoginScreen.tsx:112`, `PizzaBuilderScreen.tsx:150`).
+1. Given a root screen, then its id is `screen-<name>` (`frontend-mobile/src/screens/CheckoutScreen.tsx:280`, `LoginScreen.tsx:112`, `PizzaBuilderScreen.tsx:145`).
 2. Given a text input, then the id is `input-<name>` (`LoginScreen.tsx:161`, `:169`).
-3. Given a tappable size pill, then the id is `btn-size-<id>` (`PizzaBuilderScreen.tsx:244`).
+3. Given a tappable size pill, then the id is `btn-size-<id>` (`PizzaBuilderScreen.tsx:239`).
 4. Given the bottom navigation, then items use `nav-<name>` (`frontend-mobile/src/components/BottomNavBar.tsx:57-60`), a prefix not listed in the PRD.
 
 **Evidence**: as cited.
@@ -445,7 +445,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 3. Given `getTestProps(id)`, then only `testID` is set, so no raw id is announced to screen readers.
 4. Given the screens, then the three helpers are called 143 times across `frontend-mobile/src/screens` (grep count).
 
-**Evidence**: `frontend-mobile/src/utils/qa.ts:12-24`, `:36-50`, `:58-72`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:189`, `:217`.
+**Evidence**: `frontend-mobile/src/utils/qa.ts:12-24`, `:36-50`, `:58-72`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:184`, `:212`.
 **Notes**: The Android selector guidance is in `ATOMIC_MOBILE_TESTING.md` (corrected in 81957a9, 2026-07-29). Appium is external (Atomic-Helix-Model-TS).
 
 ---
@@ -496,7 +496,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 **Acceptance criteria**
 1. Expected: `CLAUDE.md:89` lists `X-Language` among the required headers on most endpoints.
 2. Actual: `GET /api/pizzas` without `X-Language` returns 200 (verified), and with `X-Language: xx` also 200 (verified).
-3. Actual: the catalog defaults to `"en"` (`backend/routers/catalog.py:52`); the cart takes `Optional` and falls back in `_resolve_language` (`backend/test_api.py:99`, `backend/database.py:46`).
+3. Actual: the catalog defaults to `"en"` (`backend/routers/catalog.py:52`); the cart takes `Optional` and falls back in `_resolve_language` (`backend/test_api.py:99`, `backend/database.py:57`).
 4. Actual: PRD §8 lists only `Authorization` and `X-Country-Code` for these endpoints (`documents/Product_Requirement_Doc.md:176-178`), so PRD and CLAUDE.md disagree.
 5. The web and mobile clients always send `X-Language` (`frontend/src/services/httpClient.js:28`, `frontend-mobile/src/api/client.ts:42`), so the gap is invisible to the apps.
 

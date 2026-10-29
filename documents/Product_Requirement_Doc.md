@@ -81,6 +81,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 * Currency conversion baseline:
 * `USD=1.0`, `MXN=17.55`, `CHF=0.7823`, `JPY=157.89`.
 * Rounding behavior: JPY uses zero decimals; other currencies use two decimals.
+* Order totals (subtotal, tax, tip, delivery fee, total) round **half up** at those decimals, after discarding floating-point noise beyond 9 decimals. The API, web and mobile share this rule (`backend/database.py::round_currency_amount`, `frontend/src/utils/rounding.js`, `frontend-mobile/src/utils/rounding.ts`), so the total shown before placing equals the total the API records (e.g. a 19.485 tip is 19.49 everywhere). Catalog price conversion from USD keeps Python `round()`.
 * `problem_user` data mutation: all catalog prices become `0.0` and image URL points to a broken source (to test image fallback handling).
 
 ### 6.6 Pizza Customization

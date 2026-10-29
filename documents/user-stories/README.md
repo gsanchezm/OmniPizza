@@ -2,7 +2,7 @@
 
 Retroactive user stories for what OmniPizza already does, plus *Planned* stories for work that has not started, so the repository can double as a traceable project. Generated on 2026-10-28.
 
-**280 stories** · 183 Done · 40 Found · 57 Planned
+**280 stories** · 186 Done · 37 Found · 57 Planned
 
 ## How to read this
 
@@ -22,7 +22,7 @@ Retroactive user stories for what OmniPizza already does, plus *Planned* stories
 | [MKT](MKT-markets-localization.md) | Markets, Localization & Currency | 13 | 11 | 2 |  | API 4, WEB 3, MOB 3, UX 3 |
 | [CAT](CAT-catalog.md) | Catalog | 19 | 15 | 4 |  | API 5, WEB 6, MOB 6, UX 2 |
 | [CART](CART-cart.md) | Customization & Cart | 27 | 23 | 4 |  | API 6, WEB 11, MOB 8, UX 2 |
-| [CHK](CHK-checkout.md) | Checkout & Pricing | 36 | 27 | 9 |  | API 11, WEB 11, MOB 12, UX 2 |
+| [CHK](CHK-checkout.md) | Checkout & Pricing | 36 | 30 | 6 |  | API 11, WEB 11, MOB 12, UX 2 |
 | [ORD](ORD-orders.md) | Orders | 15 | 11 | 4 |  | API 6, WEB 5, MOB 4 |
 | [PRF](PRF-profile.md) | Profile | 18 | 13 | 5 |  | API 3, WEB 7, MOB 7, UX 1 |
 | [PER](PER-test-personas-chaos.md) | Test Personas & Chaos | 15 | 15 |  |  | API 9, WEB 3, MOB 3 |
@@ -58,9 +58,6 @@ Behaviour that is missing or inconsistent and has **not** been fixed. These are 
 | [US-CHK-011-API](CHK-checkout.md#us-chk-011-api--unpriced-or-empty-checkouts-are-accepted) | Unpriced or empty checkouts are accepted | API |
 | [US-CHK-012-API](CHK-checkout.md#us-chk-012-api--tip-taken-from-another-markets-tip-field) | Tip taken from another market's tip field | API |
 | [US-CHK-013-API](CHK-checkout.md#us-chk-013-api--payment_method-is-accepted-but-not-recorded) | payment_method is accepted but not recorded | API |
-| [US-CHK-014-API](CHK-checkout.md#us-chk-014-api--server-rounds-half-values-with-python-round) | Server rounds half-values with Python round() | API |
-| [US-CHK-014-WEB](CHK-checkout.md#us-chk-014-web--web-total-can-differ-from-the-server-by-one-minor-unit) | Web total can differ from the server by one minor unit | WEB |
-| [US-CHK-014-MOB](CHK-checkout.md#us-chk-014-mob--mobile-total-can-differ-from-the-server-by-one-minor-unit) | Mobile total can differ from the server by one minor unit | MOB |
 | [US-CHK-015-UX](CHK-checkout.md#us-chk-015-ux--confirm-dialog-does-not-keep-tab-focus-inside) | Confirm dialog does not keep Tab focus inside | UX |
 | [US-ORD-009-WEB](ORD-orders.md#us-ord-009-web--order-details-list-shows-placeholder-rows-and-wrong-currency) | Order details list shows placeholder rows and wrong currency | WEB |
 | [US-ORD-010-API](ORD-orders.md#us-ord-010-api--order-history-rows-are-not-ordersummary) | Order history rows are not OrderSummary | API |

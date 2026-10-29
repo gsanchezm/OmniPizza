@@ -55,7 +55,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. The rates are USD 1.0, MXN 17.55, CHF 0.7823, JPY 157.89 and SAR 3.75.
 4. Live: Margherita (USD 12.99) is 227.97 MXN, 10.16 CHF, 2051 JPY and 48.71 SAR; US shows 12.99.
 
-**Evidence**: `backend/constants.py:134` (JPY `decimal_places: 0`), `backend/constants.py:154-335` (base prices), `backend/constants.py:342-348` (rates), `backend/database.py:23-31` (`convert_usd_amount`), `backend/database.py:80-82` (`_convert_price`).
+**Evidence**: `backend/constants.py:134` (JPY `decimal_places: 0`), `backend/constants.py:154-335` (base prices), `backend/constants.py:342-348` (rates), `backend/database.py:24-32` (`convert_usd_amount`), `backend/database.py:91-93` (`_convert_price`).
 **Notes**: The rates are fixed "2026 YTD averages" (`constants.py:338-341`), not live exchange rates. The PRD rate list (line 82) omits SAR.
 
 ---
@@ -74,8 +74,8 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. The tip is the market's chosen percentage of the subtotal.
 4. Live: US Margherita with a 10% tip gives subtotal 12.99, delivery 2.00, tax 1.04, tip 1.30 and total 17.33. MX medium with two toppings gives subtotal 316.97, tax 50.72, and total 402.79 with the 35.10 fee.
 
-**Evidence**: `backend/constants.py:96-146` (tax, fee and tip per market); `backend/database.py:320-324` (delivery fee converted), `:346-349` (subtotal, tax, tip, total); `backend/routers/checkout.py:85-91` (totals call); `backend/models.py:122-130` (`get_tip_percentage`).
-**Notes**: Mobile's fallback tax and fee tables, used before `countryInfo` loads, are inline in `frontend-mobile/src/screens/CheckoutScreen.tsx:185-191`. Web's fallback fee table is `frontend/src/constants/market.js:2-8`. The PRD tax list (line 127) omits SA.
+**Evidence**: `backend/constants.py:96-146` (tax, fee and tip per market); `backend/database.py:331-335` (delivery fee converted), `:357-360` (subtotal, tax, tip, total); `backend/routers/checkout.py:85-91` (totals call); `backend/models.py:122-130` (`get_tip_percentage`).
+**Notes**: Mobile's fallback tax and fee tables, used before `countryInfo` loads, are inline in `frontend-mobile/src/screens/CheckoutScreen.tsx:180-186`. Web's fallback fee table is `frontend/src/constants/market.js:2-8`. The PRD tax list (line 127) omits SA.
 
 ---
 
@@ -92,7 +92,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Given `X-Language` is omitted, `GET /api/cart` uses the market language, because its parameter defaults to `None` and the resolver falls back to the market default (code read; not run live).
 3. The market default table is MX `es`, US `en`, CH `de`, JP `ja`, SA `ar` on the backend, web and mobile.
 
-**Evidence**: `backend/routers/catalog.py:52` (`Header("en", alias="X-Language")`); `backend/test_api.py:99` (`Optional[str] = Header(None)`); `backend/database.py:43` (default table), `:46-48` (`_resolve_language`); `frontend/src/store.js:90-96`; `frontend-mobile/src/store/useAppStore.ts:77-83`.
+**Evidence**: `backend/routers/catalog.py:52` (`Header("en", alias="X-Language")`); `backend/test_api.py:99` (`Optional[str] = Header(None)`); `backend/database.py:54` (default table), `:57-59` (`_resolve_language`); `frontend/src/store.js:90-96`; `frontend-mobile/src/store/useAppStore.ts:77-83`.
 **Notes**: The UI is not affected: the web HTTP client sends the header on every request (`frontend/src/services/httpClient.js:28`), and the mobile client does too (`frontend-mobile/src/api/client.ts:44`). Direct API callers, such as the tests, are affected.
 
 ---
@@ -185,7 +185,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. Money is formatted with `Intl.NumberFormat` in the market currency; JPY has no decimals.
 3. The customizer and checkout use the same formatting.
 
-**Evidence**: `frontend/src/store.js:82-88` (locale table), `:135` (CH locale); `frontend/src/pages/Catalog.jsx:13-24` (`formatMoney`); `frontend/src/components/CartSidebar.jsx:24-36` (`format`); `frontend/src/components/PizzaCustomizerModal.jsx:30-44` (`formatMoney`); `frontend/src/pages/Checkout.jsx:64` (`formatMoney`).
+**Evidence**: `frontend/src/store.js:82-88` (locale table), `:135` (CH locale); `frontend/src/pages/Catalog.jsx:13-24` (`formatMoney`); `frontend/src/components/CartSidebar.jsx:24-36` (`format`); `frontend/src/components/PizzaCustomizerModal.jsx:30-44` (`formatMoney`); `frontend/src/pages/Checkout.jsx:65` (`formatMoney`).
 **Notes**: The formatting is `Intl` behaviour; the exact output strings were not executed in this run.
 
 ---
@@ -203,7 +203,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 2. The builder and checkout format non-JPY amounts with two decimals, so one pizza shows one decimal on the card and two in the builder.
 3. `frontend-mobile/src/utils/currency.ts` (`formatCurrency`, hard-coded formats per country) has no importer at HEAD.
 
-**Evidence**: `frontend-mobile/src/components/MobileProductCard.tsx:42` (raw `symbol` + `price`); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:50-56` (`formatMoney`, `toFixed(2)`); `frontend-mobile/src/screens/CheckoutScreen.tsx:51-57` (`money`); `frontend-mobile/src/utils/currency.ts:1-16`; `git grep` for `formatCurrency` at HEAD (definition only).
+**Evidence**: `frontend-mobile/src/components/MobileProductCard.tsx:42` (raw `symbol` + `price`); `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:45-51` (`formatMoney`, `toFixed(2)`); `frontend-mobile/src/screens/CheckoutScreen.tsx:46-52` (`money`); `frontend-mobile/src/utils/currency.ts:1-16`; `git grep` for `formatCurrency` at HEAD (definition only).
 **Notes**: Other MXN prices that print with one decimal on the card: p06 219.2, p07 and p10 289.4, p11 254.3 (computed from the base prices at 17.55, rounded to 2 decimals).
 
 ---
@@ -223,7 +223,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 4. Mobile: the native direction is fixed to left-to-right, so the layout flips from state without a reload.
 5. Mobile: logout returns the app to English.
 
-**Evidence**: `frontend/src/App.jsx:24-33` (dir and lang effect); `frontend/src/store.js:62-66` (logout resets language); `frontend-mobile/src/hooks/useRTL.ts:11-13,22-28` (hook and bidi note); `frontend-mobile/src/components/MobileProductCard.tsx:17`; `frontend-mobile/src/screens/CheckoutScreen.tsx:65`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:69`; `frontend-mobile/App.tsx:25-31` (rationale at 25-30; `I18nManager.allowRTL(false)` at 31); `frontend-mobile/src/store/useAppStore.ts:120-130` (logout language at 129).
+**Evidence**: `frontend/src/App.jsx:24-33` (dir and lang effect); `frontend/src/store.js:62-66` (logout resets language); `frontend-mobile/src/hooks/useRTL.ts:11-13,22-28` (hook and bidi note); `frontend-mobile/src/components/MobileProductCard.tsx:17`; `frontend-mobile/src/screens/CheckoutScreen.tsx:60`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:64`; `frontend-mobile/App.tsx:25-31` (rationale at 25-30; `I18nManager.allowRTL(false)` at 31); `frontend-mobile/src/store/useAppStore.ts:120-130` (logout language at 129).
 **Notes**: Visual output was not inspected in this run; the evidence is static. `App.tsx:25-30` explains why the mobile app avoids `I18nManager.forceRTL`.
 
 ---
