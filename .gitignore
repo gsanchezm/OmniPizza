@@ -75,3 +75,6 @@ cypress/videos/
 
 # Local git worktrees (subagent-driven-development isolation)
 /.worktrees
+
+# Paper drafts (kept locally, not tracked)
+/documents/paper
