@@ -104,7 +104,7 @@
   "cardHolder": "Karteninhaber",
   "prefecture": "Präfektur",
   "district": "Bezirk",
-  "invalidPhone": "Geben Sie eine gültige Telefonnummer ein (7-15 Ziffern)",
+  "invalidPhone": "Geben Sie eine gültige Telefonnummer ein (8-20 Ziffern)",
   "remove": "Entfernen",
   "and": "und",
   "startOrder": "Bestellung starten",

@@ -104,7 +104,7 @@
   "cardHolder": "Cardholder Name",
   "prefecture": "Prefecture",
   "district": "District",
-  "invalidPhone": "Enter a valid phone number (7-15 digits)",
+  "invalidPhone": "Enter a valid phone number (8-20 digits)",
   "remove": "Remove",
   "and": "and",
   "startOrder": "Start Your Order",

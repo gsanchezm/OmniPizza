@@ -104,7 +104,7 @@
   "cardHolder": "Nombre del Titular",
   "prefecture": "Prefectura",
   "district": "Distrito",
-  "invalidPhone": "Ingrese un teléfono válido (7-15 dígitos)",
+  "invalidPhone": "Ingrese un teléfono válido (8-20 dígitos)",
   "remove": "Eliminar",
   "and": "y",
   "startOrder": "Comienza tu Pedido",

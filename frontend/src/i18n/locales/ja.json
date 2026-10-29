@@ -104,7 +104,7 @@
   "cardHolder": "カード名義人",
   "prefecture": "都道府県",
   "district": "地区",
-  "invalidPhone": "有効な電話番号を入力してください（7〜15桁）",
+  "invalidPhone": "有効な電話番号を入力してください（8〜20桁）",
   "remove": "削除",
   "and": "と",
   "startOrder": "注文を始める",
