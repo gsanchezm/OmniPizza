@@ -1,6 +1,6 @@
 # Epic PROMO — Welcome Coupon
 
-A profiled (temporary) account receives one 15% coupon, valid on its first order only. The coupon is consumed when the order is created, is not restored when that order is cancelled, and never stacks with another coupon. The discount applies the same way in all 5 markets (currency and decimals differ); delivery is never discounted. Guests and test users cannot use a coupon.
+A profiled (temporary) account receives one single-use 15% coupon that lives as long as the account does (owner decision, 2026-10-28). Using it is optional: it stays available for any order of the account until it is used, and it disappears with the account at logout or JWT expiry. The coupon is consumed when the order is created, is not restored when that order is cancelled, and never stacks with another coupon. The discount applies the same way in all 5 markets (currency and decimals differ); delivery is never discounted. Guests and test users cannot use a coupon.
 
 Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 
@@ -15,7 +15,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 | US-PROMO-003-API | Discount math and rounding per market | API | Planned |
 | US-PROMO-003-WEB | Discount line in summary and order success | WEB | Planned |
 | US-PROMO-003-MOB | Discount line in summary and order success | MOB | Planned |
-| US-PROMO-004-API | First-purchase-only rule | API | Planned |
+| US-PROMO-004-API | Single-use coupon lifetime | API | Planned |
 | US-PROMO-005-API | Negative coupon flows | API | Planned |
 | US-PROMO-005-WEB | Coupon error handling | WEB | Planned |
 | US-PROMO-005-MOB | Coupon error handling | MOB | Planned |
@@ -24,7 +24,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 
 ### US-PROMO-001-API · Welcome coupon issued at registration
 
-**As a** customer **I want** a 15% welcome coupon when I register **so that** my first order gets a discount.
+**As a** customer **I want** a 15% welcome coupon when I register **so that** one order of my choice gets a discount.
 
 - Layer: API · Epic: PROMO · Persona: Customer · Market: all
 - Status: Planned
@@ -36,7 +36,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 3. Given a guest token, when `GET /api/users/me/coupon` is called, then the response is **404**.
 4. Given a test-user token, when `GET /api/users/me/coupon` is called, then the response is **404**.
 
-**Notes**: Depends on US-REG-001-API. Coupon code generation (including the alphabet of the six-character suffix) is left to the builder. Open: the fields of the `coupon` object beyond `percent` and the code, and what `GET /api/users/me/coupon` returns after the coupon is used (200 with a used state, or 404).
+**Notes**: Depends on US-REG-001-API. Coupon code generation (including the alphabet of the six-character suffix) is left to the builder. Settled: the `coupon` object is `{code, percent, status}` with `status` `available | used`; `GET /api/users/me/coupon` keeps answering 200 with `status: "used"` after use.
 
 ---
 
@@ -86,7 +86,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 1. Given a profiled customer with an unused coupon and no order yet, when `POST /api/coupons/validate` is called with `{code}`, then the response is **200** with `{valid: true, percent: 15}`.
 2. Given a validate call, when it is repeated or followed by checkout, then no coupon state changes; validate never consumes the coupon.
 3. Given an unknown code or another account's code, when it is validated, then the response is **400** with the message `Invalid coupon code` (the same answer for both, so codes cannot be probed).
-4. Given a coupon that is already used or no longer valid, when it is validated, then the response is **409**.
+4. Given a coupon that is already used, when it is validated, then the response is **409** `Coupon already used`.
 5. Given a guest or a test user sending any code, when it is validated, then the response is **400**.
 
 **Notes**: Depends on US-PROMO-001-API. Open: whether validate can answer **200** with `valid: false` for an unusable code, or only uses **400** and **409**; the `{valid, percent}` shape suggests the former, while the rules above suggest the latter.
@@ -104,7 +104,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 **Acceptance criteria**
 1. Given the Checkout page, when it renders, then a labelled coupon input and an apply action (stable `data-testid`s) appear in the checkout form.
 2. Given a valid code, when I apply it, then `POST /api/coupons/validate` is called and the field shows the 15% as accepted; the client computes no discount itself.
-3. Given the API answers **400**, when I apply a code, then the localized "invalid coupon code" message shows under the field; given **409**, then the localized "already used or no longer valid" message shows.
+3. Given the API answers **400**, when I apply a code, then the localized "invalid coupon code" message shows under the field; given **409**, then the localized "coupon already used" message shows.
 4. Given I place an order with an accepted code, when the checkout request is sent, then it carries `coupon_code`.
 
 **Notes**: Depends on US-PROMO-002-API and US-PROMO-003-API. Open: how checkout previews the discounted total without client-side math, since validate returns only `valid` and `percent` and the design defines no preview-totals call. Open: whether the coupon field is shown to guests and test users (who get **400** for any code) or hidden for them. Coupon copy: see the UX Open in US-REG-001-UX.
@@ -182,21 +182,22 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 
 ---
 
-### US-PROMO-004-API · First-purchase-only rule
+### US-PROMO-004-API · Single-use coupon lifetime
 
-**As a** customer **I want** my welcome coupon to apply to my first order only **so that** it cannot be reused or stacked.
+**As a** customer **I want** my welcome coupon to work once, on whichever order I choose, **so that** I am not forced to use it on my first order and it cannot be reused or stacked.
 
 - Layer: API · Epic: PROMO · Persona: Customer · Market: all
 - Status: Planned
-- Planned on: 2026-10-28 · Design: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Calls the designer made)
+- Planned on: 2026-10-28 · Design: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Decisions › Welcome coupon › Lifetime)
 
 **Acceptance criteria**
-1. Given an unused coupon, when the account's first order is created with it, then the discount applies and the coupon is consumed at creation.
-2. Given a consumed coupon, when a later order or a validate call uses it, then the response is **409**.
-3. Given the account's first order is placed without the coupon, when the coupon is later validated or sent at checkout, then the response is **409** (no longer valid).
+1. Given an available coupon, when any order of the account is created with it (first or later), then the discount applies and the coupon is consumed at creation.
+2. Given an order placed without the coupon, when the coupon is later validated or sent at checkout, then it is still accepted (**200** on validate, discount applied at checkout).
+3. Given a consumed coupon, when a later order or a validate call uses it, then the response is **409** `Coupon already used` and `GET /api/users/me/coupon` reports `status: "used"`.
 4. Given a consumed coupon, when the order that used it is cancelled through `PATCH /api/orders/{order_id}`, then the coupon stays consumed and reuse returns **409**.
+5. Given the account is deleted (logout or JWT expiry), when its old code is sent by any later account, then the response is **400** `Invalid coupon code` (the coupon left with the account).
 
-**Notes**: Designer's call (owner to confirm): "first purchase" means the account's first order; the coupon is consumed when that order is created; a first order placed without it makes the coupon invalid. Open: whether a first order that was later cancelled still counts as "placed without it".
+**Notes**: Owner decision 2026-10-28: the coupon is optional and single-use, not "first order only"; there is no forfeit and no `expired` state, because the account itself is not persisted. Replaces the designer's earlier first-order-only call.
 
 ---
 
@@ -211,7 +212,7 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`.
 **Acceptance criteria**
 1. Given an unknown code, when it is sent to validate or to checkout, then the response is **400** with the message `Invalid coupon code`.
 2. Given another account's code, when it is sent to validate or to checkout, then the response is the same **400** and message.
-3. Given a used or no-longer-valid code, when it is sent to validate or to checkout, then the response is **409**.
+3. Given an already used code, when it is sent to validate or to checkout, then the response is **409** `Coupon already used`.
 4. Given a guest or a test user sending any code, when it is sent, then the response is **400**.
 5. Given checkout fails with a coupon attached (for example a **422** body error, or the random failure described in the design), when the failure happens, then the coupon is not consumed and a retry with the same code succeeds.
 

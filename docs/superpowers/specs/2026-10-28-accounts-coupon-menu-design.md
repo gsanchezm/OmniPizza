@@ -6,7 +6,7 @@ Date: 2026-10-28 · Branch: `US-and-Improvements` · Status: the decisions below
 
 OmniPizza is a QA sandbox that is also becoming a showcase of a traceable project. Today every session is one of 7 fixed test users and the menu is 12 pizzas. This change adds the shapes a real ordering product has, so there is more to automate and to track:
 
-1. **Two new kinds of customer next to the 7 test users**: a **guest** (no account, same flow as today) and a **profiled** customer who creates a **temporary, non-persistent account** and receives a **15% welcome coupon valid on the first purchase only**.
+1. **Two new kinds of customer next to the 7 test users**: a **guest** (no account, same flow as today) and a **profiled** customer who creates a **temporary, non-persistent account** and receives a **single-use 15% welcome coupon** that lives as long as the account does.
 2. **A bigger menu**: pizzas grow from 12 to 20, and the menu gains **6 soft drinks** and **10 desserts**.
 3. **Traceability**: every piece of this is a user story created up front with status *Planned*, and **all documentation is updated after implementation**.
 
@@ -65,8 +65,9 @@ The registration UI uses **the language of the selected market**, exactly like L
 - Entered in a **coupon field at checkout**. `POST /api/coupons/validate {code}` returns `{valid, percent}` so clients show the discount before placing.
 - `CheckoutRequest` gains optional `coupon_code`. `OrderSummary` gains `discount` (0.0 when none) and `coupon_code` (null when none). `subtotal` stays the pre-discount items subtotal.
 - Math (all rounded with the market's existing rounding): `discount = round(subtotal × 15%)`; taxable base = `subtotal − discount`; `tax` and `tip` are computed on the discounted subtotal; `total = discounted + delivery + tax + tip`. Delivery is never discounted. With no coupon every existing number is unchanged.
-- Rules: unknown code or a code that is not the caller's own → **400** `Invalid coupon code` (same answer, so codes cannot be probed); already used or no longer valid → **409**; guests and test users sending any code → 400.
-- The coupon is consumed **only when the order is created** (a failed checkout, including the random 500 of `error_user`, consumes nothing) and is **not restored** if the order is cancelled.
+- Rules: unknown code or a code that is not the caller's own → **400** `Invalid coupon code` (same answer, so codes cannot be probed); already used → **409** `Coupon already used`; guests and test users sending any code → 400.
+- **Lifetime (owner decision, 2026-10-28):** the coupon is **single-use and optional**. It stays `available` until it is used, for any order of the account, not only the first one. It never expires on its own: placing an order without it does not forfeit it. It disappears with the account (logout or JWT expiry), because the account is not persisted. There is no `expired` state.
+- The coupon is consumed **only when the order is created** (a failed checkout consumes nothing) and is **not restored** if the order is cancelled.
 
 ### Menu
 
@@ -79,7 +80,7 @@ The registration UI uses **the language of the selected market**, exactly like L
 
 ### Clients (web and mobile)
 
-- Login: guest and create-account entries. Register screen/route (`/register`, `omnipizza://register`). After registering the user is signed in, with a coupon banner.
+- Login: guest and create-account entries. Register screen/route (`/register`, `omnipizza://register`). **After a successful registration the client signs the user in and goes straight to the catalog** (web `/catalog`, mobile `Catalog` screen), where the coupon banner is shown (owner decision, 2026-10-28).
 - Catalog: tabs **Pizzas | Drinks | Desserts**; drinks and desserts add straight to the cart (no builder). Deep link `omnipizza://catalog?section=drinks|desserts`.
 - Cart, checkout and order summary list drinks/desserts; checkout has the coupon field and a discount line; order success shows the discount. Profile shows the coupon (profiled) or a "create an account for 15% off" prompt (guest).
 - Logout calls the new endpoint first. Strings go into all 6 locale files of each client. New interactive elements get stable ids following the existing conventions (web `data-testid`, mobile `testID` with `btn-/input-/text-/view-` prefixes).
@@ -104,7 +105,8 @@ Wave 2 (after W1 and W2 contracts are merged): **W4 web**, **W5 mobile**. Then a
 
 ## Calls the designer made (owner to confirm or change)
 
-- "First purchase only" is implemented as: valid for the account's first order; consumed when that order is created; if the first order is placed without it, it is no longer valid (409).
+- ~~"First purchase only" is implemented as: valid for the account's first order; forfeited if that order is placed without it.~~ **Overridden by the owner (2026-10-28):** the coupon is single-use and valid for any order while the account exists; see *Welcome coupon › Lifetime*.
+- **After registration the client lands on the catalog** (owner decision, 2026-10-28), not on Profile or Login.
 - `product_id` alias + `item_type`, with `pizza_id` kept as the universal field; ids `dr01..dr06`, `ds01..ds10`; categories `soda` / `dessert`.
 - New endpoints `POST /api/auth/logout`, `GET /api/users/me/coupon`, `POST /api/coupons/validate`; status codes 400/409/429 as above; registration returns 201.
 - Temporary accounts cannot be used with `POST /api/auth/login` (401); they only exist through the token returned by register/guest.
@@ -119,9 +121,9 @@ Wave 2 (after W1 and W2 contracts are merged): **W4 web**, **W5 mobile**. Then a
 - **Status codes:** `POST /api/auth/register` and `POST /api/auth/guest` → 201 with the `LoginResponse` shape; `POST /api/auth/logout` → 200 `{"status":"logged_out"}`; a missing or invalid token on logout → 401 like the other authenticated endpoints. Register, guest and logout do not need `X-Country-Code`/`X-Language` (same as login).
 - **Usernames** are unique case-insensitively (the original spelling is kept for display); reserved test names are matched case-insensitively and answer the same 409 as a duplicate. English texts: 409 `Username already taken`, 429 `Too many users`.
 - **`profile_type`** is returned by login/register/guest, by `GET /api/auth/profile`, and carried in the JWT, so clients can restore it after a reload. `GET /api/auth/users` still lists only the 7 test users.
-- **Coupon object** = `{code, percent, status}` with `status` `available | used | expired`. `GET /api/users/me/coupon` keeps answering 200 after use (`used`) or forfeit (`expired`); 404 only for guests and test users.
-- **`POST /api/coupons/validate`** → 200 `{valid: true, code, percent}`; failures use the same status and message as checkout (400 invalid, 409 used/expired). The discount **amount** shown in the preview uses each client's existing rounding helper; the server's `OrderSummary` is authoritative (the known client-vs-server rounding gap is tracked as a *Found* story, not changed here).
-- **A cancelled first order still counts as "placed"**: the coupon is spent and is not restored. Guests and test users sending any `coupon_code` get 400 `Invalid coupon code`. The random 500 of `error_user`/`security_glitch_user` happens before the coupon is touched.
+- **Coupon object** = `{code, percent, status}` with `status` `available | used`. `GET /api/users/me/coupon` keeps answering 200 after use (`used`); 404 only for guests and test users.
+- **`POST /api/coupons/validate`** → 200 `{valid: true, code, percent}`; failures use the same status and message as checkout (400 invalid, 409 used). The discount **amount** shown in the preview uses each client's rounding helper; the server's `OrderSummary` is authoritative. The client-vs-server rounding gap (US-CHK Found story) is being fixed on the base branch before this work starts, so the preview and the server agree.
+- **A cancelled order does not restore the coupon**: it is spent when the order is created. Guests and test users sending any `coupon_code` get 400 `Invalid coupon code`. The random 500 of `error_user`/`security_glitch_user` happens before the coupon is touched (those are test users, so they never carry a coupon anyway).
 - **Unknown or mismatched item** (`item_type` drink/dessert with an id that is not in that menu) → 422 `Unknown product`; the lenient legacy behaviour for unknown *pizza* ids is left as is (tracked as *Found*).
 - **Menu text:** "330 ml" is part of each drink's description, not a payload field; desserts have no portion field. English descriptions follow the existing style; Arabic text uses halal-safe wording like the current pizzas (beef/turkey variants, no pork); no dessert description mentions alcohol in any language.
 - **Deep links / routes:** `omnipizza://register`, `omnipizza://catalog?section=drinks|desserts` (an unknown section falls back to pizzas); web equivalents `/register` and `/catalog?section=drinks|desserts`.

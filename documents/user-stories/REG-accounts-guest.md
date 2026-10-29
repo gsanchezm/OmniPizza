@@ -59,7 +59,7 @@ Conventions: story 007 is written for the QA persona; its layers are still WEB a
 
 **Acceptance criteria**
 1. Given the Login page, when I choose "Create account", then `/register` opens with labelled username, password and optional full name fields, each with a stable `data-testid`.
-2. Given valid input, when I submit, then `POST /api/auth/register` is sent and on **201** I am signed in and see the coupon banner (US-REG-001-UX) with the returned code.
+2. Given valid input, when I submit, then `POST /api/auth/register` is sent and on **201** I am signed in and taken straight to `/catalog`, where the coupon banner (US-REG-001-UX) shows the returned code (owner decision, 2026-10-28).
 3. Given the API answers **409**, **429** or **422**, when I submit, then the form shows the localized message for each (409 username taken, 429 "Too many users", 422 next to the matching field) and I am not signed in.
 4. Given a direct navigation to `/register`, when the lazy route loads, then the page is reached through the existing `route-loading` fallback and its own `data-testid` (no page imported from a component).
 
@@ -77,7 +77,7 @@ Conventions: story 007 is written for the QA persona; its layers are still WEB a
 
 **Acceptance criteria**
 1. Given the Login screen, when I tap "Create account", then the Register screen opens; the deep link `omnipizza://register` opens the same screen.
-2. Given valid input, when I submit, then on **201** the app stores the token, signs me in and shows the coupon banner.
+2. Given valid input, when I submit, then on **201** the app stores the token, signs me in and navigates straight to the Catalog screen, where the coupon banner is shown (owner decision, 2026-10-28).
 3. Given the API answers **409**, **429** or **422**, when I submit, then the screen shows the localized message as on web and I am not signed in.
 4. Given the Register screen, when it renders, then every interactive element has a `testID` with the `btn-`, `input-`, `text-` or `view-` prefix.
 

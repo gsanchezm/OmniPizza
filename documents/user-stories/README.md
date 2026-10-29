@@ -118,7 +118,7 @@ Designed in `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md`; 
 | [US-PROMO-003-API](PROMO-welcome-coupon.md#us-promo-003-api--discount-math-and-rounding-per-market) | Discount math and rounding per market | API |
 | [US-PROMO-003-WEB](PROMO-welcome-coupon.md#us-promo-003-web--discount-line-in-summary-and-order-success-web) | Discount line in summary and order success (web) | WEB |
 | [US-PROMO-003-MOB](PROMO-welcome-coupon.md#us-promo-003-mob--discount-line-in-summary-and-order-success-mobile) | Discount line in summary and order success (mobile) | MOB |
-| [US-PROMO-004-API](PROMO-welcome-coupon.md#us-promo-004-api--first-purchase-only-rule) | First-purchase-only rule | API |
+| [US-PROMO-004-API](PROMO-welcome-coupon.md#us-promo-004-api--single-use-coupon-lifetime) | Single-use coupon lifetime | API |
 | [US-PROMO-005-API](PROMO-welcome-coupon.md#us-promo-005-api--negative-coupon-flows) | Negative coupon flows | API |
 | [US-PROMO-005-WEB](PROMO-welcome-coupon.md#us-promo-005-web--coupon-error-handling-web) | Coupon error handling (web) | WEB |
 | [US-PROMO-005-MOB](PROMO-welcome-coupon.md#us-promo-005-mob--coupon-error-handling-mobile) | Coupon error handling (mobile) | MOB |
