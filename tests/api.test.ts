@@ -314,6 +314,34 @@ describe('Country Specific Logic', () => {
     }
   });
 
+  it('should reject a malformed US zip_code with a 422 and an English message', async () => {
+    try {
+      await axios.post(
+        `${API_URL}/api/checkout`,
+        {
+          country_code: 'US',
+          items: [{ pizza_id: pizzaId, quantity: 1 }],
+          name: 'Test User',
+          address: 'Test Address 123',
+          phone: '5551234567',
+          zip_code: '1234',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      expect.unreachable('Should have thrown');
+    } catch (err) {
+      const error = err as AxiosError<{ detail: { loc: string[]; msg: string }[] }>;
+      expect(error.response?.status).toBe(422);
+      const zipError = error.response?.data.detail.find((d) => d.loc.includes('zip_code'));
+      expect(zipError?.msg).toContain('ZIP code must be 5 digits');
+    }
+  });
+
   it('should accept US checkout with valid zip_code', async () => {
     const res = await axios.post(
       `${API_URL}/api/checkout`,

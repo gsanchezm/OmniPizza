@@ -192,6 +192,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 
 ## 9. Error Handling Contract
 * HTTP exceptions are returned in structured JSON (`error`, `status_code`, `timestamp`).
+* Request-body validation failures (e.g. malformed US `zip_code`, `quantity` out of range) return `422` in FastAPI's default shape `{"detail": [{"loc": [...], "msg": "...", "type": "..."}]}`, not the structured shape above. Messages are in English.
 * Unexpected server exceptions return (`error="Internal server error"`, `detail`, `timestamp`).
 * Web client on `401` clears auth and redirects to login.
 * Mobile client propagates API errors to caller; screens decide UI message rendering.

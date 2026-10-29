@@ -116,7 +116,7 @@ class CheckoutRequest(BaseModel):
     def validate_zip_code(cls, v, values):
         if values.get('country_code') in (CountryCode.US, CountryCode.MX) and v:
             if not v.isdigit() or len(v) != 5:
-                raise ValueError('ZIP code debe tener 5 dígitos')
+                raise ValueError('ZIP code must be 5 digits')
         return v
 
     def get_tip_percentage(self) -> float:
