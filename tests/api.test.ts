@@ -536,6 +536,35 @@ describe('Country Specific Logic', () => {
 // ---------------------------------------------------------------------------
 // Debug Endpoints
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Totals rounding: half-values round up, the same rule the web and mobile
+// clients apply, so the total shown before placing equals the total charged.
+// ---------------------------------------------------------------------------
+describe('Totals rounding', () => {
+  it('rounds a half-cent tip up (10 x small Margherita, US, 15% tip)', async () => {
+    const token = await login('standard_user');
+    const res = await axios.post(
+      `${API_URL}/api/checkout`,
+      {
+        country_code: 'US',
+        items: [{ pizza_id: 'p01', size: 'small', quantity: 10 }],
+        name: 'Round Up',
+        address: '1 Half Cent Way',
+        phone: '5551234567',
+        zip_code: '12345',
+        tip: 15,
+      },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    );
+    expect(res.status).toBe(200);
+    // subtotal 129.90 -> tip 19.485 is a true half-cent: it must round up, not to even.
+    expect(res.data.subtotal).toBe(129.9);
+    expect(res.data.tip).toBe(19.49);
+    expect(res.data.tax).toBe(10.39);
+    expect(res.data.total).toBe(161.78);
+  });
+});
+
 describe('Debug Endpoints', () => {
   it('should add latency on /api/debug/latency-spike', async () => {
     const start = Date.now();

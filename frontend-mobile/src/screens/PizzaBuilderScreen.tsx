@@ -17,6 +17,7 @@ import type { PizzaSize, PizzaConfig } from "../store/useAppStore";
 import { getCatalogPizzas } from "../features/catalog/useCases/getCatalogPizzas";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { roundCurrencyAmount } from "../utils/rounding";
 import { useT } from "../i18n";
 import { useRTL } from "../hooks/useRTL";
 import { useToastStore } from "../components/toastStore";
@@ -41,14 +42,8 @@ function computeUnitPrice(
   return base + sizeAdd + toppingUnit * toppingsCount;
 }
 
-function normalizeMoneyAmount(value: number, currency?: string) {
-  if (!Number.isFinite(value)) return 0;
-  if (currency === "JPY") return Math.round(value);
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
 function formatMoney(value: number, currency?: string, symbol?: string) {
-  const amount = normalizeMoneyAmount(value, currency);
+  const amount = roundCurrencyAmount(value, currency);
   const safeSymbol =
     typeof symbol === "string" ? symbol : currency === "JPY" ? "¥" : "$";
   if (currency === "JPY") return `${safeSymbol}${amount}`;
@@ -125,7 +120,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
 
   const confirm = () => {
     if (!pizza) return;
-    const finalUnitPrice = normalizeMoneyAmount(unitPrice, pizza.currency);
+    const finalUnitPrice = roundCurrencyAmount(unitPrice, pizza.currency);
 
     const config: PizzaConfig = {
       size,

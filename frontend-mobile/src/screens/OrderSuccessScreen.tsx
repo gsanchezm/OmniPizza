@@ -14,6 +14,7 @@ import { useT } from "../i18n";
 import { useRTL } from "../hooks/useRTL";
 import { getCourierProfile } from "../features/orderSuccess/useCases/getCourierProfile";
 import { getReadableControlProps, getReadableTextProps } from "../utils/qa";
+import { roundCurrencyAmount } from "../utils/rounding";
 
 const { width } = Dimensions.get("window");
 
@@ -29,10 +30,7 @@ export default function OrderSuccessScreen({ navigation }: any) {
     const currency = lastOrder?.currency;
     const symbol =
       lastOrder?.currency_symbol ?? (currency === "JPY" ? "¥" : "$");
-    const amount =
-      currency === "JPY"
-        ? Math.round(value)
-        : Math.round((value + Number.EPSILON) * 100) / 100;
+    const amount = roundCurrencyAmount(value, currency);
     return currency === "JPY" ? `${symbol}${amount}` : `${symbol}${amount.toFixed(2)}`;
   };
 

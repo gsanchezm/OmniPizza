@@ -12,6 +12,7 @@ import { placeOrder } from "../features/checkout/useCases/placeOrder";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { FALLBACK_DELIVERY_FEE_BY_COUNTRY } from "../constants/market";
 import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
+import { roundCurrencyAmount } from "../utils/rounding";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
 import { cartService } from "../services/cart.service";
 import PizzaCustomizerModal from "../components/PizzaCustomizerModal";
@@ -104,12 +105,6 @@ const EXPIRY_MONTHS = Array.from({ length: 12 }, (_, i) =>
   String(i + 1).padStart(2, "0"),
 );
 const EXPIRY_YEARS = Array.from({ length: 16 }, (_, i) => String(24 + i));
-
-function roundCurrencyAmount(value, currency) {
-  if (!Number.isFinite(value)) return 0;
-  if (currency === "JPY") return Math.round(value);
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
 
 export default function Checkout() {
   const t = useT();

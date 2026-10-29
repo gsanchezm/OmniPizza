@@ -5,6 +5,7 @@ from constants import (
 )
 import uuid
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 import random
 import math
 
@@ -31,13 +32,23 @@ def convert_usd_amount(
     return round(converted, decimal_places)
 
 
+# Rounding contract for order totals, shared with the clients
+# (frontend/src/utils/rounding.js, frontend-mobile/src/utils/rounding.ts):
+# take the exact binary value, drop floating-point noise at 9 decimals, then
+# round half UP at the currency's decimals. Python's round() is half-to-even
+# on the binary value (19.485 -> 19.48), which disagreed with the clients.
+# Amounts here are never negative, which is what makes the JS Math.round
+# variant identical to ROUND_HALF_UP.
+_NOISE_QUANTUM = Decimal("1e-9")
+
+
 def round_currency_amount(
     amount: float,
     decimal_places: int,
 ) -> float:
-    if decimal_places == 0:
-        return float(round(amount))
-    return round(amount, decimal_places)
+    clean = Decimal(amount).quantize(_NOISE_QUANTUM, rounding=ROUND_HALF_UP)
+    quantum = Decimal(1).scaleb(-decimal_places)
+    return float(clean.quantize(quantum, rounding=ROUND_HALF_UP))
 
 
 _DEFAULT_LANG_BY_COUNTRY = {"MX": "es", "US": "en", "CH": "de", "JP": "ja", "SA": "ar"}

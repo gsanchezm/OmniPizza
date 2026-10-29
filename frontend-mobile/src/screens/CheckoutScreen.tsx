@@ -26,6 +26,7 @@ import { cartItemSignature } from "../features/checkout/useCases/applyCartItemEd
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
+import { roundCurrencyAmount } from "../utils/rounding";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
 
 const { width } = Dimensions.get("window");
@@ -42,14 +43,8 @@ const CARD_EXPIRY_YEAR_OPTIONS: DropdownOption[] = Array.from({ length: 16 }, (_
   return { label: y, value: y };
 });
 
-function normalizeMoneyAmount(value: number, currency: string) {
-  if (!Number.isFinite(value)) return 0;
-  if (currency === "JPY") return Math.round(value);
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
 function money(value: number, currency: string, symbol?: string) {
-  const amount = normalizeMoneyAmount(value, currency);
+  const amount = roundCurrencyAmount(value, currency);
   const safeSymbol =
     typeof symbol === "string" ? symbol : currency === "JPY" ? "¥" : "$";
   if (currency === "JPY") return `${safeSymbol}${amount}`;
@@ -169,7 +164,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
   const subtotal = useMemo(() => {
     const currentCurrency = cartItems[0]?.currency || "USD";
-    return normalizeMoneyAmount(
+    return roundCurrencyAmount(
       cartItems.reduce(
         (sum: number, item: CartItem) =>
           sum + Number(item.unit_price) * Number(item.quantity),
@@ -198,9 +193,9 @@ export default function CheckoutScreen({ navigation }: any) {
     setTipOption(hasZeroOption ? DEFAULT_TIP_PERCENTAGE : String(tipPercentages[0] ?? 0));
   }, [country, tipPercentages]);
   const tipPercentage = Number(tipOption) || 0;
-  const tax = normalizeMoneyAmount(subtotal * taxRate, currency);
-  const tipAmount = normalizeMoneyAmount(subtotal * (tipPercentage / 100), currency);
-  const total = normalizeMoneyAmount(subtotal + deliveryFee + tipAmount + tax, currency);
+  const tax = roundCurrencyAmount(subtotal * taxRate, currency);
+  const tipAmount = roundCurrencyAmount(subtotal * (tipPercentage / 100), currency);
+  const total = roundCurrencyAmount(subtotal + deliveryFee + tipAmount + tax, currency);
 
   const updateCardExpiry = (part: "month" | "year", v: string) => {
     const month = part === "month" ? v : cardExpMonth;
