@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useAppStore } from "../store/useAppStore";
 import { NativeModules } from "react-native";
+import { handleUnauthorized } from "./unauthorized";
+import { resetToLogin } from "../navigation/navigationRef";
 
 // Fallback logic for Detox launch args (injected via device.launchApp launchArgs)
 let detoxCountryCode: string | null = null;
@@ -47,3 +49,16 @@ apiClient.interceptors.request.use((config) => {
 
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    // Expired/invalid token on an authenticated request -> back to Login (see unauthorized.ts).
+    handleUnauthorized(err, {
+      hasSession: () => Boolean(useAppStore.getState().token),
+      logout: () => useAppStore.getState().logout(),
+      goToLogin: resetToLogin,
+    });
+    return Promise.reject(err);
+  },
+);

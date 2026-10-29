@@ -1,10 +1,6 @@
 import React, { useEffect } from "react";
 import { View, I18nManager } from "react-native";
-import {
-  NavigationContainer,
-  DarkTheme,
-  createNavigationContainerRef,
-} from "@react-navigation/native";
+import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Toast } from "./src/components/Toast";
 
@@ -16,6 +12,7 @@ import OrderSuccessScreen from "./src/screens/OrderSuccessScreen";
 import PizzaBuilderScreen from "./src/screens/PizzaBuilderScreen";
 
 import linking from "./src/navigation/linking";
+import { navigationRef } from "./src/navigation/navigationRef";
 import { useDeepLinkParams } from "./src/hooks/useDeepLinkParams";
 import type { RootStackParamList } from "./src/navigation/types";
 import { useAppStore } from "./src/store/useAppStore";
@@ -23,7 +20,7 @@ import { countryService } from "./src/services/country.service";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+export { navigationRef };
 
 // RTL is applied REACTIVELY per-component via the `useRTL()` hook (driven by the
 // active language), NOT via I18nManager.forceRTL(). forceRTL requires a full app
