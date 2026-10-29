@@ -11,7 +11,8 @@ export function validateCheckoutForm(input: {
 
   if (!form.address.trim()) return t("validationAddressRequired");
   if (country === "MX" && !form.colonia.trim()) return t("validationColoniaRequired");
-  if (country === "MX" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return t("validationZipFiveDigits");
+  // MX zip is optional (same as web and the API); when given it must be 5 digits.
+  if (country === "MX" && form.zip_code.trim() && form.zip_code.trim().length !== 5) return t("validationZipFiveDigits");
   if (country === "US" && (!form.zip_code.trim() || form.zip_code.trim().length !== 5)) return t("validationZipFiveDigits");
   if (country === "CH" && !form.plz.trim()) return t("validationPlzRequired");
   if (country === "JP" && !form.prefectura.trim()) return t("validationPrefectureRequired");
