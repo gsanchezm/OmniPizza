@@ -51,6 +51,14 @@ export const useAuthStore = create(
           try {
             useProfileStore.getState().setProfile({ fullName: "", address: "", phone: "", notes: "", birthday: "" });
           } catch { /* profile store not ready — nothing to clear */ }
+          // Drop the previous session's cart and last order too (mobile's logout already
+          // does), so they can't show up for whoever signs in next in this browser.
+          try {
+            useCartStore.getState().clearCart();
+          } catch { /* cart store not ready — nothing to clear */ }
+          try {
+            useOrderStore.getState().clearLastOrder();
+          } catch { /* order store not ready — nothing to clear */ }
           // Return to the neutral English/LTR state the app starts in, so a previous
           // Arabic (SA) session doesn't leave the login screen reversed / in the wrong
           // language. The market's language is re-applied on the next login.
