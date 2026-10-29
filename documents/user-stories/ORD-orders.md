@@ -2,7 +2,7 @@
 
 Order history and detail, cancellation of pending orders, the `OrderSummary` contract shared by every order endpoint, and the order-success screen (confirmation, simulated tracking, and atomic `orderId` hydration for QA). Covers `backend/routers/checkout.py` (order routes), `frontend/src/pages/OrderSuccess.jsx` and `frontend-mobile/src/screens/OrderSuccessScreen.tsx`.
 
-**Conventions.** `path:line` refers to this worktree's branch (HEAD `9ca3767`, which is `main` `87966da` plus `/api/version`). `US-and-Improvements:path:line` refers to the `US-and-Improvements` branch (local and `origin`), where the 2026-10-28 fix commits live; those fixes are not on this branch or on `main`. "Probe" means an in-process `fastapi.testclient.TestClient` run against this checkout on 2026-10-28 (no server, no port). Order data is stored per username (`backend/database.py:167-168`), not per login session.
+**Conventions.** `path:line` refers to this branch after the 2026-10-28 merge of `US-and-Improvements` (which brings `origin/main` and the 2026-10-28 fixes). Line numbers were recomputed from the merge's hunks and spot-checked against the merged files. Fixes dated 2026-10-28 are cited with their commit sha. "Probe" means an in-process `fastapi.testclient.TestClient` run against this checkout on 2026-10-28 (no server, no port). Order data is stored per username (`backend/database.py:167-168`), not per login session.
 
 | ID | Title | Layer | Status |
 |---|---|---|---|
@@ -76,10 +76,10 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **Acceptance criteria**
 1. Given a pending order owned by the caller, when `PATCH /api/orders/{id}` is called with `{"status": "cancelled"}`, then the response is 200 with `status` "cancelled" (probe; `backend/routers/checkout.py:203-212`, `backend/database.py:161-165`).
 2. Given an order that is already cancelled, when cancel is called again, then the response is 409 with "Order already cancelled, cannot cancel" (probe; `backend/routers/checkout.py:203-207`).
-3. Given a body whose `status` is anything other than "cancelled", then the response is 422 (probe; `backend/models.py:146-148`).
+3. Given a body whose `status` is anything other than "cancelled", then the response is 422 (probe; `backend/models.py:147-149`).
 4. Given another user's order, then 403; given an unknown id, then 404 (probe; `backend/routers/checkout.py:189-201`).
 
-**Evidence**: `backend/routers/checkout.py:167-212`, `backend/models.py:146-148`, `backend/database.py:161-165`
+**Evidence**: `backend/routers/checkout.py:167-212`, `backend/models.py:147-149`, `backend/database.py:161-165`
 **Notes**: Only pending → cancelled is supported (PRD §6.10, `documents/Product_Requirement_Doc.md:136`). API-only: no web or mobile code calls PATCH or `cancelOrder`, so a customer cannot cancel from the apps today. Status "pending" is set at creation (`backend/database.py:154`); no other transition exists.
 
 ### US-ORD-005-API · One OrderSummary contract for every order endpoint
@@ -91,25 +91,26 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **Acceptance criteria**
 1. Given a successful checkout, when the response is built, then it uses `_order_summary` (`backend/routers/checkout.py:10-25`, `:125`).
 2. Given `GET /api/orders/{id}` and `PATCH /api/orders/{id}` succeed, then they return the same builder output (`backend/routers/checkout.py:165`, `:212`); the response model is `OrderSummary` for all three (`backend/routers/checkout.py:33`, `:135`, `:169`).
-3. Given any order, then `status` is present: "pending" after creation and "cancelled" after PATCH (`backend/models.py:133`; probe for both states).
-4. `currency_symbol` comes from `COUNTRY_CONFIG` for the order's market (`backend/constants.py:90-146`; JP uses `¥`, constants.py:126).
+3. Given any order, then `status` is present: "pending" after creation and "cancelled" after PATCH (`backend/models.py:134`; probe for both states).
+4. `currency_symbol` comes from `COUNTRY_CONFIG` for the order's market (`backend/constants.py:89-146`; JP uses `¥`, `backend/constants.py:126`).
 
-**Evidence**: `backend/routers/checkout.py:10-25,33,125,135,165,169,212`, `backend/models.py:131-144`
+**Evidence**: `backend/routers/checkout.py:10-25,33,125,135,165,169,212`, `backend/models.py:132-145`
 **Notes**: The history list does not use this contract (US-ORD-010-API). PRD §6.10 (`documents/Product_Requirement_Doc.md:135`) calls the detail shape canonical.
 
 ### US-ORD-006-WEB · Order confirmation screen on web
 **As a** customer **I want** a confirmation screen after I place an order **so that** I see the order number and total.
 - Layer: WEB · Epic: ORD · Persona: Customer · Market: MX US CH JP SA
 - Status: Done
+- Done on: 2026-10-28 · Commit: 60774e3 (AC 4, logout clears the last order; US-and-Improvements fix now merged)
 
 **Acceptance criteria**
 1. Given a placed order, when `/order-success` opens, then the order id (`frontend/src/pages/OrderSuccess.jsx:126-131`) and the total (`:133`) are shown.
 2. Given the "view order details" toggle is pressed, then the details panel opens, with `aria-expanded` and `aria-controls` set (`frontend/src/pages/OrderSuccess.jsx:134-147`).
-3. Given an order is placed, then it is held in the `omnipizza-order` store (`frontend/src/store.js:250-262`) until replaced.
-4. Given logout, then the last order is cleared on US-and-Improvements (`US-and-Improvements:frontend/src/store.js:54-60`, fix 60774e3). On this branch `frontend/src/store.js:43-53` clears only the token, username and profile.
+3. Given an order is placed, then it is held in the `omnipizza-order` store (`frontend/src/store.js:258-270`) until replaced.
+4. Given logout, then the last order is cleared, together with the cart (`frontend/src/store.js:54-61`, fix 60774e3).
 
-**Evidence**: `frontend/src/pages/OrderSuccess.jsx:14-15,126-172`, `frontend/src/store.js:250-262`, `frontend/src/store.js:43-53` (HEAD), `US-and-Improvements:frontend/src/store.js:54-60`
-**Notes**: AC 4 is fix 60774e3 (2026-10-28), US-and-Improvements only. The details panel rows are broken (US-ORD-009-WEB). Status is Done because ACs 1-3 hold on this branch.
+**Evidence**: `frontend/src/pages/OrderSuccess.jsx:14-15,126-172`, `frontend/src/store.js:43-61`, `frontend/src/store.js:258-270`
+**Notes**: The details panel rows are broken (US-ORD-009-WEB). Status is Done because all four ACs hold after the merge.
 
 ### US-ORD-006-MOB · Order confirmation screen on mobile
 **As a** customer **I want** the same confirmation on my phone **so that** I know the order was accepted and what I paid.
@@ -118,10 +119,10 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 
 **Acceptance criteria**
 1. Given a placed order, when the success screen opens, then the order id is shown (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:163-167`), with subtotal, delivery fee, tax, tip and total rows (`:169-187`).
-2. Given logout, then the last order is cleared (`frontend-mobile/src/store/useAppStore.ts:118-122`).
+2. Given logout, then the last order is cleared (`frontend-mobile/src/store/useAppStore.ts:120-130`, `lastOrder: null` at `:124`).
 3. Given no last order, then the details block is not rendered (`frontend-mobile/src/screens/OrderSuccessScreen.tsx:163`, conditional on `lastOrder`).
 
-**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:23,163-187`, `frontend-mobile/src/store/useAppStore.ts:118-128`
+**Evidence**: `frontend-mobile/src/screens/OrderSuccessScreen.tsx:23,163-187`, `frontend-mobile/src/store/useAppStore.ts:120-130`
 **Notes**: The mobile screen shows totals but no per-item rows. The store is not persisted, so a relaunch clears the order (`frontend-mobile/src/store/useAppStore.ts`, no persist).
 
 ### US-ORD-007-WEB · Hydrate the success screen from `?orderId=` (atomic entry)
@@ -184,7 +185,7 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **As a** customer **I want** the details panel to list each pizza with its price in the order's currency **so that** I can check what I was charged.
 - Layer: WEB · Epic: ORD · Persona: Customer · Market: MX US CH JP SA
 - Status: Found
-- Found on: 9ca3767 (HEAD) · introduced in 2b3a099 (2026-07-09, `git log -S` hit for `order-detail-item`)
+- Found on: 2026-10-28 (after the merge) · introduced in 2b3a099 (2026-07-09, `git log -S` hit for `order-detail-item`)
 
 **Acceptance criteria**
 1. Given an order with items, when the details panel opens, then each row reads `it.pizza?.name || it.name || t('pizza') || 'Pizza'` and the price `(it.unit_price ?? it.price ?? 0) * quantity` (`frontend/src/pages/OrderSuccess.jsx:149-157`). Stored items carry only `pizza_id`, `quantity`, `size` and `toppings` (plus `item_id`) (`backend/models.py:60-65`, `backend/routers/checkout.py:97`), so each row shows a generic name and a zero price (code reading; the probe returned the same item keys).
@@ -192,7 +193,7 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 3. The panel does not show the order's size or toppings, although the order stores them.
 
 **Evidence**: `frontend/src/pages/OrderSuccess.jsx:133,147-170`, `frontend/src/utils/money.js:3-9`, `backend/models.py:60-65`, `backend/routers/checkout.py:97`
-**Notes**: The web fix list for 2026-10-28 does not touch this panel. Mobile shows no per-item rows (US-ORD-006-MOB), so the gap is web-only.
+**Notes**: The 2026-10-28 fixes do not touch this panel. Mobile shows no per-item rows (US-ORD-006-MOB), so the gap is web-only.
 
 ### US-ORD-010-API · Order history rows are not OrderSummary
 **As a** QA engineer **I want** each history row to match the OrderSummary contract **so that** one parser can read the list and the detail.
@@ -202,10 +203,10 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **Acceptance criteria**
 1. Given `GET /api/orders` for a user with orders, then each row has `order_id`, `status`, `subtotal`, `delivery_fee`, `tax_rate`, `tip_percentage`, `tax`, `tip`, `total`, `currency`, `items`, `timestamp`, `country_code`, `username` and `customer_info`, and no `currency_symbol` (probe with `standard_user`).
 2. The list declares no `response_model`, so the row schema is absent from OpenAPI (`backend/routers/checkout.py:127-131`).
-3. `customer_info` (name, address, phone) appears in list rows, but no field of that kind exists on `OrderSummary` (`backend/models.py:131-144`). The detail endpoint does not return it.
+3. `customer_info` (name, address, phone) appears in list rows, but no field of that kind exists on `OrderSummary` (`backend/models.py:132-145`). The detail endpoint does not return it.
 
-**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:167-168`, `backend/models.py:131-144`
-**Notes**: Found on HEAD and on US-and-Improvements (no change there). The PRD does not state a list shape (`documents/Product_Requirement_Doc.md:131`), so this is an inconsistency, not a contract violation. Owner-only data.
+**Evidence**: `backend/routers/checkout.py:127-131`, `backend/database.py:167-168`, `backend/models.py:132-145`
+**Notes**: Found, and not changed by the merge. The PRD does not state a list shape (`documents/Product_Requirement_Doc.md:131`), so this is an inconsistency, not a contract violation. Owner-only data.
 
 ### US-ORD-011-WEB · `?orderId=` shows no error state for 403 or 404
 **As a** QA engineer **I want** the success screen to show a clear state when an `orderId` cannot be loaded **so that** a failed lookup is distinguishable from a working page.
@@ -215,10 +216,10 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 **Acceptance criteria**
 1. Given `?orderId=<id>` where the API returns 403 or 404, when the page mounts, then the error is ignored (`frontend/src/pages/OrderSuccess.jsx:24-26`) and the page renders the courier-only view with no order.
 2. Given a network error, then the same silent fallback applies (`frontend/src/pages/OrderSuccess.jsx:26`).
-3. Expected per NF-ORDER-001 and NF-ORDER-002 (`documents/Product_Requirement_Doc.md:215-216`): an access-denied or not-found state. Applying those to this entry point is an inference.
+3. Expected per NF-ORDER-001 and NF-ORDER-002 (`documents/Product_Requirement_Doc.md:216-217`): an access-denied or not-found state. Applying those to this entry point is an inference.
 
-**Evidence**: `frontend/src/pages/OrderSuccess.jsx:22-27`, `documents/Product_Requirement_Doc.md:215-216`
-**Notes**: Found on HEAD and on US-and-Improvements. The code comment at `OrderSuccess.jsx:26` says the fallback is deliberate.
+**Evidence**: `frontend/src/pages/OrderSuccess.jsx:22-27`, `documents/Product_Requirement_Doc.md:216-217`
+**Notes**: Found, and not changed by the merge. The code comment at `OrderSuccess.jsx:26` describes the fallback as "render falls back to courier-only view".
 
 ### US-ORD-011-MOB · `orderId` deep link shows no error state for 403 or 404
 **As a** QA engineer **I want** a failed `orderId` deep link to show a clear state **so that** a failed lookup is not mistaken for a working screen.
@@ -227,7 +228,7 @@ Order history and detail, cancellation of pending orders, the `OrderSummary` con
 
 **Acceptance criteria**
 1. Given the deep-link `orderId` fetch returns 403 or 404, when the app opens the success screen, then the failure is caught and logged only in `__DEV__` builds (`frontend-mobile/src/hooks/useDeepLinkParams.ts:125-129`), and the screen shows no error.
-2. Expected per NF-ORDER-001 and NF-ORDER-002 (`documents/Product_Requirement_Doc.md:215-216`): a visible state. Applying those to this entry point is an inference.
+2. Expected per NF-ORDER-001 and NF-ORDER-002 (`documents/Product_Requirement_Doc.md:216-217`): a visible state. Applying those to this entry point is an inference.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:119-130`, `documents/Product_Requirement_Doc.md:215-216`
-**Notes**: Found on HEAD and on US-and-Improvements. In a release build nothing is logged, so the failure is invisible to the tester.
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:119-130`, `documents/Product_Requirement_Doc.md:216-217`
+**Notes**: Found, and not changed by the merge. In a release build nothing is logged, so the failure is invisible to the tester.
