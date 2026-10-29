@@ -8,17 +8,17 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Deci
 
 | ID | Title | Layer | Status |
 |---|---|---|---|
-| US-DOC-001-API | Documentation sweep: documents match the code | API | Planned |
-| US-DOC-002-API | OpenAPI descriptions and status codes | API | Planned |
-| US-DOC-003-API | Story statuses flip to Done | API | Planned |
+| US-DOC-001-ALL | Documentation sweep: documents match the code | ALL | Planned |
+| US-DOC-002-ALL | OpenAPI descriptions and status codes | ALL | Planned |
+| US-DOC-003-ALL | Story statuses flip to Done | ALL | Planned |
 
 ---
 
-### US-DOC-001-API · Documentation sweep: documents match the code
+### US-DOC-001-ALL · Documentation sweep: documents match the code
 
 **As a** QA engineer **I want** every project document to describe accounts, coupons and the menu exactly as the code behaves **so that** readers and automation are not misled by stale values.
 
-- Layer: API (cross-layer sweep, see Notes) · Epic: DOC · Persona: QA · Market: all
+- Layer: ALL (cross-layer sweep, see Notes) · Epic: DOC · Persona: QA · Market: all
 - Status: Planned
 - Planned on: 2026-10-28 · Design: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Decisions › Stories and documentation)
 
@@ -37,11 +37,11 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Deci
 
 ---
 
-### US-DOC-002-API · OpenAPI descriptions and status codes
+### US-DOC-002-ALL · OpenAPI descriptions and status codes
 
 **As a** QA engineer **I want** the OpenAPI document at `/api/docs` to describe every new endpoint and status code **so that** automation can be written from the spec.
 
-- Layer: API · Epic: DOC · Persona: QA · Market: all
+- Layer: ALL · Epic: DOC · Persona: QA · Market: all
 - Status: Planned
 - Planned on: 2026-10-28 · Design: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Decisions › Stories and documentation; Decisions › Welcome coupon)
 
@@ -55,17 +55,17 @@ Source: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Deci
 
 ---
 
-### US-DOC-003-API · Story statuses flip to Done
+### US-DOC-003-ALL · Story statuses flip to Done
 
 **As a** QA engineer **I want** each story to point to the commit that delivered it **so that** every requirement can be traced to code.
 
-- Layer: API (cross-layer process story, see Notes) · Epic: DOC · Persona: QA · Market: all
+- Layer: ALL (cross-layer process story, see Notes) · Epic: DOC · Persona: QA · Market: all
 - Status: Planned
 - Planned on: 2026-10-28 · Design: `docs/superpowers/specs/2026-10-28-accounts-coupon-menu-design.md` (Decisions › Stories and documentation)
 
 **Acceptance criteria**
 1. Given a story that has shipped, when its status is updated, then its status line changes from `Planned` to `Done · <commit sha> · <YYYY-MM-DD>` and its row in the epic's summary table changes to match.
-2. Given a story, when it is marked Done, then its acceptance criteria have been verified (by the `tests/` suite, the SSR/esbuild harness for web and mobile logic, or a manual check) and its documentation has been updated under US-DOC-001-API.
+2. Given a story, when it is marked Done, then its acceptance criteria have been verified (by the `tests/` suite, the SSR/esbuild harness for web and mobile logic, or a manual check) and its documentation has been updated under US-DOC-001-ALL.
 3. Given the final documentation sweep, when the stories are read, then none remains Planned unless it was explicitly deferred, with the reason written in its Notes.
 
-**Notes**: GitHub issues are created only after review (design Constraints); these markdown stories come first. Filed under API by the same convention as US-DOC-001-API (see the Open in this epic's introduction).
+**Notes**: GitHub issues are created only after review (design Constraints); these markdown stories come first. Filed under API by the same convention as US-DOC-001-ALL (see the Open in this epic's introduction).
