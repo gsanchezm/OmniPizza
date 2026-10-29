@@ -54,7 +54,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-002-API · Prometheus counters are defined but never recorded
-**As a** platform owner **I want** request counters and latencies on `/api/debug/metrics` **so that** load and error rates can be scraped.
+**As a** QA engineer **I want** request counters and latencies on `/api/debug/metrics` **so that** load and error rates can be scraped.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Found
@@ -71,7 +71,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-003-API · Build provenance endpoint `GET /api/version`
-**As a** research operator **I want** the API to report the commit it runs **so that** each campaign records the backend build it exercised.
+**As a** QA engineer **I want** the API to report the commit it runs **so that** each campaign records the backend build it exercised.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -89,7 +89,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-003-WEB · Build-stamped `version.json` on the static site
-**As a** research operator **I want** the deployed web build to publish its commit and build time **so that** the web build can be matched to the API build.
+**As a** QA engineer **I want** the deployed web build to publish its commit and build time **so that** the web build can be matched to the API build.
 
 - Layer: WEB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -106,7 +106,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-004-API · API security headers and CORS policy
-**As a** platform owner **I want** every API response to carry basic transport and sniffing headers **so that** browsers apply HSTS and no MIME sniffing.
+**As a** QA engineer **I want** every API response to carry basic transport and sniffing headers **so that** browsers apply HSTS and no MIME sniffing.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -124,7 +124,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-005-API · JWT signing secret is a committed default
-**As a** platform owner **I want** the token signing key to come from the deployment, not from the repository **so that** tokens cannot be forged from public source.
+**As a** QA engineer **I want** the token signing key to come from the deployment, not from the repository **so that** tokens cannot be forged from public source.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Found
@@ -142,7 +142,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-006-API · Unhandled exceptions return internal exception text
-**As a** platform owner **I want** unexpected server errors to hide internal details **so that** stack and config fragments are not leaked to callers.
+**As a** QA engineer **I want** unexpected server errors to hide internal details **so that** stack and config fragments are not leaked to callers.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Found
@@ -170,7 +170,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given the process starts, then orders and sessions live in plain dictionaries on the `InMemoryDB` instance (`backend/database.py:85-90`).
 2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:366`).
 3. Given a restart, then no state is recovered; there is no persistence layer in the repo.
-4. Given Render, the blueprint comment states the same design (`render.yaml:70-72`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:276`).
+4. Given Render, the blueprint comment states the same design (`render.yaml:69-70`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:276`).
 
 **Evidence**: as cited.
 **Notes**: Render's free plan (`render.yaml:10`) may spin the service down; whether that resets state more often is Unverified. Multi-worker deployment would split state: the start command runs a single uvicorn process (`render.yaml:12`), and that is not changed here.
@@ -178,7 +178,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-008-API · Render backend blueprint
-**As a** platform owner **I want** the API service defined in a blueprint **so that** deploys are reproducible from the repo.
+**As a** QA engineer **I want** the API service defined in a blueprint **so that** deploys are reproducible from the repo.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -231,7 +231,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-011-WEB · Enforced CSP, HSTS and frame headers on Render
-**As a** platform owner **I want** the deployed site to send a strict CSP, HSTS and frame restrictions **so that** injected scripts and framing are blocked.
+**As a** QA engineer **I want** the deployed site to send a strict CSP, HSTS and frame restrictions **so that** injected scripts and framing are blocked.
 
 - Layer: WEB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -249,7 +249,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-012-WEB · Docker-served web app has no security headers
-**As a** platform owner **I want** the Docker-served web app to send the same headers as Render **so that** local runs test the same policy.
+**As a** QA engineer **I want** the Docker-served web app to send the same headers as Render **so that** local runs test the same policy.
 
 - Layer: WEB · Epic: PLT · Persona: QA · Market: all
 - Status: Found
@@ -284,7 +284,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-014-WEB · Cypress component tests in CI (non-blocking)
-**As a** frontend developer **I want** component tests to run on PRs that touch the web app **so that** UI regressions surface early without blocking merges.
+**As a** QA engineer **I want** component tests to run on PRs that touch the web app **so that** UI regressions surface early without blocking merges.
 
 - Layer: WEB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -303,7 +303,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-015-MOB · Mobile release pipeline (manual dispatch)
-**As a** release owner **I want** Android and iOS-simulator artifacts built and attached to a GitHub Release on demand **so that** testers get a versioned build.
+**As a** QA engineer **I want** Android and iOS-simulator artifacts built and attached to a GitHub Release on demand **so that** testers get a versioned build.
 
 - Layer: MOB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -322,7 +322,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-016-MOB · iOS build is simulator-only
-**As a** release owner **I want** iOS produced only as a simulator `.app` **so that** no App Store or device build is implied by the pipeline.
+**As a** QA engineer **I want** iOS produced only as a simulator `.app` **so that** no App Store or device build is implied by the pipeline.
 
 - Layer: MOB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -340,7 +340,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-017-MOB · Android backup disabled and minSdk 29
-**As a** release owner **I want** Android app data excluded from cloud and device backups, and a minimum API level of 29 **so that** user data is not copied out and older devices are excluded.
+**As a** QA engineer **I want** Android app data excluded from cloud and device backups, and a minimum API level of 29 **so that** user data is not copied out and older devices are excluded.
 
 - Layer: MOB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -357,7 +357,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-018-MOB · Release history
-**As a** release owner **I want** a dated list of published versions **so that** a test run can name the build it used.
+**As a** QA engineer **I want** a dated list of published versions **so that** a test run can name the build it used.
 
 - Layer: MOB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -393,7 +393,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: 2026-07-17 · Commit: 8b3e7d6 (first pass)
 
 **Acceptance criteria**
-1. Given the catalog and add-to-cart page, then text meets WCAG 1.4.3 and an h1 is present (8b3e7d6).
+1. Given the catalog page, then its text was brought to WCAG 1.4.3 contrast and a page-level h1 was added (8b3e7d6, 2026-07-17).
 2. Given brand-orange text and gray-500 labels on web, then a sweep corrected them app-wide (e6bfb9e, 2026-07-18).
 3. Given the CH-only language toggle in the navbar, then its contrast gap was fixed (816c68c, 2026-07-18).
 4. Given mobile, then the web fixes were mirrored (85afd81, 2026-07-18) and a gray-500-equivalent gap was closed (b8c82d0, 2026-07-20).
@@ -441,7 +441,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-022-API · Backend split into feature routers
-**As a** backend developer **I want** endpoints grouped by feature in separate routers **so that** changes stay local and the paths stay stable.
+**As a** QA engineer **I want** endpoints grouped by feature in separate routers **so that** changes stay local and the paths stay stable.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -459,11 +459,11 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-023-API · Golden characterization net guards refactors
-**As a** backend developer **I want** pinned checkout totals and catalog behaviour per market **so that** refactors cannot change results silently.
+**As a** QA engineer **I want** pinned checkout totals and catalog behaviour per market **so that** refactors cannot change results silently.
 
 - Layer: API · Epic: PLT · Persona: QA · Market: all
 - Status: Done
-- Done on: 2026-07-12 · Commit: e994fae (first net); later additions 36764df, 74fecc2, cebd983, bf90477, 3b3e7d6 (2026-07-19)
+- Done on: 2026-07-12 · Commit: e994fae (first net); later additions 36764df, 74fecc2, cebd983, bf90477, 3b715b9 (2026-07-19)
 
 **Acceptance criteria**
 1. Given `tests/golden.test.ts`, then totals per market are pinned to a ground-truth table (`tests/golden.test.ts:39-74`).
@@ -477,7 +477,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-024-WEB · Feature-sliced web app
-**As a** frontend developer **I want** each feature split into repositories and use-cases **so that** HTTP details and orchestration stay out of pages.
+**As a** QA engineer **I want** each feature split into repositories and use-cases **so that** HTTP details and orchestration stay out of pages.
 
 - Layer: WEB · Epic: PLT · Persona: QA · Market: all
 - Status: Done
@@ -494,7 +494,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 ---
 
 ### US-PLT-024-MOB · Feature-sliced mobile app
-**As a** mobile developer **I want** the same feature slices as the web app **so that** parity work maps one to one.
+**As a** QA engineer **I want** the same feature slices as the web app **so that** parity work maps one to one.
 
 - Layer: MOB · Epic: PLT · Persona: QA · Market: all
 - Status: Done

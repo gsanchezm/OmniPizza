@@ -9,7 +9,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 | US-ATM-001-WEB | Seed an authenticated web session before the app boots | WEB | Done |
 | US-ATM-001-MOB | Inject a bearer token through the `accessToken` deep link | MOB | Done |
 | US-ATM-002-API | Set the session market with `POST /api/store/market` | API | Done |
-| US-ATM-002-WEB | Seeded `countryCode` does not set the UI language | WEB | Found |
+| US-ATM-002-WEB | Market seed through `omnipizza-country` sets the UI language | WEB | Done |
 | US-ATM-002-MOB | Select a market and its default language with `market` | MOB | Done |
 | US-ATM-002-UX | Arabic (SA) renders right-to-left on entry | UX | Done |
 | US-ATM-003-API | Seed, upsert, remove and read the session cart | API | Done |
@@ -93,21 +93,20 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 ---
 
-### US-ATM-002-WEB · Seeded `countryCode` does not set the UI language
-**As a** QA engineer **I want** a web session seeded with `countryCode=SA` to behave like the Arabic market **so that** direct navigation tests see Arabic copy and RTL layout.
+### US-ATM-002-WEB · Seed the market through `omnipizza-country` so the UI language follows
+**As a** QA engineer **I want** a web session seeded with the documented `omnipizza-country` state (market and language) **so that** direct navigation tests see the market's language and layout.
 
-- Layer: WEB · Epic: ATM · Persona: QA · Market: SA
-- Status: Found
-- Done on: n/a (gap)
+- Layer: WEB · Epic: ATM · Persona: QA · Market: SA (all markets)
+- Status: Done
+- Done on: 2026-04-06 · Commit: e6628e3 (atomic web guide with the seed recipe)
 
 **Acceptance criteria**
-1. Expected: given `countryCode` = `SA` seeded in localStorage and direct navigation to `/checkout`, then the UI language is `ar`, the document is `dir="rtl"`, and `X-Language` is `ar`.
-2. Actual (code path): the store initialises `language` to `"en"` regardless of the seeded market; the `countryCode` seed sets only the country and the locale (`ar-SA`).
-3. Actual: `setCountryCode`, the only setter that maps market to language, is called only from the login page, so the atomic path never reaches it.
-4. Actual: `X-Language` is sent as `en` and `<html dir>` stays `ltr`, because the RTL effect requires `language === "ar"`.
+1. Given the documented seed writes `omnipizza-country` with `countryCode: "SA"` and `language: "ar"` (`ATOMIC_WEB_TESTING.md:151-157`), when the store rehydrates, then the UI language is `ar` (persist name `omnipizza-country`, `frontend/src/store.js:150`).
+2. Given the same seed and a token, then `<html dir="rtl">` is set (`frontend/src/App.jsx:29-33`) and `X-Language` is `ar` (`frontend/src/services/httpClient.js:28`).
+3. Given only the flat `countryCode` key is seeded (the guide's flat-mirror row, `ATOMIC_WEB_TESTING.md:95`), then the language stays `en`: the store initialises `language` to `"en"` (`frontend/src/store.js:96-104`), and only `setCountryCode` maps market to language (`store.js:110-131`, called from `frontend/src/pages/Login.jsx:80`).
 
-**Evidence**: `frontend/src/store.js:96-104` (initial country and `language: "en"`), `frontend/src/store.js:110-131` (`setCountryCode` maps language), `frontend/src/pages/Login.jsx:80` (only call site), `frontend/src/App.jsx:29-33` (RTL gate), `frontend/src/services/httpClient.js:27-28` (headers from store).
-**Notes**: Code-path reading, not reproduced in a browser (Unverified in browser). A persisted `omnipizza-country` entry would rehydrate a language; a clean seed has none. Mobile applies the market language on the `market` param (US-ATM-002-MOB), so the parity gap is web-only.
+**Evidence**: `ATOMIC_WEB_TESTING.md:88-95`, `:143-157`; `frontend/src/store.js:96-104`, `:110-131`, `:150`; `frontend/src/pages/Login.jsx:80`; `frontend/src/App.jsx:29-33`; `frontend/src/services/httpClient.js:27-28`.
+**Notes**: The guide's seed recipe covers language, so the gap is limited to seeds that write only the flat `countryCode` key (AC 3). This was a Found in the first draft and was recast after the review: the procedure is documented. Code-path reading; the browser run is Unverified. Mobile applies the market language on the `market` param (US-ATM-002-MOB).
 
 ---
 
@@ -140,7 +139,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given mobile language `ar`, when a component calls `useRTL()`, then `textAlign` is `right`, `row` is `row-reverse` and `writingDirection` is `rtl`.
 2. Given the app process, then the native direction stays LTR (`I18nManager.allowRTL(false)`), so RTL flips from state without a reload that would drop the ephemeral session.
 3. Given web is authenticated with language `ar`, then `<html dir="rtl">` and `lang="ar"` are set; the login view is always LTR English.
-4. Given web is reached through the seeded-country path, then the RTL expectation is not met; that gap is US-ATM-002-WEB.
+4. Given web is seeded with only the flat `countryCode` key, then the RTL expectation is not met (US-ATM-002-WEB AC 3); the documented `omnipizza-country` seed meets it.
 
 **Evidence**: `frontend-mobile/src/hooks/useRTL.ts:22-30`, `frontend-mobile/App.tsx:34`, `frontend/src/App.jsx:24-33`.
 **Notes**: Arabic script is bidi by default; `useRTL` drives only alignment, row order and writing direction (`useRTL.ts:11-13`).
@@ -480,7 +479,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 2. Given `X-Country-Code: xx`, then 400 with `"Invalid country code: xx. ..."` (verified).
 3. Given `X-Country-Code: mx`, then it is upper-cased and accepted (verified: 200).
 4. Given the state endpoints that do not read the header (`POST /api/cart`, `PUT`/`DELETE` cart items, `POST /api/profile`, `POST /api/session/reset`), then the header is not required (`backend/test_api.py:67-68`, `:128`, `:178`).
-5. Given no bearer at all, then 401 is returned before the header check (dependency order; verified on `/api/cart`).
+5. Given no bearer, `/api/cart` returns 401 before the header check, whereas `/api/pizzas` with neither bearer nor `X-Country-Code` returns 400 (both verified). The dependency order is per endpoint.
 
 **Evidence**: `backend/middleware.py:10-26`, `backend/routers/catalog.py:52`, `backend/test_api.py:98`.
 **Notes**: Observed under fastapi 0.139.0 (venv). Under the pinned fastapi 0.109.0 the missing-bearer status may differ (Unverified). CLAUDE.md:89 says this header is "strict"; that holds.
