@@ -168,7 +168,7 @@ Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-
 
 **Acceptance criteria**
 1. Given the process starts, then orders and sessions live in plain dictionaries on the `InMemoryDB` instance (`backend/database.py:85-90`).
-2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:366`).
+2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:367`).
 3. Given a restart, then no state is recovered; there is no persistence layer in the repo.
 4. Given Render, the blueprint comment states the same design (`render.yaml:69-70`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:277`).
 
