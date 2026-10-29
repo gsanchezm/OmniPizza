@@ -219,7 +219,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. Given a `pizza_id` that is not in the catalog, checkout counts it as 0 with no error. Live: subtotal 0.0 for `p99`.
 4. Checkout validates only the market-required fields, not sizes, toppings or ids.
 
-**Evidence**: `backend/models.py:60-65` (`size` is a free string at 63; `toppings` has no maximum at 64); `backend/database.py:337-342` (`SIZE_UPCHARGE_USD.get(size_key, 0)`; toppings counted), `backend/database.py:326-328` (unknown ids skipped); `backend/routers/checkout.py:74-83` (required-field check only), `:85-91` (totals); `frontend/src/components/PizzaCustomizerModal.jsx:115` and `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:121` (the client-side cap).
+**Evidence**: `backend/models.py:60-65` (`size` is a free string at 63; `toppings` has no maximum at 64); `backend/database.py:337-342` (`SIZE_UPCHARGE_USD.get(size_key, 0)`; toppings counted), `backend/database.py:327-329` (unknown ids skipped); `backend/routers/checkout.py:74-83` (required-field check only), `:85-91` (totals); `frontend/src/components/PizzaCustomizerModal.jsx:115` and `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:121` (the client-side cap).
 **Notes**: The UI cannot produce these lines; they are reachable only through the API. The code has no rule that rejects them.
 
 ---

@@ -74,7 +74,7 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 3. The tip is the market's chosen percentage of the subtotal.
 4. Live: US Margherita with a 10% tip gives subtotal 12.99, delivery 2.00, tax 1.04, tip 1.30 and total 17.33. MX medium with two toppings gives subtotal 316.97, tax 50.72, and total 402.79 with the 35.10 fee.
 
-**Evidence**: `backend/constants.py:96-146` (tax, fee and tip per market); `backend/database.py:320-323` (delivery fee converted), `:346-349` (subtotal, tax, tip, total); `backend/routers/checkout.py:85-91` (totals call); `backend/models.py:122-130` (`get_tip_percentage`).
+**Evidence**: `backend/constants.py:96-146` (tax, fee and tip per market); `backend/database.py:320-324` (delivery fee converted), `:346-349` (subtotal, tax, tip, total); `backend/routers/checkout.py:85-91` (totals call); `backend/models.py:122-130` (`get_tip_percentage`).
 **Notes**: Mobile's fallback tax and fee tables, used before `countryInfo` loads, are inline in `frontend-mobile/src/screens/CheckoutScreen.tsx:185-191`. Web's fallback fee table is `frontend/src/constants/market.js:2-8`. The PRD tax list (line 127) omits SA.
 
 ---
@@ -223,8 +223,8 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 4. Mobile: the native direction is fixed to left-to-right, so the layout flips from state without a reload.
 5. Mobile: logout returns the app to English.
 
-**Evidence**: `frontend/src/App.jsx:24-33` (dir and lang effect); `frontend/src/store.js:62-66` (logout resets language); `frontend-mobile/src/hooks/useRTL.ts:11-13,22-28` (hook and bidi note); `frontend-mobile/src/components/MobileProductCard.tsx:17`; `frontend-mobile/src/screens/CheckoutScreen.tsx:65`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:69`; `frontend-mobile/App.tsx:28-31` (`I18nManager.allowRTL(false)` at 31); `frontend-mobile/src/store/useAppStore.ts:120-130` (logout language at 129).
-**Notes**: Visual output was not inspected in this run; the evidence is static. `App.tsx:28-33` explains why the mobile app avoids `I18nManager.forceRTL`.
+**Evidence**: `frontend/src/App.jsx:24-33` (dir and lang effect); `frontend/src/store.js:62-66` (logout resets language); `frontend-mobile/src/hooks/useRTL.ts:11-13,22-28` (hook and bidi note); `frontend-mobile/src/components/MobileProductCard.tsx:17`; `frontend-mobile/src/screens/CheckoutScreen.tsx:65`; `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:69`; `frontend-mobile/App.tsx:25-31` (rationale at 25-30; `I18nManager.allowRTL(false)` at 31); `frontend-mobile/src/store/useAppStore.ts:120-130` (logout language at 129).
+**Notes**: Visual output was not inspected in this run; the evidence is static. `App.tsx:25-30` explains why the mobile app avoids `I18nManager.forceRTL`.
 
 ---
 

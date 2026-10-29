@@ -13,14 +13,14 @@ Evidence basis: line numbers are at HEAD `b09cfbb` (this worktree after fast-for
 | US-CAT-004-MOB | Search pizzas by name | MOB | Done |
 | US-CAT-005-WEB | Category filter offers Sides with no pizzas | WEB | Found |
 | US-CAT-005-MOB | Category pills offer Sides with no pizzas | MOB | Found |
-| US-CAT-005-UX | Active category exposed to assistive technology | UX | Done |
-| US-CAT-006-WEB | Empty state with clear-filters reset | WEB | Done |
+| US-CAT-005-UX | Active category is exposed to assistive technology | UX | Done |
+| US-CAT-006-WEB | Empty state with a clear-filters reset | WEB | Done |
 | US-CAT-006-MOB | Empty state with no reset control | MOB | Found |
 | US-CAT-007-WEB | Catalog loading and error states | WEB | Done |
 | US-CAT-007-MOB | Catalog loading and error states | MOB | Done |
 | US-CAT-008-WEB | Product card shows name, description and price | WEB | Done |
 | US-CAT-008-MOB | Product card shows name, description and price | MOB | Done |
-| US-CAT-009-WEB | Bestseller and Veggie badges from API category | WEB | Done |
+| US-CAT-009-WEB | Bestseller and Veggie badges from the API category | WEB | Done |
 | US-CAT-009-MOB | Product badges on mobile | MOB | Found |
 | US-CAT-010-UX | Broken pizza image shows a placeholder | UX | Done |
 | US-CAT-011-API | problem_user sees $0 prices and broken images | API | Done |
