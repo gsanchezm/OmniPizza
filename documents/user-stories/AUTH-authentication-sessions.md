@@ -2,7 +2,7 @@
 
 Signing in with the seven deterministic test users (shared password `pizza123`), how a login session is scoped by the JWT `sid` claim, what each client shows on a failed login, and how logout and expired tokens are handled on the API, web and mobile. The market is chosen on the login screen and is not switchable afterwards.
 
-Retroactive stories for implemented behaviour. Status **Done** = verified in code (or in a fix commit); **Found** = a gap that exists today and is not fixed. Fix commits 60774e3, c55c5c5 and 088c650 are on branch `US-and-Improvements`, not on the worktree HEAD `9ca3767`; their evidence cites the commit sha.
+Retroactive stories for implemented behaviour. Status **Done** = verified in code (or in a fix commit); **Found** = a gap that exists today and is not fixed. Fix commits 60774e3, c55c5c5 and 088c650 are merged into this branch (merge of `US-and-Improvements`); their evidence cites the sha and the current path and line.
 
 | ID | Title | Layer | Status |
 |---|---|---|---|
@@ -160,11 +160,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Given the Login page, when it renders, then five market buttons (US, MX, CH, JP, SA) sit in a group labelled "Select market", each with testid `market-<code>` (`frontend/src/pages/Login.jsx:196-222`).
-2. Given a market is picked and sign-in succeeds, when the login completes, then that market is set for the session (`Login.jsx:80`, `store.js:110-131`). The default is US (`Login.jsx:43-44`).
-3. Given the market changes, when `setCountryCode` runs, then the cart is cleared (`frontend/src/store.js:112`). `setCountryCode` is called only from the Login page, so there is no in-app switcher (grep of `frontend/src`).
+2. Given a market is picked and sign-in succeeds, when the login completes, then that market is set for the session (`Login.jsx:80`, `store.js:118-139`). The default is US (`Login.jsx:43-44`).
+3. Given the market changes, when `setCountryCode` runs, then the cart is cleared (`frontend/src/store.js:120`). `setCountryCode` is called only from the Login page, so there is no in-app switcher (grep of `frontend/src`).
 
-**Evidence**: `frontend/src/pages/Login.jsx:43-44,80,196-222`, `frontend/src/store.js:110-131`
-**Notes**: The fallback before login is MX (`frontend/src/store.js:96`; `frontend/src/services/httpClient.js:27`). Only the login form defaults to US.
+**Evidence**: `frontend/src/pages/Login.jsx:43-44,80,196-222`, `frontend/src/store.js:118-139`
+**Notes**: The fallback before login is MX (`frontend/src/store.js:104`; `frontend/src/services/httpClient.js:27`). Only the login form defaults to US.
 
 ---
 
@@ -177,10 +177,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Given the Login screen, when it renders, then five market buttons (testIDs `btn-market-<code>`) sit in `view-market-selection`, and US is selected by default (`frontend-mobile/src/screens/LoginScreen.tsx:51,174-183`).
-2. Given sign-in succeeds, when the login completes, then `selectMarket` calls `setCountry`, which sets the market, resets the language to the market default and clears the cart (`LoginScreen.tsx:82`; `frontend-mobile/src/store/useAppStore.ts:99-106`).
+2. Given sign-in succeeds, when the login completes, then `selectMarket` calls `setCountry`, which sets the market, resets the language to the market default and clears the cart (`LoginScreen.tsx:82`; `frontend-mobile/src/store/useAppStore.ts:101-106`).
 3. Given a deep link with `market=US|MX|CH|JP|SA`, when it opens, then the market is set without the login screen (`frontend-mobile/src/hooks/useDeepLinkParams.ts:94-100`).
 
-**Evidence**: `frontend-mobile/src/screens/LoginScreen.tsx:51,82,174-183`, `frontend-mobile/src/store/useAppStore.ts:99-106`, `frontend-mobile/src/hooks/useDeepLinkParams.ts:94-100`
+**Evidence**: `frontend-mobile/src/screens/LoginScreen.tsx:51,82,174-183`, `frontend-mobile/src/store/useAppStore.ts:101-106`, `frontend-mobile/src/hooks/useDeepLinkParams.ts:94-100`
 **Notes**: There is no in-app market switcher on mobile either; the market is picked at login or by a deep link.
 
 ---
@@ -212,7 +212,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 1. Given two logins of `standard_user`, when each token is decoded, then each carries its own `sid` (`backend/routers/auth.py:60-63`; verified: the two sids differ).
 2. Given session A saves a profile name, when session B reads its profile, then the name is empty (`backend/database.py:93-117`; verified).
 3. Given session A sets market JP and a cart, when session B reads its session, then B is still MX with an empty cart (`backend/database.py:139-148,170-183`; verified).
-4. `POST /api/store/market` changes only the caller's market and leaves the cart as it was (`backend/test_api.py:34-56`). The clients clear the cart on market change (`frontend/src/store.js:112`; `frontend-mobile/src/store/useAppStore.ts:99-106`), so server and client disagree on this.
+4. `POST /api/store/market` changes only the caller's market and leaves the cart as it was (`backend/test_api.py:34-56`). The clients clear the cart on market change (`frontend/src/store.js:120`; `frontend-mobile/src/store/useAppStore.ts:101-106`), so server and client disagree on this.
 
 **Evidence**: `backend/routers/auth.py:52-63`, `backend/database.py:93-117,139-148,170-183`, `backend/test_api.py:34-56`
 **Notes**: The profile was keyed by `sid` in 82d1b74 (2026-07-17); cart and market were keyed by `sid` in b407760 (2026-08-11). Verified in-process with a scratch script; no server started.
@@ -263,7 +263,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 2. Expected: sign-in responds at once. Current: every sign-in waits 500 ms before the request (`LoginScreen.tsx:76-78`).
 
 **Evidence**: `frontend-mobile/src/screens/LoginScreen.tsx:28-36,76-80`, `frontend-mobile/src/features/auth/useCases/getTestUsers.ts:3-4`
-**Notes**: Origin of the delay: `cef2a31` (2026-02-18). The mobile request timeout is 60 s (`frontend-mobile/src/api/client.ts:31`), so the delay does not affect timeouts.
+**Notes**: Origin of the delay: `cef2a31` (2026-02-18). The mobile request timeout is 60 s (`frontend-mobile/src/api/client.ts:33`), so the delay does not affect timeouts.
 
 ---
 
@@ -312,7 +312,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 2. Expected: the server rejects a token once the client has logged out. Current: the token is accepted until `exp`, because `decode_access_token` checks only the signature and expiry (`backend/auth.py:52-62`). No denylist or revoke path exists (grep of `backend`).
 
 **Evidence**: `backend/auth.py:52-62`, `backend/middleware.py:28-50`
-**Notes**: Client logout clears local state only (`frontend/src/store.js:43-60`; `frontend-mobile/src/store/useAppStore.ts:118-128`).
+**Notes**: Client logout clears local state only (`frontend/src/store.js:43-68`; `frontend-mobile/src/store/useAppStore.ts:120-130`). Likely by design for a stateless 30-minute token in a QA sandbox; recorded because client logout implies the token is dead, and no test asserts revocation.
 
 ---
 
@@ -321,15 +321,15 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 - Layer: WEB · Epic: AUTH · Persona: Customer · Market: all
 - Status: Done
-- Done on: 2026-10-28 · Commit: 60774e3 (cart and last-order clear; branch `US-and-Improvements`)
+- Done on: 2026-10-28 · Commit: 60774e3 (cart and last-order clear; merged into this branch)
 
 **Acceptance criteria**
 1. Given the Navbar logout (`logout-btn`, or `mobile-logout-btn` in the menu), when it is pressed, then token, username and the cached profile are removed, the profile store is emptied and the app navigates to `/` (`frontend/src/components/Navbar.jsx:37-41,146,240`; `frontend/src/store.js:43-53`).
-2. Given logout, when it runs, then the cart and last order are cleared as well (`60774e3:frontend/src/store.js:57,60`). The worktree HEAD `9ca3767` does not have this (`frontend/src/store.js:43-60`).
+2. Given logout, when it runs, then the cart and last order are cleared as well (`frontend/src/store.js:57,60`; added by 60774e3).
 3. Given no token, when a protected route is opened, then the user is redirected to `/` (`frontend/src/routes/ProtectedRoute.jsx:9-10`).
 
-**Evidence**: `frontend/src/components/Navbar.jsx:37-41,146,240`, `frontend/src/store.js:43-60`, `60774e3:frontend/src/store.js:57,60`, `frontend/src/routes/ProtectedRoute.jsx:9-10`
-**Notes**: Commit 60774e3 is on `US-and-Improvements`, not on the worktree branch.
+**Evidence**: `frontend/src/components/Navbar.jsx:37-41,146,240`, `frontend/src/store.js:43-68`, `frontend/src/routes/ProtectedRoute.jsx:9-10`
+**Notes**: Commit 60774e3 is merged into this branch (merge of `US-and-Improvements`).
 
 ---
 
@@ -342,9 +342,9 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Given the bottom-bar logout, when it is pressed, then the store logs out and navigation resets to Login (`frontend-mobile/src/components/BottomNavBar.tsx:29-32`).
-2. Given the store logout, when it runs, then token, cart, last order and country info are cleared and the language returns to English (`frontend-mobile/src/store/useAppStore.ts:118-128`).
+2. Given the store logout, when it runs, then token, cart, last order and country info are cleared and the language returns to English (`frontend-mobile/src/store/useAppStore.ts:120-130`).
 
-**Evidence**: `frontend-mobile/src/components/BottomNavBar.tsx:29-32`, `frontend-mobile/src/store/useAppStore.ts:118-128`
+**Evidence**: `frontend-mobile/src/components/BottomNavBar.tsx:29-32`, `frontend-mobile/src/store/useAppStore.ts:120-130`
 **Notes**: The store logout does not clear the in-memory profile; see US-PRF-008-MOB.
 
 ---
@@ -359,7 +359,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 **Acceptance criteria**
 1. Given no `Authorization` header, when a protected endpoint is called, then the response is 401 with `error` = `Not authenticated` (verified on `GET /api/auth/profile`).
 2. Given a malformed token, when it is decoded, then the response is 401 with `error` = `Could not validate credentials` (`backend/auth.py:58-62`; verified).
-3. Given a token whose `sub` is not a known test user, when it is used, then the response is 401 with `error` = `User not found` (`backend/middleware.py:40-45`).
+3. Given a token whose `sub` is not a known test user, when it is used, then the response is 401 with `error` = `User not found` (`backend/middleware.py:40-45`; code read, not exercised).
 
 **Evidence**: `backend/auth.py:52-62`, `backend/middleware.py:28-50`, `backend/main.py:75-84`
 **Notes**: Expiry is enforced by the JWT library (`exp` check in `decode`); no in-repo test asserts the expired case, so the expired-token path is code-read only.
@@ -388,15 +388,15 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 - Layer: MOB · Epic: AUTH · Persona: Customer · Market: all
 - Status: Done
-- Done on: 2026-10-28 · Commit: c55c5c5 (branch `US-and-Improvements`; not in worktree HEAD)
+- Done on: 2026-10-28 · Commit: c55c5c5 (merged into this branch)
 
 **Acceptance criteria**
-1. Given an authenticated request returns 401 and a session token exists, when the response arrives, then the app logs out and resets navigation to Login (`c55c5c5:frontend-mobile/src/api/unauthorized.ts:13-19`; `c55c5c5:frontend-mobile/src/api/client.ts:53-62`).
-2. Given a 401 on a login attempt (no token), a 403, a 5xx or a network error, when it arrives, then the handler does nothing (`c55c5c5:frontend-mobile/src/api/unauthorized.ts:13-17`).
-3. At the worktree HEAD `9ca3767`, the mobile client has only a request interceptor and no response handler (`frontend-mobile/src/api/client.ts:34-48`).
+1. Given an authenticated request returns 401 and a session token exists, when the response arrives, then the app logs out and resets navigation to Login (`frontend-mobile/src/api/unauthorized.ts:13-19`; `frontend-mobile/src/api/client.ts:53-64`, handler call at `client.ts:57`).
+2. Given a 401 on a login attempt (no token), a 403, a 5xx or a network error, when it arrives, then the handler does nothing (`frontend-mobile/src/api/unauthorized.ts:15`).
+3. Any other error is rethrown unchanged after the handler runs (`frontend-mobile/src/api/client.ts:62`).
 
-**Evidence**: `c55c5c5:frontend-mobile/src/api/unauthorized.ts:13-19`, `c55c5c5:frontend-mobile/src/api/client.ts:53-62`, `frontend-mobile/src/api/client.ts:34-48`
-**Notes**: Commit c55c5c5 is on `US-and-Improvements`, not on the worktree branch.
+**Evidence**: `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/api/client.ts:53-64`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`
+**Notes**: Commit c55c5c5 is merged into this branch. The reset to Login goes through `resetToLogin` (`frontend-mobile/src/navigation/navigationRef.ts:8-12`).
 
 ---
 
@@ -408,11 +408,11 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-08 · Commit: 48eaab5 (release reset origin)
 
 **Acceptance criteria**
-1. Given a signed-in user, when the page reloads, then the token, username and behaviour are restored from localStorage (`frontend/src/store.js:33-34`; persist name `omnipizza-auth` at `store.js:62`).
+1. Given a signed-in user, when the page reloads, then the token, username and behaviour are restored from localStorage (`frontend/src/store.js:33-34`; persist name `omnipizza-auth` at `store.js:70`).
 2. Given `VITE_APP_RELEASE` differs from the stored `omnipizza-release`, when the app boots, then `token`, `username` and `omnipizza-auth` are removed and the user lands on Login (`frontend/src/store.js:5-24`).
 3. Given no token, when a protected route is requested, then the user is redirected to `/` (`frontend/src/routes/ProtectedRoute.jsx:9-10`; `frontend/src/App.jsx:50`).
 
-**Evidence**: `frontend/src/store.js:5-24,29-66`, `frontend/src/routes/ProtectedRoute.jsx:6-10`, `frontend/src/App.jsx:50`
+**Evidence**: `frontend/src/store.js:5-24,29-70`, `frontend/src/routes/ProtectedRoute.jsx:6-10`, `frontend/src/App.jsx:50`
 **Notes**: The release reset keeps the cart, market and language keys (the cart removal is commented out at `store.js:19-20`).
 
 ---
@@ -427,7 +427,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 **Acceptance criteria**
 1. Given the app is not signed in, when it renders, then `dir` is `ltr` and `lang` is `en` (`frontend/src/App.jsx:29-32`).
 2. Given a signed-in Arabic session, when it renders, then `dir` is `rtl` and `lang` is `ar` (`App.jsx:29-32`).
-3. Given logout, when it completes, then web resets language to `en` and locale to `en-US` (`frontend/src/store.js:57-59`), and mobile resets language to `en` (`frontend-mobile/src/store/useAppStore.ts:126-127`).
+3. Given logout, when it completes, then web resets language to `en` and locale to `en-US` (`frontend/src/store.js:65-67`), and mobile resets language to `en` (`frontend-mobile/src/store/useAppStore.ts:129`).
 
-**Evidence**: `frontend/src/App.jsx:20,24-33`, `frontend/src/store.js:57-59`, `frontend-mobile/src/store/useAppStore.ts:118-128`
+**Evidence**: `frontend/src/App.jsx:20,24-33`, `frontend/src/store.js:65-67`, `frontend-mobile/src/store/useAppStore.ts:120-130`
 **Notes**: The market's language is re-applied on the next login (`frontend/src/pages/Login.jsx:80`).

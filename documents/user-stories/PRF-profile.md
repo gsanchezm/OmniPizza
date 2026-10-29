@@ -2,7 +2,7 @@
 
 The editable personal profile (full name, phone, delivery address, birthday, delivery notes) that the backend keeps per login session, the web and mobile screens that edit it, its pre-fill into checkout, Delete Account, and the QA-only atomic seed and reset endpoints. Profile state follows the login: a new login always starts from an empty profile.
 
-Retroactive stories for implemented behaviour. Status **Done** = verified in code (or in a fix commit); **Found** = a gap that exists today and is not fixed. Fix commits 088c650 and 60774e3 are on branch `US-and-Improvements`, not on the worktree HEAD `9ca3767`; their evidence cites the commit sha.
+Retroactive stories for implemented behaviour. Status **Done** = verified in code (or in a fix commit); **Found** = a gap that exists today and is not fixed. Fix commits 088c650 and 60774e3 are merged into this branch (merge of `US-and-Improvements`); their evidence cites the sha and the current path and line.
 
 | ID | Title | Layer | Status |
 |---|---|---|---|
@@ -14,8 +14,8 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 | US-PRF-002-MOB | Set my birthday with three dropdowns | MOB | Done |
 | US-PRF-003-WEB | Cancel leaves the profile without saving | WEB | Found |
 | US-PRF-003-MOB | Cancel returns to the previous screen | MOB | Done |
-| US-PRF-004-WEB | Checkout pre-fills my details from the server profile | WEB | Found |
-| US-PRF-004-MOB | Checkout pre-fills my details from the server profile | MOB | Found |
+| US-PRF-004-WEB | Checkout pre-fills my details from my profile | WEB | Done |
+| US-PRF-004-MOB | Checkout pre-fills my details from my profile | MOB | Done |
 | US-PRF-005-WEB | Delete my account from the profile page | WEB | Done |
 | US-PRF-005-MOB | Delete my account from the profile screen | MOB | Done |
 | US-PRF-005-UX | Delete confirmation dialog manages focus | UX | Done |
@@ -41,7 +41,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 4. Given a non-string value such as `full_name: 12345`, when it is patched, then the response is 422 (verified).
 
 **Evidence**: `backend/routers/auth.py:103-131`, `backend/models.py:23-40`, `backend/database.py:93-117`
-**Notes**: Drift: the brief lists `premium` among the PATCH fields, but the code does not accept it on PATCH. `premium` can be seeded through `POST /api/profile` (`backend/models.py:199`; US-PRF-006-API). Profile state is keyed by the login's `sid` (US-AUTH-004-API).
+**Notes**: Drift: the brief lists `premium` among the PATCH fields, but the code does not accept it on PATCH. `premium` can be seeded through `POST /api/profile` (`backend/models.py:200`; US-PRF-006-API). Profile state is keyed by the login's `sid` (US-AUTH-004-API).
 
 ---
 
@@ -53,12 +53,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-05-22 · Commit: ae064c6
 
 **Acceptance criteria**
-1. Given the Profile page opens, when it mounts, then the profile is loaded from `GET /api/users/me/profile` and the fields are filled (`frontend/src/pages/Profile.jsx:14-16`; `frontend/src/features/profile/useCases/loadProfile.js:4-13`).
-2. Given a field is edited, when the user types, then the profile store updates at once (`Profile.jsx:96,108,122,136,150`).
-3. Given Save Changes is pressed, when the request succeeds, then one `PATCH` sends `full_name`, `phone`, `address`, `notes` and `birthday`, the store is refreshed and an alert shows the saved message (`Profile.jsx:18-22`; `frontend/src/features/profile/useCases/saveProfile.js:4-25`).
-4. Given the save fails, when the error arrives, then an alert shows the response's `detail` or "Failed to save profile" (`Profile.jsx:23-25`).
+1. Given the Profile page opens, when it mounts, then the profile is loaded from `GET /api/users/me/profile` and the fields are filled (`frontend/src/pages/Profile.jsx:19`; `frontend/src/features/profile/useCases/loadProfile.js:4-13`).
+2. Given a field is edited, when the user types, then the profile store updates at once (`Profile.jsx:112,124,138,152,166`).
+3. Given Save Changes is pressed, when the request succeeds, then one `PATCH` sends `full_name`, `phone`, `address`, `notes` and `birthday`, the store is refreshed and an alert shows the saved message (`Profile.jsx:22-26`; `frontend/src/features/profile/useCases/saveProfile.js:4-25`).
+4. Given the save fails, when the error arrives, then an alert shows the response's `detail` or "Failed to save profile" (`Profile.jsx:26-28`).
 
-**Evidence**: `frontend/src/pages/Profile.jsx:14-28,91-151,165-175`, `frontend/src/features/profile/useCases/loadProfile.js:4-13`, `frontend/src/features/profile/useCases/saveProfile.js:4-25`, `frontend/src/features/profile/repositories/profileRepository.js:3-8`
+**Evidence**: `frontend/src/pages/Profile.jsx:19-28,107-166,181-191`, `frontend/src/features/profile/useCases/loadProfile.js:4-13`, `frontend/src/features/profile/useCases/saveProfile.js:4-25`, `frontend/src/features/profile/repositories/profileRepository.js:3-8`
 **Notes**: Drift: the API's error body uses `error`, not `detail` (`backend/main.py:75-84`), so the specific server message is never shown; the fallback text always appears for HTTP errors. Save feedback is `window.alert` (`saveProfile.js` default `notify`).
 
 ---
@@ -71,12 +71,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-05-22 · Commit: dde43ba
 
 **Acceptance criteria**
-1. Given the Profile screen opens, when it mounts, then the profile is loaded from the server (`frontend-mobile/src/screens/ProfileScreen.tsx:60-64`; `frontend-mobile/src/features/profile/useCases/loadProfile.ts`).
-2. Given a field is typed in, when the text changes, then the store updates (`ProfileScreen.tsx:173,185,197,215` for `input-profile-fullname`, `input-profile-phone`, `input-profile-address` and `input-profile-notes`).
-3. Given Save Changes is pressed, when the request succeeds, then one `PATCH` sends the five fields, the store is refreshed and a native alert shows the saved message (`ProfileScreen.tsx:87-99`; `frontend-mobile/src/features/profile/useCases/saveProfile.ts`).
-4. Given the save fails, when the error arrives, then an alert shows `detail` or "Failed to save profile" (`ProfileScreen.tsx:95`).
+1. Given the Profile screen opens, when it mounts, then the profile is loaded from the server (`frontend-mobile/src/screens/ProfileScreen.tsx:65`; `frontend-mobile/src/features/profile/useCases/loadProfile.ts`).
+2. Given a field is typed in, when the text changes, then the store updates (`ProfileScreen.tsx:190,202,214,232` for `input-profile-fullname`, `input-profile-phone`, `input-profile-address` and `input-profile-notes`).
+3. Given Save Changes is pressed, when the request succeeds, then one `PATCH` sends the five fields, the store is refreshed and a native alert shows the saved message (`ProfileScreen.tsx:91-103`; `frontend-mobile/src/features/profile/useCases/saveProfile.ts`).
+4. Given the save fails, when the error arrives, then an alert shows `detail` or "Failed to save profile" (`ProfileScreen.tsx:99`).
 
-**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:60-99,168-220,256-277`, `frontend-mobile/src/features/profile/useCases/saveProfile.ts`, `frontend-mobile/src/features/profile/repositories/profileRepository.ts`
+**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:64-103,185-237,273-294`, `frontend-mobile/src/features/profile/useCases/saveProfile.ts`, `frontend-mobile/src/features/profile/repositories/profileRepository.ts`
 **Notes**: Same `detail` versus `error` drift as US-PRF-001-WEB.
 
 ---
@@ -91,7 +91,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 1. Expected: `birthday` is a valid `YYYY-MM-DD` date. Current: any string is stored and returned; `2026-02-31` was accepted and returned unchanged (verified).
 2. Expected: a malformed birthday returns 422. Current: `UserProfileUpdate.birthday` is an unvalidated `Optional[str]` (`backend/models.py:40`), so no 422 is raised.
 
-**Evidence**: `backend/models.py:34-40,188-199`, `backend/routers/auth.py:115-131`
+**Evidence**: `backend/models.py:34-40,189-200`, `backend/routers/auth.py:115-131`
 **Notes**: The web date picker (US-PRF-002-WEB) cannot produce an impossible date, but the mobile dropdowns can (US-PRF-002-MOB), and the API accepts both.
 
 ---
@@ -104,10 +104,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-07-09 · Commit: 61a4751
 
 **Acceptance criteria**
-1. Given the Profile page, when it renders, then the birthday is a native `<input type="date">` with testid `profile-birthday` (`frontend/src/pages/Profile.jsx:127-137`).
-2. Given a date is chosen, when it changes, then the store's `birthday` is set to the value the browser reports, and it is saved with the rest (`Profile.jsx:136`; `saveProfile.js:9-16`).
+1. Given the Profile page, when it renders, then the birthday is a native `<input type="date">` with testid `profile-birthday` (`frontend/src/pages/Profile.jsx:143-153`).
+2. Given a date is chosen, when it changes, then the store's `birthday` is set to the value the browser reports, and it is saved with the rest (`Profile.jsx:152`; `saveProfile.js:9-16`).
 
-**Evidence**: `frontend/src/pages/Profile.jsx:127-137`, `frontend/src/features/profile/useCases/saveProfile.js:9-16`
+**Evidence**: `frontend/src/pages/Profile.jsx:143-153`, `frontend/src/features/profile/useCases/saveProfile.js:9-16`
 **Notes**: The browser control does not permit impossible dates, so this path cannot send `2026-02-31`.
 
 ---
@@ -120,12 +120,12 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-07-09 · Commit: 61a4751
 
 **Acceptance criteria**
-1. Given the Profile screen, when it renders, then the birthday shows three dropdowns: day 1–31, month 1–12 and year 2015 down to 1950 (`frontend-mobile/src/screens/ProfileScreen.tsx:26-40,226-251`; testIDs `input-birthday-day`, `input-birthday-month`, `input-birthday-year`).
-2. Given all three parts are chosen, when the selection changes, then the store's birthday is set to `YYYY-MM-DD`; otherwise it is empty (`ProfileScreen.tsx:77-85`).
-3. Given a saved birthday, when the screen loads, then the dropdowns are seeded from it (`ProfileScreen.tsx:66-75`).
+1. Given the Profile screen, when it renders, then the birthday shows three dropdowns: day 1–31, month 1–12 and year 2015 down to 1950 (`frontend-mobile/src/screens/ProfileScreen.tsx:28-42,243-268`; testIDs `input-birthday-day`, `input-birthday-month`, `input-birthday-year`).
+2. Given all three parts are chosen, when the selection changes, then the store's birthday is set to `YYYY-MM-DD`; otherwise it is empty (`ProfileScreen.tsx:81-89`).
+3. Given a saved birthday, when the screen loads, then the dropdowns are seeded from it (`ProfileScreen.tsx:70-79`).
 
-**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:26-85,226-251`
-**Notes**: The day list is 1–31 for every month, so 31 February can be chosen and saved (`ProfileScreen.tsx:26-29,84`; US-PRF-002-API). A saved year outside 1950–2015 is seeded into the store, but no dropdown option matches it: Unverified (not exercised on a device).
+**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:28-89,243-268`
+**Notes**: The day list is 1–31 for every month, so 31 February can be chosen and saved (`ProfileScreen.tsx:28-31,88`; US-PRF-002-API). A saved year outside 1950–2015 is seeded into the store, but no dropdown option matches it: Unverified (not exercised on a device).
 
 ---
 
@@ -136,10 +136,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Status: Found
 
 **Acceptance criteria**
-1. Expected: Cancel discards unsaved edits and returns to the previous screen. Current: the button (`profile-cancel-btn`) has no click handler (`frontend/src/pages/Profile.jsx:162-164`).
+1. Expected: Cancel discards unsaved edits and returns to the previous screen. Current: the button (`profile-cancel-btn`) has no click handler (`frontend/src/pages/Profile.jsx:178-180`).
 2. Expected: a click has a visible result. Current: clicking changes nothing.
 
-**Evidence**: `frontend/src/pages/Profile.jsx:162-164`
+**Evidence**: `frontend/src/pages/Profile.jsx:178-180`
 **Notes**: Mobile Cancel does navigate back (US-PRF-003-MOB). Web edits stay in the local store until the page mounts again.
 
 ---
@@ -152,41 +152,43 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Done on: 2026-02-07 · Commit: ebeacd3 (Profile screen origin)
 
 **Acceptance criteria**
-1. Given Cancel is pressed, when it runs, then `navigation.goBack()` is called (`frontend-mobile/src/screens/ProfileScreen.tsx:259-263`, testID `btn-cancel-profile`).
-2. Given unsaved edits, when the screen is opened again, then `loadProfile` replaces them with the server values (`ProfileScreen.tsx:60-64`).
+1. Given Cancel is pressed, when it runs, then `navigation.goBack()` is called (`frontend-mobile/src/screens/ProfileScreen.tsx:278-279`, testID `btn-cancel-profile`).
+2. Given unsaved edits, when the screen is opened again, then `loadProfile` replaces them with the server values (`ProfileScreen.tsx:65`).
 
-**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:60-64,259-263`
+**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:65,278-279`
 **Notes**: Cancel does not reset the store itself; the reload on mount is what discards the edits.
 
 ---
 
-### US-PRF-004-WEB · Checkout pre-fills my details from the server profile
+### US-PRF-004-WEB · Checkout pre-fills my details from my profile
 **As a** customer **I want** checkout to fill my name, address and phone from my saved profile **so that** I do not retype them.
 
 - Layer: WEB · Epic: PRF · Persona: Customer · Market: all
-- Status: Found
+- Status: Done
+- Done on: 2026-02-07 · Commit: ebeacd3
 
 **Acceptance criteria**
-1. Expected: checkout's name, address and phone come from my server profile. Current: checkout reads the cached profile store when it mounts (`frontend/src/pages/Checkout.jsx:196-202`) and never calls `loadProfile`; the only caller is the Profile page (`frontend/src/pages/Profile.jsx:15`).
-2. Expected: a new login with a seeded profile pre-fills checkout. Current: pre-fill depends on the local cache (`localStorage` key `omnipizza-profile`, `frontend/src/store.js:241`). Logout clears that cache (US-PRF-008-WEB), so a new login starts with empty fields until the Profile page is opened.
+1. Given checkout mounts, when the form initialises, then name, address and phone are taken from the profile store (`frontend/src/pages/Checkout.jsx:190-196`).
+2. Given checkout's pre-fill, when it runs, then notes and birthday are not used; checkout pre-fills three fields only (`frontend/src/pages/Checkout.jsx:190-196`).
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:196-202`, `frontend/src/pages/Profile.jsx:14-16`, `frontend/src/store.js:230-243`
-**Notes**: Checkout pre-fills name, address and phone only; notes and birthday are not used there (`Checkout.jsx:199-202`).
+**Evidence**: `frontend/src/pages/Checkout.jsx:190-196`, `frontend/src/pages/Profile.jsx:19`, `frontend/src/store.js:238-251`
+**Notes**: The store is filled only by the Profile page's `loadProfile` (`frontend/src/pages/Profile.jsx:19`) and by the local cache `omnipizza-profile` (`frontend/src/store.js:249`). So a profile seeded through the API and then opened directly in checkout does not pre-fill until the Profile page has loaded it, and logout clears the cache (US-PRF-008-WEB). Mobile's in-memory profile survives logout (US-PRF-008-MOB).
 
 ---
 
-### US-PRF-004-MOB · Checkout pre-fills my details from the server profile
+### US-PRF-004-MOB · Checkout pre-fills my details from my profile
 **As a** customer **I want** checkout on my phone to fill my name, address and phone from my profile **so that** I do not retype them.
 
 - Layer: MOB · Epic: PRF · Persona: Customer · Market: all
-- Status: Found
+- Status: Done
+- Done on: 2026-02-07 · Commit: ebeacd3
 
 **Acceptance criteria**
-1. Expected: checkout's name, address and phone come from my server profile. Current: `CheckoutScreen` reads the in-memory profile (`frontend-mobile/src/screens/CheckoutScreen.tsx:70,137-139`), and checkout never calls `loadProfile`; the only caller is the Profile screen (`frontend-mobile/src/screens/ProfileScreen.tsx:61`).
-2. Expected: checkout shows only the signed-in user's details. Current: the in-memory profile survives logout (US-PRF-008-MOB), so after a login as another user, checkout can show the previous user's values.
+1. Given checkout mounts, when the form initialises, then name, address and phone are read from the in-memory profile (`frontend-mobile/src/screens/CheckoutScreen.tsx:71,140-142`).
+2. Given checkout, when it runs, then it does not call `loadProfile`; only the Profile screen does (`frontend-mobile/src/screens/ProfileScreen.tsx:65`).
 
-**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:70,137-139`, `frontend-mobile/src/screens/ProfileScreen.tsx:60-64`, `frontend-mobile/src/store/useAppStore.ts:94,118-128`
-**Notes**: AC 2 is a code read; it was not reproduced on a device.
+**Evidence**: `frontend-mobile/src/screens/CheckoutScreen.tsx:71,140-142`, `frontend-mobile/src/screens/ProfileScreen.tsx:65`, `frontend-mobile/src/store/useAppStore.ts:96,120-130`
+**Notes**: The in-memory profile is refreshed only when the Profile screen mounts, and it survives logout (US-PRF-008-MOB). Code read; the pre-fill was not run on a device.
 
 ---
 
@@ -195,15 +197,15 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 - Layer: WEB · Epic: PRF · Persona: QA · Market: all
 - Status: Done
-- Done on: 2026-10-28 · Commit: 088c650 (branch `US-and-Improvements`)
+- Done on: 2026-10-28 · Commit: 088c650 (merged into this branch)
 
 **Acceptance criteria**
-1. Given Delete Account is pressed, when it runs, then a confirmation dialog opens (`088c650:frontend/src/pages/Profile.jsx:172,206-216`; testid `delete-account-btn`).
-2. Given the dialog is confirmed, when it runs, then `POST /api/session/reset` is called (`088c650:frontend/src/features/profile/repositories/profileRepository.js:4,10`), then the user is logged out (`088c650:frontend/src/features/profile/useCases/deleteAccount.js`).
-3. Given the reset call fails, when the error arrives, then the user stays signed in, the dialog stays open and an alert shows the server's `error` or a generic message (`088c650:frontend/src/pages/Profile.jsx:34-43`).
+1. Given Delete Account is pressed, when it runs, then a confirmation dialog opens (`frontend/src/pages/Profile.jsx:172,206-215`; testid `delete-account-btn`).
+2. Given the dialog is confirmed, when it runs, then `POST /api/session/reset` is called (`frontend/src/features/profile/repositories/profileRepository.js:4,10`), then the user is logged out (`frontend/src/features/profile/useCases/deleteAccount.js`).
+3. Given the reset call fails, when the error arrives, then the user stays signed in, the dialog stays open and an alert shows the server's `error` or a generic message (`frontend/src/pages/Profile.jsx:34-45`).
 
-**Evidence**: `088c650:frontend/src/pages/Profile.jsx:34-43,172,206-216`, `088c650:frontend/src/features/profile/repositories/profileRepository.js:4,10`, `088c650:frontend/src/features/profile/useCases/deleteAccount.js`
-**Notes**: The fixed test user is not removed; the dialog says so. The reset also returns the market to MX (US-PRF-006-API). At the worktree HEAD `9ca3767` the button has no `onClick` (`frontend/src/pages/Profile.jsx:156`).
+**Evidence**: `frontend/src/pages/Profile.jsx:34-45,172,206-215`, `frontend/src/features/profile/repositories/profileRepository.js:4,10`, `frontend/src/features/profile/useCases/deleteAccount.js`
+**Notes**: The fixed test user is not removed; the dialog says so. The reset also returns the market to MX (US-PRF-006-API). Before 088c650 the button had no `onClick` (`9ca3767:frontend/src/pages/Profile.jsx:156`).
 
 ---
 
@@ -212,15 +214,15 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 - Layer: MOB · Epic: PRF · Persona: QA · Market: all
 - Status: Done
-- Done on: 2026-10-28 · Commit: 088c650 (branch `US-and-Improvements`)
+- Done on: 2026-10-28 · Commit: 088c650 (merged into this branch)
 
 **Acceptance criteria**
-1. Given Delete Account is pressed, when it runs, then a `ConfirmDialog` opens (`088c650:frontend-mobile/src/screens/ProfileScreen.tsx:301-316`; testID `btn-delete-account`).
-2. Given the dialog is confirmed, when it runs, then `POST /api/session/reset` is called (`088c650:frontend-mobile/src/features/profile/repositories/profileRepository.ts:4,29`), then the store logs out (`088c650:frontend-mobile/src/features/profile/useCases/deleteAccount.ts`).
-3. Given the reset call fails, when the error arrives, then the user stays signed in and an alert shows the server's `error` or a generic message (`088c650:frontend-mobile/src/screens/ProfileScreen.tsx:107-114`).
+1. Given Delete Account is pressed, when it runs, then a `ConfirmDialog` opens (`frontend-mobile/src/screens/ProfileScreen.tsx:300-319`; testID `btn-delete-account`).
+2. Given the dialog is confirmed, when it runs, then `POST /api/session/reset` is called (`frontend-mobile/src/features/profile/repositories/profileRepository.ts:4,29`), then the store logs out (`frontend-mobile/src/features/profile/useCases/deleteAccount.ts:9-18`), and navigation resets to Login (`frontend-mobile/src/screens/ProfileScreen.tsx:110-111`).
+3. Given the reset call fails, when the error arrives, then the user stays signed in and an alert shows the server's `error` or a generic message (`frontend-mobile/src/screens/ProfileScreen.tsx:105-116`).
 
-**Evidence**: `088c650:frontend-mobile/src/screens/ProfileScreen.tsx:107-114,301-316`, `088c650:frontend-mobile/src/features/profile/repositories/profileRepository.ts:4,29`
-**Notes**: At HEAD `9ca3767` the delete button has no `onPress` (`frontend-mobile/src/screens/ProfileScreen.tsx:281-285`).
+**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:105-116,300-319`, `frontend-mobile/src/features/profile/repositories/profileRepository.ts:4,29`
+**Notes**: Before 088c650 the delete button had no `onPress` (`9ca3767:frontend-mobile/src/screens/ProfileScreen.tsx:281-285`).
 
 ---
 
@@ -229,14 +231,14 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 - Layer: UX · Epic: PRF · Persona: Customer · Market: all
 - Status: Done
-- Done on: 2026-10-28 · Commit: 088c650 (branch `US-and-Improvements`)
+- Done on: 2026-10-28 · Commit: 088c650 (merged into this branch)
 
 **Acceptance criteria**
-1. Given the web dialog opens, when it shows, then focus moves to Cancel, Escape cancels, and focus returns to the opener on close (`088c650:frontend/src/components/ConfirmDialog.jsx:28-36`).
-2. Given the mobile dialog opens, when it shows, then it is an RN `Modal` with `accessibilityViewIsModal` (`088c650:frontend-mobile/src/components/ConfirmDialog.tsx:31-45`).
+1. Given the web dialog opens, when it shows, then focus moves to Cancel, Escape cancels, and focus returns to the opener on close (`frontend/src/components/ConfirmDialog.jsx:28-36`).
+2. Given the mobile dialog opens, when it shows, then it is an RN `Modal` with `accessibilityViewIsModal` (`frontend-mobile/src/components/ConfirmDialog.tsx:31-45`).
 3. Given the dialog, when it renders, then its title, body, confirm and failure strings come from the locale files, four keys in each of six locales per platform (stat of `088c650`).
 
-**Evidence**: `088c650:frontend/src/components/ConfirmDialog.jsx:5,28-36`, `088c650:frontend-mobile/src/components/ConfirmDialog.tsx:31-45`
+**Evidence**: `frontend/src/components/ConfirmDialog.jsx:5,28-36`, `frontend-mobile/src/components/ConfirmDialog.tsx:31-45`
 **Notes**: The web comments say focus moves and returns; no focus trap is claimed here.
 
 ---
@@ -253,7 +255,7 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 2. Given `POST /api/session/reset`, when it runs, then the caller's market becomes MX, the cart is emptied and the profile returns to defaults (`backend/test_api.py:193-215`; verified).
 3. Neither endpoint reads `X-Country-Code` (`backend/test_api.py:168-215`; the handlers depend only on `get_current_user`).
 
-**Evidence**: `backend/test_api.py:168-215`, `backend/database.py:119-137,208-209`, `backend/models.py:188-199`
+**Evidence**: `backend/test_api.py:168-215`, `backend/database.py:119-137,208-209`, `backend/models.py:189-200`
 **Notes**: The reset sets the market to MX, the default for a fresh session (`backend/database.py:143`), not US. The login form's US default applies only at the next sign-in (`frontend/src/pages/Login.jsx:80`).
 
 ---
@@ -265,10 +267,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Status: Found
 
 **Acceptance criteria**
-1. Expected: the header shows my own name and membership. Current: the avatar is a fixed DiceBear image seeded "Alexander" (`frontend/src/pages/Profile.jsx:47-48`); the name falls back to the literal "Alexander Sterling" (`Profile.jsx:61`); the badge always says Premium (`Profile.jsx:63-65`); the joined line is fixed to "March 2023" (`Profile.jsx:70`).
+1. Expected: the header shows my own name and membership. Current: the avatar is a fixed DiceBear image seeded "Alexander" (`frontend/src/pages/Profile.jsx:63-64`); the name falls back to the literal "Alexander Sterling" (`Profile.jsx:77`); the badge always says Premium (`Profile.jsx:79-81`); the joined line is fixed to "March 2023" (`Profile.jsx:86`).
 2. Expected: the badge reflects the profile's `premium` flag. Current: only five fields are mapped from the API, and `premium` is not one of them (`frontend/src/features/profile/useCases/loadProfile.js:6-12`).
 
-**Evidence**: `frontend/src/pages/Profile.jsx:47-70`, `frontend/src/features/profile/useCases/loadProfile.js:6-12`
+**Evidence**: `frontend/src/pages/Profile.jsx:63-86`, `frontend/src/features/profile/useCases/loadProfile.js:6-12`
 **Notes**: The avatar is an external image (`api.dicebear.com`) and needs network access.
 
 ---
@@ -280,10 +282,10 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Status: Found
 
 **Acceptance criteria**
-1. Expected: the header shows my name and membership. Current: the avatar is a fixed DiceBear image seeded "Alexander" (`frontend-mobile/src/screens/ProfileScreen.tsx:119-127`); the name falls back to "Alexander Sterling" (`ProfileScreen.tsx:143-144`); the badge always says PREMIUM (`ProfileScreen.tsx:146-149`); the joined line is fixed (`ProfileScreen.tsx:152-153`).
+1. Expected: the header shows my name and membership. Current: the avatar is a fixed DiceBear image seeded "Alexander" (`frontend-mobile/src/screens/ProfileScreen.tsx:136-144`); the name falls back to "Alexander Sterling" (`ProfileScreen.tsx:160-161`); the badge always says PREMIUM (`ProfileScreen.tsx:163-166`); the joined line is fixed (`ProfileScreen.tsx:169-170`).
 2. Expected: the badge reflects `premium`. Current: `loadProfile.ts` maps five fields and drops `premium`.
 
-**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:119-153`, `frontend-mobile/src/features/profile/useCases/loadProfile.ts`
+**Evidence**: `frontend-mobile/src/screens/ProfileScreen.tsx:136-170`, `frontend-mobile/src/features/profile/useCases/loadProfile.ts`
 **Notes**: Same gap as US-PRF-007-WEB.
 
 ---
@@ -297,9 +299,9 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 
 **Acceptance criteria**
 1. Given logout, when it runs, then `omnipizza-profile` is removed from localStorage and the profile store is set to empty values (`frontend/src/store.js:49-53`).
-2. Given the next login, when the Profile page has not been opened, then the local profile is empty until `loadProfile` runs (`frontend/src/pages/Profile.jsx:14-16`).
+2. Given the next login, when the Profile page has not been opened, then the local profile is empty until `loadProfile` runs (`frontend/src/pages/Profile.jsx:19`).
 
-**Evidence**: `frontend/src/store.js:43-53,230-243`, `frontend/src/pages/Profile.jsx:14-16`
+**Evidence**: `frontend/src/store.js:43-53,238-251`, `frontend/src/pages/Profile.jsx:19`
 **Notes**: The cleared profile is the one Checkout pre-fills from (US-PRF-004-WEB).
 
 ---
@@ -311,8 +313,8 @@ Retroactive stories for implemented behaviour. Status **Done** = verified in cod
 - Status: Found
 
 **Acceptance criteria**
-1. Expected: logout clears the profile held for the previous user. Current: `logout` sets token, cart items, last order, country info and language, and leaves `profile` untouched (`frontend-mobile/src/store/useAppStore.ts:118-128`; default profile at `useAppStore.ts:94`).
-2. Consequence: after logout and a login as another user, checkout can pre-fill name, address and phone from the previous user's in-memory profile until the Profile screen is opened (`frontend-mobile/src/screens/CheckoutScreen.tsx:137-139`).
+1. Expected: logout clears the profile held for the previous user. Current: `logout` sets token, cart items, last order, country info and language, and leaves `profile` untouched (`frontend-mobile/src/store/useAppStore.ts:120-130`; default profile at `useAppStore.ts:96`).
+2. Consequence: after logout and a login as another user, checkout can pre-fill name, address and phone from the previous user's in-memory profile until the Profile screen is opened (`frontend-mobile/src/screens/CheckoutScreen.tsx:140-142`).
 
-**Evidence**: `frontend-mobile/src/store/useAppStore.ts:94,118-128`, `frontend-mobile/src/screens/CheckoutScreen.tsx:137-139`
+**Evidence**: `frontend-mobile/src/store/useAppStore.ts:96,120-130`, `frontend-mobile/src/screens/CheckoutScreen.tsx:140-142`
 **Notes**: Code read only; not reproduced on a device or in a test run.
