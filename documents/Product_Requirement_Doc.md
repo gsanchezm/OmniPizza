@@ -101,7 +101,7 @@ It is intentionally built with deterministic test users, multi-market behavior, 
 
 ### 6.7.1 Cart API (State Injection)
 * `POST /api/cart` — seeds backend cart with items (`pizza_id`, `size`, `quantity`). Requires `Authorization`.
-* `GET /api/cart` — returns enriched cart joined with catalog (name, price, image, currency). Requires `Authorization` + `X-Country-Code`.
+* `GET /api/cart` — returns enriched cart joined with catalog (name, size, toppings, price, image, currency). Requires `Authorization` + `X-Country-Code`.
 * Both web and mobile **Checkout screens fetch `GET /api/cart` on mount when the local cart is empty**, hydrating the UI automatically from backend state. This is the primary mechanism for cart state injection in atomic tests.
 * The hydration guard (`items.length > 0`) ensures normal shopping flows are never disrupted.
 * `PUT /api/cart/items/{item_id}` — upsert one cart line; creates if `item_id` is new, replaces if it exists. Requires `Authorization` only (no `X-Country-Code`).

@@ -403,6 +403,7 @@ Response:
       "pizza_id": "p02",
       "name": "Pepperoni",
       "size": "large",
+      "toppings": [],
       "quantity": 1,
       "price": 14.99,
       "base_price": 14.99,
