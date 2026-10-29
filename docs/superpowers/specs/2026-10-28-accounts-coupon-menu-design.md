@@ -1,6 +1,6 @@
 # Temporary accounts, welcome coupon and menu expansion — design
 
-Date: 2026-10-28 · Branch: `US-and-Improvements` · Status: the decisions below were approved by the owner on 2026-10-28; this document as a whole is awaiting final owner approval (see "Calls the designer made" for what is still open)
+Date: 2026-10-28 · Branch: `US-and-Improvements` · Status: approved by the owner on 2026-10-29 (decisions on 2026-10-28; the calls listed under "Calls the designer made" stand as written)
 
 ## Intent and why
 
@@ -15,7 +15,7 @@ OmniPizza is a QA sandbox that is also becoming a showcase of a traceable projec
 - Registration, guest entry, logout-that-deletes, a coupon with real business rules (incl. negative flows), and drinks/desserts across API, web and mobile.
 - Every existing automation contract keeps working (see Constraints).
 - New behaviour is deterministic and testable: stable test ids, deep links, documented status codes, state kept per login `sid`.
-- Stories (`documents/user-stories/`) exist as *Planned* before work starts, and flip to *Done* with the commit sha as they ship.
+- Stories exist as GitHub issues (one per story, grouped by epic) as *Planned* before work starts, and flip to *Done* (closed, with the commit sha) as they ship. The markdown sources under `documents/user-stories/` stay local and untracked.
 
 ## Non-goals
 

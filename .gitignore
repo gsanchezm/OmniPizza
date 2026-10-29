@@ -78,3 +78,6 @@ cypress/videos/
 
 # Paper drafts (kept locally, not tracked)
 /documents/paper
+
+# User-story sources (kept locally; the stories live as GitHub issues)
+/documents/user-stories
