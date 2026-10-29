@@ -253,6 +253,7 @@ class InMemoryDB:
                 "item_id": item.get("item_id"),
                 "name": name,
                 "size": item.get("size", "small"),
+                "toppings": item.get("toppings") or [],
                 "quantity": item["quantity"],
                 "price": price,
                 "base_price": pizza["base_price"],

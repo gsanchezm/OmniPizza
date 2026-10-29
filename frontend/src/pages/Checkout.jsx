@@ -147,6 +147,7 @@ export default function Checkout() {
 
         const hydrated = backendItems.map((item) => {
           const size = (item.size || "small").toLowerCase();
+          const toppings = Array.isArray(item.toppings) ? item.toppings : [];
           const sizeOption =
             SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
@@ -160,15 +161,15 @@ export default function Checkout() {
             image: item.image,
           };
 
-          const pricing = computeUnitPrice(pizza, sizeOption.usd, 0);
+          const pricing = computeUnitPrice(pizza, sizeOption.usd, toppings.length);
 
           return {
             id: (globalThis.crypto?.randomUUID?.() || `item_${Date.now()}_${Math.random()}`).toString(),
-            signature: `${item.pizza_id}|${size}|`,
+            signature: signatureOf(item.pizza_id, size, toppings),
             pizza_id: item.pizza_id,
             pizza,
             quantity: item.quantity,
-            config: { size, toppings: [] },
+            config: { size, toppings },
             unit_price: pricing.unitPrice,
             currency: item.currency,
             currency_symbol: item.currency_symbol,

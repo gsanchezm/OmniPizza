@@ -70,6 +70,7 @@ class EnrichedCartItem(BaseModel):
     item_id: str
     name: str
     size: str
+    toppings: List[str] = Field(default_factory=list)
     quantity: int
     price: float
     base_price: float

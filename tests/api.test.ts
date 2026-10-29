@@ -122,6 +122,32 @@ describe('Cart session isolation', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Cart hydration keeps toppings (checkout prices them, so the cart must show them)
+// ---------------------------------------------------------------------------
+describe('GET /api/cart toppings', () => {
+  it('returns the toppings that were seeded, and [] when there are none', async () => {
+    const token = await login('standard_user');
+    await axios.post(
+      `${API_URL}/api/cart`,
+      {
+        items: [
+          { pizza_id: 'p01', quantity: 1, size: 'large', toppings: ['pepperoni', 'bacon'] },
+          { pizza_id: 'p02', quantity: 1, size: 'small' },
+        ],
+      },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    const cart = await axios.get(`${API_URL}/api/cart`, {
+      headers: authHeaders(token, 'US'),
+    });
+
+    expect(cart.data.cart_items[0].toppings).toEqual(['pepperoni', 'bacon']);
+    expect(cart.data.cart_items[1].toppings).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Pizzas endpoint – requires headers
 // ---------------------------------------------------------------------------
 describe('GET /api/pizzas validation', () => {

@@ -4,6 +4,7 @@ export interface EnrichedCartItem {
   pizza_id: string;
   name: string;
   size: string;
+  toppings?: string[];
   quantity: number;
   price: number;
   base_price: number;

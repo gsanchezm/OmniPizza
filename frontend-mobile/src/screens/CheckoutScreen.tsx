@@ -90,6 +90,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
         const hydrated: CartItem[] = backendItems.map((item) => {
           const size = (item.size || "small").toLowerCase() as PizzaSize;
+          const toppings = item.toppings ?? [];
           const sizeOption =
             SIZE_OPTIONS.find((s) => s.id === size) || SIZE_OPTIONS[0];
 
@@ -107,15 +108,16 @@ export default function CheckoutScreen({ navigation }: any) {
           const rate =
             pizza.base_price > 0 ? pizza.price / pizza.base_price : 1;
           const sizeAdd = Math.ceil(sizeOption.usd * rate);
-          const unitPrice = pizza.price + sizeAdd;
+          const toppingsAdd = Math.ceil(rate) * toppings.length;
+          const unitPrice = pizza.price + sizeAdd + toppingsAdd;
 
           return {
             id: `item_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-            signature: `${item.pizza_id}|${size}|`,
+            signature: `${item.pizza_id}|${size}|${toppings.slice().sort().join(",")}`,
             pizza_id: item.pizza_id,
             pizza,
             quantity: item.quantity,
-            config: { size, toppings: [] as string[] },
+            config: { size, toppings },
             unit_price: unitPrice,
             currency: item.currency,
             currency_symbol: item.currency_symbol,
