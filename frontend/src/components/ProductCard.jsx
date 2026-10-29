@@ -3,13 +3,13 @@ import React from 'react';
 function ProductCard({ pizza, onAdd, formatPrice, t, tid }) {
   return (
     <div data-testid={tid ? tid(`pizza-card-${pizza.id}`) : `pizza-card-${pizza.id}`} className="bg-[#1E1E1E] rounded-[2rem] p-4 border border-[#2A2A2A] hover:border-[#FF5722]/50 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
-       {/* Badge (optional - e.g. Bestseller) */}
-       {pizza.type === 'meat' && (
+       {/* Badge from the API `category` field: popular -> Bestseller, veggie -> Veggie */}
+       {pizza.category === 'popular' && (
          <div className="absolute top-4 right-4 bg-[#FF5722] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 uppercase tracking-wide">
            {t("bestseller")}
          </div>
        )}
-       {pizza.type === 'veggie' && (
+       {pizza.category === 'veggie' && (
          <div className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 uppercase tracking-wide">
            {t("veggieBadge")}
          </div>
