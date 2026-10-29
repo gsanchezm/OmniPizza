@@ -4,12 +4,16 @@ import { useT } from '../i18n';
 import { useResponsive } from '../hooks/useResponsive';
 import { saveProfile } from '../features/profile/useCases/saveProfile';
 import { loadProfile } from '../features/profile/useCases/loadProfile';
+import { deleteAccount } from '../features/profile/useCases/deleteAccount';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Profile() {
   const t = useT();
   const { tid } = useResponsive();
   const { fullName, address, phone, notes, birthday, setProfile } = useProfileStore();
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadProfile().catch(() => { /* no profile yet — local state stays */ });
@@ -24,6 +28,18 @@ export default function Profile() {
       window.alert(err?.response?.data?.detail || 'Failed to save profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      // logout() cleared the session; ProtectedRoute now sends the user to the login page.
+    } catch (err) {
+      setDeleting(false);
+      window.alert(err?.response?.data?.error || t('deleteAccountFailed'));
     }
   };
 
@@ -153,7 +169,7 @@ export default function Profile() {
         </div>
 
         <div className="px-6 py-5 bg-[#161616] border-t border-[#1F1F1F] flex flex-col sm:flex-row items-center justify-between gap-4">
-           <button data-testid="delete-account-btn" className="text-gray-400 text-sm font-bold hover:text-red-500 transition-colors flex items-center gap-2">
+           <button data-testid="delete-account-btn" onClick={() => setDeleteOpen(true)} className="text-gray-400 text-sm font-bold hover:text-red-500 transition-colors flex items-center gap-2">
              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
              {t('deleteAccount') || "Delete Account"}
            </button>
@@ -186,6 +202,18 @@ export default function Profile() {
            </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        testIdPrefix="delete-account"
+        title={t('deleteAccountTitle')}
+        body={t('deleteAccountBody')}
+        cancelLabel={t('cancel')}
+        confirmLabel={t('deleteAccountConfirm')}
+        busy={deleting}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 }

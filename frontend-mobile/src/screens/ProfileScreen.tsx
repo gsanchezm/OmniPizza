@@ -17,6 +17,8 @@ import { useT } from "../i18n";
 import { useRTL } from "../hooks/useRTL";
 import { saveProfile } from "../features/profile/useCases/saveProfile";
 import { loadProfile } from "../features/profile/useCases/loadProfile";
+import { deleteAccount } from "../features/profile/useCases/deleteAccount";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
 
@@ -50,6 +52,8 @@ export default function ProfileScreen({ navigation }: any) {
   const profile = useAppStore((s) => s.profile);
   const setProfile = useAppStore((s) => s.setProfile);
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Local birthday parts drive the three dropdowns. They are the source of truth
   // for partial selections; the store only holds a full ISO (or empty) string.
@@ -95,6 +99,19 @@ export default function ProfileScreen({ navigation }: any) {
       Alert.alert(err?.response?.data?.detail || "Failed to save profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      setDeleteOpen(false);
+      navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+    } catch (err: any) {
+      setDeleting(false);
+      Alert.alert(err?.response?.data?.error || t("deleteAccountFailed"));
     }
   };
 
@@ -278,13 +295,29 @@ export default function ProfileScreen({ navigation }: any) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.deleteBtn} {...getReadableControlProps("btn-delete-account", t("deleteAccount") || "Delete Account")}>
+        <TouchableOpacity
+          style={styles.deleteBtn}
+          onPress={() => setDeleteOpen(true)}
+          {...getReadableControlProps("btn-delete-account", t("deleteAccount") || "Delete Account")}
+        >
           <Text style={styles.deleteText} numberOfLines={1} ellipsizeMode="tail" {...getReadableTextProps("text-delete-account", `🗑 ${t("deleteAccount") || "Delete Account"}`)}>
             🗑 {t("deleteAccount") || "Delete Account"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
       <BottomNavBar />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        testIdPrefix="delete-account"
+        title={t("deleteAccountTitle")}
+        body={t("deleteAccountBody")}
+        cancelLabel={t("cancel")}
+        confirmLabel={t("deleteAccountConfirm")}
+        busy={deleting}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </View>
   );
 }

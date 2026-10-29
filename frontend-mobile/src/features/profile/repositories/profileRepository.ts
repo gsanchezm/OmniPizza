@@ -1,6 +1,7 @@
 import { apiClient } from "../../../api/client";
 
 const PROFILE_PATH = "/api/users/me/profile";
+const SESSION_RESET_PATH = "/api/session/reset";
 
 export interface ProfileDTO {
   username: string;
@@ -25,5 +26,6 @@ export function createProfileRepository(client = apiClient) {
     get: () => client.get<ProfileDTO>(PROFILE_PATH),
     patch: (payload: ProfilePatchDTO) =>
       client.patch<ProfileDTO>(PROFILE_PATH, payload),
+    resetSession: () => client.post(SESSION_RESET_PATH),
   };
 }
