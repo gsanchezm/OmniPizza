@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { Pizza } from "../types/api";
 import type { CountryInfo } from "../services/country.service";
+import { applyCartItemEdit, cartItemSignature } from "../features/checkout/useCases/applyCartItemEdit";
 
 export type CountryCode = "MX" | "US" | "CH" | "JP" | "SA";
 export type LanguageCode = "en" | "es" | "de" | "fr" | "ja" | "ar";
@@ -65,6 +66,7 @@ interface AppState {
   addConfiguredItem: (pizza: Pizza, config: PizzaConfig, unitPrice: number) => void;
   removeCartItem: (id: string) => void;
   updateCartItem: (id: string, patch: Partial<CartItem>) => void;
+  editCartItem: (id: string, config: PizzaConfig, unitPrice: number) => void;
   setQty: (id: string, qty: number) => void;
   clearCart: () => void;
 
@@ -134,7 +136,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const pizzaId = String(pizza?.id ?? "");
       if (!pizzaId) return {};
 
-      const signature = `${pizzaId}|${config.size}|${(config.toppings || []).slice().sort().join(",")}`;
+      const signature = cartItemSignature(pizzaId, config);
       const existing = state.cartItems.find((i) => i.signature === signature);
 
       if (existing) {
@@ -171,6 +173,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       cartItems: state.cartItems.map((i) => (i.id === id ? { ...i, ...patch } : i)),
     })),
+
+  editCartItem: (id, config, unitPrice) =>
+    set((state) => ({ cartItems: applyCartItemEdit(state.cartItems, id, config, unitPrice) })),
 
   setQty: (id, qty) =>
     set((state) => {

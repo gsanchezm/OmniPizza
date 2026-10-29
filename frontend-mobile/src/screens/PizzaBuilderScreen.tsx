@@ -64,7 +64,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
   const country = useAppStore((s) => s.country);
   const language = useAppStore((s) => s.language);
   const addConfiguredItem = useAppStore((s) => s.addConfiguredItem);
-  const updateCartItem = useAppStore((s) => s.updateCartItem);
+  const editCartItem = useAppStore((s) => s.editCartItem);
   const t = useT();
   const { textAlign } = useRTL();
 
@@ -133,7 +133,7 @@ export default function PizzaBuilderScreen({ route, navigation }: any) {
     };
 
     if (mode === "edit" && cartItemId) {
-      updateCartItem(cartItemId, { config, unit_price: finalUnitPrice });
+      editCartItem(cartItemId, config, finalUnitPrice);
       navigation.goBack();
       return;
     }

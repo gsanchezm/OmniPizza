@@ -22,6 +22,7 @@ import { placeOrder as placeOrderUseCase } from "../features/checkout/useCases/p
 import { validateCheckoutForm } from "../features/checkout/useCases/validateCheckoutForm";
 import type { CheckoutFormState } from "../features/checkout/useCases/buildCheckoutPayload";
 import { cartService } from "../services/cart.service";
+import { cartItemSignature } from "../features/checkout/useCases/applyCartItemEdit";
 import { SIZE_OPTIONS } from "../constants/pizza";
 import { getReadableControlProps, getReadableTextProps, getTestProps } from "../utils/qa";
 import { remoteImageSource } from "../utils/image";
@@ -113,7 +114,7 @@ export default function CheckoutScreen({ navigation }: any) {
 
           return {
             id: `item_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-            signature: `${item.pizza_id}|${size}|${toppings.slice().sort().join(",")}`,
+            signature: cartItemSignature(item.pizza_id, { size, toppings }),
             pizza_id: item.pizza_id,
             pizza,
             quantity: item.quantity,
@@ -694,9 +695,14 @@ export default function CheckoutScreen({ navigation }: any) {
 
                 <View style={{ flexDirection: "row", gap: 16, marginTop: 4 }} accessibilityLabel={`view-item-actions-${item.id}`}>
                   <TouchableOpacity
-                    onPress={() => {
-                      /* Edit logic would go here, ideally passing item to builder */
-                    }}
+                    onPress={() =>
+                      navigation.navigate("PizzaBuilder", {
+                        mode: "edit",
+                        pizza: item.pizza,
+                        cartItemId: item.id,
+                        initialConfig: item.config,
+                      })
+                    }
                     {...getReadableControlProps(`btn-edit-item-${item.id}`, t("edit").toUpperCase())}
                   >
                     <Text style={styles.actionLink} {...getReadableTextProps(`text-edit-item-${item.id}`, t("edit").toUpperCase())}>
