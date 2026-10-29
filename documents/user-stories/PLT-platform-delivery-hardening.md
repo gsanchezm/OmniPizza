@@ -2,7 +2,7 @@
 
 How OmniPizza is built, deployed, observed and hardened: the FastAPI skeleton and its probes, Render and Docker deployment, GitHub Pages, the CI workflows, the mobile release pipeline and its iOS simulator-only decision, release history, accessibility and security hardening, and the architecture refactors that the golden net protects.
 
-Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82beadb82a6`). `gh` reads (releases, Pages) were taken on 2026-10-28. Hardening commits 63a133a, a943483, 0ac97d4, c773043 and the WCAG commits are on main history and are cited by sha.
+Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-Improvements` (2026-10-28), which carries origin/main and the same-day fixes. `gh` reads (releases, Pages) were taken the same day. Hardening commits 63a133a, a943483, 0ac97d4, c773043 and the WCAG commits are on main history and are cited by sha.
 
 | ID | Title | Layer | Status |
 | :--- | :--- | :--- | :--- |
@@ -66,7 +66,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. The endpoint returns `text/plain; charset=utf-8` (verified) and serves the default registry (`backend/routers/debug_chaos.py:47-50`).
 
 **Evidence**: `backend/main.py:16-17`, `backend/routers/debug_chaos.py:6`, `:47-50`.
-**Notes**: The PRD lists observability as a goal (`documents/Product_Requirement_Doc.md:275`) and lists the endpoint in §8 (`:190`), so the empty counters are a gap against the stated goal. Process metrics were not checked on Windows.
+**Notes**: The PRD lists observability as a goal (`documents/Product_Requirement_Doc.md:276`) and lists the endpoint in §8 (`:190`), so the empty counters are a gap against the stated goal. Process metrics were not checked on Windows.
 
 ---
 
@@ -116,7 +116,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given any API response, then `X-Content-Type-Options: nosniff` and `Strict-Transport-Security: max-age=63072000; includeSubDomains` are set (verified on `/api/version` and on a 404).
 2. Given `Origin: https://evil.example` on `GET /`, then `Access-Control-Allow-Origin` echoes that origin and `Access-Control-Allow-Credentials` is `true` (verified); a preflight to `/api/cart` also returns `Access-Control-Allow-Credentials: true` (verified).
 3. Given `CORS_ORIGINS` is unset, then the allowed origins default to `["*"]` (`backend/config.py:21`), and `allow_credentials=True` is set (`backend/main.py:33`).
-4. The open CORS policy matches the stated QA intent (`documents/Product_Requirement_Doc.md:279`: "CORS open for testing environments").
+4. The open CORS policy matches the stated QA intent (`documents/Product_Requirement_Doc.md:280`: "CORS open for testing environments").
 
 **Evidence**: `backend/main.py:30-36`, `:38-46`, `backend/config.py:21`, `render.yaml:16-17`.
 **Notes**: Status is Done because the openness is documented intent. Reflecting any origin together with credentials is a hardening question for the owner, not a finding here. HSTS is sent over plain HTTP too (the code comment says browsers ignore it there, `main.py:38-40`).
@@ -150,11 +150,11 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 **Acceptance criteria**
 1. Expected: an unhandled exception returns a generic error without exception text. Actual: the handler returns `detail: str(exc)` alongside `error: "Internal server error"` (`backend/main.py:86-95`).
-2. Actual: the PRD documents this shape as the contract (`documents/Product_Requirement_Doc.md:195`), so the behaviour is intentional on paper.
+2. Actual: the PRD documents this shape as the contract (`documents/Product_Requirement_Doc.md:196`), so the behaviour is intentional on paper.
 3. Decision needed: keep `str(exc)` for QA diagnosis, or redact it outside sandbox environments.
 4. The chaos persona `security_glitch_user` deliberately leaks simulated internal detail on checkout errors (`backend/constants.py:82-86`, `SECURITY_GLITCH_LEAK_MESSAGES`); that is a separate, intended leak.
 
-**Evidence**: `backend/main.py:86-95`, `documents/Product_Requirement_Doc.md:195`, `backend/constants.py:82-86`.
+**Evidence**: `backend/main.py:86-95`, `documents/Product_Requirement_Doc.md:196`, `backend/constants.py:82-86`.
 **Notes**: The runtime path was not triggered in this pass (Unverified at runtime); the code is read directly.
 
 ---
@@ -170,7 +170,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given the process starts, then orders and sessions live in plain dictionaries on the `InMemoryDB` instance (`backend/database.py:85-90`).
 2. Given the module loads, then one singleton `db = InMemoryDB()` is shared by all routers (`backend/database.py:366`).
 3. Given a restart, then no state is recovered; there is no persistence layer in the repo.
-4. Given Render, the blueprint comment states the same design (`render.yaml:69-70`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:276`).
+4. Given Render, the blueprint comment states the same design (`render.yaml:69-70`) and the PRD lists it as non-functional (`documents/Product_Requirement_Doc.md:277`).
 
 **Evidence**: as cited.
 **Notes**: Render's free plan (`render.yaml:10`) may spin the service down; whether that resets state more often is Unverified. Multi-worker deployment would split state: the start command runs a single uvicorn process (`render.yaml:12`), and that is not changed here.
@@ -294,7 +294,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given a pull request that changes `frontend/**` or the workflow file, then the Cypress job runs (`.github/workflows/frontend-component-tests.yml:3-7`).
 2. Given the job, then `continue-on-error: true` makes its result non-blocking (`:14`).
 3. Given the job, then it installs with `pnpm install --no-frozen-lockfile` (`:35`) and runs `pnpm test:ct` (`:38`), which is `cypress run --component` (`frontend/package.json:27`).
-4. Given the suite, then 11 component specs exist under `frontend/cypress/component`.
+4. Given the suite, then 12 component specs exist under `frontend/cypress/component`.
 5. Given `workflow_dispatch`, then the job can be started by hand (`:8`).
 
 **Evidence**: as cited.
@@ -414,7 +414,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 **Acceptance criteria**
 1. Given the document, then `<html lang="en">` is set in the base page (`frontend/index.html:2`) and the language follows the authenticated market at runtime (`frontend/src/App.jsx:31-32`).
 2. Given a toast, then it is a `role="status"` live region with `aria-live="polite"` (`frontend/src/components/Toast.jsx:21-22`).
-3. Given a login or checkout error, then it is a `role="alert"` with `aria-live="assertive"` (`frontend/src/pages/Login.jsx:225`, `frontend/src/pages/Checkout.jsx:380-381`).
+3. Given a login or checkout error, then it is a `role="alert"` with `aria-live="assertive"` (`frontend/src/pages/Login.jsx:225`, `frontend/src/pages/Checkout.jsx:374-375`).
 4. Given mobile controls, then they carry a readable `accessibilityLabel` and the bottom navigation items are `accessibilityRole="tab"` (`frontend-mobile/src/utils/qa.ts:58-72`, `frontend-mobile/src/components/BottomNavBar.tsx:55-60`).
 
 **Evidence**: as cited; commit cf8d2c9 stat (30 files).
@@ -467,7 +467,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 **Acceptance criteria**
 1. Given `tests/golden.test.ts`, then totals per market are pinned to a ground-truth table (`tests/golden.test.ts:39-74`).
-2. Given the net, then it covers multi-item carts, MX optional fields, catalog translation, cart enrichment and the chaos users (describe blocks at lines 76-562).
+2. Given the net, then it covers multi-item carts, MX optional fields, catalog translation, cart enrichment and the chaos users (describe blocks at lines 76-565).
 3. Given the plan, then the piece-one plan exists at `documents/plans/2026-07-12-backend-golden-net-piece1.md`.
 4. Given a run, then the net needs a live backend (Unverified in this pass; see US-ATM-019-API).
 
@@ -506,4 +506,4 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given legacy hooks, then `frontend-mobile/src/hooks/usePizzas.ts` and `useRTL.ts` remain.
 
 **Evidence**: `frontend-mobile/src/features/*` (file list), `frontend-mobile/src/hooks/usePizzas.ts`.
-**Notes**: Mirrors US-PLT-024-WEB; screens still call services directly in places (for example `CheckoutScreen.tsx:87` calls `cartService`).
+**Notes**: Mirrors US-PLT-024-WEB; screens still call services directly in places (for example `CheckoutScreen.tsx:88` calls `cartService`).

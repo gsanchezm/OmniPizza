@@ -2,7 +2,7 @@
 
 Atomic entry lets QA automation skip the UI: it injects a bearer token, a market, a cart, a profile or an order id, then opens the app at the screen under test. This epic covers the web init-script seeding path, the mobile `omnipizza://` deep links, the state-injection API behind them, and the contracts (test ids, headers, error bodies, Appium text, API test suites) that automation depends on.
 
-Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82beadb82a6`, main `87966da` + 1). The 2026-10-28 fixes c55c5c5, 60774e3, b2179d9 and bbbd4ed are on `US-and-Improvements` (088c650) only; they are cited by sha and not verified at path:line here.
+Evidence basis: branch `worktree-agent-a6dd2f82beadb82a6` after merging `US-and-Improvements` (which carries origin/main and the 2026-10-28 fixes c55c5c5, 60774e3, b2179d9, bbbd4ed and 09a49fc). Line numbers are from the merged tree. Browser, Appium, CI and the test suites were not run (no servers may be started), so those results are Unverified.
 
 | ID | Title | Layer | Status |
 | :--- | :--- | :--- | :--- |
@@ -13,7 +13,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 | US-ATM-002-MOB | Select a market and its default language with `market` | MOB | Done |
 | US-ATM-002-UX | Arabic (SA) renders right-to-left on entry | UX | Done |
 | US-ATM-003-API | Seed, upsert, remove and read the session cart | API | Done |
-| US-ATM-004-API | `GET /api/cart` omits toppings and drops unknown pizzas | API | Found |
+| US-ATM-004-API | `GET /api/cart` silently drops unknown pizzas | API | Found |
 | US-ATM-005-WEB | Checkout hydrates its cart from `GET /api/cart` | WEB | Done |
 | US-ATM-005-MOB | `hydrateCart` clears the local cart and Checkout hydrates | MOB | Done |
 | US-ATM-006-API | Read and reset the session with `/api/session` | API | Done |
@@ -32,7 +32,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 | US-ATM-014-MOB | `detoxCountryCode` launch argument overrides the country header | MOB | Done |
 | US-ATM-015-API | `X-Country-Code` is required and validated | API | Done |
 | US-ATM-016-API | `X-Language` is documented as required but is optional | API | Found |
-| US-ATM-017-API | Error body shapes are not uniform and only one is documented | API | Found |
+| US-ATM-017-API | Error body shapes are not uniform; unknown-route 404 undocumented | API | Found |
 | US-ATM-018-API | Swagger UI, ReDoc and OpenAPI JSON are served | API | Done |
 | US-ATM-019-API | Vitest API and golden suites run against a live backend | API | Done |
 | US-ATM-020-API | Legacy Schemathesis contract test does not match its pins | API | Found |
@@ -52,7 +52,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given `omnipizza-release` in localStorage differs from `VITE_APP_RELEASE` (default `"dev"`), when the store module loads, then `token`, `username` and `omnipizza-auth` are removed; a seed must therefore also write `omnipizza-release`.
 4. Given a direct navigation to `/checkout`, when the lazy route chunk is still loading, then the `route-loading` fallback is shown until the page mounts.
 
-**Evidence**: `frontend/src/store.js:5-24` (release guard), `frontend/src/store.js:33-34` (token/username initial state), `frontend/src/store.js:62` (persist key `omnipizza-auth`), `frontend/src/services/httpClient.js:23-31` (JWT gate at line 30), `frontend/src/routes/ProtectedRoute.jsx:5-14`, `frontend/src/App.jsx:44`, `ATOMIC_WEB_TESTING.md:88`, `ATOMIC_WEB_TESTING.md:103-108` (silent-wipe gotcha), `ATOMIC_WEB_TESTING.md:167-170` (seed recipe).
+**Evidence**: `frontend/src/store.js:5-24` (release guard), `frontend/src/store.js:33-34` (token/username initial state), `frontend/src/store.js:70` (persist key `omnipizza-auth`), `frontend/src/services/httpClient.js:23-31` (JWT gate at line 30), `frontend/src/routes/ProtectedRoute.jsx:5-14`, `frontend/src/App.jsx:44`, `ATOMIC_WEB_TESTING.md:88`, `ATOMIC_WEB_TESTING.md:103-108` (silent-wipe gotcha), `ATOMIC_WEB_TESTING.md:167-170` (seed recipe).
 **Notes**: The release guard was added in 48eaab5 (2026-02-08). Browser behaviour not run in this pass (Unverified in a browser); the statements are from code paths and the guide.
 
 ---
@@ -70,7 +70,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given a token is in the store, when a request is sent, then `Authorization: Bearer <token>` is added unless the caller set one.
 4. Given the app process restarts, then the token is gone, because the store is not persisted; the link must be re-issued on each launch.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:90-92` (token first), `:135-149` (cold and warm start), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/api/client.ts:44-46`, `frontend-mobile/src/store/useAppStore.ts:114` (`setToken`); no `persist` or `AsyncStorage` in `useAppStore.ts` (grep).
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:90-92` (token first), `:135-149` (cold and warm start), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/api/client.ts:46-47`, `frontend-mobile/src/store/useAppStore.ts:116` (`setToken`); no `persist` or `AsyncStorage` in `useAppStore.ts` (grep).
 **Notes**: `resetSession` in the same URL returns early and skips this step (see US-ATM-006-MOB). The deep-link route table is in `frontend-mobile/src/navigation/linking.ts:36-47`.
 
 ---
@@ -88,7 +88,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given `country_code` in lowercase (`"sa"`), then the response is 422 with a `{"detail": [...]}` enum error (verified in TestClient); the header `X-Country-Code` is case-insensitive, so the two inputs disagree.
 4. Given an invalid body value (`"ZZ"`), then the response is 422 with the allowed values listed (verified).
 
-**Evidence**: `backend/test_api.py:34-56`, `backend/database.py:170-174`, `backend/models.py:172-174` (enum body field), `backend/middleware.py:19-21` (header upper-cased), `backend/test_api.py:40-45` (docstring: market does not clear cart).
+**Evidence**: `backend/test_api.py:34-56`, `backend/database.py:170-174`, `backend/models.py:173-175` (enum body field), `backend/middleware.py:19-21` (header upper-cased), `backend/test_api.py:40-45` (docstring: market does not clear cart).
 **Notes**: Observed under the venv's fastapi 0.139.0 / starlette 1.3.1, not the pins in `backend/requirements.txt:1`. The PRD §13.7 mobile example passes `lang=es`, which the app ignores (see US-ATM-002-MOB).
 
 ---
@@ -101,11 +101,11 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: 2026-04-06 · Commit: e6628e3 (atomic web guide with the seed recipe)
 
 **Acceptance criteria**
-1. Given the documented seed writes `omnipizza-country` with `countryCode: "SA"` and `language: "ar"` (`ATOMIC_WEB_TESTING.md:151-157`), when the store rehydrates, then the UI language is `ar` (persist name `omnipizza-country`, `frontend/src/store.js:150`).
+1. Given the documented seed writes `omnipizza-country` with `countryCode: "SA"` and `language: "ar"` (`ATOMIC_WEB_TESTING.md:151-157`), when the store rehydrates, then the UI language is `ar` (persist name `omnipizza-country`, `frontend/src/store.js:158`).
 2. Given the same seed and a token, then `<html dir="rtl">` is set (`frontend/src/App.jsx:29-33`) and `X-Language` is `ar` (`frontend/src/services/httpClient.js:28`).
-3. Given only the flat `countryCode` key is seeded (the guide's flat-mirror row, `ATOMIC_WEB_TESTING.md:95`), then the language stays `en`: the store initialises `language` to `"en"` (`frontend/src/store.js:96-104`), and only `setCountryCode` maps market to language (`store.js:110-131`, called from `frontend/src/pages/Login.jsx:80`).
+3. Given only the flat `countryCode` key is seeded (the guide's flat-mirror row, `ATOMIC_WEB_TESTING.md:95`), then the language stays `en`: the store initialises `language` to `"en"` (`frontend/src/store.js:100-112`), and only `setCountryCode` maps market to language (`store.js:118-139`, called from `frontend/src/pages/Login.jsx:80`).
 
-**Evidence**: `ATOMIC_WEB_TESTING.md:88-95`, `:143-157`; `frontend/src/store.js:96-104`, `:110-131`, `:150`; `frontend/src/pages/Login.jsx:80`; `frontend/src/App.jsx:29-33`; `frontend/src/services/httpClient.js:27-28`.
+**Evidence**: `ATOMIC_WEB_TESTING.md:88-95`, `:143-157`; `frontend/src/store.js:100-112`, `:110-131`, `:150`; `frontend/src/pages/Login.jsx:80`; `frontend/src/App.jsx:29-33`; `frontend/src/services/httpClient.js:27-28`.
 **Notes**: The guide's seed recipe covers language, so the gap is limited to seeds that write only the flat `countryCode` key (AC 3). This was a Found in the first draft and was recast after the review: the procedure is documented. Code-path reading; the browser run is Unverified. Mobile applies the market language on the `market` param (US-ATM-002-MOB).
 
 ---
@@ -123,8 +123,8 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given `lang=fr` or `lang=de` on a non-CH market, then the value is ignored, because `setLanguage` returns early unless the country is CH.
 4. Given `market=CH` and `lang=fr`, then the language becomes `fr` and the `chLanguage` preference is updated.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:8`, `:95-107`; `frontend-mobile/src/store/useAppStore.ts:75-81` (`MARKET_LANG`), `:99-105` (`setCountry`), `:107-112` (`setLanguage` guard); `frontend-mobile/src/navigation/linking.ts:16-21` (param contract).
-**Notes**: PRD §13.7 example (`lang=es`) is a no-op; the app accepts only `fr` and `de` (`useDeepLinkParams.ts:105`), so the PRD example is drift (`documents/Product_Requirement_Doc.md:319`).
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:8`, `:95-107`; `frontend-mobile/src/store/useAppStore.ts:77-83` (`MARKET_LANG`), `:99-105` (`setCountry`), `:109-114` (`setLanguage` guard); `frontend-mobile/src/navigation/linking.ts:16-21` (param contract).
+**Notes**: PRD §13.7 example (`lang=es`) is a no-op; the app accepts only `fr` and `de` (`useDeepLinkParams.ts:105`), so the PRD example is drift (`documents/Product_Requirement_Doc.md:320`).
 
 ---
 
@@ -141,7 +141,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given web is authenticated with language `ar`, then `<html dir="rtl">` and `lang="ar"` are set; the login view is always LTR English.
 4. Given web is seeded with only the flat `countryCode` key, then the RTL expectation is not met (US-ATM-002-WEB AC 3); the documented `omnipizza-country` seed meets it.
 
-**Evidence**: `frontend-mobile/src/hooks/useRTL.ts:22-30`, `frontend-mobile/App.tsx:34`, `frontend/src/App.jsx:24-33`.
+**Evidence**: `frontend-mobile/src/hooks/useRTL.ts:22-30`, `frontend-mobile/App.tsx:31`, `frontend/src/App.jsx:24-33`.
 **Notes**: Arabic script is bidi by default; `useRTL` drives only alignment, row order and writing direction (`useRTL.ts:11-13`).
 
 ---
@@ -164,21 +164,21 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 ---
 
-### US-ATM-004-API · `GET /api/cart` omits toppings and drops unknown pizzas
+### US-ATM-004-API · `GET /api/cart` silently drops unknown pizzas
 **As a** QA engineer **I want** `GET /api/cart` to return every seeded line with its toppings **so that** hydration tests can check the full cart.
 
 - Layer: API · Epic: ATM · Persona: QA · Market: all
 - Status: Found
-- Done on: n/a (gap)
+- Done on: n/a (gap for unknown pizzas; toppings part fixed in bbbd4ed, 2026-10-28)
 
 **Acceptance criteria**
-1. Expected: each enriched item carries the seeded `toppings`. Actual: `EnrichedCartItem` has no `toppings` field, and `get_enriched_cart` does not copy it (verified: a line seeded with `toppings: ["t1"]` comes back without the key).
-2. Expected: an unknown `pizza_id` is rejected or flagged. Actual: `POST /api/cart` accepts `p99` (200) and `GET /api/cart` silently omits it (verified: returns `[]`).
-3. Consequence: web and mobile hydration set `toppings: []` for every line, so toppings are lost in both apps.
-4. Fix on another branch: bbbd4ed (toppings in the GET item shape) and 91d036c (docs) are on `US-and-Improvements` only; not verifiable at path:line in this checkout.
+1. Expected: each enriched item carries the seeded `toppings`. Actual (fixed by bbbd4ed, 2026-10-28, now on this branch): `EnrichedCartItem` has the `toppings` field and `get_enriched_cart` copies it; a line seeded with `toppings: ["t1"]` comes back with `["t1"]` (verified on the merged tree).
+2. Expected: an unknown `pizza_id` is rejected or flagged. Actual: `POST /api/cart` accepts `p99` (200) and `GET /api/cart` silently omits it (verified on the merged tree: the response lists only the known line).
+3. Web and mobile hydration now read the toppings and price them (`frontend/src/pages/Checkout.jsx:143`, `:157`; `frontend-mobile/src/screens/CheckoutScreen.tsx:94`, `:112-113`).
+4. The PRD (`documents/Product_Requirement_Doc.md:103`) and `API_EXAMPLES.md:406` list `toppings` in the GET item shape (91d036c, 2026-10-28).
 
-**Evidence**: `backend/models.py:68-78` (`EnrichedCartItem`), `backend/models.py:182-185` (`TestSessionStateResponse` uses `CartItem`, which has toppings), `backend/database.py:235-237` (skip), `:251-262` (fields emitted), `frontend/src/pages/Checkout.jsx:171`, `frontend-mobile/src/screens/CheckoutScreen.tsx:118`.
-**Notes**: The state-injection endpoints return toppings (`TestSessionStateResponse`), but `GET /api/cart` does not, so the two read paths disagree.
+**Evidence**: `backend/models.py:68-79` (`EnrichedCartItem`, toppings at `:73`), `backend/database.py:236-237` (skip of unknown pizzas), `:251-263` (fields emitted, toppings at `:256`), `backend/test_api.py:90-116` (GET handler), `frontend/src/pages/Checkout.jsx:143`, `frontend-mobile/src/screens/CheckoutScreen.tsx:94`.
+**Notes**: Before the merge, `GET /api/cart` lacked toppings while the state-injection endpoints returned them (`TestSessionStateResponse`). The golden net pins `toppings: []` for three seeded lines (`tests/golden.test.ts:325`, `:349`, `:373`). The gap left is AC 2.
 
 ---
 
@@ -195,8 +195,8 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given the local cart already has items, then no request is sent (normal shopping flow wins).
 4. Given the request fails, then the local cart is left unchanged.
 
-**Evidence**: `frontend/src/pages/Checkout.jsx:133-187` (effect), `:142` (skip guard), `:144` (request), `:171` (`toppings: []`), `:181-183` (fallback); `frontend/src/services/cart.service.js:4`.
-**Notes**: Toppings are dropped (US-ATM-004-API). `logout` in `frontend/src/store.js:43-60` does not clear `omnipizza-cart` in this checkout; 60774e3 (web logout clears cart and last order) is on `US-and-Improvements` only.
+**Evidence**: `frontend/src/pages/Checkout.jsx:125-181` (effect), `:135` (skip guard), `:137` (request), `:143` (toppings read), `:157` (price with toppings), `:175-177` (fallback); `frontend/src/services/cart.service.js:4`.
+**Notes**: Toppings are read from the response since bbbd4ed (US-ATM-004-API). Logout clears the cart and the last order since 60774e3 (2026-10-28, on this branch): `frontend/src/store.js:56-61`.
 
 ---
 
@@ -213,8 +213,8 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given the token arrives late (deep link), then the hydration effect re-runs because it depends on `[token]`.
 4. Given `market` and `hydrateCart` in one URL, then `market` runs first and clears the cart, and `hydrateCart` then has no conflict.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:109-112`, `frontend-mobile/src/screens/CheckoutScreen.tsx:76-134` (`:85` skip, `:87` request, `:126` set, `:134` deps), `frontend-mobile/src/store/useAppStore.ts:99-105`.
-**Notes**: Toppings are dropped at `CheckoutScreen.tsx:118` (US-ATM-004-API). Hydration failures are swallowed (`:128-130`).
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:109-112`, `frontend-mobile/src/screens/CheckoutScreen.tsx:77-137` (`:86` skip, `:88` request, `:94` toppings, `:112-113` toppings price, `:129` set, `:137` deps), `frontend-mobile/src/store/useAppStore.ts:101-106`.
+**Notes**: Toppings are read at `CheckoutScreen.tsx:94` and priced at `:112-113` since bbbd4ed (US-ATM-004-API). Hydration failures are swallowed (`:131-133`).
 
 ---
 
@@ -248,7 +248,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 3. Given other params in the same URL (`accessToken`, `market`, `hydrateCart`, `orderId`), then they are ignored, because the function returns early.
 4. Given a cold or warm start, then the same handler runs.
 
-**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:78-86` (early return at `:85`), `frontend-mobile/src/store/useAppStore.ts:118-128`, `frontend-mobile/src/navigation/linking.ts:33`.
+**Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:78-86` (early return at `:85`), `frontend-mobile/src/store/useAppStore.ts:120-130`, `frontend-mobile/src/navigation/linking.ts:33`.
 **Notes**: A `resetSession` fired while a test is running logs the session out by design; that timing is a harness concern. The server-side reset is US-ATM-006-API.
 
 ---
@@ -265,7 +265,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 2. Given the call, then `X-Country-Code` is not read (market-independent).
 3. Given `POST /api/session/reset`, then the profile returns to the empty default (verified).
 
-**Evidence**: `backend/test_api.py:168-190`, `backend/models.py:188-194` (`TestProfileSeedRequest`), `backend/database.py:119-135` (reset and seed methods).
+**Evidence**: `backend/test_api.py:168-190`, `backend/models.py:189-195` (`TestProfileSeedRequest`), `backend/database.py:119-135` (reset and seed methods).
 **Notes**: Endpoint is missing from PRD §8 (`documents/Product_Requirement_Doc.md:168-191`) and from the CLAUDE.md description of `test_api.router`.
 
 ---
@@ -285,7 +285,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 5. Given a deep link, then toppings cannot be set: only `initialConfig` provides them.
 
 **Evidence**: `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:71-108` (params, lookup, size, toppings), `:85-98` (fetch and fallbacks), `frontend-mobile/src/navigation/linking.ts:51-57` (alias), `frontend-mobile/src/navigation/types.ts:7-31` (params; no toppings deep-link key).
-**Notes**: The web app has no builder route; the web builder is a modal on the catalog (`frontend/src/components/PizzaCustomizerModal.jsx`), so this is mobile only.
+**Notes**: The web app has no builder route; the web builder is a modal on the catalog (`frontend/src/components/PizzaCustomizerModal.jsx`), so this is mobile only. Since 09a49fc (2026-10-28, on this branch), Checkout's Edit button opens this screen in `mode: "edit"` (`frontend-mobile/src/screens/CheckoutScreen.tsx:699-706`) and saves through `editCartItem` (`frontend-mobile/src/screens/PizzaBuilderScreen.tsx:135-136`).
 
 ---
 
@@ -318,7 +318,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given `orderId`, then `orderService.getOrder` runs and the result is stored with `setLastOrder`.
 2. Given the request fails, then the screen still renders; the warning is logged only in `__DEV__`.
 3. Given the path `order-success`, then the route maps to `OrderSuccess` (screen name `OrderSuccess`).
-4. Given no token, then the request fails silently; the app has no 401 handler in this checkout.
+4. Given no token, then the request fails and the hook logs it only in `__DEV__`. A 401 on an authenticated request is handled by the response interceptor (US-ATM-010-MOB AC 4).
 
 **Evidence**: `frontend-mobile/src/hooks/useDeepLinkParams.ts:119-130`, `frontend-mobile/src/navigation/linking.ts:44`, `frontend-mobile/src/navigation/types.ts:38-42`, `frontend-mobile/src/screens/OrderSuccessScreen.tsx:40`.
 **Notes**: Token ordering: `accessToken` is applied before `orderId` (`useDeepLinkParams.ts:88-92` then `:119`).
@@ -348,16 +348,16 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 - Layer: MOB · Epic: ATM · Persona: QA · Market: all
 - Status: Done
-- Done on: 2026-04-06 · Commit: e6628e3 (deep-link routing for atomic entry); Login auto-redirect rule 03b03e8 (2026-04-17)
+- Done on: 2026-04-06 · Commit: e6628e3 (deep-link routing for atomic entry); Login auto-redirect rule 03b03e8 (2026-04-17); 401 handling c55c5c5 (2026-10-28, on this branch)
 
 **Acceptance criteria**
 1. Given no token, when `omnipizza://checkout` opens, then the Checkout screen mounts; the stack registers all screens regardless of auth.
 2. Given a token and only Login on the stack, then Login replaces itself with Catalog; with a deep-linked screen on top it does not redirect.
 3. Given a failed catalog or hydration call, then the screen stays mounted; errors are caught.
-4. Given a 401 from any request, then nothing redirects to Login: no response interceptor exists in this checkout.
+4. Given a 401 on an authenticated request (a token is set), then the app logs out and resets the stack to Login (`frontend-mobile/src/api/client.ts:53-64`, `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`). Given a 401 with no token (a login attempt), then the screen stays and renders its own error.
 
-**Evidence**: `frontend-mobile/App.tsx:82-91` (screens; `initialRouteName` at `:83`), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:94-98`, `frontend-mobile/src/screens/CheckoutScreen.tsx:128-130`, `frontend-mobile/src/api/client.ts:34-49` (request interceptor only; no `401` string under `frontend-mobile/src`).
-**Notes**: 401 handling (`src/api/unauthorized.ts`, navigationRef moved to `src/navigation/navigationRef.ts`) is c55c5c5 on `US-and-Improvements`; not in this checkout, so not verifiable here.
+**Evidence**: `frontend-mobile/App.tsx:83-88` (screens; `initialRouteName` at `:80`), `frontend-mobile/src/screens/LoginScreen.tsx:57-66`, `frontend-mobile/src/screens/PizzaBuilderScreen.tsx:94-98`, `frontend-mobile/src/screens/CheckoutScreen.tsx:131-133`, `frontend-mobile/src/api/client.ts:36-51` (request interceptor), `:53-64` (response interceptor), `frontend-mobile/src/api/unauthorized.ts:13-19`, `frontend-mobile/src/navigation/navigationRef.ts:8-12`.
+**Notes**: 401 handling is c55c5c5 (2026-10-28), now on this branch. `navigationRef` moved to `src/navigation/navigationRef.ts` so the API client can navigate without importing `App.tsx`; `App.tsx:15` imports it and `:23` re-exports it. The "no auth guard" statement above concerns screen access only.
 
 ---
 
@@ -371,7 +371,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 **Acceptance criteria**
 1. Given a viewport at or above 768px, when `tid(base)` runs, then `-desktop` is appended; below, `-responsive` (`useResponsive.js:3`, `:7`, `:17-19`).
 2. Given `tid("username")` on login, then the id is `username-desktop` or `username-responsive` (`frontend/src/pages/Login.jsx:155`).
-3. Given a literal id, then no suffix is added: `logout-btn` (`frontend/src/components/Navbar.jsx:146`), `delete-account-btn` (`frontend/src/pages/Profile.jsx:156`), `category-${id}` (`frontend/src/components/CategoryFilter.jsx:21`), `size-${id}` (`frontend/src/components/PizzaCustomizerModal.jsx:207`), `screen-order-success` (`frontend/src/pages/OrderSuccess.jsx:32`), `route-loading` (`frontend/src/App.jsx:44`).
+3. Given a literal id, then no suffix is added: `logout-btn` (`frontend/src/components/Navbar.jsx:146`), `delete-account-btn` (`frontend/src/pages/Profile.jsx:172`), `category-${id}` (`frontend/src/components/CategoryFilter.jsx:21`), `size-${id}` (`frontend/src/components/PizzaCustomizerModal.jsx:207`), `screen-order-success` (`frontend/src/pages/OrderSuccess.jsx:32`), `route-loading` (`frontend/src/App.jsx:44`).
 4. Then consumers must know, per id, whether a suffix applies.
 
 **Evidence**: as cited; the rule is in `frontend/src/hooks/useResponsive.js`.
@@ -387,13 +387,13 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: 2026-02-25 · Commit: 37082da (accessibilityLabel and testID across elements)
 
 **Acceptance criteria**
-1. Given a root screen, then its id is `screen-<name>` (`frontend-mobile/src/screens/CheckoutScreen.tsx:282`, `LoginScreen.tsx:112`, `PizzaBuilderScreen.tsx:150`).
+1. Given a root screen, then its id is `screen-<name>` (`frontend-mobile/src/screens/CheckoutScreen.tsx:285`, `LoginScreen.tsx:112`, `PizzaBuilderScreen.tsx:150`).
 2. Given a text input, then the id is `input-<name>` (`LoginScreen.tsx:161`, `:169`).
 3. Given a tappable size pill, then the id is `btn-size-<id>` (`PizzaBuilderScreen.tsx:244`).
 4. Given the bottom navigation, then items use `nav-<name>` (`frontend-mobile/src/components/BottomNavBar.tsx:57-60`), a prefix not listed in the PRD.
 
 **Evidence**: as cited.
-**Notes**: The PRD prefix table is `documents/Product_Requirement_Doc.md:263-271`; the mismatch is US-ATM-012-MOB.
+**Notes**: The PRD prefix table is `documents/Product_Requirement_Doc.md:264-272`; the mismatch is US-ATM-012-MOB.
 
 ---
 
@@ -405,11 +405,11 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: n/a (gap)
 
 **Acceptance criteria**
-1. Expected: `documents/Product_Requirement_Doc.md:248-259` names ids such as `input-username`, `btn-logout`, `btn-delete-account`, `card-pizza-{id}`, `btn-size-{size}` and `btn-category-{id}`.
+1. Expected: `documents/Product_Requirement_Doc.md:249-260` names ids such as `input-username`, `btn-logout`, `btn-delete-account`, `card-pizza-{id}`, `btn-size-{size}` and `btn-category-{id}`.
 2. Actual: I queried 17 documented web examples in `frontend/src`; only `courier-info` (`frontend/src/pages/OrderSuccess.jsx:98`) appears as a literal id. The rest are either suffixed by `tid()` or named differently (`logout-btn`, `delete-account-btn`, `pizza-card-<id>`, `size-<id>`, `category-<id>`, `add-to-cart-<id>`).
 3. Expected: the table and the code agree. Actual: they do not; the table predates the suffix and naming work.
 
-**Evidence**: `documents/Product_Requirement_Doc.md:248-259`; code lines in US-ATM-011-WEB.
+**Evidence**: `documents/Product_Requirement_Doc.md:249-260`; code lines in US-ATM-011-WEB.
 **Notes**: Spot-check only; not exhaustive. The PRD also says the web table is the one to use for selectors, so the drift matters for test authors.
 
 ---
@@ -422,7 +422,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: n/a (gap)
 
 **Acceptance criteria**
-1. Expected: `documents/Product_Requirement_Doc.md:263-271` lists prefixes `btn-`, `input-`, `text-`, `view-`, `img-`, `card-`, `screen-`, with the example `btn-logout`.
+1. Expected: `documents/Product_Requirement_Doc.md:264-272` lists prefixes `btn-`, `input-`, `text-`, `view-`, `img-`, `card-`, `screen-`, with the example `btn-logout`.
 2. Actual: no `btn-logout` exists under `frontend-mobile/src`; the bottom-nav logout item is `nav-logout` (`BottomNavBar.tsx:43`, `:57-60`).
 3. Actual: the `nav-` prefix (and `icon-nav-`, `view-nav-icon-` labels at `BottomNavBar.tsx:68-69`) is absent from the PRD table.
 4. Expected: table and code agree. Actual: they do not.
@@ -462,7 +462,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 2. Given a request, then `X-Country-Code` = explicit header, else `detoxCountryCode`, else the store country, else `"MX"`; the launch argument beats the store.
 3. Given the name, then it is vestigial: no Detox dependency remains (141776a removed `.detoxrc.js` and `e2e/`), and the reader stays because the published APK depends on it.
 
-**Evidence**: `frontend-mobile/src/api/client.ts:6-25`, `:41`; `ATOMIC_MOBILE_TESTING.md:93-95`; commit 141776a (2026-07-29).
+**Evidence**: `frontend-mobile/src/api/client.ts:8-27`, `:43`; `ATOMIC_MOBILE_TESTING.md:93-95`; commit 141776a (2026-07-29).
 **Notes**: Do not remove the reader without a new APK (141776a message).
 
 ---
@@ -505,7 +505,7 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 
 ---
 
-### US-ATM-017-API · Error body shapes are not uniform and only one is documented
+### US-ATM-017-API · Error body shapes are not uniform; unknown-route 404 undocumented
 **As a** QA engineer **I want** one documented error body for every failure **so that** assertions do not depend on which layer failed.
 
 - Layer: API · Epic: ATM · Persona: QA · Market: all
@@ -516,12 +516,12 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 1. Given an `HTTPException`, then the body is `{error, status_code, timestamp}` (`backend/main.py:75-84`; verified 401, 400, 403, 404).
 2. Given a request validation failure (422), a malformed JSON body, or an unknown route (404), then the body is FastAPI's `{"detail": ...}` (verified: 422 enum; 422 `json_invalid`; 404 `{"detail":"Not Found"}`).
 3. Given an unhandled exception, then the body is `{error:"Internal server error", detail: str(exc), timestamp}` (`backend/main.py:86-95`); PRD §9 documents this.
-4. Expected: PRD §9 documents every shape. Actual: `documents/Product_Requirement_Doc.md:193-197` covers shapes 1 and 3 only.
-5. `ErrorResponse` (`backend/models.py:166-169`) is defined but not used by any handler (grep).
+4. Expected: PRD §9 documents every shape. Actual: `documents/Product_Requirement_Doc.md:194-196` documents shape 1 (`:194`), the 422 shape (`:195`, added by b2179d9, 2026-10-28) and shape 3 (`:196`). The unknown-route 404 shape is not documented; the PRD's only `Not Found` is NF-ORDER-002 (`:217`).
+5. `ErrorResponse` (`backend/models.py:167-170`) is defined but not used by any handler (grep).
 6. `tests/test_contract.py:86` reads `response.json()["detail"]` for the locked-out 403, but that body uses `error` (verified), so the legacy test asserts the wrong key.
 
 **Evidence**: as cited.
-**Notes**: Fixed on `US-and-Improvements` as b2179d9 (PRD §9 documents the 422 shape; English ZIP message); not in this checkout. Observed under fastapi 0.139.0; `backend/response_docs.py:11-17` describes a 400 for malformed bodies, which matches the pinned fastapi 0.109.0 (Unverified here).
+**Notes**: The ZIP message is English now (`backend/models.py:119`) and the 422 shape is documented, both from b2179d9 (2026-10-28, on this branch). Observed under fastapi 0.139.0; `backend/response_docs.py:11-17` describes a 400 for malformed bodies, which matches the pinned fastapi 0.109.0 (Unverified here).
 
 ---
 
@@ -550,8 +550,8 @@ Evidence basis: this worktree's HEAD `9ca3767` (branch `worktree-agent-a6dd2f82b
 - Done on: 2026-02-18 · Commit: 5ac7554 (Vitest API tests); golden net e994fae (2026-07-12)
 
 **Acceptance criteria**
-1. Given `tests/api.test.ts`, then it defines 12 `describe` suites (lines 27-605), covering login, cart and profile isolation, pizzas, checkout, country rules, debug endpoints, atomic profile setup, order status and PATCH cancellation.
-2. Given `tests/golden.test.ts`, then it defines 13 `describe` blocks (lines 76-562) pinning checkout totals per market against a ground-truth table captured 2026-07-12 (`golden.test.ts:39-74`).
+1. Given `tests/api.test.ts`, then it defines 13 `describe` suites (lines 27-659), covering login, cart and profile isolation, cart toppings (line 127, new in the merge), pizzas, checkout, country rules, debug endpoints, atomic profile setup, order status and PATCH cancellation.
+2. Given `tests/golden.test.ts`, then it defines 13 `describe` blocks (lines 76-565) pinning checkout totals per market against a ground-truth table captured 2026-07-12 (`golden.test.ts:39-74`).
 3. Given the Vitest config, then `fileParallelism: false` runs files sequentially (`tests/vitest.config.ts:13`).
 4. Given a target, then `API_BASE_URL` (default `http://localhost:8000`) selects it (`tests/golden.test.ts:4`; `tests/README.md:47`).
 
