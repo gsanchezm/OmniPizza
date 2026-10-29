@@ -3,6 +3,7 @@ import PrimaryButton from './PrimaryButton';
 import { useT } from '../i18n';
 import { useCountryStore } from '../store';
 import { SIZE_OPTIONS } from '../constants/pizza';
+import { FALLBACK_DELIVERY_FEE_BY_COUNTRY } from '../constants/market';
 import { getRateFromPizza } from '../utils/pizzaPricing';
 
 function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
@@ -12,7 +13,12 @@ function CartSidebar({ cartItems, onCheckout, onRemove, onUpdateQty }) {
   const cartCurrency = cartItems[0]?.currency || marketCurrency;
   const cartSymbol = cartItems[0]?.currency_symbol || '';
   const subtotal = cartItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-  const deliveryFee = 2.50;
+  const countryCode = useCountryStore((s) => s.countryCode);
+  const countryInfo = useCountryStore((s) => s.countryInfo);
+  const apiDeliveryFee = Number(countryInfo?.delivery_fee);
+  const deliveryFee = Number.isFinite(apiDeliveryFee)
+    ? apiDeliveryFee
+    : FALLBACK_DELIVERY_FEE_BY_COUNTRY[countryCode] ?? 0;
   const total = subtotal + deliveryFee;
 
   const format = (val) => {

@@ -10,6 +10,7 @@ import {
 } from "../store";
 import { placeOrder } from "../features/checkout/useCases/placeOrder";
 import { SIZE_OPTIONS } from "../constants/pizza";
+import { FALLBACK_DELIVERY_FEE_BY_COUNTRY } from "../constants/market";
 import { computeUnitPrice, getRateFromPizza } from "../utils/pizzaPricing";
 import { useRefreshCartPrices } from "../hooks/useRefreshCartPrices";
 import { cartService } from "../services/cart.service";
@@ -87,14 +88,6 @@ const FALLBACK_TAX_RATE_BY_COUNTRY = {
   CH: 0.081,
   JP: 0.1,
   SA: 0.15,
-};
-
-const FALLBACK_DELIVERY_FEE_BY_COUNTRY = {
-  MX: 35.1,
-  US: 2,
-  CH: 1.56,
-  JP: 316,
-  SA: 7.5,
 };
 
 const FALLBACK_TIP_OPTIONS_BY_COUNTRY = {
